@@ -1,0 +1,5042 @@
+1
+00:00:00,540 --> 00:00:15,509
+好的，今天的话题是分布式交易，这些交易确实是为了
+all right today's topic is distributed
+transactions and these come in really to
+
+2
+00:00:15,509 --> 00:00:20,010
+实施部分，这就是我将介绍它们的第一部分
+implementation pieces and that's how
+I'll cover them the first big piece of
+
+3
+00:00:20,010 --> 00:00:35,100
+并发控制第二个是原子提交，也是分布式的原因
+concurrency control the second is atomic
+commit and the reason why distributive
+
+4
+00:00:35,100 --> 00:00:38,640
+交易的出现是，这对于有大量交易的人来说非常常见
+transactions come up is that it's very
+frequent for people with large amounts
+
+5
+00:00:38,640 --> 00:00:43,980
+数据最终在许多不同的服务器上拆分或分片数据，因此
+of data to end up splitting or sharding
+the data over many different servers so
+
+6
+00:00:43,980 --> 00:00:49,320
+也许如果您经营一家银行，例如，您一半的银行余额
+maybe if you're running a bank for
+example the bank balances for half your
+
+7
+00:00:49,320 --> 00:00:53,040
+客户是一台服务器，另一半是银行余额
+customers are one server and the bank
+balances for the other half are on a
+
+8
+00:00:53,040 --> 00:00:56,610
+不同的服务器让我们做到这一点，例如将负载分为处理负载和
+different server let's do it like split
+the load both the processing load and
+
+9
+00:00:56,610 --> 00:01:02,190
+还有其他方面的空间需求，也许您正在录制
+the space requirements this comes up for
+other things too maybe you're recording
+
+10
+00:01:02,190 --> 00:01:07,380
+您知道某个网站上的文章的票数很重要
+vote counts on articles at a website you
+know the maybe there's so many millions
+
+11
+00:01:07,380 --> 00:01:11,580
+数百万票数的一半是，并且在一台服务器上， 
+millions of articles half the vote
+counts are and are on one server and
+
+12
+00:01:11,580 --> 00:01:18,510
+一半或一半以上的癌症，但有些手术需要触摸修改或
+half the vote cancer or another but some
+operations require touching modifying or
+
+13
+00:01:18,510 --> 00:01:21,659
+在多个不同的服务器上读取数据，所以如果我们在做银行
+reading data on multiple different
+servers so if we're doing a bank
+
+14
+00:01:21,659 --> 00:01:25,440
+从一个客户转移到另一口井，他们的余额可能不同
+transfer from one customer into another
+well their balances may be on different
+
+15
+00:01:25,440 --> 00:01:29,490
+服务器，因此为了达到平衡，我们必须修改数据读取和
+servers and therefore in order to do the
+balance we have to modify data read and
+
+16
+00:01:29,490 --> 00:01:37,290
+在两台不同的服务器上写入数据，我们真的很想以一种方式构建
+write data on two different servers and
+we'd really like to or one way building
+
+17
+00:01:37,290 --> 00:01:40,619
+这些系统，我们将在稍后的课程中以其他方式构建其他系统
+these systems and we'll see others later
+on in the course one way to build the
+
+18
+00:01:40,619 --> 00:01:46,020
+系统只是试图隐藏将数据拆分为多个数据的复杂性
+system just try to hide the complexity
+of splitting this data across multiple
+
+19
+00:01:46,020 --> 00:01:51,810
+服务器尝试向应用程序程序员隐藏它，这就像
+servers try to hide it from the
+application programmer and this is like
+
+20
+00:01:51,810 --> 00:01:56,939
+数十年来，传统上一直是数据库问题，因此
+traditionally has been a database
+concern for for many decades and so a
+
+21
+00:01:56,939 --> 00:02:00,840
+当今的许多材料都起源于数据库，但是这些思想已被使用
+lot of today's material originated with
+databases but the ideas have been used
+
+22
+00:02:00,840 --> 00:02:04,650
+在分布式系统中更为广泛，您不必将其称为
+much more widely in distributed systems
+which you wouldn't necessarily call a
+
+23
+00:02:04,650 --> 00:02:13,019
+人们通常打包并发的传统数据库
+traditional database the way people sort
+of usually package up concurrency
+
+24
+00:02:13,019 --> 00:02:15,739
+控制加
+control plus
+
+25
+00:02:16,620 --> 00:02:30,959
+原子提交在抽象上称为交易，我们之前已经看到过
+atomic commit is in abstraction called a
+transaction which we've seen before and
+
+26
+00:02:30,959 --> 00:02:36,519
+这个想法是，您认识的程序员有很多不同的操作可能
+the idea is that the programmer you know
+has a bunch of different operations may
+
+27
+00:02:36,519 --> 00:02:40,690
+在数据库中的不同记录上，他们希望所有这些操作
+be on different records in the database
+they'd like all those operations to be
+
+28
+00:02:40,690 --> 00:02:45,730
+单个单元的排序，不会因故障或其他观察而拆分
+sort of a single unit and not split by
+failures or by observation from other
+
+29
+00:02:45,730 --> 00:02:52,120
+活动和交易处理系统将需要
+activities and the transaction
+processing system will require the
+
+30
+00:02:52,120 --> 00:02:56,260
+程序员标记阅读顺序的开始和结束， 
+programmer to mark the beginning and the
+end of that sequence of reading and
+
+31
+00:02:56,260 --> 00:02:59,739
+编写和更新操作，以标记开始和结束
+writing and updating operations in order
+to mark the beginning and of the
+
+32
+00:02:59,739 --> 00:03:03,099
+交易和交易处理系统肯定会
+transaction and the transaction
+processing system has certainly will
+
+33
+00:03:03,099 --> 00:03:07,090
+提供有关开始和结束之间发生的某些保证
+provide certain guarantees about what
+happens between the beginning and the
+
+34
+00:03:07,090 --> 00:03:11,200
+结束，例如，假设我们正在运行
+end
+so for example supposing we're running
+
+35
+00:03:11,200 --> 00:03:19,299
+我们的银行，并且我们希望从用户X的帐户转帐到的帐户
+our bank and we want to do a transfer
+from account of user X to the account of
+
+36
+00:03:19,299 --> 00:03:23,910
+现在，整个用户的余额都从10开始，因此最初
+user wide now these balances from both
+of them start out as 10 so initially
+
+37
+00:03:23,910 --> 00:03:35,560
+暴露10 y等于10和x和y我的意思是成为数据库中的记录，我们
+expose 10 y equals 10 and x and y I'm
+mean to be records in a database and we
+
+38
+00:03:35,560 --> 00:03:40,239
+要转移，我们实际上会想象有两笔交易
+want to transfer we will actually
+imagine that there's two transactions
+
+39
+00:03:40,239 --> 00:03:44,829
+可能同时运行一个从帐户X转移美元的操作
+that might be running at the same time
+one to transfer a dollar from account X
+
+40
+00:03:44,829 --> 00:03:49,989
+到帐户Y和另一笔交易对所有帐户进行审计
+to account Y and the other transaction
+to do an audit of of all the accounts at
+
+41
+00:03:49,989 --> 00:03:53,410
+银行确保银行中的总金额永远不会
+the bank to make sure that the total
+amount of money in the bank never
+
+42
+00:03:53,410 --> 00:03:56,769
+会发生变化，因为毕竟，如果您进行转账，您应该知道总数不应
+changes because after all if you do
+transfers you know the total shouldn't
+
+43
+00:03:56,769 --> 00:04:01,180
+即使您在多个帐户之间转移资金也可以更改
+change even if you move money between
+accounts in order to express this with
+
+44
+00:04:01,180 --> 00:04:07,090
+交易我们可能有两个交易，第一个交易呼叫
+transactions we might have two
+transactions the first transaction call
+
+45
+00:04:07,090 --> 00:04:12,850
+ t1是程序员应该标记的传输标记。 
+it t1 is the transfer well mark the
+programmer is expected to mark the
+
+46
+00:04:12,850 --> 00:04:17,978
+以begin交易开始
+beginning of it with the begin
+transaction which all right at the
+
+47
+00:04:17,978 --> 00:04:23,919
+开始，然后对两个记录中两个记录的两个余额进行操作
+beginning and then the operations on the
+two balances on the two records in the
+
+48
+00:04:23,919 --> 00:04:27,130
+数据库，所以我们可以添加[音乐] 
+database so we might add
+[Music]
+
+49
+00:04:27,130 --> 00:04:42,669
+一个可能将余额X加一个，然后将Y加-1，然后我们需要标记结尾
+one might add one the balance X and add
+-1 to Y and then we need to mark the end
+
+50
+00:04:42,669 --> 00:04:49,220
+根据交易当前，我们可能有一笔要检查的交易
+by the transaction currently we might
+have a transaction that's going to check
+
+51
+00:04:49,220 --> 00:04:52,820
+所有余额对所有余额进行审计，以查找总金额或查看所有余额
+all the balance do an audit of all the
+balances find the sum or look at all the
+
+52
+00:04:52,820 --> 00:04:56,600
+余额确保它们加起来即使不改变也不会改变
+balances make sure they add up to the
+number that doesn't change despite
+
+53
+00:04:56,600 --> 00:05:04,570
+转账，所以我在考虑审计交易的第二笔交易
+transfers so the second transaction I'm
+thinking about the audit transaction
+
+54
+00:05:05,590 --> 00:05:13,430
+我们还需要标记起点和终点，这一次我们只是在阅读
+also we need to mark the beginning and
+end this time we're just reading there's
+
+55
+00:05:13,430 --> 00:05:19,550
+只读交易，我们需要获取所有帐户的当前余额
+a read-only transaction we need to get
+the current balances of all the accounts
+
+56
+00:05:19,550 --> 00:05:24,260
+列出他们现在只是这两个帐户，所以我们有两个临时帐户
+lists they were just these two accounts
+for now so we have two temporary
+
+57
+00:05:24,260 --> 00:05:32,660
+我们将要读取的第一个变量将是余额X的值
+variables we're gonna read the first one
+it's going to be the value of balance X
+
+58
+00:05:32,660 --> 00:05:40,729
+恰到好处意味着我们正在读取该记录，我们也读取Y，然后打印
+just right get to mean we're reading
+that record we also read Y and we print
+
+59
+00:05:40,729 --> 00:05:55,700
+他们俩，这是交易的结束，问题是什么是
+them both and that's the end of the
+transaction the question is what are
+
+60
+00:05:55,700 --> 00:05:59,660
+这两项交易的法律结果是我们要做的第一件事
+legal results from these two
+transactions that's the first thing we
+
+61
+00:05:59,660 --> 00:06:03,620
+要确定的是给定的起始状态就是两个
+want to establish is what are you know
+given the starting state namely the two
+
+62
+00:06:03,620 --> 00:06:07,669
+十美元的余额以及您跑步后的最终结果是什么
+balances for ten dollars and what could
+be the final results after you've run
+
+63
+00:06:07,669 --> 00:06:12,050
+这些交易可能同时进行，所以我们需要一个概念
+both these transactions maybe at the
+same time so we need a notion of what
+
+64
+00:06:12,050 --> 00:06:17,330
+是正确的，一旦我们知道我们需要能够制造机械
+would be correct and once we know that
+we need to be able to build machinery
+
+65
+00:06:17,330 --> 00:06:23,060
+实际上将能够执行这些事务并仅获得那些
+that will actually be able to execute
+these transactions and get only those
+
+66
+00:06:23,060 --> 00:06:28,190
+尽管存在并发和失败，但仍能给出正确答案，所以首先是正确性
+correct answers despite concurrency and
+failures so first what's correctness
+
+67
+00:06:28,190 --> 00:06:36,580
+良好的数据库通常具有正确性的概念，称为酸
+well databases usually have a notion of
+correctness called acid
+
+68
+00:06:38,110 --> 00:06:48,770
+或bb-8是酸，它代表原子，这意味着
+or bb-8 is acid and it stands for atomic
+and this means that a transaction that
+
+69
+00:06:48,770 --> 00:06:50,960
+有多个步骤，您可能会写多个不同的步骤
+has multiple steps
+you know maybe writes multiple different
+
+70
+00:06:50,960 --> 00:06:55,940
+记录尽管有故障但还是有故障，应该所有权利
+records if there's a failure despite
+failures either all of the right should
+
+71
+00:06:55,940 --> 00:07:00,080
+完成或全部都不做，不应该因为尴尬而失败
+be done or none of them it shouldn't be
+the case that a failure at an awkward
+
+72
+00:07:00,080 --> 00:07:04,340
+事务中间的时间应该使更新完成的一半
+time in the middle of a transaction
+should leave half the updates completed
+
+73
+00:07:04,340 --> 00:07:16,160
+看不见，一半的更新从未完成，要么全部要么一无所有，所以这是或
+invisible and half the updates never
+done it's all or nothing so this is or
+
+74
+00:07:16,160 --> 00:07:32,000
+尽管有失败，但C代表一致，实际上我们并没有
+not despite failures the C stands for
+consistent it's actually we're not going
+
+75
+00:07:32,000 --> 00:07:38,030
+担心这一点通常是指数据库将
+to worry about that that's usually meant
+to refer to the fact that database will
+
+76
+00:07:38,030 --> 00:07:43,610
+强制应用程序声明的某些不变式，这不是我们真正的
+enforce certain invariants declared by
+the application it's not really our
+
+77
+00:07:43,610 --> 00:07:49,389
+尽管今天很重要，但通常代表孤立
+concern today the I though it's quite
+important it usually stands for isolated
+
+78
+00:07:49,389 --> 00:07:54,830
+这实际上是两个事务是否在运行的属性
+and this is a really a property of
+whether or not two transactions that run
+
+79
+00:07:54,830 --> 00:07:58,610
+同时可以在交易发生之前看到彼此的变化
+at the same time can see each other's
+changes before the transactions have
+
+80
+00:07:58,610 --> 00:08:02,630
+完成了他们是否可以看到某种中间更新以及
+finished whether or not they can see
+sort of intermediate updates and from
+
+81
+00:08:02,630 --> 00:08:11,360
+在另一笔交易的中间，您的目标是不，而
+the middle of another transaction and
+your goal is no and the sort of
+
+82
+00:08:11,360 --> 00:08:17,539
+大多数人通常所说的隔离技术特有的东西是
+technical specific thing that most
+people generally mean by isolation is
+
+83
+00:08:17,539 --> 00:08:21,139
+事务执行是可序列化的，我将说明
+that the transaction execution is
+serializable and I'll explain what that
+
+84
+00:08:21,139 --> 00:08:29,630
+意味着有点，但是归结为交易看不到对方的
+means in a bit but it boils down to
+transactions can't see each other's
+
+85
+00:08:29,630 --> 00:08:34,909
+更改看不到中间状态，而只能看到完整的交易结果
+changes can't see intermediate states
+but only complete transaction results
+
+86
+00:08:34,909 --> 00:08:38,830
+最后的D代表耐用
+and the final D stands for durable
+
+87
+00:08:39,969 --> 00:08:44,800
+这意味着交易在客户或其他任何对象之后提交
+and this means that after a transaction
+commits after the client or whatever
+
+88
+00:08:44,800 --> 00:08:49,000
+提交交易的程序会从数据库获得回复
+program that submitted the transaction
+gets a reply back from the database
+
+89
+00:08:49,000 --> 00:08:52,769
+说是的，您知道我们已经执行了您的交易
+saying yes
+you know we've executed your transaction
+
+90
+00:08:52,769 --> 00:08:58,689
+酸中的D表示交易会修改数据库
+the D in acid means that the
+transactions modifications the database
+
+91
+00:08:58,689 --> 00:09:02,620
+会很持久，因为它们仍会存在，不会被某些物体擦除
+will be durable that they'll still be
+there they won't be erased by a some
+
+92
+00:09:02,620 --> 00:09:08,199
+某种故障，实际上这意味着必须将内容写入
+sort of failure and in practice that
+means that stuff has to be written into
+
+93
+00:09:08,199 --> 00:09:13,540
+一些非易失性存储持久性存储（例如磁盘），所以今天您是
+some non-volatile storage persistent
+storage like a disk and so today you are
+
+94
+00:09:13,540 --> 00:09:18,660
+实际上，在整个课程中，我们的关注点都将围绕着
+in fact for this whole course really our
+concerns are going to revolve around
+
+95
+00:09:18,660 --> 00:09:25,509
+关于失败的良好行为良好的尊重
+good behavior with respect to failure
+good respect good behavior with respect
+
+96
+00:09:25,509 --> 00:09:31,120
+多个并行活动中的其他活动，并确保数据
+to other from multiple parallel
+activities and making sure that the data
+
+97
+00:09:31,120 --> 00:09:40,660
+即使有东西崩溃，他们仍然在那里吗？ 
+is there still they are after even if
+something crashes so the most
+
+98
+00:09:40,660 --> 00:09:44,949
+对我们来说，有趣的部分是孤立冰的具体定义
+interesting part of this for us is the
+specific definition of ice of isolated
+
+99
+00:09:44,949 --> 00:09:51,459
+或可序列化，所以在讨论它之前，我将对其进行布局
+or serializable so I'm going to lay that
+out before before talking about how it
+
+100
+00:09:51,459 --> 00:10:03,639
+实际上适用于这些交易，因此通常将孤立的ioan和
+actually applies to these transactions
+so the ioan isolated is usually and the
+
+101
+00:10:03,639 --> 00:10:10,329
+如果执行一组交易，则对此的定义
+definition for this if a set of
+transactions executes you know
+
+102
+00:10:10,329 --> 00:10:16,720
+同时或多或少同时是您的结果集和
+concurrently more or less at the same
+time they you are the set of results and
+
+103
+00:10:16,720 --> 00:10:21,879
+这里的结果指的是由任何人创建的新数据库记录
+here the results refer to both the new
+database records created by any
+
+104
+00:10:21,879 --> 00:10:26,829
+修改交易可能执行的操作，以及
+modifications the transactions might do
+and in addition any output that the
+
+105
+00:10:26,829 --> 00:10:30,970
+产生了如此广泛的交易，因为这两个交易增加了
+transaction is produced so broader
+transactions these two adds since they
+
+106
+00:10:30,970 --> 00:10:34,480
+变更记录他们的需求变更记录是结果的一部分，并且
+change records their needs change
+records are part of the results and the
+
+107
+00:10:34,480 --> 00:10:38,319
+此print语句的输出是结果的一部分，因此
+output of this print statement is part
+of the results so the definition of
+
+108
+00:10:38,319 --> 00:10:44,850
+可序列化表示结果可序列化
+serializable says the results are
+serializable
+
+109
+00:10:47,250 --> 00:11:20,610
+如果存在一些执行交易的顺序，那么我们要说
+if there exists some order of execution
+of the transactions so we're gonna say a
+
+110
+00:11:20,610 --> 00:11:24,930
+事务的特定执行并行并发执行是
+specific execution parallel concurrent
+execution of transactions is
+
+111
+00:11:24,930 --> 00:11:31,430
+可序列化，如果存在某个序列顺序，则在此实际上强调了序列
+serializable if there exists some serial
+order really emphasizing serial here a
+
+112
+00:11:31,430 --> 00:11:37,110
+产生相同结果的相同事务的执行顺序
+serial order of execution of those same
+transactions that yields the same result
+
+113
+00:11:37,110 --> 00:11:40,139
+因为实际执行与此处的差异是实际
+as the actual execution and the
+difference of here is the actual
+
+114
+00:11:40,139 --> 00:11:46,470
+执行中可能有很多并行性，但这是必需的
+execution may have had a lot of
+parallelism in it but it's required to
+
+115
+00:11:46,470 --> 00:11:49,470
+一次产生与某个结果相同的结果
+produce the same result as some one at a
+time
+
+116
+00:11:49,470 --> 00:11:54,629
+执行相同的交易，因此您检查是否
+execution of the same transactions and
+so the way you check whether an
+
+117
+00:11:54,629 --> 00:11:59,040
+执行是否可序列化是一些并发执行是否可序列化
+execution is serializable whether some
+concurrent execution is serializable is
+
+118
+00:11:59,040 --> 00:12:03,720
+您查看结果，看看是否一次可以找到一个
+you look at the results and see if you
+can find actually some one at a time
+
+119
+00:12:03,720 --> 00:12:09,180
+执行确实产生相同结果的相同交易，因此对于我们
+execution of the same transactions that
+does produce the same results so for our
+
+120
+00:12:09,180 --> 00:12:16,139
+交易在这里，只有两个订单，一次只有两个
+transaction up here there's only two
+orders there's only two one at a time
+
+121
+00:12:16,139 --> 00:12:22,170
+串行订单可用事务1然后​​事务2或事务2然后
+serial orders available transaction 1
+then transaction 2 or transaction 2 then
+
+122
+00:12:22,170 --> 00:12:27,509
+交易1，所以我们只看一下它们将产生的结果
+transaction 1 and so we can just look at
+the results that they would produce if
+
+123
+00:12:27,509 --> 00:12:34,910
+在这些命令中的每个命令中一次执行一个，所以如果我们先执行t1然后执行t2 
+executed one at a time in each of these
+orders so if we execute t1 and then t2
+
+124
+00:12:34,910 --> 00:12:41,839
+那么我们得到x等于11 
+then we get x equals 11
+
+125
+00:12:42,240 --> 00:12:49,750
+为什么等于9和此打印语句，因为t1首先执行了此打印
+why equals 9 and this print statement
+since t1 executed first this print
+
+126
+00:12:49,750 --> 00:12:58,690
+语句看到这两个更新的值，因此它将打印字符串11 9 
+statement sees these two updated values
+and so it will print the string 11 9 the
+
+127
+00:12:58,690 --> 00:13:06,279
+其他可能的顺序是，也许先运行t2，然后再运行t1，在这种情况下
+other possible order is that perhaps t2
+ran first and then t1 and in that case
+
+128
+00:13:06,279 --> 00:13:11,980
+ t2在修改之前会看到2条记录，但是修改后
+t2 will see that 2 records before they
+were modified but the modifications will
+
+129
+00:13:11,980 --> 00:13:16,750
+由于t1稍后运行，因此仍会发生，因此最终结果将再次为x等于
+still take place since t1 runs later so
+the final results will again be x equals
+
+130
+00:13:16,750 --> 00:13:27,600
+ 11 y等于9，但是这次t2在我们的值之前浸透了，所以这是两个
+11 y equal 9 but this time t2 sodded
+before our values so these are the two
+
+131
+00:13:27,600 --> 00:13:34,480
+可序列化的合法结果，以及如果我们发现运行中还有其他问题
+legal results for serializability and if
+we ever see anything else from running
+
+132
+00:13:34,480 --> 00:13:38,110
+这两个事务同时我们将知道数据库是
+these two transactions at the same time
+we'll know that the database were
+
+133
+00:13:38,110 --> 00:13:42,130
+运行不提供正在执行的可序列化执行
+running against does not provide
+serializable execution it's doing
+
+134
+00:13:42,130 --> 00:13:48,820
+还有其他的事情，所以当我们在思考如果或
+something else and so while we're
+thinking through what would happen if or
+
+135
+00:13:48,820 --> 00:13:52,900
+如果始终违背这些AHA将会发生什么，这是仅有的两个
+what would happen if will always be
+against these AHA these are the only two
+
+136
+00:13:52,900 --> 00:13:56,910
+合法的结果，我们最好做一些能够产生彼此的事情
+legal results we better be doing
+something that produces one or the other
+
+137
+00:13:56,910 --> 00:14:02,950
+有趣的是，有不止一种可能的结果取决于
+it's interesting to note that there's
+more than one possible result depending
+
+138
+00:14:02,950 --> 00:14:06,430
+根据实际订单，如果您在
+on the actual order you if you you
+submit these two transactions at the
+
+139
+00:14:06,430 --> 00:14:11,980
+同时您不知道是t1 t2还是t2 t1，所以您必须
+same time you don't know whether it's
+gonna be t1 t2 or t2 t1 so you have to
+
+140
+00:14:11,980 --> 00:14:15,310
+愿意期待不止一种可能的法律结果，并且如您所愿
+be willing to expect more than one
+possible legal result and as you have
+
+141
+00:14:15,310 --> 00:14:18,459
+更多或同时运行的事务更加复杂
+more or transactions running
+concurrently a more complicated there
+
+142
+00:14:18,459 --> 00:14:22,810
+可能有很多很多可能不同的正确结果
+may be many many possible different
+correct results that are all
+
+143
+00:14:22,810 --> 00:14:28,600
+可序列化，因为这里有很多订单可以用来完成此任务
+serializable because of many many orders
+here that could be used to fulfill this
+
+144
+00:14:28,600 --> 00:14:35,560
+需求还可以，所以现在我们有了正确性的定义，甚至
+requirement okay so now that we have a
+definition of correctness and we even
+
+145
+00:14:35,560 --> 00:14:42,400
+知道所有可能的结果是什么我们可以问几个问题
+know what all the possible results are
+we can ask a few questions so few
+
+146
+00:14:42,400 --> 00:14:48,610
+关于如何执行的假设问题，例如，假设
+what-if questions about how these could
+execute so for example suppose that the
+
+147
+00:14:48,610 --> 00:14:53,260
+系统实际执行此操作的方式是它开始了事务2， 
+way the system actually executed this
+was that it started transaction 2 and
+
+148
+00:14:53,260 --> 00:14:58,180
+读完X之后就达到了
+got as far as
+just after reading X and then
+
+149
+00:14:58,180 --> 00:15:05,350
+交易一在这一点上运行，然后在交易一完成后
+transaction one ran at this point and
+then after transaction one finished
+
+150
+00:15:05,350 --> 00:15:13,819
+现在继续执行交易，结果与其他交易不同
+transaction to continue executing now it
+turns out in with different other
+
+151
+00:15:13,819 --> 00:15:18,259
+比这实际上可能合法的交易，但在这里我们要
+transactions than this that might
+actually be legal but here we want to
+
+152
+00:15:18,259 --> 00:15:22,279
+知道这是否合法，所以我们想知道天哪，我们是否真的以这种方式执行
+know if it's legal so we're wondering
+gosh if we actually executed that way
+
+153
+00:15:22,279 --> 00:15:27,350
+我们会得到什么结果，它们是否与这两个方法中的任何一个相同，如果
+what results will we get and are they
+the same as either of these two well if
+
+154
+00:15:27,350 --> 00:15:32,509
+我们在这里执行事务一，那么t1将看到值10 t2将看到
+we execute transaction one here then t1
+is gonna see value 10 t2 is gonna see
+
+155
+00:15:32,509 --> 00:15:38,749
+ Y递减后的值，因此t1将为10 t2将为9，这是什么
+the value after decrementing Y so t1
+will be 10 t2 will be 9 and what this
+
+156
+00:15:38,749 --> 00:15:45,439
+打印将是10 9，而这两个输出都不是，所以这意味着
+print will be 10 9 and that's neither of
+these two outputs here so that means
+
+157
+00:15:45,439 --> 00:15:49,369
+以我刚刚绘制的方式执行，无法序列化，因此不会
+executing in this way that I just drew
+is not serializable it would not be
+
+158
+00:15:49,369 --> 00:15:57,860
+法律上另一个有趣的问题是，如果我们开始执行交易该怎么办
+legal another interesting question is
+what if we started executing transaction
+
+159
+00:15:57,860 --> 00:16:02,420
+ 1，我们就到达了第一个广告之后，然后所有
+1 and we got as far as just after the
+first ad and then at that point all the
+
+160
+00:16:02,420 --> 00:16:10,939
+事务2在这里执行，因此这意味着X是值
+transaction 2 executed right here so
+that would mean at this point X is value
+
+161
+00:16:10,939 --> 00:16:20,179
+ 11事务2将读取为1110现在打印1110，而1110不是其中之一
+11 the transaction 2 would read 1110 now
+print 1110 and 1110 is not one of these
+
+162
+00:16:20,179 --> 00:16:23,749
+两个合法值，因此对于这两个而言，执行也是不合法的
+two legal values so this execution is
+also not legal for these two
+
+163
+00:16:23,749 --> 00:16:26,589
+交易
+transactions
+
+164
+00:16:35,510 --> 00:16:43,110
+所以可序列化可序列化之所以流行且有用的原因
+so the reason why serializable
+serializability is a popular and useful
+
+165
+00:16:43,110 --> 00:16:47,280
+定义交易正确执行的含义
+definition of what it means for
+transactions to be correct for execution
+
+166
+00:16:47,280 --> 00:16:51,030
+正确的交易是对程序员来说这是一个非常简单的模型
+of transactions to be correct is that
+it's a very easy model for programmers
+
+167
+00:16:51,030 --> 00:16:56,190
+您可以编写复杂的交易而不必担心其他事情
+you can write complicated transactions
+without having to worry about what else
+
+168
+00:16:56,190 --> 00:16:59,370
+可能正在系统中运行，可能还有很多其他交易
+may be running in the system there may
+be lots of other transactions may be
+
+169
+00:16:59,370 --> 00:17:02,610
+使用与您可能正在阅读的日期相同的日期尝试读取和写入它
+using the same date as you may be
+reading trying to read and write it at
+
+170
+00:17:02,610 --> 00:17:10,319
+同时可能会有失败的人知道，但是这里的保证是
+the same time there might be failures
+who knows but the guarantee here is that
+
+171
+00:17:10,319 --> 00:17:15,689
+就像没有其他事情发生一样写交易是安全的，因为
+it's safe to write your transactions as
+if nothing else was happening because
+
+172
+00:17:15,689 --> 00:17:22,319
+最终结果必须好像您的交易是在
+the final results have to be as if your
+transaction was executed by itself in
+
+173
+00:17:22,319 --> 00:17:28,020
+这是一次非常简单的非常好的编程模型
+this one-at-a-time order which is a very
+simple very nice programming model it's
+
+174
+00:17:28,020 --> 00:17:34,410
+还不错，这个定义允许真正并行执行事务
+also nice that this definition allows
+truly parallel execution of transactions
+
+175
+00:17:34,410 --> 00:17:38,010
+只要他们不使用相同的数据，我们就会在这里遇到麻烦，因为
+as long as they don't use the same data
+so we run into trouble here because
+
+176
+00:17:38,010 --> 00:17:41,370
+这两个事务都读取x和y，但是如果它们正在使用
+these two transactions are both reading
+x and y but if they were using
+
+177
+00:17:41,370 --> 00:17:46,170
+完全不相交的数据库记录，他们可能会得出这个定义
+completely disjoint database records
+they could it turns out this definition
+
+178
+00:17:46,170 --> 00:17:51,840
+允许您构建一个数据库系统，该系统将执行要使用的事务
+allows you to build a database system
+that would execute transactions to use
+
+179
+00:17:51,840 --> 00:17:56,220
+如果您是分片系统，则可以完全并行地分离数据
+disjoint data completely in parallel and
+if you are a sharded system which is
+
+180
+00:17:56,220 --> 00:17:59,490
+我们今天要处理的数据与其他数据有关
+what we're sort of working up to today
+with the data different data is on
+
+181
+00:17:59,490 --> 00:18:02,790
+在不同的机器上，您可以获得真正的并行加速，因为
+different machines you can get true
+parallel speed-up because maybe one
+
+182
+00:18:02,790 --> 00:18:06,510
+事务在第一台机器上的第一个分片中执行Spira，另一台机器上执行
+transaction executes Spira in the first
+shard on the first machine and the other
+
+183
+00:18:06,510 --> 00:18:12,960
+在第二台机器上并行运行，因此这里有机会
+in parallel on the second machine so
+there are opportunities here for for
+
+184
+00:18:12,960 --> 00:18:21,590
+在研究如何实现可序列化事务之前，性能良好
+good performance before I dig into how
+to implement serializable transactions
+
+185
+00:18:21,590 --> 00:18:29,310
+还有一点我想提出来，事实证明，其中之一
+there's one more small point I want to
+bring up it turns out that one of the
+
+186
+00:18:29,310 --> 00:18:33,150
+我们需要处理的事情是交易可能出于某种原因
+things we need to be able to cope with
+is that transactions may for one reason
+
+187
+00:18:33,150 --> 00:18:39,420
+或另一个基本上失败或决定失败的
+or another
+basically fail or decide to fail in the
+
+188
+00:18:39,420 --> 00:18:47,160
+事务的中间，通常称为中止，您知道
+middle of the transaction and this is
+usually called an abort and you know for
+
+189
+00:18:47,160 --> 00:18:50,880
+我们需要准备好许多交易系统来处理哦，会发生什么
+many transaction systems we need to be
+prepared to handle Oh what should happen
+
+190
+00:18:50,880 --> 00:18:56,070
+如果事务试图访问不存在或除以的记录
+if a transaction tries to access a
+record that doesn't exist or divides by
+
+191
+00:18:56,070 --> 00:19:01,140
+零或您可能知道，因为某些事务实施方案使用了
+zero or maybe you know since some
+transaction implementation schemes use
+
+192
+00:19:01,140 --> 00:19:05,460
+锁定可能导致事务锁定死锁，并且唯一的方法是
+locking maybe a transaction causes a
+locking deadlock and the only way to
+
+193
+00:19:05,460 --> 00:19:09,450
+打破僵局是为了杀死一个或多个交易之一
+break the deadlock is to kill one of one
+or more of the transactions this
+
+194
+00:19:09,450 --> 00:19:14,910
+参与僵局，所以其中之一将是
+participating in the deadlock so one of
+the things that's going to be kind of
+
+195
+00:19:14,910 --> 00:19:18,720
+挂在后台并且会出现是应对的必要
+hanging in the background and will come
+up is the necessity of coping with
+
+196
+00:19:18,720 --> 00:19:22,970
+中间突然决定无法进行的交易
+transactions that all of a sudden in the
+middle decide they just cannot proceed
+
+197
+00:19:22,970 --> 00:19:28,530
+你可能知道他们完成一些工作并开始工作之后
+and you know maybe really in the middle
+after they've done some work and started
+
+198
+00:19:28,530 --> 00:19:33,150
+修改东西，我们需要能够从这些交易中撤出
+modifying things we need to be able to
+kind of back out of these transactions
+
+199
+00:19:33,150 --> 00:19:38,190
+并撤消他们所做的任何修改
+and undo any modifications they've made
+all right
+
+200
+00:19:38,190 --> 00:19:42,390
+这些资产交易的实施策略
+the implementation strategy for
+transactions for these asset
+
+201
+00:19:42,390 --> 00:19:48,510
+交易我将分为两大部分，但同时讨论
+transactions I'm gonna split into two
+big pieces but and talk about both of
+
+202
+00:19:48,510 --> 00:19:54,360
+他们是讲座中的主要主题第一个重要的实施主题是
+them the main topics in the lecture the
+first big implementation topic is
+
+203
+00:19:54,360 --> 00:20:07,380
+并发控制，这是我们用来提供可序列化性的主要工具
+concurrency control this is the main
+tool we use to provide serializability
+
+204
+00:20:07,380 --> 00:20:13,250
+当前或隔离，因此并发控制偏差
+the current or isolation so concurrency
+control bias
+
+205
+00:20:16,509 --> 00:20:21,320
+通过将其与可能尝试使用的其他并发事务隔离
+by its isolation from other concurrent
+transactions that might be trying to use
+
+206
+00:20:21,320 --> 00:20:27,639
+我提到的相同数据和其他重要部分是原子提交，这是
+the same data and the other big pieces I
+mentioned is atomic commit and this is
+
+207
+00:20:28,809 --> 00:20:34,070
+有什么可以帮助我们应对这种可能性的呢？ 
+what's going to help us deal with the
+possibility that oh yeah this
+
+208
+00:20:34,070 --> 00:20:38,330
+执行一个很长的事务，可以将其修改为X，然后将所有
+transactions executing a long and it's
+may be modified X and then all of a
+
+209
+00:20:38,330 --> 00:20:44,480
+突然出现故障，其中一台服务器参与其中，但其他服务器
+sudden there's a failure and one of the
+server's involved but other servers that
+
+210
+00:20:44,480 --> 00:20:48,139
+可能实际上是在交易的其他部分，如果x和y是
+were maybe actually in other parts of
+the transaction that is if x and y are
+
+211
+00:20:48,139 --> 00:20:52,730
+在不同的机器上，即使有部分机器，我们也需要能够恢复
+in different machines we need to be able
+to recover even if there's a partial
+
+212
+00:20:52,730 --> 00:20:58,460
+仅有部分机器发生故障，交易不顺利，交易量很大
+failure of only some of the machines the
+transactions running off and the big
+
+213
+00:20:58,460 --> 00:21:03,889
+人们为此使用的工具是这个原子提交，您会说的没错，所以
+tool people use for that is this atomic
+commit you'll talk about all right so
+
+214
+00:21:03,889 --> 00:21:11,480
+首先是并发控制，实际上有两类两种主要方法
+first concurrency control there's really
+two classes two major approaches to
+
+215
+00:21:11,480 --> 00:21:20,450
+并发控制在课程中，我将同时讨论这两个问题
+concurrency control I'll talk about both
+during the course if they're just mean
+
+216
+00:21:20,450 --> 00:21:29,480
+策略第一种策略是悲观主义者，通常被称为悲观主义者
+strategies the first strategy is a
+pessimistic usually called pessimist
+
+217
+00:21:29,480 --> 00:21:34,519
+悲观的并发控制，这通常是锁定，我们都完成了
+pessimistic concurrency control and this
+is usually locking we've all done
+
+218
+00:21:34,519 --> 00:21:38,509
+在go程序的上下文中锁定实验室，从而证明数据库
+locking in the labs in the context of go
+program so it turns out databases
+
+219
+00:21:38,509 --> 00:21:45,409
+事务处理系统也使用锁定，这里的想法是U是
+transaction processing systems also used
+locking and the idea here is U is the
+
+220
+00:21:45,409 --> 00:21:48,860
+同样，您在交易使用任何
+same as well you're quite familiar with
+this that before transaction uses any
+
+221
+00:21:48,860 --> 00:21:52,850
+数据，它需要获取对该数据的锁定以及其他一些事务
+data it needs to acquire a lock on that
+data and if some other transactions
+
+222
+00:21:52,850 --> 00:21:57,080
+已经使用了该数据的锁将被保留，我们必须等待之前
+already using the data the lock will be
+held and we'll have to wait before we
+
+223
+00:21:57,080 --> 00:22:02,899
+可以获取锁以等待其他事务完成并且悲观
+can acquire the lock wait for the other
+transaction to finish and in pessimistic
+
+224
+00:22:02,899 --> 00:22:06,230
+系统，如果存在锁定冲突，其他人将导致锁定
+systems if there's locking conflicts
+somebody else has the lock it'll cause
+
+225
+00:22:06,230 --> 00:22:14,419
+延迟，所以您在某种程度上将性能视为正确性
+delays so you're sort of treating
+performance for correctness the other
+
+226
+00:22:14,419 --> 00:22:20,679
+主要方法是乐观方法
+main approach is optimistic approaches
+
+227
+00:22:21,450 --> 00:22:25,330
+这里的基本思想是，您不必担心是否还有其他问题
+the basic idea here is you don't worry
+about whether maybe some other
+
+228
+00:22:25,330 --> 00:22:28,779
+事务与您刚去时同时读取或写入数据
+transactions reading or writing the data
+at the same time as you you just go
+
+229
+00:22:28,779 --> 00:22:32,200
+前进，做任何您会做的读写操作，尽管通常会
+ahead and do whatever reads and writes
+you're gonna do although typically into
+
+230
+00:22:32,200 --> 00:22:37,330
+某种临时区域，然后仅在结束时去检查是否
+some sort of temporary area and then
+only at the end you go and check whether
+
+231
+00:22:37,330 --> 00:22:40,870
+实际上也许其他交易可能会干扰，如果
+actually maybe some other transaction
+might have been interfering and if
+
+232
+00:22:40,870 --> 00:22:44,470
+现在没有其他交易了，您再也不必经历任何交易了
+there's no other transaction now you're
+done and you never had to go through any
+
+233
+00:22:44,470 --> 00:22:47,950
+取出锁的开销或权重是合理的
+of the overhead or weighting of taking
+out locks the locks are reasonably
+
+234
+00:22:47,950 --> 00:22:54,340
+昂贵的操作，但是如果其他人正在修改数据
+expensive to manipulate but if somebody
+else was modifying the data in a
+
+235
+00:22:54,340 --> 00:22:58,480
+在您同时存在冲突的方式时，您必须中止
+conflicting way at the same time you
+were then you have to abort that
+
+236
+00:22:58,480 --> 00:23:06,940
+交易，我们尝试使用这种形式的缩写
+transaction and we try and the
+abbreviation for this is often
+
+237
+00:23:06,940 --> 00:23:11,080
+乐观的并发控制
+optimistic concurrency control um it
+turns out that under different
+
+238
+00:23:11,080 --> 00:23:15,179
+在这两种策略中，一种可能比另一种更快
+circumstances these two strategies one
+can be faster than the other
+
+239
+00:23:15,179 --> 00:23:18,580
+如果冲突非常频繁，您可能实际上想使用
+if conflicts are very frequent you
+probably actually want to use
+
+240
+00:23:18,580 --> 00:23:22,120
+悲观的并发控制不是因为经常发生冲突
+pessimistic concurrency control not
+because of conflicts are frequent you're
+
+241
+00:23:22,120 --> 00:23:25,899
+会因为冲突而大量流产
+gonna get a lot of aborts due to
+conflicts for optimistic seems if
+
+242
+00:23:25,899 --> 00:23:29,980
+复杂性远比乐观并发控制可以更快
+complex are rare than optimistic
+concurrency control can be faster
+
+243
+00:23:29,980 --> 00:23:33,580
+因为它完全避免了锁定开销，今天将成为一切
+because it completely avoids locking
+overhead today will be all about
+
+244
+00:23:33,580 --> 00:23:39,610
+悲观并发控制，然后在特定农场中的某些后来的论文中
+pessimistic concurrency control and then
+some later paper in particular farm in a
+
+245
+00:23:39,610 --> 00:23:48,549
+几个星期，我们将处理一个乐观的计划，所以今天
+couple weeks we'll deal with an
+optimistic scheme okay so today talking
+
+246
+00:23:48,549 --> 00:23:53,500
+关于悲观方案，基本上是指锁定，尤其是
+about pessimistic schemes refers
+basically to locking and in particular
+
+247
+00:23:53,500 --> 00:23:57,059
+今天的阅读是关于两相锁定，这是最
+for today the reading was about
+two-phase locking which is the most
+
+248
+00:23:57,059 --> 00:24:00,990
+普通锁
+common type of locking
+
+249
+00:24:07,640 --> 00:24:12,090
+两阶段锁定交易的想法是，交易将
+and the idea in two-phase locking for
+transactions is that transactions gonna
+
+250
+00:24:12,090 --> 00:24:19,140
+使用诸如X＆Y之类的一堆Records和我们的示例，第一个规则是
+use a bunch of Records like X&Y and our
+example the first rule is that you
+
+251
+00:24:19,140 --> 00:24:30,360
+在使用日期之前获取锁，我们正在读取或写入的任何数据
+acquire a lock before using date any
+piece of data we're reading or writing
+
+252
+00:24:30,360 --> 00:24:37,710
+任何记录和交易的第二条规则是交易必须
+any record and the second rule for
+transactions is that a transaction must
+
+253
+00:24:37,710 --> 00:24:43,650
+持有它获得的任何锁，直到它提交或中止之后才被允许
+hold any locks it acquires until after
+it commits or aborts you're not allowed
+
+254
+00:24:43,650 --> 00:24:46,020
+要放弃交易中间的锁，您必须全部持有
+to give up locks in the middle of the
+transaction you have to hold them all
+
+255
+00:24:46,020 --> 00:24:52,580
+您只能积累它们，直到完成为止
+you can only accumulate them until
+you're done until after you're done so
+
+256
+00:24:54,680 --> 00:25:01,500
+直到菲比这样做，这是两阶段锁定的阶段
+until Phoebe done so this is two-phase
+locking the phases are the phases which
+
+257
+00:25:01,500 --> 00:25:07,490
+我们获得锁，然后逐步进入锁，直到完成
+we acquire locks and then phase in which
+we just hold onto them until we're done
+
+258
+00:25:07,490 --> 00:25:15,810
+因此，对于两相锁定，可以了解为什么锁定可以正常工作
+so for two phase locking to sort of see
+why locking works your typical locking
+
+259
+00:25:15,810 --> 00:25:19,110
+系统很好，有很多变化，典型的锁定系统与
+systems well there's a lot of variation
+typical locking systems associate a
+
+260
+00:25:19,110 --> 00:25:23,250
+数据库中的每个记录都有单独的锁，每个表中的每一行都用于
+separate lock with each record in the
+database with each row in each table for
+
+261
+00:25:23,250 --> 00:25:28,500
+示例，尽管它们可以更粗粒度地进行，但这些事务开始
+example although they can be more more
+coarse-grained these transactions start
+
+262
+00:25:28,500 --> 00:25:31,470
+说不持有锁，说交易一开始就不持有
+out holding no locks let's say
+transaction one starts out holding no
+
+263
+00:25:31,470 --> 00:25:35,880
+它在第一次使用X之前会锁定，所以我必须使用它必须获取
+locks when it first uses X before so
+I'll have to use it it has to acquire
+
+264
+00:25:35,880 --> 00:25:41,130
+ X上的锁，它可能必须等待，并且在它第一次使用Y时获得
+the lock on X and it may have to wait
+and when it first uses Y it acquires
+
+265
+00:25:41,130 --> 00:25:45,750
+另一个将Y锁完成后将其锁定
+another lock the lock on Y when it
+finishes after it's done becoming these
+
+266
+00:25:45,750 --> 00:25:50,760
+如果我们同时运行这两个交易，它们基本上都是
+both if we ran both these transactions
+at the same time they're gonna basically
+
+267
+00:25:50,760 --> 00:25:56,160
+争夺X上的锁定，并且其中任何一个都设法获得锁定
+race to get the lock on X and whichever
+of them gets the managed to get the lock
+
+268
+00:25:56,160 --> 00:26:02,310
+首先在X上它将继续进行并完成并提交
+on X first it will proceed and finish
+and commit meantime the other
+
+269
+00:26:02,310 --> 00:26:05,610
+未能成功锁定X的事务，它将查看是否
+transaction that didn't manage to get
+the lock on X first it's going to see if
+
+270
+00:26:05,610 --> 00:26:10,860
+您在等待之前，使用OA口音可以做什么
+you're waiting before it what you does
+anything with accent OA can acquire the
+
+271
+00:26:10,860 --> 00:26:14,460
+锁定，因此事务2实际上首先获得了锁定
+lock so transaction 2 actually got the
+lock first
+
+272
+00:26:14,460 --> 00:26:20,190
+你会得到X的值得到y的值cuz交易之一还没有
+you would get the value of X get the
+value of y cuz transaction one hasn't
+
+273
+00:26:20,190 --> 00:26:24,540
+在这一点上得到还没有锁定Y它将打印并完成， 
+gotten at this point hasn't locked Y yet
+it'll print and it will finish and
+
+274
+00:26:24,540 --> 00:26:28,560
+释放它的锁，然后交易一才可以获取
+release its locks and only then
+transaction one will be able to acquire
+
+275
+00:26:28,560 --> 00:26:33,750
+ X上的锁，如您所见，基本上会强制执行序列订单，因为
+the lock on X and as you can see that
+basically forces a serial order because
+
+276
+00:26:33,750 --> 00:26:38,550
+在这种情况下，它强制执行命令T两个，然后当T两个完成时
+it forced in this case it force the
+order T two and then when T two finishes
+
+277
+00:26:38,550 --> 00:26:47,330
+只有T 1，所以它显式地强制执行顺序，从而导致
+only then T 1 so with it's explicitly
+forcing an order which causes the that
+
+278
+00:26:47,330 --> 00:26:51,450
+执行以遵循您真正知道的可序列化性定义
+execution to follow the definition of
+serializability that you know really is
+
+279
+00:26:51,450 --> 00:27:00,620
+执行T 2直到完成，然后才执行T 1，这样我们才能正确执行
+executing T 2 to completion and only
+then T 1 so we do get correct execution
+
+280
+00:27:06,930 --> 00:27:16,840
+好的，所以一个问题是，为什么您需要按住锁直到
+all right so one question is why you
+need to hold the locks until the
+
+281
+00:27:16,840 --> 00:27:22,210
+交易已完全完成，您可能会认为您可以持有一笔
+transactions completely finished you
+might think that you could just hold a
+
+282
+00:27:22,210 --> 00:27:25,810
+在实际使用数据时锁定，这样会更有效率
+lock while you are actually using the
+data and that would be more efficient
+
+283
+00:27:25,810 --> 00:27:31,480
+的确，那就是您知道也许只在这段时间内持有锁
+and indeed it would that is you know
+maybe only hold the lock for the period
+
+284
+00:27:31,480 --> 00:27:36,040
+ t2实际上正在查看记录X的时间，或者可能仅持有锁
+of time in which t2 is actually looking
+at record X or maybe only hold the lock
+
+285
+00:27:36,040 --> 00:27:41,680
+在X上执行添加操作期间，然后立即释放
+on X here for the duration of the add
+operation and then immediately release
+
+286
+00:27:41,680 --> 00:27:45,280
+它，在这种情况下，如果我们进行交易怎么办立即释放了
+it and in that case that what if we
+transaction one immediately released a
+
+287
+00:27:45,280 --> 00:27:48,910
+遵守此规则当然可以将X锁定在那里
+lock on X there there by disobeying this
+rule of course but if it immediately
+
+288
+00:27:48,910 --> 00:27:51,970
+释放X上的锁，然后事务2可能可以开始一点
+release the lock on X then transaction
+two might be able to start a little bit
+
+289
+00:27:51,970 --> 00:27:55,240
+我们越早获得更多的并发性和更高的性能，因此这条规则
+earlier we get more concurrency more
+higher performance so this rule
+
+290
+00:27:55,240 --> 00:28:00,040
+绝对您知道对性能不利，因此我们要确保它
+definitely you know bad for performance
+so we want to make pretty sure that it's
+
+291
+00:28:00,040 --> 00:28:05,010
+这是正确性所必需的
+it's good for that's required for
+correctness
+
+292
+00:28:05,220 --> 00:28:11,740
+因此，如果事务确实在最早的时候就释放了锁，那将不会发生
+so what won't happen if transactions did
+actually release locks as early as
+
+293
+00:28:11,740 --> 00:28:15,940
+可能的话，假设t2在这里读X，然后
+possible
+so suppose t2 here reads X and then
+
+294
+00:28:15,940 --> 00:28:23,680
+立即释放对X的锁定，该锁定将允许t1，因为目前
+immediately releases this lock on X that
+would allow t1 since at now at this
+
+295
+00:28:23,680 --> 00:28:28,630
+ t2执行中的点不持有任何锁，因为它只是释放了它
+point in the execution t2 doesn't hold
+any locks because it's just released it
+
+296
+00:28:28,630 --> 00:28:33,040
+非法释放X上的锁，因为它没有锁，这意味着t1可以
+illegally release the lock on X since it
+holds a no locks that means t1 could
+
+297
+00:28:33,040 --> 00:28:40,090
+完全在这里执行，我们从那之前就已经知道
+completely execute right here and we
+already knew from from before that this
+
+298
+00:28:40,090 --> 00:28:45,300
+交织不正确，因为它不会产生这两个输出
+interleaving is not correct as it
+doesn't produce either these two outputs
+
+299
+00:28:45,300 --> 00:28:55,030
+类似地，如果t1向X加完后释放了X的锁定， 
+similarly if if t1 released this lock on
+X after finished adding one to X that
+
+300
+00:28:55,030 --> 00:28:59,770
+将允许所有t2滑入此处，我们也从那之前知道
+would allow all of t2 to slip in right
+here and we know also from before that
+
+301
+00:28:59,770 --> 00:29:07,200
+导致非法结果
+that results in in illegal results
+
+302
+00:29:07,620 --> 00:29:14,010
+还有另外一种问题，可能与释放锁有关
+there's a an additional kind of problem
+that can come up with releasing locks
+
+303
+00:29:14,010 --> 00:29:21,090
+修改数据后，如果t1将释放X的锁定，则可能允许t2 
+after modifying data if t1 were to
+release the lock on X it might allow t2
+
+304
+00:29:21,090 --> 00:29:26,730
+来查看X的修改版本，在这里向其添加1和
+to see the modified version of X here to
+see the X after adding 1 to it and to
+
+305
+00:29:26,730 --> 00:29:31,740
+打印该输出，然后在打印增量后让tteyuu完成
+print that output and then for tteyuu to
+complete after printing the incremented
+
+306
+00:29:31,740 --> 00:29:36,029
+如果事务1在该点之后中止，则x的值可能是因为
+value of x if transaction one were to
+abort after that point maybe because
+
+307
+00:29:36,029 --> 00:29:41,820
+银行余额Y不存在，或者银行债券Y存在，但其余额为
+bank balance Y doesn't exist or maybe
+bank bonds Y exists but its balance is
+
+308
+00:29:41,820 --> 00:29:46,260
+零，您知道我们不允许银行结余减少0，因为
+zero and you know we're not allowed to
+decrement 0 for bank balances because
+
+309
+00:29:46,260 --> 00:29:51,299
+这是透支的，所以t1可能会修改X然后中止，并且中止的一部分必须
+that's an overdraft so t1 might modify X
+then abort and part of the abort has to
+
+310
+00:29:51,299 --> 00:29:59,490
+撤消其对X的更新，以保持原子性以及这将是什么
+be undoing its update to X in order to
+maintain atomicity and what that would
+
+311
+00:29:59,490 --> 00:30:03,000
+意思是如果它释放了锁，那就是事务2会看到这种情况
+mean if it released the locks is that
+transaction 2 would have seen this sort
+
+312
+00:30:03,000 --> 00:30:08,700
+的幻像值11消失了，因为t1中止了，您会看到一个
+of phantom value of 11 that went away
+because t1 aborted you would have seen a
+
+313
+00:30:08,700 --> 00:30:13,940
+根据规则永远不存在的价值，因为那时
+value that according to the rules never
+existed right because then the
+
+314
+00:30:13,940 --> 00:30:18,330
+事务1中止，就好像它不存在一样，因此这意味着
+transaction 1 aborts then it's as if it
+never existed and so that means the
+
+315
+00:30:18,330 --> 00:30:24,960
+来自t2的结果最好是好像t2完全没有t1自己运行，但是如果
+results from t2 had better be as if t2
+ran by itself without t1 at all but if
+
+316
+00:30:24,960 --> 00:30:31,880
+它看到的增量实际上是要为X 11 10打印11 
+it sees the increment that it's gonna
+print 11 for X 11 10 actually which is
+
+317
+00:30:31,880 --> 00:30:37,760
+鉴于t1并非真正与数据库中的任何状态都不对应
+just doesn't correspond to any state in
+the database given that t1 didn't really
+
+318
+00:30:37,760 --> 00:30:45,299
+完全可以，所以这就是为什么要避免的两个危险
+complete okay so that's why those are
+two dangers that are averted due to
+
+319
+00:30:45,299 --> 00:30:50,460
+违规序列化的能力可以避免，因为事务持有
+violations serialize ability that are
+averted because transactions hold the
+
+320
+00:30:50,460 --> 00:30:59,010
+锁定，直到他们做完有关这些规则的进一步操作为止
+locks until they're done a further thing
+to note about these rules or that it's
+
+321
+00:30:59,010 --> 00:31:06,059
+他们很容易产生死锁，所以例如您知道我们有两个
+very easy for them to produce deadlock
+so you know for example if we have two
+
+322
+00:31:06,059 --> 00:31:15,710
+事务之一读取记录ax，读取记录y 
+transactions one of them reads record ax
+and reads record y
+
+323
+00:31:15,710 --> 00:31:26,450
+而另一个事务读取Y，然后读取X，这只是一个死锁，如果
+and the other transaction reads Y and
+then X that's that's just a deadlock if
+
+324
+00:31:26,450 --> 00:31:32,059
+他们在同一时间运行，每个人都在记录上获得此锁定
+they run at the same time they each of
+them gets this lock on the record it
+
+325
+00:31:32,059 --> 00:31:37,669
+首先阅读它们直到交易完成才释放，所以他们都坐下来
+first read they don't release till the
+transactions finish so they both sit
+
+326
+00:31:37,669 --> 00:31:41,539
+在那里等待其他交易持有的锁，除非
+there waiting for the lock that's held
+by the other transaction and unless the
+
+327
+00:31:41,539 --> 00:31:44,630
+数据库做了一些聪明的事
+database does something clever which it
+will
+
+328
+00:31:44,630 --> 00:31:47,570
+他们将永远陷入僵局，实际上交易有各种策略
+they'll deadlock forever and in fact
+transactions have various strategies
+
+329
+00:31:47,570 --> 00:31:53,000
+包括跟踪周期或超时，以检测它们是否已进入
+including tracing cycles or timeouts in
+order to detect that they've gone into
+
+330
+00:31:53,000 --> 00:31:56,929
+数据库将中止这两个事务之一并撤消的情况
+the situation the database will abort
+one of these two transactions and undo
+
+331
+00:31:56,929 --> 00:32:02,539
+所有的变化，就像从未发生过的交易一样，所以
+all its changes and act as if that
+transaction that never occurred okay so
+
+332
+00:32:02,539 --> 00:32:12,440
+这是具有两阶段锁定的并发控制，这仅仅是
+that's concurrency control with
+two-phase locking and this is just
+
+333
+00:32:12,440 --> 00:32:22,399
+到目前为止，完全标准的数据库行为，并且一次都相同
+completely standard database behavior so
+far and it's the same in a single
+
+334
+00:32:22,399 --> 00:32:26,809
+机器数据库和分布式数据库
+machine databases as it will be and
+distributed databases that are a little
+
+335
+00:32:26,809 --> 00:32:32,620
+对我们有更多的兴趣，但我们的下一个话题实际上是针对
+more interest to us but our next topic
+is a little is actually specific to
+
+336
+00:32:32,620 --> 00:32:39,340
+总体上构建支持以下事务的数据库或存储系统： 
+building databases or storage systems in
+general that support transactions on
+
+337
+00:32:39,340 --> 00:32:45,590
+分布式设置，可将数据拆分到多台计算机上，因此现在
+distributed setting that is splitting
+the data over multiple machines so now
+
+338
+00:32:45,590 --> 00:32:53,720
+主题是如何建立分布式分布式事务以及
+the topic is how to build distributed
+distributed transactions and in
+
+339
+00:32:53,720 --> 00:32:58,880
+特别是如何应对失败，更具体地说是部分
+particular how to cope with failures and
+more specifically the kind of partial
+
+340
+00:32:58,880 --> 00:33:02,360
+您经常在分布式系统中看到的众多服务器之一发生故障
+failures of just one of many servers
+that you often see in distributed
+
+341
+00:33:02,360 --> 00:33:07,250
+分布式交易之外的其他系统，我们担心如何
+systems so beyond distributed
+transactions and we're worried about how
+
+342
+00:33:07,250 --> 00:33:13,159
+他们的行为是要确保它们可序列化，并且还具有
+they behave you make sure they're
+serializable and also have sort of
+
+343
+00:33:13,159 --> 00:33:21,970
+即使面对失败，全有或全无的广告Amissah T 
+all-or-nothing ad Amissah T even in the
+face of failures so
+
+344
+00:33:21,970 --> 00:33:26,000
+你知道我你知道这看起来像什么，我们可能有两个
+you know I you know what the way this
+looks like is that we may have two
+
+345
+00:33:26,000 --> 00:33:33,260
+服务器，我们得到了一个服务器，也许它在我们的银行中存储了记录X，我们
+servers and we got server one and maybe
+it stores record X in our bank and we
+
+346
+00:33:33,260 --> 00:33:37,850
+有两个服务器，也许是商店记录Y，所以它们都以
+have server two and maybe it's stores
+record Y so they all start out with
+
+347
+00:33:37,850 --> 00:33:44,150
+值10，我们需要运行这两个交易，即交易1 
+value 10 and we need to run these two
+transactions that transaction 1 of
+
+348
+00:33:44,150 --> 00:33:49,850
+当然会同时修改x和y，所以现在我们需要发送消息，数据库是
+course modifies both x and y so now we
+need to send messages the database is
+
+349
+00:33:49,850 --> 00:33:55,190
+说哦，请递增X请递减Y，但是如果我们
+saying oh please increment X please
+decrement Y but it would be easy if we
+
+350
+00:33:55,190 --> 00:33:59,390
+不小心进入我们告诉服务器1增加的情况
+weren't careful to get into a situation
+where we had told server 1 to increase
+
+351
+00:33:59,390 --> 00:34:03,530
+ X的余额，但随后发生故障，也许客户端发送了
+the balance for X but then something
+failed maybe the client sending the
+
+352
+00:34:03,530 --> 00:34:07,730
+请求或服务器服务器-保持Y失败或其他原因， 
+requests or maybe server the server -
+that's holding Y fails or something and
+
+353
+00:34:07,730 --> 00:34:14,270
+我们从未设法正确进行第二次更新，所以一个问题是失败
+we never managed to do the second update
+right so that's one problem is failure
+
+354
+00:34:14,270 --> 00:34:19,399
+某个地方可能会将交易减少一半，如果我们不这样做
+somewhere may sort of cut the
+transaction in half and if we're not
+
+355
+00:34:19,399 --> 00:34:26,740
+谨慎地导致只有一半的交易实际生效
+
+356
+00:34:34,460 --> 00:34:39,149
+如果X参与交易，即使没有崩溃也可能发生
+this can happen even without crashes if
+X does its part in the transaction it
+
+357
+00:34:39,149 --> 00:34:42,918
+可能是服务器到服务器上实际将请求发送到
+could be that over on server-to-server
+to actually gets the request to
+
+358
+00:34:42,918 --> 00:34:47,759
+递减银行帐户y，但服务器2可能发现此银行帐户
+
+359
+00:34:47,760 --> 00:34:52,079
+不存在或也许确实存在，并且当它不能平衡时余额已经为0 
+doesn't exist or maybe it does exist and
+it's balance is already 0 when it can't
+
+360
+00:34:52,079 --> 00:34:56,039
+被减少，因此它不能完成交易的一部分，但是X看起来有
+be decrease and so it can't do its part
+of the transaction but X look has
+
+361
+00:34:56,039 --> 00:35:00,329
+已经完成了交易的一部分，所以这是一个需要解决的问题
+already done its part of the transaction
+so that's a problem that needs to be
+
+362
+00:35:00,329 --> 00:35:11,849
+处理，所以我们想要的财产是我之前提到的
+dealt with so the the property we want
+as I mentioned before is that all the
+
+363
+00:35:11,849 --> 00:35:15,059
+系统的各个部分，或者系统的所有部分都应该做
+pieces of the system either all the
+pieces of the system should do their
+
+364
+00:35:15,059 --> 00:35:20,849
+交易的一部分或没有权利，所以您知道我们所从事的事情
+part of the transaction or none right so
+you know the kind of the thing we
+
+365
+00:35:20,849 --> 00:35:33,029
+违反这里是什么原子性来防止崩溃或失败，其中原子性
+violated here is what atomicity against
+crashes versus failure where atomicity
+
+366
+00:35:33,029 --> 00:35:42,210
+是我们尝试执行的交易的所有部分的全部还是全部？ 
+is all or not all parts all parts of the
+transaction that we're trying to execute
+
+367
+00:35:42,210 --> 00:35:51,089
+或全都不用，对于您来说，我们将要提供的解决方案是
+or none of them and for you more the
+kind of solution we're going to be
+
+368
+00:35:51,089 --> 00:35:59,299
+看看是原子承诺原子承诺协议和一般的
+looking at is atomic commitments atomic
+commit protocols and the general kind of
+
+369
+00:35:59,299 --> 00:36:02,940
+原子提交协议的味道是您有一堆计算机
+flavor of atomic commit protocols is
+that you have a bunch of computers
+
+370
+00:36:02,940 --> 00:36:08,190
+他们都在做更大的任务和原子提交的不同部分
+they're all doing different parts of
+some larger task and the atomic commit
+
+371
+00:36:08,190 --> 00:36:12,630
+协议将帮助计算机确定要么全部
+protocol is gonna help the computers
+decide that either they're all going to
+
+372
+00:36:12,630 --> 00:36:15,359
+他们是不是他们都有能力发挥自己的作用，他们实际上会做
+do they're they're all capable of doing
+their part and they're actually gonna do
+
+373
+00:36:15,359 --> 00:36:19,470
+它或某些地方出了问题，他们都同意哦
+it or something has gone wrong and
+they're all going to agree that oh
+
+374
+00:36:19,470 --> 00:36:23,809
+他们实际上都不是他们要去做的事
+they're actually none of them are gonna
+do their part of the whatever the
+
+375
+00:36:23,809 --> 00:36:28,230
+总体任务是，最大的挑战当然是如何应对各种挑战
+overall task is and the big challenges
+are of course how to cope with various
+
+376
+00:36:28,230 --> 00:36:32,089
+故障机器故障消息丢失，事实证明
+failures machine failures loss of
+messages and it'll turn out that
+
+377
+00:36:32,089 --> 00:36:39,000
+表现也很难做好
+performance is also a little bit
+difficult to do a good job with the
+
+378
+00:36:39,000 --> 00:36:42,150
+我们将要研究的特定协议，该协议在
+specific protocol we're gonna look at
+and is the protocol explained in a
+
+379
+00:36:42,150 --> 00:36:46,849
+今天阅读我们的两阶段提交
+reading for today our two-phase commit
+
+380
+00:36:52,920 --> 00:36:57,480
+这是一个原子承诺协议
+this is an atomic commitment protocol
+
+381
+00:36:58,109 --> 00:37:02,619
+分布式数据库和各种其他数据库都使用
+and this is used both by distributed
+databases and also by all kinds of other
+
+382
+00:37:02,619 --> 00:37:07,200
+最初看起来可能不像传统数据库的分布式系统
+distributed systems that might not have
+first looked like traditional databases
+
+383
+00:37:07,200 --> 00:37:13,329
+一般设置是假设我们以一种或另一种方式完成任务
+the general setting is we assume that
+that in one way or another the task we
+
+384
+00:37:13,329 --> 00:37:16,660
+需要执行的任务分散在多个服务器上，每个服务器都需要执行
+need to perform is split up over
+multiple servers each of which needs to
+
+385
+00:37:16,660 --> 00:37:22,390
+每个人都做一些不同的部分，例如，因为我被定为
+do some part a different part each one
+of them so for example because I'm set
+
+386
+00:37:22,390 --> 00:37:26,440
+我在这里显示的是其中真正分散的数据，因此
+up I showed here in which the it's
+really the data that split up and so the
+
+387
+00:37:26,440 --> 00:37:34,690
+任务被分割成递增的X和递减的YD 
+tasks being split up our incrementing X
+and decrementing Y D we're going to
+
+388
+00:37:34,690 --> 00:37:40,210
+假设有一台驱动交易的计算机称为
+assume that there's one computer that's
+driving the transaction called the
+
+389
+00:37:40,210 --> 00:37:57,460
+交易协调员有很多安排交易方式的方法
+transaction coordinator there's lots of
+ways of arranging how the transaction
+
+390
+00:37:57,460 --> 00:38:00,910
+协调员介入，但我们将其想象成一台计算机， 
+coordinator steps in but we'll just
+imagine it as a computer that is
+
+391
+00:38:00,910 --> 00:38:04,539
+实际运行交易时，交易协调员只有一台计算机
+actually running the transaction there's
+one computer the transaction coordinator
+
+392
+00:38:04,539 --> 00:38:08,950
+那就是执行类似puts和
+that's that's executing the sort of code
+for the transaction like the puts and
+
+393
+00:38:08,950 --> 00:38:14,589
+获取和添加，它将消息发送到保存
+the gets and the adds and it sends
+messages to the computers that hold the
+
+394
+00:38:14,589 --> 00:38:18,900
+需要实际执行不同部分的不同数据，因此
+different pieces of data that need to
+actually execute the different parts so
+
+395
+00:38:18,900 --> 00:38:23,500
+对于我们的设置，我们将有一台交易协调器的计算机
+for our setup we're going to have one
+computer of the transaction coordinator
+
+396
+00:38:23,500 --> 00:38:33,430
+并且将由这些服务器一和服务器二进行X＆Y交易
+and it's going to be these server one
+and server two that hold X&Y transaction
+
+397
+00:38:33,430 --> 00:38:36,549
+协调员，我们将向服务器发送一条消息，说哦，请增加X 
+coordinator we'll send a message to
+server one saying oh please increment X
+
+398
+00:38:36,549 --> 00:38:40,510
+向服务器Y发送一条消息，说哦，请递减Y，然后会有
+send a message to server Y saying oh
+please decrement Y and then there'll be
+
+399
+00:38:40,510 --> 00:38:44,680
+更多消息，以确保它们两者都执行或不执行
+more messages in order to make sure that
+either they both do it or neither than
+
+400
+00:38:44,680 --> 00:38:50,109
+做到这一点，这是两阶段提交将某些内容保留在后面的地方
+do it and that's where two-phase commit
+steps in something to keep in the back
+
+401
+00:38:50,109 --> 00:38:53,980
+您的想法是，在整个系统中可能会有许多不同的交易
+your mind is that in the full system
+there may be many different transactions
+
+402
+00:38:53,980 --> 00:38:57,890
+同时运行和许多事务协调器
+running concurrently and many
+transaction coordinators
+
+403
+00:38:57,890 --> 00:39:03,319
+执行自己的交易，因此这里的各方都需要
+sort of executing their own transactions
+and so the various parties here need to
+
+404
+00:39:03,319 --> 00:39:06,890
+跟踪哦，您知道这是某某交易的消息
+keep track of oh you know this is a
+message for such-and-such a transaction
+
+405
+00:39:06,890 --> 00:39:10,849
+并保持这些状态，结果这些服务器将
+and where they keep state like these
+turns out these servers are going to
+
+406
+00:39:10,849 --> 00:39:14,660
+例如，维护表两个块，它们保持所需状态
+maintain table two blocks for example
+and they keep state like that they need
+
+407
+00:39:14,660 --> 00:39:18,680
+跟踪哦，这是为交易而持有的锁17 
+to keep track of oh this is a lock
+that's being held for transactions 17 so
+
+408
+00:39:18,680 --> 00:39:31,819
+有一个交易ID的概念，我只是假设，尽管您知道
+there's a notion of transaction IDs and
+I'm just gonna assume although you know
+
+409
+00:39:31,819 --> 00:39:35,630
+我并没有真正表明系统中的每条消息都带有
+I'm not actually show it that every
+message in the system is tagged with the
+
+410
+00:39:35,630 --> 00:39:39,470
+具有适用于该交易的交易的唯一交易ID的交易，以及
+transaction with the unique transaction
+ID of the transaction it applies to and
+
+411
+00:39:39,470 --> 00:39:43,099
+这些ID由交易协调员在交易开始时选择
+these IDs are chosen by the transaction
+coordinator when the transaction starts
+
+412
+00:39:43,099 --> 00:39:47,420
+交易协调员将发出哦，这是交易消息
+the transaction coordinator will send
+out oh this is a message for transaction
+
+413
+00:39:47,420 --> 00:39:52,579
+ 1995年，它将在此处保留有关交易的所有状态，将被标记
+1995 and it'll keep all its state here
+about the transaction will be tagged
+
+414
+00:39:52,579 --> 00:39:59,210
+ 95和不同参与者中的各种表格
+with 95 and the various tables in the
+different participants in the
+
+415
+00:39:59,210 --> 00:40:04,040
+交易将使用交易ID进行标记，这是另一个
+transaction will be tagged with the
+transaction IDs and so that's another
+
+416
+00:40:04,040 --> 00:40:07,910
+术语，我们得到了交易协调员，然后
+piece of terminology we got the
+transaction coordinator and then the
+
+417
+00:40:07,910 --> 00:40:15,700
+执行事务的其他服务器称为参与者
+other servers that are doing parts of
+the transaction are called participants
+
+418
+00:40:20,020 --> 00:40:24,589
+好吧，让我画出两阶段提交
+all right
+so let me draw out the two-phase commit
+
+419
+00:40:24,589 --> 00:40:32,390
+协议示例执行，因此这是PC的两相缩写
+protocol example execution so this is
+abbreviate this to PC for two-phase
+
+420
+00:40:32,390 --> 00:40:40,130
+承诺涉及的各方是交易协调员，我们将
+commit the parties involved are the
+transaction coordinator and we'll just
+
+421
+00:40:40,130 --> 00:40:43,160
+说有两个参与者，你知道也许我们正在执行
+say there's two participants that is you
+know maybe we're executing the
+
+422
+00:40:43,160 --> 00:40:48,250
+接下来显示的事务以及为什么没有不同的服务器，也许我们有
+transactions I've shown next and why
+aren't different servers maybe we've got
+
+423
+00:40:48,250 --> 00:40:57,010
+参与者a和参与者b这是两个保存数据的不同服务器
+participant a and participant B these
+are two different servers holding data
+
+424
+00:40:57,010 --> 00:41:01,099
+所以交易协调员正在运行整个交易
+so the transaction coordinator it's
+running the whole transaction it's it's
+
+425
+00:41:01,099 --> 00:41:06,170
+会发送看跌期权并到达a和B告诉他们您知道读取的值
+gonna send puts and gets to a and B to
+tell them to you know read the value of
+
+426
+00:41:06,170 --> 00:41:11,109
+ x或y或将一个加到X，所以我们将在树的开头看到
+x or y or add one to X so we're going to
+see at the beginning of the tree
+
+427
+00:41:11,109 --> 00:41:15,309
+事务协调器正在发送的操作，例如可能是获取
+action that the transaction coordinator
+is sending for example maybe a get
+
+428
+00:41:15,309 --> 00:41:21,160
+向Trent参与者a请求，它得到答复，然后也许发送
+requests to Trent participant a and it
+gets a reply and then maybe it sends
+
+429
+00:41:21,160 --> 00:41:29,170
+如果有可能，我可能会看到很长的序列
+that put for whatever I might see a long
+sequence of these if there's a
+
+430
+00:41:29,170 --> 00:41:35,410
+复杂的交易，然后交易协调员结束
+complicated transaction then when
+transaction coordinator gets to the end
+
+431
+00:41:35,410 --> 00:41:40,779
+交易并想要提交并知道释放所有交易
+of the transaction and wants to commit
+it and be able to you know release all
+
+432
+00:41:40,779 --> 00:41:44,140
+这些锁并使交易结果对外界可见，并且
+those locks and make the transactions
+results visible to the outside world and
+
+433
+00:41:44,140 --> 00:41:49,569
+可能是回复客户或人类用户，所以他们假设有一种
+maybe reply to a client or a human user
+so they were assuming there's a sort of
+
+434
+00:41:49,569 --> 00:41:54,160
+外部客户或人员说，哦，请运行此交易， 
+external client or human that said oh
+please run this transaction and it's
+
+435
+00:41:54,160 --> 00:41:59,019
+等待响应，然后我们才能执行任何事务协调
+waiting for a response before we can do
+any of that the transaction coordinate
+
+436
+00:41:59,019 --> 00:42:04,119
+协调员必须确保所有不同的参与者都可以实际
+coordinator has to make sure that all
+the different participants can actually
+
+437
+00:42:04,119 --> 00:42:08,950
+尽自己的职责，尤其是如果有任何看跌期权
+do their part of the transaction and in
+particular if there were any puts in the
+
+438
+00:42:08,950 --> 00:42:14,230
+交易，我们需要确保正在做这些的参与者
+transaction we need to make sure that
+the participants who are doing those
+
+439
+00:42:14,230 --> 00:42:19,509
+推杆实际上仍然能够执行推杆，因此为了发现
+puts well are actually still capable of
+doing the puts so in order to find that
+
+440
+00:42:19,509 --> 00:42:32,009
+交易协调员将准备消息发送给所有
+out the transaction coordinator sends
+prepare messages to all of the
+
+441
+00:42:32,009 --> 00:42:39,180
+参与者，所以我们将同时发送配对消息到a和B 
+participants so we're going to send pair
+messages to both a and B
+
+442
+00:42:41,619 --> 00:42:45,650
+当a或B收到准备者消息时，您知道他们知道
+and when a or B would receive a preparer
+message you know they know the
+
+443
+00:42:45,650 --> 00:42:49,089
+交易即将完成，但尚未结束
+transaction is nearing completion but
+not not over yet
+
+444
+00:42:49,089 --> 00:42:52,849
+他们查看自己的状态并决定他们是否真正有能力
+they look at their state and decide
+whether they are actually able to
+
+445
+00:42:52,849 --> 00:42:56,119
+完成您知道的交易，也许他们需要中止交易以打破僵局
+complete the transaction you know maybe
+they needed to abort it break a deadlock
+
+446
+00:42:56,119 --> 00:43:02,299
+也许他们坠毁了，我们开始了，但是你们之间知道他们什么时候做的
+or maybe they've crashed and we started
+but between you know when they did the
+
+447
+00:43:02,299 --> 00:43:05,029
+现在是最后一次手术，他们已经完全忘记了
+last operation are now and they've
+completely forgotten about the
+
+448
+00:43:05,029 --> 00:43:08,690
+交易并且无法完成交易，所以您知道A和B的状态， 
+transaction and can't complete it so a
+and B you know look at their state and
+
+449
+00:43:08,690 --> 00:43:11,809
+说哦，我将能够或我将无法执行此交易
+say oh I'm going to be able to or I'm
+not gonna be able to do this transaction
+
+450
+00:43:11,809 --> 00:43:18,910
+他们回答是或否
+and they respond with either yes or no
+
+451
+00:43:24,730 --> 00:43:31,880
+因此交易协调员正在等待来自这些的赞成或反对表决
+so the transaction coordinator is
+waiting for these yes or no votes from
+
+452
+00:43:31,880 --> 00:43:42,589
+每个参与者，如果所有人都说“是”，则交易可以提交
+each of the participants if they all say
+yes then the transaction can commit
+
+453
+00:43:42,589 --> 00:43:47,839
+事务可以提交且事务协调器没有错
+nothing goes wrong the transaction can
+commit and the transaction coordinator
+
+454
+00:43:47,839 --> 00:44:02,839
+向每个参与者发送提交消息，然后
+sends out a commit message to each of
+the participants and then the
+
+455
+00:44:02,839 --> 00:44:07,880
+参与者通常会在回覆中说，是的，我们现在知道
+participants usually reply with an
+acknowledgement saying yes we now know
+
+456
+00:44:07,880 --> 00:44:14,630
+结果就是所谓的技术学，所以他们都交易
+the outcome this is called the echnology
+all right so they all transaction
+
+457
+00:44:14,630 --> 00:44:19,160
+协调员，因为我准备者是否所有参与者都同意，如果
+coordinator since I preparers if all the
+participants say yes it can commit if
+
+458
+00:44:19,160 --> 00:44:24,289
+其中任何一个人甚至一个人都说不，实际上我无法完成此任务
+anyone in any of them even a single one
+says no actually I cannot complete this
+
+459
+00:44:24,289 --> 00:44:29,329
+交易是因为我失败或出现不一致的情况
+transaction because I had a failure or
+there was an inconsistency like a
+
+460
+00:44:29,329 --> 00:44:34,099
+缺少记录，我什至必须中止一个参与者说不
+missing record and I have to abort even
+a single participant says no at this
+
+461
+00:44:34,099 --> 00:44:38,390
+然后交易协调员不会提交，它将发出一轮
+point then the transaction coordinator
+won't commit it'll send out a round of
+
+462
+00:44:38,390 --> 00:44:47,380
+中止消息，哎呀，请以两种方式撤回该交易
+abort messages saying oops please
+retract this transaction either way the
+
+463
+00:44:47,380 --> 00:44:52,700
+在提交两件事之后，我们感兴趣的事情发生了
+after the commit sort of to two things
+happen of interest to us
+
+464
+00:44:52,700 --> 00:44:57,349
+一是交易协调员将铸造任何交易输出
+one is the transaction coordinator will
+mint whatever the transactions output is
+
+465
+00:44:57,349 --> 00:45:00,980
+向要求它的客户或人员说，看，哦，是的，交易
+to the client or human that requested it
+and say look oh yes the transactions
+
+466
+00:45:00,980 --> 00:45:04,970
+完成，所以现在，如果它不中止提交，则可以持久使用
+finish and so now if it didn't abort a
+committed it's durable
+
+467
+00:45:04,970 --> 00:45:12,890
+另一个有趣的事情是，为了遵守这些锁定规则， 
+the other interesting thing is that in
+order to obey these locking rules the
+
+468
+00:45:12,890 --> 00:45:23,240
+参与者在看到提交或中止并且确实有序时解锁
+participants unlock when they see either
+commit or an abort and indeed in order
+
+469
+00:45:23,240 --> 00:45:32,420
+为了遵守两个阶段锁定规则，每个参与者都锁定了它读取的任何数据
+to obey the two phase locking rule each
+participant locked any data that it read
+
+470
+00:45:32,420 --> 00:45:35,990
+作为完成交易的一部分，因此我们在想象中
+as part of doing its part of the
+transaction so we're imagining that in
+
+471
+00:45:35,990 --> 00:45:40,369
+每个参与者都有一张与存储在以下位置的数据相关的锁表
+each participant there's a table of the
+locks associated with the data stored at
+
+472
+00:45:40,369 --> 00:45:44,900
+该参与者和参与者在这些表中锁定了一些东西
+that participant and the participant
+sort of lock things in those tables
+
+473
+00:45:44,900 --> 00:45:49,040
+记住哦，这是您知道该记录被锁定的那段数据
+remember oh this is you know this piece
+of data this record is locked for
+
+474
+00:45:49,040 --> 00:45:52,819
+事务二十九，最后提交或中止返回版本
+transaction twenty nine and one finally
+the commit or abort comes back versions
+
+475
+00:45:52,819 --> 00:45:57,170
+行动29，参与者解锁该数据，然后其他
+action twenty-nine the participant
+unlocks that data and then other
+
+476
+00:45:57,170 --> 00:46:02,750
+交易可以使用，因此我们可能必须在这里等待，并且此解锁可能会解除阻止
+transactions can use so we may have to
+wait here and this unlock may unblock
+
+477
+00:46:02,750 --> 00:46:13,640
+其他事务实际上是可序列化机制的一部分，因此您
+other transactions that's really part of
+the serializability machinery so you
+
+478
+00:46:13,640 --> 00:46:19,310
+到目前为止，基本上知道这是正确的原因是
+know so far the reason why this is
+correct basically is that the if
+
+479
+00:46:19,310 --> 00:46:23,480
+每个人都遵循这个协议，没有失败，然后两个
+everybody's following this protocol
+there's no failures then the two
+
+480
+00:46:23,480 --> 00:46:29,060
+参与者只有在他们都承诺的情况下才承诺，如果我他们不能承诺，则
+participants only commit if both of them
+commit and if I them can't commit if
+
+481
+00:46:29,060 --> 00:46:33,230
+我必须让他们中止然后他们都中止，所以我们得到他们要么都做
+I've them has to abort then they both
+abort so we get that either they all do
+
+482
+00:46:33,230 --> 00:46:40,790
+它或它们都不做，导致我们想要此原子性结果
+it or none of them do it result that we
+wanted the atomicity result with this
+
+483
+00:46:40,790 --> 00:46:47,270
+到目前为止，我们都没有考虑失败，所以现在我们的工作是
+protocol so far without without thinking
+about failures and so now our job is to
+
+484
+00:46:47,270 --> 00:46:50,510
+在我们脑海中思考各种不同类型的失败， 
+think through in our head all sort of
+the different kinds of failures that
+
+485
+00:46:50,510 --> 00:46:56,810
+可能会发生，并找出协议是否仍然提供原子性
+might occur and figure out whether the
+protocol still provides atomicity either
+
+486
+00:46:56,810 --> 00:47:01,490
+面对这些失败以及我们必须如何应对
+both do it or neither do it in the face
+of these failures and how we have to
+
+487
+00:47:01,490 --> 00:47:07,579
+调整或扩展协议以使其执行正确的操作，因此
+adjust or extend the protocol in order
+to cause it to do the right thing so the
+
+488
+00:47:07,579 --> 00:47:11,059
+我要考虑的第一件事是崩溃和
+first thing I want
+consider is what it be crashes and
+
+489
+00:47:11,059 --> 00:47:15,739
+重新启动我的意思是电源故障或某种原因
+restarts
+I mean power failure or something be
+
+490
+00:47:15,739 --> 00:47:20,269
+只是有些突然停止执行，然后恢复供电， 
+just some suddenly stops executing and
+then powers restored and it's brought
+
+491
+00:47:20,269 --> 00:47:26,359
+回到生活并运行一些可能的某种恢复软件作为
+back to life and run some maybe some
+sort of recovery software as part of the
+
+492
+00:47:26,359 --> 00:47:32,059
+交易处理系统确实有两种情况我们必须
+transaction processing system well
+there's really two scenarios we have to
+
+493
+00:47:32,059 --> 00:47:41,169
+担心一个是B在升序之前可能已经崩溃了，是的。 
+worry about one is B might have crashed
+before ascending it's yes message back
+
+494
+00:47:41,889 --> 00:47:48,559
+所以B在发送回yes消息之前崩溃了，所以它从没说过yes 
+so B crash before sending its yes
+message back then it never said yes so
+
+495
+00:47:48,559 --> 00:47:53,479
+交易协调员可能没有承诺或将要
+the transaction coordinator couldn't
+possibly have committed or be about to
+
+496
+00:47:53,479 --> 00:47:57,799
+提交，因为它必须等待所有参与者的同意，以便B可以
+commit because it has to wait for a yes
+from all participants so if B can
+
+497
+00:47:57,799 --> 00:48:02,029
+说服自己它不可能发送回是
+convince itself that it could not
+possibly have sent a yes back that is a
+
+498
+00:48:02,029 --> 00:48:06,859
+在发送“是”之前崩溃，则B有权单方面中止
+crash before sending the yes then B is
+entitled to unilaterally abort the
+
+499
+00:48:06,859 --> 00:48:11,119
+交易本身，并忘记它，因为它知道交易
+transaction itself and forget about it
+because it knows the transaction
+
+500
+00:48:11,119 --> 00:48:18,159
+协调员可能无法提交，因此[音乐] 
+coordinator can't possibly commit it so
+[Music]
+
+501
+00:48:18,159 --> 00:48:21,619
+您知道实现此可能性的多种方法是
+there's you know a number of ways of
+implementing this one possibility is
+
+502
+00:48:21,619 --> 00:48:25,549
+所有有关尚未达到此目的的交易的信息
+that all of these information about
+transactions that haven't reached this
+
+503
+00:48:25,549 --> 00:48:30,079
+点在内存中，它只是丢失了，B崩溃并重新启动，因此B不会
+point is in memory and it simply lost it
+B crashes and reboots so B just won't
+
+504
+00:48:30,079 --> 00:48:35,179
+对尚未回传的交易一无所知
+know anything about transactions that
+haven't haven't sent yes back yet and
+
+505
+00:48:35,179 --> 00:48:39,649
+然后，如果交易协调员将准备消息发送给参与者
+then if the transaction coordinator
+sends a prepare message to a participant
+
+506
+00:48:39,649 --> 00:48:42,439
+对交易一无所知，因为它之前崩溃了
+that doesn't know anything about the
+transaction because it crashed before
+
+507
+00:48:42,439 --> 00:48:47,959
+发送是，各方会说不，我不能同意你
+sending yes the the parties will say no
+no I cannot possibly agree to that you
+
+508
+00:48:47,959 --> 00:48:50,829
+知道请中止
+know please abort
+
+509
+00:48:51,489 --> 00:49:00,589
+可以，但是当然B可能会在发送回yes后崩溃了，这有点
+okay but of course maybe B crashed after
+sending a yes back so that's a little
+
+510
+00:49:00,589 --> 00:49:05,479
+更加棘手，所以不是在飞机坠毁中这不是B做好准备的原因
+more tricky so wasn't in the crash
+this wasn't a B gets a prepare its it's
+
+511
+00:49:05,479 --> 00:49:09,739
+很高兴它说是的，我要提交，然后在崩溃之前崩溃
+happy it says yes I'm going to commit
+and then it crashes before it gets the
+
+512
+00:49:09,739 --> 00:49:14,599
+现在，我们已经很好地提交了交易雇主协调员的消息
+commit message from the transaction
+employer coordinator well now we had
+
+513
+00:49:14,599 --> 00:49:19,329
+如果被告知这样做，我们将处于完全不同的情况
+we're in a totally different situation B
+is promised to commit if told to do so
+
+514
+00:49:19,329 --> 00:49:23,360
+因为发送肯定答复，并且所有人都知道，实际上是最有可能发生的事情
+because the send a yes back and for all
+knows and indeed the most likely thing
+
+515
+00:49:23,360 --> 00:49:26,960
+发生这种情况的是交易协调员从a和B以及a 
+that's happening is the transaction
+coordinator got yeses from a and B and a
+
+516
+00:49:26,960 --> 00:49:31,100
+向a发送了一条提交消息，以便a实际上将其部分
+sent a commit message to a so that a
+actually will do its part of the
+
+517
+00:49:31,100 --> 00:49:35,300
+交易并使其永久化并释放锁，在这种情况下依次
+transaction and make it permanent and
+release locks and in that case in order
+
+518
+00:49:35,300 --> 00:49:39,860
+为了兑现全部或全部，我们绝对需要B在这一点上崩溃
+to honor all or nothing we're absolutely
+required it B should crash at this point
+
+519
+00:49:39,860 --> 00:49:44,660
+恢复后仍准备完成其部分
+that on recovery that it be still
+prepared to complete its part of the
+
+520
+00:49:44,660 --> 00:49:46,460
+当时还不知道的交易
+transaction
+it doesn't actually know at that point
+
+521
+00:49:46,460 --> 00:49:50,030
+您是否知道是因为尚未收到委员会的书，以及是否
+whether you know because it hasn't
+received the committee ette and whether
+
+522
+00:49:50,030 --> 00:49:53,210
+它是否应该提交，但仍必须准备提交，以及
+it should commit or not but it must
+still be prepared to commit and what
+
+523
+00:49:53,210 --> 00:49:59,390
+这意味着我们不能在整个交易中失去交易状态
+that means the fact that we can't lose
+the state for a transaction across
+
+524
+00:49:59,390 --> 00:50:07,580
+崩溃并重新启动是在B回复准备之前
+crashes and reboots
+is that before B replies to a prepare it
+
+525
+00:50:07,580 --> 00:50:14,780
+必须使事务状态成为这种中间事务状态
+must make the transaction state this
+sort of intermediate transaction state
+
+526
+00:50:14,780 --> 00:50:17,960
+进行的所有更改的内存，如果需要，则必须撤消
+the memory of all of the changes that's
+made which may have to be undone if
+
+527
+00:50:17,960 --> 00:50:22,040
+有一个异常中止加上所有锁的记录，记录了交易如何进行
+there's an abort plus the record of all
+the locks the transactions how it held
+
+528
+00:50:22,040 --> 00:50:28,400
+它必须使磁盘之间的持久性几乎始终处于登录状态
+it must make that durable on disk in
+between it's almost always in a log on
+
+529
+00:50:28,400 --> 00:50:35,930
+磁盘，因此在B答复之前是B会在B发送s4答复准备之前
+disk so before B replies yes before B
+sends the s4 in reply to a prepare
+
+530
+00:50:35,930 --> 00:50:42,020
+消息，它首先必须在其日志中写入磁盘所需的所有信息
+message it first must write to disk in
+its log all the information required to
+
+531
+00:50:42,020 --> 00:50:48,260
+提交该交易，该交易是put产生的所有新值加上一个完整的
+commit that transaction that is all the
+new values produced by put plus a full
+
+532
+00:50:48,260 --> 00:50:53,750
+磁盘或其他持久性存储器上的锁列表，然后应用
+list of locks on the disk or some other
+persistent memory before applying with
+
+533
+00:50:53,750 --> 00:50:58,250
+是的，然后是否应该有B是理智后的崩溃，那是
+yes and then if there should be if it
+B's your crash after sanity yes that's
+
+534
+00:50:58,250 --> 00:51:01,670
+恢复的一部分，当它重新启动时，请看一下他的日志并说哦，天哪
+part of recovery when it restarts that a
+look at his it's log and say oh gosh I
+
+535
+00:51:01,670 --> 00:51:06,290
+在交易中间，我对交易92的回答是“是” 
+was in the middle of a transaction I had
+replied yes for transaction 92 I mean
+
+536
+00:51:06,290 --> 00:51:09,410
+您知道这是提交后应该进行的所有修改以及所有
+you know here's all the modifications it
+should make if committed and all the
+
+537
+00:51:09,410 --> 00:51:13,760
+锁定它，我最好恢复该状态，然后
+locks it held
+I better restore that state and then
+
+538
+00:51:13,760 --> 00:51:17,900
+当他最终获得​​承诺或中止时，通过阅读其承诺将会知道
+when he finally gets a commitment nor an
+abort it'll know from having read its
+
+539
+00:51:17,900 --> 00:51:23,060
+记录如何实际完成交易的一部分，所以这是一个
+log how to actually finish its part of
+the transaction so so this is an
+
+540
+00:51:23,060 --> 00:51:29,510
+我从该协议的原始布局中遗漏的重要一件事是
+important thing I left out of the
+original laying out of this protocol is
+
+541
+00:51:29,510 --> 00:51:34,230
+ B必须在此时写入其磁盘
+that B must write to its disk at this
+point
+
+542
+00:51:34,230 --> 00:51:39,000
+这是使两阶段提交速度稍慢的部分原因在于
+and this is part of what makes two-phase
+commit a little bit slow is that there's
+
+543
+00:51:39,000 --> 00:51:47,400
+这些必要的信息持续存在在这里，所以我们也必须
+these necessary persisting of
+information here okay so we also have to
+
+544
+00:51:47,400 --> 00:51:51,900
+担心还可以，您知道我可能最后撞到的地方是
+worry about okay and you know the final
+place I guess where you might crash is
+
+545
+00:51:51,900 --> 00:51:58,250
+您可能会因为接收到提交或之后两者都崩溃而崩溃
+you might crash be my crashed after
+receiving the commit or or after both
+
+546
+00:51:58,250 --> 00:52:02,250
+在实际处理提交之后，您可能会崩溃，但是在那之后
+you might crash after actually
+processing the commit and but in that
+
+547
+00:52:02,250 --> 00:52:08,820
+如果进行了修改，则交易意味着永久
+case it's made modifications that the
+transaction means to make permanent in
+
+548
+00:52:08,820 --> 00:52:15,150
+它的数据库大概也在收到提交之前在磁盘上
+its database presumably also on disk
+before after it received a commit
+
+549
+00:52:15,150 --> 00:52:18,660
+消息，在这种情况下，如果重新启动，则可能无需执行任何操作
+message and in that case there's maybe
+not anything to do if it restarts
+
+550
+00:52:18,660 --> 00:52:23,850
+因为事务已完成，所以当B收到提交消息时
+because the transaction is finished so
+when B receives the commit message it
+
+551
+00:52:23,850 --> 00:52:29,910
+可能会将修改的副本从其登录写入其
+probably writes the copies the
+modifications from its log on to its
+
+552
+00:52:29,910 --> 00:52:34,710
+永久存储释放此锁定会删除有关
+permanent storage releases this locks
+erases the information about the
+
+553
+00:52:34,710 --> 00:52:38,970
+几个月的交易记录，然后答复，我们当然要担心
+transaction of months log and then
+replies and of course we have to worry
+
+554
+00:52:38,970 --> 00:52:43,680
+关于您知道如果两次收到提交消息可能正确吗
+about you know what if it receives a
+commit message twice probably the right
+
+555
+00:52:43,680 --> 00:52:48,600
+要做的是让B记住占用内存的事务
+thing to do is either for B to remember
+about the transaction that takes memory
+
+556
+00:52:48,600 --> 00:52:53,100
+因此事实证明，B只是忘记了已提交的事务
+so it turns out that it B simply forgets
+about committed transactions that it's
+
+557
+00:52:53,100 --> 00:52:58,740
+使其在磁盘上具有持久性，如果没有，则可以回复重复的提交消息
+made durable on disk it can reply to a
+repeated commit message if it doesn't
+
+558
+00:52:58,740 --> 00:53:03,420
+只需再次确认该交易即可了解有关该交易的任何信息， 
+know anything about that transaction by
+simply acknowledging it again and
+
+559
+00:53:03,420 --> 00:53:08,250
+稍后会很重要，这就是一个故事
+that'll be an important a little bit
+later on ok so that's the story of one
+
+560
+00:53:08,250 --> 00:53:12,930
+的参与者在各种尴尬的时刻坠毁，那
+of the participants crashes at various
+awkward points what about the
+
+561
+00:53:12,930 --> 00:53:16,470
+交易协调员，也只是一台计算机，对不起，您知道吗
+transaction coordinator it's also just a
+single computer sorry you know if it
+
+562
+00:53:16,470 --> 00:53:29,460
+失败可能是个问题，所以再次说明问题开始的关键
+fails might be a problem okay so again
+the critical where things start getting
+
+563
+00:53:29,460 --> 00:53:36,900
+关键是如果任何一方可能已经承诺，那么我们就不会忘记
+critical is if any party might have
+committed then we cannot forget about
+
+564
+00:53:36,900 --> 00:53:41,369
+如果这些参与者中的任何一个可能已经做出承诺，或者
+that if any either of these participants
+might have committed or if the
+
+565
+00:53:41,369 --> 00:53:47,500
+交易协调员可能已经回复了客户，那么我们不能
+transaction coordinator might have
+replied to the client then we cannot
+
+566
+00:53:47,500 --> 00:53:52,840
+如果a已提交，则使该交易消失，但是也许它的交易
+have that transaction go away right if a
+is committed but maybe its transaction
+
+567
+00:53:52,840 --> 00:53:56,050
+协调员向发出了提交消息，但还没有到
+the coordinator sent out a commit
+message to a but hadn't gotten around to
+
+568
+00:53:56,050 --> 00:53:59,770
+发送一个承诺，在那一刻交易崩溃
+sending a commitment to be the crashes
+at that point the transaction
+
+569
+00:53:59,770 --> 00:54:05,230
+协调器必须在重新启动时准备好以重新发送提交消息以使
+coordinator must be prepared on restart
+to resend the commit messages to make
+
+570
+00:54:05,230 --> 00:54:14,710
+确保双方都知道交易已完成，所以您
+sure that both parties know that the
+transaction is committed so okay so you
+
+571
+00:54:14,710 --> 00:54:17,140
+知道这是否重要取决于交易协调员在哪里
+know whether that matters depends on
+where the transaction coordinator
+
+572
+00:54:17,140 --> 00:54:21,910
+如果崩溃是在发送提交消息之前崩溃的，那真的没关系
+crashes if the crash is before sending
+commit messages it doesn't really matter
+
+573
+00:54:21,910 --> 00:54:26,620
+因为交易协调员未发送，所以您知道双方都不知道
+neither party if you know since the
+transaction coordinator didn't send
+
+574
+00:54:26,620 --> 00:54:33,120
+在崩溃之前提交消息，它可以中止事务，如果有的话
+commit messages before crashing it can
+just abort the transaction and if either
+
+575
+00:54:33,120 --> 00:54:36,670
+参与者询问该交易，因为他们知道交易发生在他们的
+participant asks about that transaction
+because they you know see it's in their
+
+576
+00:54:36,670 --> 00:54:40,570
+日志，但他们从未收到提交消息，事务协调员可以说我
+log but they never got a commit message
+the transaction coordinator can say I
+
+577
+00:54:40,570 --> 00:54:43,270
+对该交易一无所知，它必须已中止
+don't know anything about that
+transaction it must have been aborted
+
+578
+00:54:43,270 --> 00:54:47,680
+可能是因为当机，如果交易协调员会发生这种情况
+possibly due to a crash so that's what
+happens if the transaction coordinator
+
+579
+00:54:47,680 --> 00:54:52,570
+在提交之前崩溃，但是如果在发送一个或多个之后崩溃
+crashes before the commit but if a
+crashes after sending one or more
+
+580
+00:54:52,570 --> 00:55:02,170
+提交消息，则它无法捍卫行动协调员，不允许
+commits message then it cannot defends
+action coordinator can't be allowed to
+
+581
+00:55:02,170 --> 00:55:08,260
+忘记交易，这意味着什么时候
+forget about the transaction and what
+that means is that at this point when
+
+582
+00:55:08,260 --> 00:55:11,920
+在事务协调器之后，它进行了提交或中止操作
+that after the transaction coordinator
+it's made its commit versus abort
+
+583
+00:55:11,920 --> 00:55:16,060
+在发出任何提交之前，基于这些是/否表决决定
+decision on the basis of these yes/no
+votes before sending out any commit
+
+584
+00:55:16,060 --> 00:55:22,960
+消息，它必须首先将有关交易的信息写入登录
+messages it must first write information
+about the transaction to its login in
+
+585
+00:55:22,960 --> 00:55:27,850
+永久性存储，例如磁盘，如果崩溃，它将仍然存在
+persistent storage like a disk that will
+still be there if it crashes and
+
+586
+00:55:27,850 --> 00:55:32,800
+重新启动，以便事务协调器在收到完整的是或
+restarts so transaction coordinator
+after receives a full set of yeses or
+
+587
+00:55:32,800 --> 00:55:38,020
+ noes将结果和事务ID写入磁盘上的日志，然后
+noes writes the outcome and the
+transaction ID to its log on disk and
+
+588
+00:55:38,020 --> 00:55:41,920
+只有这样，它才会开始发出提交消息，并且如果崩溃发生在
+only then it starts to send out commit
+messages and that way if a crash is at
+
+589
+00:55:41,920 --> 00:55:47,710
+可能在它的第一条提交消息结束之前或发送之后，或者
+any point maybe before its end the first
+commit message or after its sent one or
+
+590
+00:55:47,710 --> 00:55:51,640
+也许甚至在发送所有文件后都崩溃了，这表明其恢复软件
+maybe even after sent all of them if it
+crashes that point its recovery software
+
+591
+00:55:51,640 --> 00:55:55,630
+将在事务中间的日志AHA中看到该事务
+will see in the log AHA which is in the
+middle of a transaction the transaction
+
+592
+00:55:55,630 --> 00:55:59,470
+已知已被提交或中止
+was either known to have been committed
+or aborted
+
+593
+00:55:59,470 --> 00:56:04,349
+作为恢复的一部分，它将向所有参与者重新发送提交消息
+and as part of recovery it will resend
+commit messages to all the participants
+
+594
+00:56:04,349 --> 00:56:10,420
+或中止任何决定，以防万一之前没有发送过消息
+or abort messages whatever the decision
+was in case it hadn't sent them before
+
+595
+00:56:10,420 --> 00:56:14,520
+它崩溃了，这就是为什么参与者必须做好准备的原因之一
+it crashed and that's one reason why the
+participants have to be prepared to
+
+596
+00:56:14,520 --> 00:56:24,540
+接收重复的提交消息好吗
+receive duplicated commit messages okay
+
+597
+00:56:27,450 --> 00:56:34,119
+所以还有其他一些是我们也要担心的主要崩溃故事
+so there's some other so those are the
+main crash stories we also have to worry
+
+598
+00:56:34,119 --> 00:56:37,510
+关于如果网络中丢失了消息会发生什么，您可能会发送一条消息
+about what happens if messages are lost
+in the network you might send a message
+
+599
+00:56:37,510 --> 00:56:40,990
+也许消息从未到达那里，您可能会发送一条消息并等待
+maybe the message never got there you
+might send a message and be waiting for
+
+600
+00:56:40,990 --> 00:56:45,880
+回复可能是已发送的回复，但回复已被删除，因此其中任何一个
+a reply maybe the reply was sent but the
+reply was dropped so any one of these
+
+601
+00:56:45,880 --> 00:56:52,030
+邮件可能会被丢弃，需要仔细考虑实际操作
+messages may be dropped and need to
+think through what to actually do in
+
+602
+00:56:52,030 --> 00:56:57,490
+在每种情况下，例如，假设交易协调员
+each of these cases so for example
+supposing the transaction coordinator
+
+603
+00:56:57,490 --> 00:57:02,260
+发送了准备消息，但没有得到某些是或否答复
+sent out prepare messages but hasn't
+gotten some of the yes or no replies
+
+604
+00:57:02,260 --> 00:57:06,070
+参与者的交易协调员选项是什么
+from participants what are the
+transaction coordinators options at that
+
+605
+00:57:06,070 --> 00:57:11,680
+我可以做的一件事是发出一组新的准备消息，说
+point well one thing I could do is send
+out a new set of prepare messages saying
+
+606
+00:57:11,680 --> 00:57:15,700
+你知道我没有得到你的答案，请告诉我你的答案是或否，你
+you know I didn't get your answer please
+tell me your answer yes or no and you
+
+607
+00:57:15,700 --> 00:57:20,320
+我知道我可以继续这样做一段时间，但是如果游击队员之一是
+know I could keep on doing that for a
+while but if one of the partisans is
+
+608
+00:57:20,320 --> 00:57:24,970
+长时间下来，我们不想坐在那里等着正确的锁
+down for a long time we don't want to
+sit there waiting with locks held right
+
+609
+00:57:24,970 --> 00:57:30,190
+因为您知道假设a没有反应，但B处于上升状态，但是因为
+because you know supposing a is
+unresponsive but but B is up but because
+
+610
+00:57:30,190 --> 00:57:33,460
+我们尚未提交或中止B仍在持有锁，这可能
+that we haven't committed or aborted B
+is still holding locks and that may
+
+611
+00:57:33,460 --> 00:57:37,690
+导致其他交易正在等待，因此如果我们不想永远等待
+cause other transactions to be waiting
+so we don't want to wait forever if we
+
+612
+00:57:37,690 --> 00:57:41,530
+可以避免这种情况，如果交易协调员还没有
+can possibly avoid it so if the
+transaction coordinator hasn't gotten
+
+613
+00:57:41,530 --> 00:57:47,589
+参与者经过一定时间后回答是或否，则可以
+yes or no responses after some amount of
+time from the participants then it can
+
+614
+00:57:47,589 --> 00:57:52,060
+只是单方面决定我们将中止此交易，因为它知道
+simply unilaterally decide we're gonna
+abort this transaction because it knows
+
+615
+00:57:52,060 --> 00:57:55,750
+因为它没有得到完整的是或否消息，当然不能
+since it didn't get a full set of yes or
+no messages of course that can't
+
+616
+00:57:55,750 --> 00:58:00,250
+可能已经发送了提交，因此没有参与者可以提交，因此
+possibly have sent a commit yet so no
+participant could have committed so it's
+
+617
+00:58:00,250 --> 00:58:05,920
+如果事务协调器尚未提交，则始终有效以中止该操作，因此
+always valid to abort if the transaction
+coordinator hasn't yet committed so the
+
+618
+00:58:05,920 --> 00:58:09,099
+事务协调器超时，等待是或否x'此消息
+transaction coordinator times out
+waiting for yes or no x' this messages
+
+619
+00:58:09,099 --> 00:58:12,150
+迷路或有人坠毁等
+were lost or somebody crashed or
+something
+
+620
+00:58:12,150 --> 00:58:15,270
+它可以决定我们是否正在中止我们将发送的交易
+it can just decide alright we're
+aborting this transaction we'll send out
+
+621
+00:58:15,270 --> 00:58:19,200
+一轮中止消息，如果有参与者重生并说
+a round of abort messages and if some
+participant comes back to life and says
+
+622
+00:58:19,200 --> 00:58:25,680
+哦，您知道我没有收到有关交易95的回音
+oh you know I didn't hear back from you
+about transaction 95 the transaction
+
+623
+00:58:25,680 --> 00:58:28,200
+协调员将与您见面哦，我对交易95一无所知
+coordinator will see you oh well I don't
+know anything about transaction 95
+
+624
+00:58:28,200 --> 00:58:32,700
+因为它中止了交易并删除了该交易的状态，因此它将
+because it aborted it and erased its
+State for that transaction and it will
+
+625
+00:58:32,700 --> 00:58:42,329
+告诉参与者您知道如果
+tell the participant you know you should
+abort this transaction too similarly if
+
+626
+00:58:42,329 --> 00:58:47,279
+参与者之一超时在这里等待准备者，然后您
+one of the participants times out
+waiting for the preparer here then you
+
+627
+00:58:47,279 --> 00:58:51,539
+知道参与者没有收到准备者，这意味着它没有发送是
+know for participant hasn't received a
+preparer that means it hasn't send a yes
+
+628
+00:58:51,539 --> 00:58:54,900
+消息返回，这意味着协调器不可能发送任何消息
+message back and that means the
+coordinator can't possibly have sent any
+
+629
+00:58:54,900 --> 00:58:58,049
+提交消息，以便如果参与者在这里鸣叫
+commit messages
+so if participant chimes out here
+
+630
+00:58:58,049 --> 00:59:03,119
+等待准备者，也总是可以纾困， 
+waiting for the preparer it's also
+always allowed to just bail out and
+
+631
+00:59:03,119 --> 00:59:07,079
+决定中止交易，如果是将来某个时候交易
+decide to abort the transaction and if
+it's some future time the transaction
+
+632
+00:59:07,079 --> 00:59:11,940
+协调员复活并发出准备消息，然后B会拒绝
+coordinator comes back to life and sends
+out preparer messages then B will say no
+
+633
+00:59:11,940 --> 00:59:15,270
+我对那笔交易一无所知，所以我投反对票，那就是
+I don't know anything about that
+transaction so I'm voting no and that's
+
+634
+00:59:15,270 --> 00:59:19,799
+好吧，因为它不可能在任何地方开始提交，所以
+okay because it can't possibly have
+committed started to commit anywhere so
+
+635
+00:59:19,799 --> 00:59:22,799
+如果网络或交易协调器出现问题，请再次输入
+again if something goes wrong with the
+network or the transaction coordinator
+
+636
+00:59:22,799 --> 00:59:26,460
+停了一会儿，参与者仍在等待
+is down for a while
+and the participants are still waiting
+
+637
+00:59:26,460 --> 00:59:31,020
+对于准备工作，参与者中止并因此始终有效
+for prepares it's always valid for
+participants to abort and thereby
+
+638
+00:59:31,020 --> 00:59:34,950
+释放其他事务可能正在等待的锁，并且
+release the locks that other
+transactions may be waiting for and that
+
+639
+00:59:34,950 --> 00:59:38,660
+在繁忙的系统中可能非常重要
+can be very important in a busy system
+
+640
+00:59:39,589 --> 00:59:45,630
+所以这是有关参与者或交易的好消息
+so that's the good news about if the
+participants or the transaction
+
+641
+00:59:45,630 --> 00:59:52,819
+协调员超时等待来自其他方的消息
+coordinators time out waiting for
+messages from the other parties however
+
+642
+00:59:52,819 --> 01:00:00,299
+假设参与者B已收到准备者并发送了“是”，则
+suppose participant B has received a
+preparer and sent its yes and so is in
+
+643
+01:00:00,299 --> 01:00:03,510
+在这里的某个地方，但尚未收到提交，正在等待， 
+somewhere around here but it hasn't
+received a commit and it's waiting and
+
+644
+01:00:03,510 --> 01:00:06,750
+等待，它还没有提交回来，也许是出问题了
+waiting and it hasn't gotten to commit
+back maybe something's wrong with the
+
+645
+01:00:06,750 --> 01:00:10,859
+网络，也许交易协调者是它的网络连接
+network maybe the transaction
+coordinator is its network connection
+
+646
+01:00:10,859 --> 01:00:14,640
+已经掉线或电源失效或其他原因，但无论出于何种原因B 
+has fallen out or its powers failed or
+something but for whatever reason B is
+
+647
+01:00:14,640 --> 01:00:18,150
+等待了很长时间，它现在仍未听到提交，但它一直在坐
+waited a long time and it still hasn't
+heard a commit now but it's sitting
+
+648
+01:00:18,150 --> 01:00:21,599
+那里的所有记录仍然保持着这些锁
+there holding locks is still holding on
+to those locks for all the records that
+
+649
+01:00:21,599 --> 01:00:24,059
+被使用，这是交易的一部分，这意味着其他
+were used and it's part of the
+transaction and that means other
+
+650
+01:00:24,059 --> 01:00:27,660
+事务也可能被阻止，等待这些锁被锁住
+transactions may be also
+blocked waiting for those locks to be
+
+651
+01:00:27,660 --> 01:00:32,940
+发布，所以我们很想边界，如果我们可以或发布
+released so we're like pretty eager to a
+border if we possibly can or release the
+
+652
+01:00:32,940 --> 01:00:37,890
+锁定，所以问题是B是否已收到准备并回答是
+locks and so the question is if B has
+received prepare and replied with yes
+
+653
+01:00:37,890 --> 01:00:42,960
+等待说您知道10后，无权单方面中止
+isn't entitle to unilaterally abort
+after it's waited say you know 10
+
+654
+01:00:42,960 --> 01:00:48,690
+秒或10分钟之类的时间来获取提交消息和答案
+seconds or 10 minutes or something to
+get the commit message and the answer to
+
+655
+01:00:48,690 --> 01:00:56,760
+不幸的是，在收到我们准备的食物之后，该地区没有
+that unfortunately is no in this region
+after receiving the prepare we're out
+
+656
+01:00:56,760 --> 01:01:01,740
+确实是在发送“是”之后并获得提交之前，这是您的超时
+really after sending the yes and before
+getting the commit it's your time out
+
+657
+01:01:01,740 --> 01:01:08,160
+等待您不允许中止的提交，您必须继续等待
+waiting for the commit you're not
+allowed to abort you must keep waiting
+
+658
+01:01:08,160 --> 01:01:14,250
+您通常必须在协议的此区域调用block，否则
+you must usually called block so in this
+region of the protocol if you don't
+
+659
+01:01:14,250 --> 01:01:17,930
+收到您必须无限期等待的提交，原因是
+receive the commit you have to wait
+indefinitely and the reason is that
+
+660
+01:01:17,930 --> 01:01:22,950
+因为被发送回是，这意味着交易协调员可能有
+since be sent back a yes that means the
+transaction coordinator may have
+
+661
+01:01:22,950 --> 01:01:26,789
+收到是，可能已经收到所有参与者的同意，并且
+received the yes it may have received
+yes from all of the participants and it
+
+662
+01:01:26,789 --> 01:01:30,599
+可能已经开始向某些参与者发送提交消息，并且
+may have started sending out commit
+messages to some of the participants and
+
+663
+01:01:30,599 --> 01:01:34,140
+这意味着a可能实际上已经看到了提交消息并提交了， 
+that means that a may have actually seen
+the commit message and committed and
+
+664
+01:01:34,140 --> 01:01:37,470
+使我们的更改永久且未锁定，并显示其他更改
+made us changes permanent and unlocked
+and showing the changes to other
+
+665
+01:01:37,470 --> 01:01:42,119
+交易，因为这可能是B的所有B知道的情况
+transactions and since that could be the
+case for all B knows in this region of
+
+666
+01:01:42,119 --> 01:01:47,039
+协议B不能单方面决定在必须超时时中止
+the protocol B cannot unilaterally
+decide to abort at the times out it must
+
+667
+01:01:47,039 --> 01:01:51,660
+无限期地等待交易协调员的通知，只要它
+wait indefinitely to hear from the
+transaction coordinator as long as it
+
+668
+01:01:51,660 --> 01:01:56,400
+需要一些人来修理交易协调员，并且
+takes some human may have to come and
+repair the transaction coordinator and
+
+669
+01:01:56,400 --> 01:02:00,690
+终于让它重新开始，并让它读取此日志，看看哦，是的，您
+finally get it started again and have it
+read this log and see oh yes you
+
+670
+01:02:00,690 --> 01:02:13,619
+提交了该事务，并最终发送了长时间延迟的提交消息，因此
+committed that transaction and finally
+send long delayed commit messages so and
+
+671
+01:02:13,619 --> 01:02:25,920
+同样，如果在某个时候我不能，你不能单方面中止，事实证明
+similarly if on a time I you can't you
+can't unilaterally abort it turns out
+
+672
+01:02:25,920 --> 01:02:29,849
+您也不能单方面提交，因为对于所有B来说，a都知道
+you can't unilaterally commit either
+because for all B knows a might have
+
+673
+01:02:29,849 --> 01:02:33,539
+投了反对票，但他还没有收到重要信息，因此您可以
+voted no but he just hasn't got the
+important message yet so you could in
+
+674
+01:02:33,539 --> 01:02:36,890
+您可以中止或提交该区域
+this region you can either abort nor
+commit
+
+675
+01:02:36,890 --> 01:02:47,870
+超时，所以实际上这是一种阻塞行为
+on a timeout and so this actually this
+this blocking behavior is sort of
+
+676
+01:02:47,870 --> 01:02:53,810
+两阶段提交的关键属性，不是一个快乐的属性
+critical property of two-phase commit
+and it's not a happy property
+
+677
+01:02:53,810 --> 01:02:58,070
+这意味着如果出现问题，您很容易会遇到这种情况
+it means if things go wrong you can
+easily be in the situation where you
+
+678
+01:02:58,070 --> 01:03:01,940
+不得不等待很长一段时间才能拥有锁并阻止其他交易
+have to wait for a long time with locks
+held and holding up other transactions
+
+679
+01:03:01,940 --> 01:03:08,180
+因此，人们尤其努力地使这一部分成为
+and so among other things people try
+really hard to make this part of
+
+680
+01:03:08,180 --> 01:03:13,520
+两阶段提交的行为尽可能快地达到了人类的预期，因此
+two-phase commit acts as fast as humanly
+possible so that the window of time in
+
+681
+01:03:13,520 --> 01:03:20,510
+失败可能导致您长时间持有锁而阻塞的原因是
+which a failure might cause you to block
+with locks held for a long time is as
+
+682
+01:03:20,510 --> 01:03:23,300
+尽可能小，以便他们尝试使协议的这一部分非常
+small as possible so they try to make
+this part of the protocol very
+
+683
+01:03:23,300 --> 01:03:27,950
+轻量级协议，甚至具有某些特定情况下的协议变体
+lightweight or even have variants of the
+protocols that for certain special cases
+
+684
+01:03:27,950 --> 01:03:37,430
+可能根本不必等待，所以这是基本协议之一
+may not have to wait at all okay so
+that's the basic protocol one thing to
+
+685
+01:03:37,430 --> 01:03:44,060
+请注意，这是我们能够进入
+notice about this that is a fundamental
+part of why we're able to get to
+
+686
+01:03:44,060 --> 01:03:49,670
+实际上建立了一个协议，允许a和B都可以对它们都进行排序
+actually build a protocol that allows a
+and B to sort of both you know they both
+
+687
+01:03:49,670 --> 01:03:54,770
+提交，或者它们都有或中止的原因之一就是
+commit or they both have or abort one
+reason for that is that really the
+
+688
+01:03:54,770 --> 01:03:58,100
+由单个实体做出决定，由交易协调员做出决定
+decision is made by a single entity it's
+made by the transaction coordinator
+
+689
+01:03:58,100 --> 01:04:05,150
+除了a和B都不投票，a和B都不是他们
+alone a and B are neither of them you
+know except that they vote no neither a
+
+690
+01:04:05,150 --> 01:04:11,900
+ B也没有决定是否承诺，他们当然没有参与
+nor B is deciding whether to commit or
+not and they certainly are not engaged
+
+691
+01:04:11,900 --> 01:04:15,500
+互相交谈以尝试就什么是
+in a conversation with each other to try
+to reach agreement about what is the
+
+692
+01:04:15,500 --> 01:04:19,760
+其他想法，或者他们认为承诺可能都是承诺，相反，我们有
+other thinking or they thinking commit
+may be all commit to instead we have
+
+693
+01:04:19,760 --> 01:04:25,610
+这基本上是一种非常简单的协议，其中只有
+this much is quite sort of fundamentally
+simple protocol in which only the
+
+694
+01:04:25,610 --> 01:04:29,150
+交易协调员将决策设为单个实体， 
+transaction coordinator makes the
+decision a single entity and it just
+
+695
+01:04:29,150 --> 01:04:38,390
+告诉对方这是我的决定，请为
+tells the other party here's my decision
+please go do it the penalty for that for
+
+696
+01:04:38,390 --> 01:04:42,200
+让交易协调员真正由单个实体完成最终交易
+having the transaction coordinator
+really the single entity make the final
+
+697
+01:04:42,200 --> 01:04:46,700
+再次决定的事实是，您必须阻止某些方面
+decision again is the fact that you have
+to block there's some points in which
+
+698
+01:04:46,700 --> 01:04:49,640
+您必须阻止等待交易记录协调员
+you have to block waiting for the
+transaction recording coordinator to
+
+699
+01:04:49,640 --> 01:04:58,009
+告诉你这个决定是什么，另一个问题是我们知道
+tell you what the decision
+was one further question is that we know
+
+700
+01:04:58,009 --> 01:05:02,059
+交易协调员必须记住有关交易的信息
+the transaction coordinator must
+remember information about transactions
+
+701
+01:05:02,059 --> 01:05:06,890
+和它的崩溃日志，所以一个问题是何时进行交易
+and its log in case it crashes and so
+one question is when the transaction
+
+702
+01:05:06,890 --> 01:05:11,779
+协调员可以忘记其日志中有关交易和
+coordinator can forget about information
+in its log about transactions and the
+
+703
+01:05:11,779 --> 01:05:16,400
+答案是，如果它设法从中获得全套确认
+answer to that is that if it manages to
+get a full set of acknowledgments from
+
+704
+01:05:16,400 --> 01:05:19,970
+参与者然后知道所有参与者都知道
+the participants then it knows that all
+the participants know that that
+
+705
+01:05:19,970 --> 01:05:24,259
+事务已提交或中止，表明所有事务都没有参与者
+transaction committed or aborted that
+all the transactions no participants
+
+706
+01:05:24,259 --> 01:05:27,559
+知道那笔交易的命运并尽了自己的本分，并且会
+knew the fate of that transaction and
+have done their part in it and will
+
+707
+01:05:27,559 --> 01:05:31,160
+永远都不需要知道信息，因为他们俩都承认了
+never need to know that information
+right as they both acknowledged it so
+
+708
+01:05:31,160 --> 01:05:35,150
+当交易协调员得到确认时，它可以擦除所有
+when the transaction coordinator gets
+acknowledgements it can erase all
+
+709
+01:05:35,150 --> 01:05:39,430
+信息全部存储在交易中
+information all memory the transaction
+
+710
+01:05:39,519 --> 01:05:44,299
+同样，参与者一旦收到提交或中止消息，并且
+similarly participants once they
+received a commit or abort message and
+
+711
+01:05:44,299 --> 01:05:48,049
+完成了交易的一部分，并使更新永久生效， 
+done their part of the transaction and
+made their updates permanent and
+
+712
+01:05:48,049 --> 01:05:53,180
+那时释放锁，参与者也可以完全忘记
+released their locks at that point the
+participants also can completely forget
+
+713
+01:05:53,180 --> 01:05:59,140
+他们将确认函发回给
+about that transaction after they send
+their acknowledgment back to the
+
+714
+01:05:59,140 --> 01:06:03,950
+交易协调员现在当然可能无法获得交易协调员
+transaction coordinator now of course
+the transaction coordinator may not get
+
+715
+01:06:03,950 --> 01:06:07,819
+他们的确认，并且可以发送，因此可以决定重新发送
+their acknowledgement and may send and
+may therefore decide to resend the
+
+716
+01:06:07,819 --> 01:06:11,569
+提交有关理论的消息，也许它丢失了，在这种情况下
+commit message on the theory that maybe
+it was lost and in that case a
+
+717
+01:06:11,569 --> 01:06:14,960
+参与者，如果它收到其知道的交易的提交消息
+participant if it receives a commit
+message for a transaction which it know
+
+718
+01:06:14,960 --> 01:06:21,410
+没什么，因为它被遗忘了，那么参与者可以
+nothing about because it's forgotten
+about it then the participant can just
+
+719
+01:06:21,410 --> 01:06:25,700
+发回另一个确认，因为它知道它得到了提交
+send another acknowledgement back
+because it knows that it gets a commit
+
+720
+01:06:25,700 --> 01:06:28,579
+未知事务的消息，一定是因为它已经忘记了
+message for an unknown transaction it
+must be because it had forgotten about
+
+721
+01:06:28,579 --> 01:06:37,759
+因为它已经知道它是提交还是中止了，所以
+it because it already knew whether it
+committed or aborted okay so that's
+
+722
+01:06:37,759 --> 01:06:44,450
+两阶段提交，用于原子承诺，仅提供一点视角两阶段
+two-phase commit for atomic commitment
+for a little perspective two-phase
+
+723
+01:06:44,450 --> 01:06:50,539
+ commit在许多已拆分数据的分片数据库中使用
+commit is used in a lot of sharded
+databases that have split up their data
+
+724
+01:06:50,539 --> 01:06:58,519
+在多台服务器之间，专门用于数据库或存储
+among multiple servers and it's used
+specifically in databases or storage
+
+725
+01:06:58,519 --> 01:07:03,319
+需要支持交易记录的系统
+systems that need to support
+transactions in which records in which
+
+726
+01:07:03,319 --> 01:07:06,310
+可以读取或写入多个记录，其中有一个
+multiple
+records may be read or written there's a
+
+727
+01:07:06,310 --> 01:07:12,640
+很多更专业的存储系统，这些系统不允许您拥有
+lot of some more specialized storage
+systems that don't allow you to have
+
+728
+01:07:12,640 --> 01:07:17,140
+多个记录上的交易，对于它们，您不需要它，您不需要
+transactions on multiple records and for
+them you don't need it you no need this
+
+729
+01:07:17,140 --> 01:07:22,000
+如果存储系统不允许，则您不需要两阶段提交
+kind of you don't need two-phase commit
+if the storage system doesn't allow
+
+730
+01:07:22,000 --> 01:07:26,320
+多记录交易，但是如果您有多记录交易，并且您
+multi record transactions but if you
+have multi record transactions and you
+
+731
+01:07:26,320 --> 01:07:30,160
+将数据分片到多个服务器上，那么您需要支持
+shard the data across multiple servers
+then you need to support either
+
+732
+01:07:30,160 --> 01:07:34,240
+牙膏，如果您想获得资产，则需要支持两次提速
+toothpaste you need to support two in
+pace commit if you want to get asset
+
+733
+01:07:34,240 --> 01:07:39,130
+事务，但是两阶段提交有一个弊端
+transactions
+however two-phase commit has an evil
+
+734
+01:07:39,130 --> 01:07:45,490
+声誉的一个原因是由于多轮消息导致速度很慢， 
+reputation one reason is it's slow due
+to multiple rounds of messages there's a
+
+735
+01:07:45,490 --> 01:07:50,560
+为了获得涉及多个交易的交易，在这里进行了很多讨论
+lot of chitchat here in order to get a
+transaction that involves multiple
+
+736
+01:07:50,560 --> 01:07:55,300
+参与者要完成他们的任务，此外还有许多磁盘写入
+participants to finish theirs in
+addition a lot of disk writes both a and
+
+737
+01:07:55,300 --> 01:08:01,119
+ B不仅要在准备和发送之间将数据写入其磁盘
+B have to not just write data to their
+disk between the prepare and the sending
+
+738
+01:08:01,119 --> 01:08:04,840
+是的，他们必须等待该磁盘速率完成，所以如果
+of the yes they have to wait for that
+disk rate to finish so certainly if
+
+739
+01:08:04,840 --> 01:08:09,130
+您使用的机械驱动器需要10毫秒的时间才能附加到
+you're using a mechanical Drive that
+takes 10 milliseconds to append to the
+
+740
+01:08:09,130 --> 01:08:14,500
+记录严重限制了参与者的处理速度
+log that puts a real serious limit on
+how fast participants can process
+
+741
+01:08:14,500 --> 01:08:19,719
+您知道的10毫秒内的交易会弹出，这意味着没有一些聪明就不会
+transactions you know 10 milliseconds a
+pop means no without some cleverness
+
+742
+01:08:19,719 --> 01:08:23,859
+您被限制为每秒100笔交易，这非常慢，而且
+you're limited to 100 transactions per
+second which is pretty slow and in
+
+743
+01:08:23,859 --> 01:08:28,810
+此外，交易协调员还必须指出
+addition the transaction coordinator
+also has a point in which it must after
+
+744
+01:08:28,810 --> 01:08:33,430
+它收到最后一个是，他们必须首先写入其日志以确保数据为
+it receives the last yes they must first
+write to its log make sure the data is
+
+745
+01:08:33,430 --> 01:08:38,439
+安全地放在磁盘上，然后才允许发送该提交消息，并且
+safe on disk and only then is that
+allowed to send that commit messages and
+
+746
+01:08:38,439 --> 01:08:43,028
+那又是10毫秒，而这两个都是10毫秒的周期
+
+747
+01:08:43,029 --> 01:08:47,469
+参与者持有哪些锁，其他事务变慢，并且
+which locks are held in the participants
+and other transactions are slowed up and
+
+748
+01:08:47,469 --> 01:08:51,310
+我一直提到，但这非常重要，因为在繁忙的交易中
+I keep mentioning that but it's very
+important because in a busy transaction
+
+749
+01:08:51,310 --> 01:08:55,870
+处理系统中有很多交易，其中许多可能是
+processing system there's lots and lots
+of transactions and many of them may be
+
+750
+01:08:55,870 --> 01:09:01,120
+等待相同的数据，我们真的更希望不要将锁保持在
+waiting for the same data and we'd
+really prefer not to hold locks over
+
+751
+01:09:01,120 --> 01:09:04,988
+很长一段时间内，有很多消息来回传递
+long periods of time in which there's
+lots of messages going back and forth
+
+752
+01:09:04,988 --> 01:09:09,818
+那么我们必须等待长时间的耻辱，但是两阶段提交迫使我们去做
+
+753
+01:09:09,819 --> 01:09:12,210
+这些重量
+those weights
+
+754
+01:09:13,569 --> 01:09:18,189
+另一个问题是，如果发生任何错误，则会丢失消息
+and a further problem with it is that if
+anything goes wrong messages are lost
+
+755
+01:09:18,189 --> 01:09:23,559
+某些东西会崩溃，如果不是，那么就崩溃了，那么
+
+756
+01:09:23,560 --> 01:09:26,618
+参加者必须等待很长时间才能持有锁
+participants have to wait for long times
+with locks held
+
+757
+01:09:26,618 --> 01:09:32,348
+因此，面对承诺，您实际上只会在相对较小的范围内看到它
+
+758
+01:09:32,349 --> 01:09:36,819
+您不在一个组织内的单个机房中的域
+domains within a single machine room
+within a single organization you don't
+
+759
+01:09:36,819 --> 01:09:42,219
+例如看到它，您是否在不同银行之间的银行之间进行转账
+see it for example did you transfers
+between banks between different banks
+
+760
+01:09:42,219 --> 01:09:47,349
+如果您已在银行中绘制了数据库图表，则可能会看到它，但是您
+you might possibly see it within a bank
+if it's charted its database but you
+
+761
+01:09:47,349 --> 01:09:52,000
+永远不会看到两天可以在不同的组织之间运行
+would never see two days can it run
+between distinct organizations that were
+
+762
+01:09:52,000 --> 01:09:56,320
+可能由于业务阻塞而在物理上是分开的，您不想
+maybe physically separate because of
+this blocking business you don't want to
+
+763
+01:09:56,320 --> 01:10:00,610
+让您的命运知道您的数据库及其在数据库中是否可运行
+put the fate of you know your database
+and whether it's operational in the
+
+764
+01:10:00,610 --> 01:10:04,929
+其他组织的手，他们在错误的时间崩溃
+hands of some other organization where
+they crash at the wrong time you're
+
+765
+01:10:04,929 --> 01:10:12,730
+强迫您的数据库被迫长时间持有锁，因为
+forced your database was forced to hold
+locks for a long time and because it's
+
+766
+01:10:12,730 --> 01:10:19,179
+太慢了，或者做很多研究
+so slow also there's a lot a lot of
+research has gone into either making it
+
+767
+01:10:19,179 --> 01:10:24,389
+快速或以各种方式放宽规则，以便更快或
+fast or relaxing the rules in various
+ways to allow to be faster or
+
+768
+01:10:24,389 --> 01:10:31,179
+在非常具体的情况下专门针对两阶段提交
+specializing two-phase commit for very
+specific situations in which you know
+
+769
+01:10:31,179 --> 01:10:34,570
+您可以剃刮一条消息或将其写入磁盘或其他内容，因为您
+you can shave a message or write to the
+disk or something off it because you
+
+770
+01:10:34,570 --> 01:10:39,070
+知道你很好地支持某种有限的交易
+know you're only supporting a certain
+limited kind of transaction so well
+
+771
+01:10:39,070 --> 01:10:45,699
+我们将看到相当多的钱，其余的问题是
+we'll see fair amount of this and the
+rest of the course one question that
+
+772
+01:10:45,699 --> 01:10:53,560
+在这个交流中，您在这里有了很多领导者， 
+comes up a lot this exchange here where
+you have a leader essentially and it
+
+773
+01:10:53,560 --> 01:11:00,130
+将这些消息发送给关注者，您知道我们只能继续前进
+sends these messages to the followers
+and you know we can only go forward if
+
+774
+01:11:00,130 --> 01:11:04,179
+领导者只有在收到您知道的确认后才能继续进行
+the leader can only proceed if it
+receives you know acknowledgments
+
+775
+01:11:04,179 --> 01:11:11,320
+来自足够多的追随者的回复这看起来很像筏
+replies from enough of the followers
+this looks a lot like raft this
+
+776
+01:11:11,320 --> 01:11:17,050
+构造看起来很像筏，但是协议的属性
+construction looks a lot like raft
+however the properties of the protocol
+
+777
+01:11:17,050 --> 01:11:20,920
+你从中得到的东西与我们得到的东西完全不同
+and what you get out of it turn out to
+be quite different from what we get out
+
+778
+01:11:20,920 --> 01:11:25,639
+他们解决了很多不同的问题
+of raft they solve very different
+problems
+
+779
+01:11:25,639 --> 01:11:31,469
+因此，思考的方法是使用筏来获得高可用性
+so the way to think about it is that you
+use raft to get high-availability by
+
+780
+01:11:31,469 --> 01:11:37,800
+在多个对等方的多个参与者上复制数据，即
+replicating data on multiple
+participants on multiple peers that is
+
+781
+01:11:37,800 --> 01:11:42,389
+筏子的目的是即使一些服务器的
+the point of raft is to be able to
+operate even though some of the server's
+
+782
+01:11:42,389 --> 01:11:47,130
+涉及的崩溃或无法到达，您可以在木筏上进行此操作
+involved have crashed or are not
+reachable and you can do this in raft
+
+783
+01:11:47,130 --> 01:11:51,630
+筏可以做到这一点，因为所有服务都在做他们正在做的相同的事情
+raft can do this because all the service
+are doing the same thing they're doing
+
+784
+01:11:51,630 --> 01:11:55,920
+同样的事情，所以我们不需要所有人参与，我们只需要一个
+the same thing so we don't need all of
+them to participate we only need a
+
+785
+01:11:55,920 --> 01:12:02,639
+多数两阶段提交，但是参与者根本没有做
+majority two-phase commit however the
+participants are not at all doing the
+
+786
+01:12:02,639 --> 01:12:05,849
+参与者各自都在做不同的事情
+same thing the participants are each
+doing a different part of the
+
+787
+01:12:05,849 --> 01:12:10,260
+您知道的交易可能会增加记录X和B 
+transaction you know a maybe
+incrementing record X and B maybe
+
+788
+01:12:10,260 --> 01:12:17,040
+递减记录Y因此两阶段提交所有培训所有参与者
+decrementing record Y so two-phase
+commit all the train all the participant
+
+789
+01:12:17,040 --> 01:12:22,920
+他们都必须尽自己的一份努力才能使交易真正完成
+they all have to do their part in order
+for the transaction to finish you really
+
+790
+01:12:22,920 --> 01:12:31,170
+需要等待每一个参与者做他们的事情，好吗
+need to wait for every single one of the
+participants to do their thing so okay
+
+791
+01:12:31,170 --> 01:12:35,969
+这样我们就知道筏是复制品，不需要每个人都做
+so we got you know raft is replicating
+doesn't need everybody to do their thing
+
+792
+01:12:35,969 --> 01:12:39,270
+两阶段提交每个人都在做不同的事情
+two-phase commit
+everybody's doing something different
+
+793
+01:12:39,270 --> 01:12:44,790
+必须完成两阶段提交的操作对可用性完全没有帮助
+that has to get done two-phase commit
+does not help at all with availability
+
+794
+01:12:44,790 --> 01:12:48,239
+你知道筏子是关于可用性的，即使一些
+you know raft is all about availability
+you can go on even if some of the
+
+795
+01:12:48,239 --> 01:12:54,000
+参与者没有响应实际上根本没有两阶段提交
+participants are not responding
+two-phase commit is actually not at all
+
+796
+01:12:54,000 --> 01:12:58,349
+如果有任何问题，它根本就不是高度可用，我们冒风险
+available it's not highly available at
+all if anything goes wrong we risk
+
+797
+01:12:58,349 --> 01:13:02,040
+如果事务协调器在崩溃时必须等待修复
+having to wait until that's repaired if
+the transaction coordinator crashes at
+
+798
+01:13:02,040 --> 01:13:05,580
+错误的时间，我们只需要等待上来并阅读其日志并发送
+the wrong time we simply have to wait
+for to come up and read its log and send
+
+799
+01:13:05,580 --> 01:13:11,190
+如果您认识的这些参与者之一崩溃了，就发出提交消息吧
+out the commit messages right if if one
+of these participants you know crashes
+
+800
+01:13:11,190 --> 01:13:15,150
+在错误的时间，您知道我们是否很幸运，我们只需要中止然后我们
+at the wrong time you know if we're
+lucky we simply have to abort then we're
+
+801
+01:13:15,150 --> 01:13:19,409
+不走运，我们不得不说你完成了吗，你完成了那么两阶段
+not lucky we have to say did you finish
+that did you finish that so two-phase
+
+802
+01:13:19,409 --> 01:13:23,639
+提交根本不是关于高可用性的，实际上是
+commit is not at all about high
+availability in fact it's it's a it's
+
+803
+01:13:23,639 --> 01:13:28,820
+这样的可用性很低，任何崩溃都可能占用整个系统
+quite low availability as such things go
+any crash can hold up the whole system
+
+804
+01:13:28,820 --> 01:13:36,630
+当然，木筏并不能确保所有参与者都能做到
+and of course raft doesn't ensure that
+all the participants do whatever the
+
+805
+01:13:36,630 --> 01:13:39,000
+操作只需要多数就可以了
+operation is it only requires a majority
+there may be
+
+806
+01:13:39,000 --> 01:13:42,960
+完全根本不做手术的少数人，这就是事实
+minority that totally didn't do the
+operation at all and that's how the fact
+
+807
+01:13:42,960 --> 01:13:46,290
+筏所有参与者都做同样的事情，我们不必等待所有
+that raft all the participants do the
+same thing we don't have to wait for all
+
+808
+01:13:46,290 --> 01:13:51,390
+其中一个就是为什么筏具有高可用性，所以这些
+of them is why raft gets high
+availability so these are quite
+
+809
+01:13:51,390 --> 01:13:58,050
+不同的协议，但是可以将它们有效地组合在一起
+different protocols um it is however
+possible to to usefully combine them
+
+810
+01:13:58,050 --> 01:14:04,230
+就像两阶段提交一样，您知道确实很容易遭受失败，这是正确的
+like two-phase commit is you know really
+vulnerable to failures it's correct with
+
+811
+01:14:04,230 --> 01:14:08,160
+失败，但其他人无法使用，所以问题是
+failures but it's not available with the
+others so the question is could you
+
+812
+01:14:08,160 --> 01:14:14,850
+建立某种组合的系统，该系统具有RAF的高可用性
+build some sort of combined system that
+has the high availability of RAF to
+
+813
+01:14:14,850 --> 01:14:21,570
+复制，但具有两个阶段提交功能，可以调用各种不同的
+replication but has two phase commits
+ability to call as various different
+
+814
+01:14:21,570 --> 01:14:25,230
+各方各自负责交易和建设
+parties each to do their part of the
+transaction and the construction you
+
+815
+01:14:25,230 --> 01:14:31,500
+实际上想要使用的是筏或paxos或类似的其他协议来表示
+want actually is to use raft or paxos or
+some other protocol like that to rep
+
+816
+01:14:31,500 --> 01:14:37,170
+分别复制每个不同的参与者，因此我们将
+individually replicate each of the
+different parties so then we would for
+
+817
+01:14:37,170 --> 01:14:41,550
+这样设置，我们将需要三个不同的集群进行交易
+this set up we would have like three
+different clusters the transaction
+
+818
+01:14:41,550 --> 01:14:50,720
+您知道三台服务器，并且实际上协调器将被复制服务
+coordinator would actually be replicated
+service with you know three servers and
+
+819
+01:14:50,720 --> 01:14:54,570
+你知道我们将在这三台服务器上运行木筏，其中一台将当选为领导
+you know we'd run raft on these three
+servers one will be elected as leader
+
+820
+01:14:54,570 --> 01:14:58,950
+他们会复制状态，他们有一个日志可以帮助他们复制我们
+they'd have replicated state they'd have
+a log that helped them replicate we
+
+821
+01:14:58,950 --> 01:15:02,280
+不仅需要等待大多数人的领导，我们只需要拥有一个
+don't only have to wait for a majority
+the leader we'd only have to have a
+
+822
+01:15:02,280 --> 01:15:06,360
+为了使交易协调员能够做到
+minority of these to be up in order for
+the transaction coordinator to do its
+
+823
+01:15:06,360 --> 01:15:10,590
+工作，当然他们都会，而且您知道通过
+work and of course they would all and
+you know sort of execute through the
+
+824
+01:15:10,590 --> 01:15:16,680
+交易的各个阶段以及两阶段提交协议
+various stages of the transaction and
+the two-phase commit protocol by
+
+825
+01:15:16,680 --> 01:15:21,390
+基本上是将相关记录附加到他们的日志中，然后每个
+basically by appending relevant records
+to their logs and then each of the
+
+826
+01:15:21,390 --> 01:15:34,250
+参与者也将是我们筏复制集群的代表集群
+participants would also be a cluster of
+a rep our raft replicated cluster
+
+827
+01:15:40,920 --> 01:15:46,930
+所以我们最终会和他们来回交换信息链
+so we would end up and they would chain
+exchange messages back and forth you
+
+828
+01:15:46,930 --> 01:15:51,220
+知道我们会从复制的事务协调器发送提交消息
+know we'd send a commit message from the
+replicated transaction coordinator
+
+829
+01:15:51,220 --> 01:15:58,000
+服务到复制的服务器和复制的B服务器，这就是您
+service to the replicated a server and
+the replicated B server and this is you
+
+830
+01:15:58,000 --> 01:16:01,690
+知道这固然有些复杂，但确实显示出您
+know this is admittedly somewhat
+elaborate but it does show you that you
+
+831
+01:16:01,690 --> 01:16:05,740
+可以将这些想法结合起来以获得高可用性，因为
+can combine these ideas to get the
+combination of high availability because
+
+832
+01:16:05,740 --> 01:16:09,880
+这些服务器中的任何一台都可能崩溃，而其余两台则继续运行
+any one of these servers can crash and
+the remaining two you keep operating
+
+833
+01:16:09,880 --> 01:16:14,950
+再加上我们对a和B的原子承诺正在完全不同
+plus we get on this atomic commitment of
+a and B are doing complete different
+
+834
+01:16:14,950 --> 01:16:19,210
+同一笔交易的一部分，我们可以使用两阶段提交
+parts of the same transaction and we can
+use two-phase commit to have the
+
+835
+01:16:19,210 --> 01:16:22,600
+交易协调员确保您都知道两者都承担了全部责任
+transaction coordinator ensure that you
+know that either both commit the whole
+
+836
+01:16:22,600 --> 01:16:30,250
+事情，或者它们都中止了您将实际构建的事务的一部分
+thing or they both abort their parts of
+the transaction you'll actually build
+
+837
+01:16:30,250 --> 01:16:35,140
+作为实验室表格的一部分，它非常像这样，您确实会建立一个
+something very much like this as part of
+lab form which you will indeed build a
+
+838
+01:16:35,140 --> 01:16:40,330
+分片数据库，其中每个分片都以这种形式复制，并且有一个
+shard a database where each shard is
+replicated in this form and there's a
+
+839
+01:16:40,330 --> 01:16:45,940
+基本上是一个配置管理器，它将基本上允许事务性
+basically a configuration manager which
+will allow essentially transactional
+
+840
+01:16:45,940 --> 01:16:52,360
+将数据碎片从一个筏群集转移到另一个筏群集
+shifting of chunks of shards of data
+from one raft cluster to another under
+
+841
+01:16:52,360 --> 01:17:00,130
+看起来很像交易协调员的东西的控制，所以
+the control of something that looks a
+lot like a transaction coordinator so
+
+842
+01:17:00,130 --> 01:17:07,120
+实验4就是这样，此外，我们还将阅读一篇论文
+lab 4 is like this and in addition in a
+little bit we'll be reading a paper
+
+843
+01:17:07,120 --> 01:17:11,280
+称为扳手，它描述了Google使用的真实数据库
+called spanner which describes a
+real-life database used by Google that
+
+844
+01:17:11,280 --> 01:17:16,900
+用户还使用此构造来对
+users also uses this construction in
+order to do transactional writes to a
+
+845
+01:17:16,900 --> 01:17:21,690
+数据库好了谢谢
+database all right thank you
+

@@ -1,0 +1,4716 @@
+1
+00:00:03,380 --> 00:00:11,969
+大家好，我们开始吧，我想谈谈一个叫做
+alright hello everyone let's get started
+I want to talk about a system called
+
+2
+00:00:11,969 --> 00:00:18,960
+今天的证书透明性与大多数
+certificate transparency today and this
+is a bit of a departure from most of the
+
+3
+00:00:18,960 --> 00:00:23,100
+到目前为止，我们讨论的主题是关于分布式系统的
+topics we talked about so far we've
+talked about distributed systems that
+
+4
+00:00:23,100 --> 00:00:27,750
+是真正的封闭系统，所有参与者都是值得信赖的
+are really closed systems where all the
+participants are trustworthy they're all
+
+5
+00:00:27,750 --> 00:00:32,488
+可能是由同一类型的相互信任的组织运行的
+maybe be run being run by the same sort
+of mutually trusting organization like
+
+6
+00:00:32,488 --> 00:00:36,059
+这样，您就知道您只是假设在皇家空军的各个级别
+rafters that way you know you just
+assume at the RAF's tiers do what
+
+7
+00:00:36,059 --> 00:00:42,570
+他们本来应该做的，但是那里也有很多系统
+they're supposed to do but there's also
+plenty of systems out there particularly
+
+8
+00:00:42,570 --> 00:00:48,270
+系统建立了一个互联网规模，其中系统是开放的，任何人
+systems sort of built an internet scale
+where the systems are open and anyone
+
+9
+00:00:48,270 --> 00:00:54,149
+可以成为积极的参与者，我的意思是在一些大型系统中
+can participate being active participant
+I mean in some big systems out there and
+
+10
+00:00:54,149 --> 00:01:01,289
+如果您以这种方式构建完全开放的系统，那么通常不会
+if you build systems that are completely
+open in that way there's often no single
+
+11
+00:01:01,289 --> 00:01:06,450
+所有人都愿意信任的权威机构
+universally trusted Authority that
+everybody is willing to trust to run the
+
+12
+00:01:06,450 --> 00:01:11,010
+系统或保护它，这就是每个人都有可能
+system or to protect it that is
+everybody you sort of potentially
+
+13
+00:01:11,010 --> 00:01:16,560
+互相怀疑其他所有人，如果是这种情况，您必须
+mutually suspicious of everyone else and
+if that's the situation you have to be
+
+14
+00:01:16,560 --> 00:01:23,700
+能够从互不信任的部分中构建有用的系统
+able to build useful systems out of
+mutually distrusting pieces and this
+
+15
+00:01:23,700 --> 00:01:27,930
+在任何种类的互联网开放系统中进行信任和安全性排序
+makes in any sort of internet wide open
+systems to make trust and security sort
+
+16
+00:01:27,930 --> 00:01:31,979
+设计分布式系统时遇到的顶级系统问题
+of top level systems issues when you're
+thinking about designing a distributed
+
+17
+00:01:31,979 --> 00:01:37,619
+系统，因此构建开放系统时最基本的问题是何时
+system so the most basic question when
+you're building an open system is when
+
+18
+00:01:37,619 --> 00:01:41,640
+我正在与另一台计算机或您需要知道的其他人说话
+I'm talking to another computer or
+another person you need to know are you
+
+19
+00:01:41,640 --> 00:01:46,049
+与正确的其他计算机通话，或者您在与正确的网站通话，以及
+talking to the right other computer or
+are you talking to the right website and
+
+20
+00:01:46,049 --> 00:01:51,869
+这个问题实际上几乎是无法解决的，事实证明
+this problem is actually close to
+unsolvable it turns out there's really
+
+21
+00:01:51,869 --> 00:01:56,939
+有很多解决方案，但没有一个真的能很好地解决问题，但这是
+there's lots of solutions and none
+really work that well but it is the
+
+22
+00:01:56,939 --> 00:02:04,170
+证书透明性是当今主题试图解决的问题
+problem that certificate transparency
+today's topic is trying to help with the
+
+23
+00:02:04,170 --> 00:02:08,788
+事实证明，今天的物质在整个过程中会有些倒退
+material today ties sort of backwards in
+the course to consistency it turns out
+
+24
+00:02:08,788 --> 00:02:12,209
+证书透明度所做的很多工作是确保
+that a lot of what certificate
+transparency do doing is ensuring that
+
+25
+00:02:12,209 --> 00:02:16,230
+各方看到有关证书的相同信息
+all parties see
+the same information about certificates
+
+26
+00:02:16,230 --> 00:02:21,120
+这是一个真正的一致性问题，该材料也与区块链相关
+that's a real consistency issue and this
+material also ties forward to blockchain
+
+27
+00:02:21,120 --> 00:02:26,000
+像区块链这样的系统，这就是我们下周要讨论的
+systems like blockchain which is what we
+talk talking about next week a
+
+28
+00:02:26,000 --> 00:02:32,010
+证书透明性是相对较少的非加密货币用途之一
+certificate transparency is among the
+relatively few non cryptocurrency uses
+
+29
+00:02:32,010 --> 00:02:39,690
+像设计这样的区块链的概念，所以作为介绍，我想开始
+of a blockchain like design alright so
+by way of introduction I want to start
+
+30
+00:02:39,690 --> 00:02:47,340
+随时随地通过网络安全来应对网络上的情况
+with the situation on the web with web
+security at any rate as it existed
+
+31
+00:02:47,340 --> 00:02:56,280
+ 1995年之前的证书之前，所以这是1995年的，特别是
+before 1995 before certificates so this
+is for 1995 and in particular there was
+
+32
+00:02:56,280 --> 00:03:00,150
+在那些日子里，人们担心的是一种攻击
+a there was a kind of attack in those
+days that people were worried about
+
+33
+00:03:00,150 --> 00:03:06,740
+称为中间人攻击，这是人在
+called a man-in-the-middle attacks this
+is man in
+
+34
+00:03:07,420 --> 00:03:14,200
+中间，这是一类攻击类型的名称，所以您知道
+middle and this is a name for a class of
+attacks style of attack so you know the
+
+35
+00:03:14,200 --> 00:03:20,770
+在那些日子里建立的就是你有互联网，有人在跑
+set up in those days is you have the
+internet and you have people running
+
+36
+00:03:20,770 --> 00:03:26,519
+浏览器和我们的计算机连接在一起
+browsers
+um sitting with our computer attached to
+
+37
+00:03:26,519 --> 00:03:29,099
+互联网坐在我电脑前的任何人
+the Internet
+anyone sitting in front of my computer I
+
+38
+00:03:29,099 --> 00:03:33,780
+想和一个特定的服务器对话，我想做的就是与
+want to talk to a specific server
+exposing what I want to do is talk to
+
+39
+00:03:33,780 --> 00:03:42,209
+ gmail.com对，通常来说，您会与我联系DNS系统吗？ 
+gmail.com right and ordinarily I would
+you know maybe contact the DNS system I
+
+40
+00:03:42,209 --> 00:03:47,040
+作为用户，我也许会输入gmail.com我会知道我想要什么
+would as a user I maybe type gmail.com I
+would sort of know what it was I wanted
+
+41
+00:03:47,040 --> 00:03:51,780
+说出Li gmail.com的名字，我的浏览器会和DNS服务器说出什么
+to talk to name Li gmail.com my browser
+would talk to DNS servers say what's
+
+42
+00:03:51,780 --> 00:03:56,190
+ gmail.com，它将回复一个我连接了该IP地址的IP地址， 
+gmail.com it would reply with a IP
+address I connected that IP address and
+
+43
+00:03:56,190 --> 00:04:00,060
+您知道我需要进行身份验证，所以我可能会输入密码
+you know I need to authenticate myself
+so I'd probably type my password to
+
+44
+00:04:00,060 --> 00:04:08,190
+从Gmail转到Gmail的网站，然后Gmail会向我显示没有任何形式的电子邮件
+Gmail to Gmail's website and then Gmail
+would show me my email without some kind
+
+45
+00:04:08,190 --> 00:04:12,629
+为了安全起见，这个系统实际上很容易被攻击和转向
+of story for security this system is
+actually quite easy to attack and turn
+
+46
+00:04:12,629 --> 00:04:19,680
+易于攻击，一种攻击方式是所谓的“攻击” 
+out to be easy to attack and the one
+style of attack is that what's called a
+
+47
+00:04:19,680 --> 00:04:25,830
+中间人攻击，其中一些邪恶的人设置了另一个Web服务器，该服务器
+man-in-the-middle attack where some evil
+person sets up a another web server that
+
+48
+00:04:25,830 --> 00:04:30,240
+提供与Gmail Web服务器类似的页面，就像您上次登录时一样
+serves pages that look just like Gmail
+web servers like the last for your login
+
+49
+00:04:30,240 --> 00:04:39,120
+和密码正确，然后攻击者可能会拦截我的DNS数据包或
+and password right and then the attacker
+would maybe intercept my DNS packets or
+
+50
+00:04:39,120 --> 00:04:43,830
+只是猜测我什么时候会发送DNS数据包并提出虚假答复
+just guess when I would have sent a DNS
+packet and come up with a fake reply
+
+51
+00:04:43,830 --> 00:04:49,889
+而不是提供真实gmail.com服务器的真实IP地址
+that instead of providing the real IP
+address of the real gmail.com server
+
+52
+00:04:49,889 --> 00:04:54,510
+将提供攻击者的假冒计算机的电子邮件地址，然后
+would provide the email address of ma of
+the attackers fake computer and then the
+
+53
+00:04:54,510 --> 00:05:00,660
+用户的浏览器而不是与Gmail通话实际上对他们来说是未知的
+user's browser instead of talking to
+Gmail would actually unknown to them be
+
+54
+00:05:00,660 --> 00:05:04,020
+与攻击者计算机交谈，攻击者计算机将提供一个网站
+talking to the attackers computer the
+attackers computer would provide a web
+
+55
+00:05:04,020 --> 00:05:08,520
+页面看起来就像一个登录页面，用户类型是路径日志和密码，以及
+page looks just like a login page user
+types are paths log and a password and
+
+56
+00:05:08,520 --> 00:05:14,099
+现在，攻击者的计算机可以将其转发给您的真实Gmail登录名。 
+now the attackers computer can forward
+that to the real Gmail login for you of
+
+57
+00:05:14,099 --> 00:05:18,810
+当然您不知道您知道将当前的收件箱还给攻击者
+course you don't know that you know get
+your current inbox back to the attackers
+
+58
+00:05:18,810 --> 00:05:22,680
+大概会与您的密码一起记录下来然后发送的计算机
+computer which presumably records it
+along with your password and then sends
+
+59
+00:05:22,680 --> 00:05:28,260
+您的收件箱或浏览器中的任何内容，这可以使您知道是否可以
+your inbox or whatever to the browser
+and this allows a you know if you can
+
+60
+00:05:28,260 --> 00:05:32,639
+进行攻击者计算机可以记录的这种中间人攻击
+execute this kind of man-in-the-middle
+attack the attackers computer can record
+
+61
+00:05:32,639 --> 00:05:35,580
+您的密码记录了您的电子邮件，您将永远不再明智
+your password record your email and
+you'll never be the wiser
+
+62
+00:05:35,580 --> 00:05:40,560
+以及SSL和HTTPS上的证书之前
+and
+before certificates on SSL and HTTPS
+
+63
+00:05:40,560 --> 00:05:46,260
+真的没有防御这个妈妈的办法，所以这是那个男人
+there was really no defense against this
+mom okay so this is the man in the
+
+64
+00:05:46,260 --> 00:05:50,910
+中间攻击，这里的攻击者是中间的人，就像
+middle attack and this attacker here is
+the man in the middle looks just like
+
+65
+00:05:50,910 --> 00:05:54,900
+与浏览器交谈时，假装浏览器的Gmail是用户，因此
+Gmail to the browser pretends to be the
+user when talking to Gmail so that it
+
+66
+00:05:54,900 --> 00:05:59,070
+可以真正从Gmail中获取诱使用户进入的信息
+can actually get the information from
+Gmail required to trick the user into
+
+67
+00:05:59,070 --> 00:06:05,940
+认为这真的可以使用Gmail，所以这是90年代中期的攻击
+thinking it's really Gmail all right so
+this is the attack in the mid-90s people
+
+68
+00:06:05,940 --> 00:06:14,070
+提出了带有SSL的证书，或者也称为TLS，这就是
+came up with certificates with SSL or
+it's also called TLS it's what the
+
+69
+00:06:14,070 --> 00:06:20,990
+协议使用HTTPS链接时使用的安全协议um 
+protocol the security protocol that
+you're using when you use HTTPS links um
+
+70
+00:06:20,990 --> 00:06:28,880
+而这里的游戏是Gmail通讯将具有一个公共/私有密钥对
+and here the game was that Gmail comm
+was gonna have a public/private key pair
+
+71
+00:06:28,880 --> 00:06:38,280
+因此我们只有一个私钥，只有Gmail知道该私钥位于其服务器中， 
+so we'd have a private key that only
+Gmail knows sitting in its server and
+
+72
+00:06:38,280 --> 00:06:44,430
+然后，当您与用户的连接良好时，您会在需要连接的地方进行连接
+then when you connect well your the user
+you connect somewhere you ask to connect
+
+73
+00:06:44,430 --> 00:06:50,400
+到您知道的Gmail，并且为了验证您是否真的在与Gmail通话， 
+to Gmail you know and in order to verify
+that you're really talking to Gmail the
+
+74
+00:06:50,400 --> 00:06:55,140
+要求使用Gmail的用户证明它确实拥有Gmail是私钥
+users going to demand Gmail prove that
+it really owns Gmail is private key well
+
+75
+00:06:55,140 --> 00:06:58,620
+当然，您的浏览器在哪里可以找到Gmail 
+of course
+where does your browser find out Gmail
+
+76
+00:06:58,620 --> 00:07:03,870
+是Gmail公钥中的私钥，您需要检查该私钥
+is private key from your Gmail public
+key which is what you need to check that
+
+77
+00:07:03,870 --> 00:07:07,830
+它确实具有私钥，还有证书的概念
+it really has the private key there's
+also this notion of certificate
+
+78
+00:07:07,830 --> 00:07:11,910
+机构和证书，因此在Gmail时会有证书机构
+authorities and certificates so there'd
+be a certificate authority when Gmail
+
+79
+00:07:11,910 --> 00:07:15,960
+设置其服务器，它将与证书颁发机构联系
+set up its server it would contact the
+certificate authority may be on the
+
+80
+00:07:15,960 --> 00:07:19,370
+电话或通过电子邮件或其他方式说出您知道我想要的证书
+phone or by email or something and say
+look you know I want a certificate for
+
+81
+00:07:19,370 --> 00:07:25,979
+ DNS名称gmail.com和证书颁发机构会尝试一下
+the DNS name gmail.com and the
+certificate authority would sort of try
+
+82
+00:07:25,979 --> 00:07:30,419
+验证哦，是的，要求证书的人确实拥有该名称
+to verify that oh yes whoever's asking
+for certificate really owns that name
+
+83
+00:07:30,419 --> 00:07:35,280
+确实是Google或拥有gmail.com的人，如果是，则证书
+it really is Google or whoever owns
+gmail.com and if so the certificate
+
+84
+00:07:35,280 --> 00:07:38,750
+当局会提供证明书
+authority would provide a certificate
+
+85
+00:07:39,350 --> 00:07:43,090
+回到gee komm这基本上是什么证书
+back to gee
+komm which basically what a certificate
+
+86
+00:07:43,090 --> 00:07:57,120
+包含Web服务器的名称，Web服务器的公共密钥和一个
+contains is the name of the web server
+the web servers public key and a
+
+87
+00:07:57,120 --> 00:08:04,540
+由证书颁发机构私人对此证书进行签名
+signature over this certificate made
+with the certificate authorities private
+
+88
+00:08:04,540 --> 00:08:11,080
+密钥，因此这是一种可通过检查
+key so this is sort of a self-contained
+assertion checkable by checking the
+
+89
+00:08:11,080 --> 00:08:15,310
+证书颁发机构对公众的声明进行签名
+signature an assertion by the
+certificate authority that the public
+
+90
+00:08:15,310 --> 00:08:21,340
+ gmail.com的密钥确实是这个公共密钥gmail.com服务器，我只保留一个
+key of gmail.com is really this public
+key gmail.com server would I just keep a
+
+91
+00:08:21,340 --> 00:08:27,010
+如果您使用HTTPS首先连接到gmail.com服务器，则证书的副本
+copy of the certificate if you connect
+to gmail.com server with HTTPS the first
+
+92
+00:08:27,010 --> 00:08:32,169
+它所做的是将您的证书发回给您
+thing it does is sends you back this
+certificate at this point is just a
+
+93
+00:08:32,169 --> 00:08:35,140
+由于gmail.com愿意将证书颁发给
+certificate right now of course since
+gmail.com is willing to give it to
+
+94
+00:08:35,140 --> 00:08:38,979
+任何人都是证书本身根本没有怀孕，这是相当公开的
+anybody it's the certificate itself is
+not at all pregnant it's quite public
+
+95
+00:08:38,979 --> 00:08:44,560
+然后浏览器会发送一些信息，例如
+and then the browser would send some
+information like a random number for
+
+96
+00:08:44,560 --> 00:08:53,350
+以服务器为例，并要求其使用其私钥对其进行签名，然后
+example to the server and ask it to sign
+it with its private key and then the
+
+97
+00:08:53,350 --> 00:08:57,790
+浏览器可以使用证书中的公钥随机检查
+browser can check using the public key
+in the certificate that the random
+
+98
+00:08:57,790 --> 00:09:02,680
+号码已经运行，并且记住确实是由私钥签名的
+number is ran and remember was really
+signed by the private key that's
+
+99
+00:09:02,680 --> 00:09:05,980
+与证书中的公钥相关联，因此无论谁
+associated with the public key in the
+certificate and therefore that whoever
+
+100
+00:09:05,980 --> 00:09:10,510
+所谈论的实际上是证书颁发机构认为的实体
+it's talking to is really the entity
+that the certificate authority believes
+
+101
+00:09:10,510 --> 00:09:15,279
+是gmail.com，现在可以了，这就是为什么这使得中间人
+is gmail.com all right and now the
+reason why this makes man-in-the-middle
+
+102
+00:09:15,279 --> 00:09:20,950
+攻击更难的是，是的，您知道您可以设置一个流氓服务器， 
+attacks much harder is that yeah you
+know you can set up a rogue server that
+
+103
+00:09:20,950 --> 00:09:25,420
+看起来就像Gmail一样平静，也许您甚至可以破解DNS系统， 
+looks just like Gmail calm and maybe you
+can even hack the DNS system indeed you
+
+104
+00:09:25,420 --> 00:09:32,380
+如果您足够聪明，功能仍然强大，可以入侵DNS系统以告知
+still can if you're sufficiently clever
+powerful hack the DNS system to tell
+
+105
+00:09:32,380 --> 00:09:36,940
+人们的浏览器，哦，他们应该转到您的服务器而不是gmail.com，但是
+people's browsers that oh they should go
+to your server instead of gmail.com but
+
+106
+00:09:36,940 --> 00:09:40,000
+一旦有人的浏览器联系您的服务器
+once somebody's browser contacts your
+server
+
+107
+00:09:40,000 --> 00:09:46,120
+您大概不会能够出示如下证明： 
+you're not presumably going to be able
+to produce a certificate that says but
+
+108
+00:09:46,120 --> 00:09:50,170
+您可以生成Gmail证书，然后生成Gmail证书作为Gmail的
+you you can produce Gmail certificate
+but then Gmail certificate as Gmail's
+
+109
+00:09:50,170 --> 00:09:53,820
+公钥您的服务器没有私钥，因此您可以
+public key your server doesn't have
+their private key so you can
+
+110
+00:09:53,820 --> 00:09:58,320
+签署浏览器向您发送的挑战，大概是因为您不是真正的
+sign the challenge the browser sent you
+and presumably since you're not the real
+
+111
+00:09:58,320 --> 00:10:01,920
+ Google，而不是真正的Gmail，您将无法说服
+Google and not the real Gmail you're not
+going to be able to persuade a
+
+112
+00:10:01,920 --> 00:10:06,660
+证书颁发机构为您提供将gmail comm与关联的证书
+certificate authority to give you a
+certificate associating gmail comm with
+
+113
+00:10:06,660 --> 00:10:11,790
+您的公钥，该单位，因此该证书计划
+your public key that unit and so this
+certificate scheme made
+
+114
+00:10:11,790 --> 00:10:14,700
+中间人攻击要困难得多，而且您知道他们确实是
+man-in-the-middle attacks quite a bit
+harder and you know indeed they are
+
+115
+00:10:14,700 --> 00:10:21,810
+现在因为证书还可以，所以难度更大了，尽管如此
+quite a bit harder now because of
+certificates okay so it turns out though
+
+116
+00:10:21,810 --> 00:10:27,680
+人们现在对证书计划有很多经验
+that the certificate scheme as people
+now have a lot of experience with it
+
+117
+00:10:27,680 --> 00:10:32,550
+拥有将近25年的经验，所以我们现在知道有些事情
+almost 25 years experience within so we
+now know there's some kind of things
+
+118
+00:10:32,550 --> 00:10:35,810
+原来是在想象中会出现几个错误
+that go wrong it was originally imagined
+that there would just be a couple of
+
+119
+00:10:35,810 --> 00:10:40,170
+值得信赖的证书颁发机构，可以很好地检查
+trustworthy certificate authorities who
+would do a good job of checking that
+
+120
+00:10:40,170 --> 00:10:43,860
+请求真的来自他们声称来自谁的人，如果有人
+request really came from who they
+claimed to come from that if somebody
+
+121
+00:10:43,860 --> 00:10:46,950
+为gmail.com要求该证书颁发机构提供的证书
+asked for a certificate for gmail.com
+that this certificate authorities would
+
+122
+00:10:46,950 --> 00:10:50,520
+实际上确实验证了该请求来自所有者gmail.com 
+indeed actually verified that the
+request came from the owner gmail.com
+
+123
+00:10:50,520 --> 00:10:57,600
+并没有将证书分发给随机人进行gmail comp，但是事实证明
+and not hand out certificates to random
+people for gmail comp but it that turns
+
+124
+00:10:57,600 --> 00:11:02,910
+对Google来说非常具有挑战性，也许您可​​以说服此证书
+out to be very challenging for google
+maybe you can convince this certificate
+
+125
+00:11:02,910 --> 00:11:06,450
+权威可以说服自己来自Google的请求，但您知道
+authority can convince itself that a
+request comes from Google but you know
+
+126
+00:11:06,450 --> 00:11:11,670
+对于仅XCOM而言，很难拥有可靠的证书颁发机构
+for just XCOM that's very hard to have a
+certificate authority reliably able to
+
+127
+00:11:11,670 --> 00:11:16,200
+说哦，天哪，这个要求真的来自真正拥有自己的人
+say oh yeah gosh this request really
+came from the person who really does own
+
+128
+00:11:16,200 --> 00:11:23,640
+ DMS名称XCOM可以解决的一个更糟糕的问题是， 
+the DMS name XCOM all right a worse
+problem is that while originally they
+
+129
+00:11:23,640 --> 00:11:26,370
+设想只有几个证书颁发机构
+were envisioned there'd be only a few
+certificate authority there are now
+
+130
+00:11:26,370 --> 00:11:30,810
+数以百计的证书颁发机构在那里，以及任何
+literally hundreds of certificate
+authorities out there and any
+
+131
+00:11:30,810 --> 00:11:38,070
+证书颁发机构可以生成任何名称的证书，并且确实可以
+certificate authority can generate a
+certificate for any name and indeed may
+
+132
+00:11:38,070 --> 00:11:40,950
+希望您被允许更改证书颁发机构（如果您是
+want to you're allowed to change
+certificate authorities if you're a
+
+133
+00:11:40,950 --> 00:11:46,590
+网站所有者，您可以将证书颁发机构更改为您喜欢的任何人，因此
+website owner you can change certificate
+authority to whoever you like so there's
+
+134
+00:11:46,590 --> 00:11:49,380
+没有哪个证书颁发机构对其权力有限制
+no sense in which certificate
+authorities have limits on their powers
+
+135
+00:11:49,380 --> 00:11:56,430
+他们可以任何证书颁发机构可以产生任何证书，现在浏览器
+they can any certificate authority can
+produce any certificate and now browsers
+
+136
+00:11:56,430 --> 00:11:59,310
+您是否知道有几百个证书颁发机构，这意味着
+have you know there's a couple hundred
+certificate authorities and that means
+
+137
+00:11:59,310 --> 00:12:03,210
+每个浏览器内置的浏览器（例如Chrome或Firefox）或内置的某些内容
+that each browser has built into it like
+Chrome or Firefox or something has built
+
+138
+00:12:03,210 --> 00:12:07,320
+其中所有证书的公钥列表共几百种
+into it a list of the public keys of all
+the certificate all couple hundred sort
+
+139
+00:12:07,320 --> 00:12:11,370
+良好的权威，如果其中任何一个人已经签署了由网络产生的证书
+good authorities and if any of them sign
+has signed a certificate produced by web
+
+140
+00:12:11,370 --> 00:12:18,840
+服务器证书可以接受的结果是，已经有
+server certificates acceptable the
+result of this is that there have been
+
+141
+00:12:18,840 --> 00:12:23,550
+证书颁发机构多次产生伪造证书的事件
+multiple incidents of certificate
+authorities producing bogus certificates
+
+142
+00:12:23,550 --> 00:12:28,770
+产生证明他们是Google的证书或
+that is producing certificates that said
+they were certificate for Google or
+
+143
+00:12:28,770 --> 00:12:34,170
+ Gmail或其他真实公司，但实际上是完全发布给某人的
+Gmail or some other real company but
+were actually issued to someone totally
+
+144
+00:12:34,170 --> 00:12:40,770
+否则，绝对不会颁发Google名称之一的证书，但不会颁发
+else absolutely not issued certificate
+for one of Google's names but not issued
+
+145
+00:12:40,770 --> 00:12:47,850
+给Google发布给其他类似的人，您知道有时这种情况只会发生
+to Google issued to someone else like
+and you know sometimes this happens just
+
+146
+00:12:47,850 --> 00:12:52,470
+因为上级当局没有意识到他们在做
+by mistake because superior Authority
+doesn't realize that they're doing the
+
+147
+00:12:52,470 --> 00:12:55,080
+错误的事情，有时实际上是非常恶意的，我的意思是
+wrong thing and sometimes it's actually
+quite malicious I mean there have
+
+148
+00:12:55,080 --> 00:12:59,880
+当然是颁发给只想窥探的人的证书
+certainly been certificates issued to
+people who just wanted to snoop on
+
+149
+00:12:59,880 --> 00:13:02,760
+人们的交通和中间人攻击， 
+people's traffic and mount
+man-in-the-middle attacks and did
+
+150
+00:13:02,760 --> 00:13:07,740
+在今天的读物中提到了“山人中间攻击”中的几个
+Mountain Man the middle attacks today's
+readings are mentioned a couple of these
+
+151
+00:13:07,740 --> 00:13:12,120
+事件，它们特别令人困扰，因为它们很难
+incidents and they're particularly
+troubling because they're hard to
+
+152
+00:13:12,120 --> 00:13:15,540
+阻止，因为证书颁发机构太多，而并非全部
+prevent because there's so many
+certificate authorities and not all of
+
+153
+00:13:15,540 --> 00:13:19,410
+他们，尽管对不起，最后一个问题是
+them
+although sorry the last question let was
+
+154
+00:13:19,410 --> 00:13:23,520
+最后一行插入框是证书上方的签名
+the last line insert box it's a
+signature over the certificate by the
+
+155
+00:13:23,520 --> 00:13:27,690
+先生提示由证书颁发机构使用证书
+sir tip using by the certificate
+authorities using the certificate
+
+156
+00:13:27,690 --> 00:13:33,600
+当局的私钥好，所以出现了假事件
+authorities private key okay so there
+have been incidents of bogus
+
+157
+00:13:33,600 --> 00:13:38,370
+证书真正的网站（如Google）的证书颁发给
+certificates certificates for real
+websites like Google issued to totally
+
+158
+00:13:38,370 --> 00:13:43,620
+错误的人和那些证书被滥用，目前尚不清楚
+the wrong people and those certificates
+have been abused and it's not clear how
+
+159
+00:13:43,620 --> 00:13:47,970
+修复证书颁发机构系统本身以防止它们发生，因为
+to fix the certificate authority system
+itself to prevent them because there's
+
+160
+00:13:47,970 --> 00:13:54,210
+如此众多的证书颁发机构，他们真的让您无法期望
+so many certificate authorities and they
+really you just can't expect that
+
+161
+00:13:54,210 --> 00:14:00,540
+他们将是完全可靠的，所以我们该怎么办
+they're going to be completely reliable
+so what can we do about this one
+
+162
+00:14:00,540 --> 00:14:05,250
+可能只有一个在线的所有有效数据库
+possibility would be to have a single
+online database of all valid
+
+163
+00:14:05,250 --> 00:14:09,840
+证书，以便当您知道浏览器时浏览器Comcast网站web 
+certificates so that when a browser
+you know browser Comcast websites web
+
+164
+00:14:09,840 --> 00:14:13,620
+现场出示您知道或可能有效的证书，那么也许您
+site hands at a certificate you know
+might or might be valid then maybe you
+
+165
+00:14:13,620 --> 00:14:18,630
+可以想象浏览器将联系全局有效证书数据库
+could imagine the browser would contact
+the global valid certificate database
+
+166
+00:14:18,630 --> 00:14:24,220
+ ins化验确实是证书，是连续颁发的假证书
+ins assays this really is certificate
+a bogus certificate issued by a row
+
+167
+00:14:24,220 --> 00:14:32,470
+证书颁发机构，问题是该方法有很多问题
+certificate authority um the problem is
+as many problems with that approach one
+
+168
+00:14:32,470 --> 00:14:38,860
+尚不清楚您如何才能正确区分有效人
+is it's still not clear how you can how
+anybody can distinguish valid correctly
+
+169
+00:14:38,860 --> 00:14:42,610
+伪造证书颁发的证书，因为通常您只是
+issued certificates from bogus
+certificates because typically you just
+
+170
+00:14:42,610 --> 00:14:47,680
+不知道谁是DNS名称的正确所有者，此外，您还需要
+don't know who the proper owner of DNS
+names it is furthermore you need to
+
+171
+00:14:47,680 --> 00:14:51,339
+允许证书所有者更改证书颁发机构或更新其证书颁发机构
+allow certificate owners to change
+certificate authorities or renew their
+
+172
+00:14:51,339 --> 00:14:54,660
+证书，否则他们可能会丢失其私钥并需要新证书
+certificates or they may lose their
+private key and need a new certificate
+
+173
+00:14:54,660 --> 00:15:00,610
+取代他们以前的想法，因为使用了新的公钥/私钥对
+to replace their older to think because
+using a new public/private key pair so
+
+174
+00:15:00,610 --> 00:15:05,830
+人们的证书一直在变化，甚至在技术上或
+people's certificates change all the
+time and finally even if technically or
+
+175
+00:15:05,830 --> 00:15:10,240
+可以区分伪造的正确证书
+were possible to distinguish correct
+certificates from bogus ones
+
+176
+00:15:10,240 --> 00:15:14,500
+没有任何人会相信这样做的实体，您知道
+there's no entity that everybody would
+trust to do it you know everybody in the
+
+177
+00:15:14,500 --> 00:15:18,640
+世界上那些你认识的中国伊朗人你知道的美国人
+world those you know the Chinese
+Iranians the Americans you know there's
+
+178
+00:15:18,640 --> 00:15:23,890
+没有一个他们都信任的服装，这就是为什么
+not any one outfit that they all trust
+and that's the root reason why there's
+
+179
+00:15:23,890 --> 00:15:29,500
+这么多的证书颁发机构，所以我们真的不能您真的不能期望
+so many certificate authorities so we
+really can't you really can't expect
+
+180
+00:15:29,500 --> 00:15:33,970
+只有一个票据交换所可以准确地区分有效货币
+there to be a single Clearing House that
+accurately distinguishes between valid
+
+181
+00:15:33,970 --> 00:15:40,060
+和无效的证书，但是什么是证书颁发机构证书
+and invalid certificates however what
+certificate authority certificate
+
+182
+00:15:40,060 --> 00:15:47,560
+透明所做的就是实质上不尽力而为
+transparency doing is doing is
+essentially try not do the best that
+
+183
+00:15:47,560 --> 00:15:54,520
+您是否有可能知道朝数据库的最长一步
+it's possible to do you know the longest
+step it can towards a database of the
+
+184
+00:15:54,520 --> 00:16:02,050
+完整的可信赖证书，所以现在我将概述
+holid trustworthy certificates so now
+I'm gonna give an overview of the
+
+185
+00:16:02,050 --> 00:16:10,930
+证书透明度的一般策略证书样式
+general strategy of certificate
+transparency the style of certificate
+
+186
+00:16:10,930 --> 00:16:18,670
+透明度在于这是一个审计系统，因为很难
+transparency is that it's an audit
+system because it's so hard hard to
+
+187
+00:16:18,670 --> 00:16:23,230
+无法仅仅确定此人是否拥有名称证书
+impossible to just decide does this
+person own a name a certificate
+
+188
+00:16:23,230 --> 00:16:27,250
+透明度不是建立防止不良事件发生的系统
+transparency isn't a building a system
+that prevents bad things from happening
+
+189
+00:16:27,250 --> 00:16:32,819
+这将要求您能够立即检测到
+which would require you to be able to
+detect right away that as
+
+190
+00:16:32,819 --> 00:16:37,169
+证书是伪造的，而是证书透明度
+certificate was bogus instead
+certificate transparency is going to
+
+191
+00:16:37,169 --> 00:16:44,819
+启用审核，这将是导致所有信息被删除的系统
+enable audit that is it'll it's a system
+to cause all the information to be
+
+192
+00:16:44,819 --> 00:16:49,319
+公开，以便可以由关心它的人检查
+public so that it can be inspected by
+people who care that is it's gonna if
+
+193
+00:16:49,319 --> 00:16:53,579
+你知道也许有人会继续允许人们签发伪造证书，但是
+you know maybe people it'll still allow
+people to issue bogus certificates but
+
+194
+00:16:53,579 --> 00:16:58,379
+这将确保这些证书是公开的，并且每个人都可以看到它们
+it's gonna insure those certificates are
+public and that everybody can see them
+
+195
+00:16:58,379 --> 00:17:06,269
+包括拥有虚假名字的人
+including whoever it is that owns the
+name that the name that's in the bogus
+
+196
+00:17:06,269 --> 00:17:10,319
+证书，因此可以解决预证书问​​题
+certificate and so this fixes the
+problem with the pre certificate
+
+197
+00:17:10,319 --> 00:17:13,500
+证书颁发机构可以伪造的透明系统
+transparency system where certificate
+authorities could issue bogus
+
+198
+00:17:13,500 --> 00:17:19,230
+证书，没人会知道，甚至可以把它们交给受害者
+certificates and no one would ever know
+and they could even give them to victim
+
+199
+00:17:19,230 --> 00:17:23,069
+一些受害浏览器会被他们欺骗，仍然是
+a few victim browsers who would be
+tricked by them and still because
+
+200
+00:17:23,069 --> 00:17:28,230
+证书通常不公开，他们可能有人可以证书
+certificates aren't generally public
+they could somebody could a certificate
+
+201
+00:17:28,230 --> 00:17:32,460
+当局可以为任何人为Google颁发伪造的证书，或者
+authority could issue a bogus
+certificate for anybody for Google or
+
+202
+00:17:32,460 --> 00:17:35,879
+微软和谷歌微软可能永远都不会意识到这一点， 
+Microsoft and Google Microsoft might
+never realize it and the incidents that
+
+203
+00:17:35,879 --> 00:17:41,490
+被发现通常只是偶然发现的，不是因为
+have come to light have generally been
+discovered only by accident not because
+
+204
+00:17:41,490 --> 00:17:46,220
+他们有点前途未卜，所以不再依赖
+they were sort of foredoomed to be
+discovered so instead of relying on
+
+205
+00:17:46,220 --> 00:17:50,549
+意外发现伪造证书证书透明度
+accidental discovery of bogus
+certificates certificate transparency
+
+206
+00:17:50,549 --> 00:17:54,330
+它将迫使他们陷入困境
+it's going to sort of force them into
+the light where they is much easier to
+
+207
+00:17:54,330 --> 00:17:59,730
+再次注意它们，因此它具有某种审核风格或nada而不是预防措施
+notice them again so it has a sort of
+audit flavor or nada not a prevention
+
+208
+00:17:59,730 --> 00:18:08,639
+味道还可以，所以我们的基本结构还是gmail.com或其他服务
+flavor okay so the basic structure again
+we have gmail.com or some other service
+
+209
+00:18:08,639 --> 00:18:12,659
+像往常一样想要一张证书，他们会问
+that wants a certificate as usual
+they're gonna ask someone of the
+
+210
+00:18:12,659 --> 00:18:18,299
+证书Web服务器首次设置时的证书的数百个CAS 
+hundreds of CAS for a certificate when
+when when the cert web servers first set
+
+211
+00:18:18,299 --> 00:18:23,759
+上，所以我们要索取证书，证书颁发机构要发送
+up so we're gonna ask a certificate and
+the certificate authority is gonna send
+
+212
+00:18:23,759 --> 00:18:28,110
+该证书返回到Web服务器，因为当然是
+this certificate back to the web server
+because of course is the web server that
+
+213
+00:18:28,110 --> 00:18:34,590
+向浏览器提供证书，同时通过证书
+gives a certificate to the browser and
+at the same time though the certificate
+
+214
+00:18:34,590 --> 00:18:41,100
+权威机构将证书或等效信息的副本发送给
+authority is going to send a copy of the
+certificate or equivalent information to
+
+215
+00:18:41,100 --> 00:18:46,570
+一种透明的vlog服务器
+a sort
+Transparency vlog server there's gonna
+
+216
+00:18:46,570 --> 00:18:50,799
+真实系统中透明地存在多个独立证书
+the real system there's multiple
+independent certificate transparently
+
+217
+00:18:50,799 --> 00:18:55,029
+日志服务器，我可以假设只有一个，所以这是您需要的一些服务
+log servers i can assume there's just
+one so this is some service that you
+
+218
+00:18:55,029 --> 00:19:00,309
+知道我们没有证明我们不必信任证书
+know we don't have turns out we're not
+gonna have to trust the certificate
+
+219
+00:19:00,309 --> 00:19:04,839
+当局会将其证书发送到该证书日志服务
+authorities gonna send it certificate to
+this certificate log service which has
+
+220
+00:19:04,839 --> 00:19:10,629
+一直在维护所有已颁发证书或所有已颁发证书的日志
+been maintaining a log of all issued
+certificates or all ones that
+
+221
+00:19:10,629 --> 00:19:13,419
+证书颁发机构已告知它何时获得新证书
+certificate authorities have told it
+about when it gets a new certificate
+
+222
+00:19:13,419 --> 00:19:18,669
+它将附加到其日志中，因此您可能知道有数百万
+it's gonna append it to its log so this
+you know might have millions of
+
+223
+00:19:18,669 --> 00:19:26,049
+一段时间后，当浏览器和某些人想要
+certificates in it after a while now
+when the browser and some human wants to
+
+224
+00:19:26,049 --> 00:19:32,559
+与您知道他们交谈过的网站进行对话建立了一个HTTPS连接
+talk to a website they you know they
+talk did set up an HTTPS connection to
+
+225
+00:19:32,559 --> 00:19:38,889
+ Gmail Gmail将证书发回给他们，浏览器将发送该证书
+Gmail Gmail sends them a certificate
+back and the browser's gonna send that
+
+226
+00:19:38,889 --> 00:19:42,940
+证书发送到证书日志服务器，请参阅
+certificate to the certificate log
+server see is this certificate in the
+
+227
+00:19:42,940 --> 00:19:48,339
+日志中有difficut日志服务器会说是或否是他们的证书在
+log there's difficut log servers gonna
+say yes or no is their certificate in
+
+228
+00:19:48,339 --> 00:19:53,889
+现在登录，如果是，则浏览器将继续并立即使用它
+the log now and if it is then the
+browser will go ahead and use it now the
+
+229
+00:19:53,889 --> 00:19:56,889
+它在您知道的日志中并不意味着它不是假的
+fact that it's in the log you know
+doesn't mean it's not bogus right
+
+230
+00:19:56,889 --> 00:20:00,789
+因为任何证书颁发机构（包括那里的证书颁发机构） 
+because any certificate authority
+including the ones that are out there
+
+231
+00:20:00,789 --> 00:20:06,489
+恶意或运行不当的证书颁发机构可以插入
+that are malicious or badly run any
+certificate authority can insert a
+
+232
+00:20:06,489 --> 00:20:13,299
+证书进入日志系统，因此可能会诱骗用户使用
+certificate into the log system and
+therefore perhaps trick users into using
+
+233
+00:20:13,299 --> 00:20:20,049
+所以到目前为止，我们还没有建立防止滥用的系统，但是
+it so for so far we haven't built a
+system that prevents abuse however it is
+
+234
+00:20:20,049 --> 00:20:25,359
+除非在日志中没有浏览器将不使用证书， 
+the case that no browser will use a
+certificate unless it's in the log so at
+
+235
+00:20:25,359 --> 00:20:34,649
+ gmail将与CT系统一起运行时，同时调用监视器和
+the same time gmail is going to run up
+with the CT system calls a monitor and
+
+236
+00:20:34,649 --> 00:20:37,300
+现在，只要假设有一台显示器
+for now well
+just assume that there's a monitor
+
+237
+00:20:37,300 --> 00:20:44,290
+与每个网站相关联，因此该监控器还会定期与
+associated with every website so this
+monitor periodically also talks to the
+
+238
+00:20:44,290 --> 00:20:49,150
+证书日志服务器是一种资产，请给我您的日志副本，或者实际上是您
+certificate log servers an asset please
+give me a copy of your log or really you
+
+239
+00:20:49,150 --> 00:20:52,540
+知道请给我一份自我以来已添加的新内容的副本
+know please give me a copy of whatever
+new has been added to your long since I
+
+240
+00:20:52,540 --> 00:20:55,810
+最后一个问题，这意味着显示器将要建立起来
+last asked and that means that the
+monitor is going to build up it's going
+
+241
+00:20:55,810 --> 00:21:00,250
+知道其中的每个证书就足够了
+to be aware of every single certificate
+that's going to be enough that's in the
+
+242
+00:21:00,250 --> 00:21:05,560
+日志，而且还因为该监视器与Gmail关联，因此该监视器知道
+log and but also because the monitor is
+associated with Gmail the monitor knows
+
+243
+00:21:05,560 --> 00:21:12,130
+ Gmail的正确证书是什么，如果某些流氓证书颁发机构
+what Gmail's correct certificate is so
+if some rogue certificate authority
+
+244
+00:21:12,130 --> 00:21:18,370
+为Gmail颁发证书，而不是Gmail本身要求的证书
+issues a certificate for Gmail it's not
+the one that Gmail itself asked for then
+
+245
+00:21:18,370 --> 00:21:24,880
+ Gmail的监视器会在证书日志中绊倒它，因为Gmail的监视器
+Gmail's monitor will stumble across it
+in the certificate log because Gmail's
+
+246
+00:21:24,880 --> 00:21:29,470
+监视器现在当然知道流氓Gmail的正确证书
+monitor knows Gmail's correct
+certificate now of course the rogue
+
+247
+00:21:29,470 --> 00:21:32,770
+证书颁发机构不必将其证书发送到证书
+certificate authority doesn't have to
+send its certificate to the certificate
+
+248
+00:21:32,770 --> 00:21:37,390
+日志系统，但在这种情况下，当您知道浏览器时可能是偶然的
+log system but in that case when
+browsers you know maybe accidentally
+
+249
+00:21:37,390 --> 00:21:42,310
+连接到攻击者的Web服务器，攻击者将刷服务器提供
+connect to the attackers web server and
+the attacker would swipe server gives
+
+250
+00:21:42,310 --> 00:21:45,790
+他们伪造的证书，如果他们没有把它放在日志中，那么
+them the bogus certificate if they
+haven't put it in the log then the
+
+251
+00:21:45,790 --> 00:21:48,850
+浏览器不会相信它，并且将中止连接不是因为它不是
+browser won't believe it and will abort
+the connection it's not because it's not
+
+252
+00:21:48,850 --> 00:21:53,440
+在日志中，所以日志有点力量，因为
+in the log
+so the log sort of forces because
+
+253
+00:21:53,440 --> 00:21:58,000
+浏览器要求证书是日志，日志会强制所有证书
+browsers require certificates being a
+log the log forces all certificates to
+
+254
+00:21:58,000 --> 00:22:03,850
+在公开的地方可以由知道什么的监视器进行审核和检查
+be public where they can be audited and
+checked by monitors who know what the
+
+255
+00:22:03,850 --> 00:22:07,630
+适当的证书，我们的，所以一些显示器是由大公司经营的， 
+proper certificates our and so some
+monitors are run by big companies and
+
+256
+00:22:07,630 --> 00:22:12,520
+公司知道自己的证书有些监视器由证书运行
+companies know their own certificates
+some monitors are run by certificate
+
+257
+00:22:12,520 --> 00:22:15,820
+代表客户的授权机构，然后再次是那些证书颁发机构
+authorities on behalf of their customers
+and again those certificate authorities
+
+258
+00:22:15,820 --> 00:22:19,360
+知道他们颁发给客户的证书是什么，他们至少可以
+know what certificates they've issued to
+their customers and they can at least
+
+259
+00:22:19,360 --> 00:22:23,560
+提醒客户，如果他们看到他们没有为以下其中一项颁发证书： 
+alert their customers if they see a
+certificate they didn't issue for one of
+
+260
+00:22:23,560 --> 00:22:28,600
+他们的顾客名字我是另外还有一些完全第三方的显示器
+their customers names I'm in addition
+there's some totally third-party monitor
+
+261
+00:22:28,600 --> 00:22:34,180
+您让第三方监控器监控您的姓名，您的姓名和您的姓名的系统
+systems where you give the third-party
+monitor your names and yours and your
+
+262
+00:22:34,180 --> 00:22:41,360
+有效的证书，并检查您的姓名的预期证书
+valid certificates and it checks for
+expected certificates for your names
+
+263
+00:22:41,360 --> 00:22:51,660
+好的，这是整体方案，但很大程度上取决于浏览器
+alright this is the overall scheme but
+it depends very much on browsers seeing
+
+264
+00:22:51,660 --> 00:22:59,130
+监视器可以看到并记录的日志内容完全相同，但请记住，我们已经反对
+the very same log contents that monitors
+see and but remember we were up against
+
+265
+00:22:59,130 --> 00:23:02,400
+我们不确定是否可以信任此系统中的任何组件的问题
+this problem that we're not sure that we
+can trust any component in this system
+
+266
+00:23:02,400 --> 00:23:06,270
+所以确实我们发现此证书颁发机构中有些是恶意的
+so indeed we found this certificate
+authorities some of them are malicious
+
+267
+00:23:06,270 --> 00:23:11,010
+或拥有无法信任或草率的员工并且不遵守规则
+or have employees who can't be trusted
+or are sloppy and don't follow the rules
+
+268
+00:23:11,010 --> 00:23:14,790
+所以我们假设我们必须假设
+so we're going to assume we have to
+assume that the same will be true the
+
+269
+00:23:14,790 --> 00:23:18,660
+证书日志服务器，其中一些将是恶意的，其中一些可能
+certificate log servers that some of
+them will be malicious some of them may
+
+270
+00:23:18,660 --> 00:23:23,130
+与流氓证书颁发机构合谋并故意尝试
+conspire with rogue certificate
+authorities and intentionally try to
+
+271
+00:23:23,130 --> 00:23:29,850
+帮助他们签发伪造的证书有些证书可能草率的有些证书可能
+help them issue bogus certificates some
+of them may be sloppy some of them may
+
+272
+00:23:29,850 --> 00:23:33,990
+是合法的，但也许他们的一些员工或您支付的腐败费用
+be legitimate but maybe some of their
+employees or are corruptible you pay
+
+273
+00:23:33,990 --> 00:23:38,100
+他们是贿赂，所以我会在日志中做一些有趣的事情，删除或添加
+them being a bribe so I'll do something
+funny to the log delete something or add
+
+274
+00:23:38,100 --> 00:23:43,080
+东西，所以我们需要构建的是一个日志，即使该日志
+something to it so what we need to build
+is a log that even though the log
+
+275
+00:23:43,080 --> 00:23:50,280
+运营商可能不合作而不值得信赖，我们仍然可以确定或
+operator may be not cooperating not
+trustworthy we can still be sure or at
+
+276
+00:23:50,280 --> 00:23:54,780
+最不知道浏览器是否不是同一个日志竞赛者
+least know if it's not the case that
+browsers are seeing the same log contest
+
+277
+00:23:54,780 --> 00:23:59,760
+作为监视器，因此如果我们的浏览器使用了日志中的证书， 
+as monitors so if our browser uses a
+certificate that was in the log the
+
+278
+00:23:59,760 --> 00:24:05,880
+监控拥有该名称的人最终会看到它，因此我们需要做的是
+monitor who owns that name will
+eventually see it so what we need to do
+
+279
+00:24:05,880 --> 00:24:16,920
+是我们需要构建一个仅追加的日志系统，以便它不会显示
+is we need to build a log system that is
+append-only so that it can't show a
+
+280
+00:24:16,920 --> 00:24:24,200
+证书到浏览器，然后在监视器看到它之前将其删除，因此仅附加
+certificate to a browser then delete it
+before monitors see it so append-only
+
+281
+00:24:27,110 --> 00:24:33,840
+没有叉，就意味着我们不需要日志
+no Forks
+in the sense that we don't want the log
+
+282
+00:24:33,840 --> 00:24:38,910
+系统基本上保留两个日志，其中一个显示两个浏览器，另一个显示
+system to basically keep two logs one of
+which it shows two browsers and one of
+
+283
+00:24:38,910 --> 00:24:53,550
+它显示了两个监视器，所以我们不需要叉子，我们需要不受信任的我们不能
+which shows two monitors so we need no
+Forks and we need untrusted we can't be
+
+284
+00:24:53,550 --> 00:25:02,210
+确保证书服务器正确无误，因此只需备份一下
+sure that the certificate servers are
+correct so just to back up a bit the
+
+285
+00:25:02,210 --> 00:25:08,520
+我们需要的日志系统的关键属性远远超出了日志服务器
+critical properties we need for the log
+system so larger than just a log servers
+
+286
+00:25:08,520 --> 00:25:14,040
+但是日志服务器的整个系统以及各种检查是我们必须
+but the entire system of the log servers
+plus the various checks is we have to
+
+287
+00:25:14,040 --> 00:25:19,800
+防止删除，因为我们只需要在日志后附加日志
+prevent deletion that is we need the
+logs to be append only because if a log
+
+288
+00:25:19,800 --> 00:25:26,880
+服务器可以从其日志中删除项目，然后它们可以有效地显示伪造
+server could delete items out of its log
+then they could effectively show a bogus
+
+289
+00:25:26,880 --> 00:25:31,020
+长期向浏览器索取者提供证书，也许在该日志中
+certificate to a browser claimants in
+the long and maybe in the log at that
+
+290
+00:25:31,020 --> 00:25:35,850
+浏览器使用它的时间，但也许此证书服务器可以删除
+time the browser uses it but then maybe
+this certificate server could delete
+
+291
+00:25:35,850 --> 00:25:40,170
+从其日志中获取该证书，以便在监控人员查看时
+that certificate from its log so that by
+the time the monitor's came to look at
+
+292
+00:25:40,170 --> 00:25:44,730
+伪造的证书不会在日志中，所以我们需要一个系统
+the log the bogus certificate wouldn't
+be there so we need to have a system
+
+293
+00:25:44,730 --> 00:25:49,530
+可以防止删除，或者至少可以检测是否发生删除，因此
+that either prevents deletion or at
+least detects if deletion occurred so
+
+294
+00:25:49,530 --> 00:25:56,040
+这就是系统只需要追加的意义，我们也有
+that's the sense in which the system
+needs to be append-only and we also have
+
+295
+00:25:56,040 --> 00:26:02,750
+为了防止所谓的“模棱两可”，我们必须防止Forks或
+to prevent what's called equivocation or
+not' we have to prevent Forks or
+
+296
+00:26:02,750 --> 00:26:06,620
+等同模棱两可
+equivalently equivocation
+
+297
+00:26:08,920 --> 00:26:15,450
+所以您知道这可能是证书日志服务器可以
+so you know it's
+maybe the certificate log servers could
+
+298
+00:26:15,450 --> 00:26:21,060
+实现仅追加日志，但是如果实现了两个不同
+be implementing append-only logs but if
+it if it uh implemented two different
+
+299
+00:26:21,060 --> 00:26:25,530
+依靠唯一的日志并显示一个两个浏览器，并显示另一个仅附加的
+depend the only logs and showed one two
+browsers and show the other append-only
+
+300
+00:26:25,530 --> 00:26:30,150
+记录两个监视器，那么我们可能会处于一个位置，是的，您知道
+log two monitors then we could be in a
+position where yeah you know that the
+
+301
+00:26:30,150 --> 00:26:33,540
+浏览器显示的日志我们显示浏览器的包含虚假信息
+browser that we showed the log we showed
+the browser's contains the bogus
+
+302
+00:26:33,540 --> 00:26:39,710
+证书，但我们向监视器显示的日志不包含
+certificate but the log we showed a
+monitors doesn't doesn't contain the
+
+303
+00:26:39,710 --> 00:26:45,240
+伪造证书，因此我们必须排除所有人的模棱两可， 
+bogus certificate so we have to rule out
+equivocation to all without trusting the
+
+304
+00:26:45,240 --> 00:26:53,820
+服务器，那么我们现在该如何做呢？ 
+servers so how can we do this now we're
+getting into the kind of details that
+
+305
+00:26:53,820 --> 00:27:00,870
+最后的作业是在谈论第一步是这个东西
+the last of the assignments was talking
+about the first step is this thing
+
+306
+00:27:00,870 --> 00:27:08,430
+叫做默克尔树，这有点像日志
+called a Merkel tree and this is
+something that's sort of that the log
+
+307
+00:27:08,430 --> 00:27:12,570
+服务器应该建立在日志的顶部，因此，想法是
+servers are expected to build on top of
+the log so the idea is that there's the
+
+308
+00:27:12,570 --> 00:27:17,270
+实际日志本身是一系列证书，您知道一个证书
+actual log itself which is a sequence of
+certificates you know certificate one
+
+309
+00:27:17,270 --> 00:27:24,840
+证书大概以证书的顺序
+certificate to presumably in the order
+that a certificate
+
+310
+00:27:24,840 --> 00:27:28,409
+证书要添加到系统中，我将要添加的前几百万
+certificates to be added to the system
+and the prime millions I'm just going to
+
+311
+00:27:28,409 --> 00:27:35,520
+假设现在有一对夫妇，事实证明，你知道我们不想拥有
+assume there's a couple now it's gonna
+turn out you know we don't want to have
+
+312
+00:27:35,520 --> 00:27:40,409
+浏览器必须下载整个日志，因此我们需要工具来使我们
+the browser's have to download the whole
+log and so we need tools to so that we
+
+313
+00:27:40,409 --> 00:27:48,539
+可以使日志记录系统基本上发送可信赖的摘要，或者
+can allow the logging system to
+basically send trustworthy summaries or
+
+314
+00:27:48,539 --> 00:27:53,250
+明确记录到浏览器中的内容，我将在其中进行讨论
+unambiguous summaries of what's in the
+log to the the browsers and I'll talk in
+
+315
+00:27:53,250 --> 00:27:57,120
+关于这些摘要的确切用途，但基本的
+a bit about it exactly what those
+summaries are used for but the basic
+
+316
+00:27:57,120 --> 00:28:07,559
+方案是日志服务器将使用加密哈希来进行哈希排序
+scheme is that the log servers are gonna
+use cryptographic hashes to sort of hash
+
+317
+00:28:07,559 --> 00:28:11,880
+完整的日志记录集可以产生一个
+up the complete set of records that are
+in the log can produce a single
+
+318
+00:28:11,880 --> 00:28:16,860
+密码散列这几天通常约为256位，因此
+cryptographic hash which is typically
+these days about 256 bits long so the
+
+319
+00:28:16,860 --> 00:28:23,039
+密码散列总结了日志的数量和方式
+cryptographic hash summarizes the
+countenance of the log and the way
+
+320
+00:28:23,039 --> 00:28:28,950
+这样做是因为基本上是成对的树结构
+that's done is that the is as a
+basically a tree structure of pairs over
+
+321
+00:28:28,950 --> 00:28:35,940
+哈希总是将零对级别的数字对哈希在一起，所以我
+hash always hashing together pairs of
+numbers at the zeroeth level so I'm
+
+322
+00:28:35,940 --> 00:28:40,320
+要为每个哈希写一个，每个日志条目都有一个哈希，所以我们
+gonna write each for a hash each one of
+the log entries has a hash so we're
+
+323
+00:28:40,320 --> 00:28:46,649
+在基本级别上，我们将拥有每个日志条目的哈希值
+gonna have sort of at the base level we
+have the hash of each log entry each
+
+324
+00:28:46,649 --> 00:28:55,710
+证书，然后我们将对等对象进行哈希处理，以便在下一级别
+certificate and then we're going to hash
+up peers so that the next level we're
+
+325
+00:28:55,710 --> 00:29:04,190
+会有一个哈希值，并与此关联，还有一个哈希值
+gonna have a hash of this and
+concatenated with this and a hash of
+
+326
+00:29:04,190 --> 00:29:11,510
+这与这两个哈希值串联在一起，然后在顶层
+this concatenated with this these two
+hashes and then at the top level sort of
+
+327
+00:29:12,330 --> 00:29:16,320
+我们正在做的是将这两个哈希串联在一起
+we're we're overdoing is hashing these
+two the concatenation of these two
+
+328
+00:29:16,320 --> 00:29:21,679
+哈希，这里的单个哈希是
+hashes and this single hash here is a
+
+329
+00:29:21,860 --> 00:29:28,380
+完整日志的明确替代品之一是
+unambiguous sort of stand-in for the
+complete log one of the properties of
+
+330
+00:29:28,380 --> 00:29:33,570
+这些像sha-256这样的加密哈希值是不可能找到两个
+these cryptographic hashes like sha-256
+is that it's not feasible to find two
+
+331
+00:29:33,570 --> 00:29:37,769
+哈希函数的输入产生相同的输出，这意味着如果您
+inputs to the hash function that produce
+the same output and that means if you
+
+332
+00:29:37,769 --> 00:29:43,289
+告诉某人哈希函数的输出您只有一个输入
+tell somebody the output of the hash
+function there's only one input you're
+
+333
+00:29:43,289 --> 00:29:48,360
+曾经能够找到产生那个输出的东西，所以如果日志服务器
+ever going to be able to find that
+produce that output so if the log server
+
+334
+00:29:48,360 --> 00:29:54,149
+确实以这种方式散列其日志的内容，仅是这些日志的此顺序
+does hash up in this way the contents of
+its logs only this sequence of these log
+
+335
+00:29:54,149 --> 00:29:59,760
+记录将能够产生该哈希或有效地保证
+records will ever be able to produce
+that hash or guaranteed effectively that
+
+336
+00:29:59,760 --> 00:30:05,399
+日志服务器将无法找到其他产生日志的日志
+the log server is not going to be able
+to find some other log that produces the
+
+337
+00:30:05,399 --> 00:30:12,600
+与该日志条目序列相同的最终树哈希，所以这是
+same final tree hash as this sequence of
+log entries all right so this is the
+
+338
+00:30:12,600 --> 00:30:18,659
+默克尔树，这是一种树形哈希，用于总结整个日志
+Merkel tree this is the sort of tree
+hash that summarizes the entire log at
+
+339
+00:30:18,659 --> 00:30:27,750
+默克尔树的顶部实际上将其称为签名树头
+the top of the Merkel tree there there's
+will actually call it a signed tree head
+
+340
+00:30:27,750 --> 00:30:32,010
+因为实际上日志服务器将这个哈希值放在树的顶部
+because in fact the log servers take
+this hash this at the top of the tree
+
+341
+00:30:32,010 --> 00:30:36,990
+并使用其私钥对其进行签名，然后将其提供给浏览器和
+and sign it with their private key and
+give that to clients to browsers and
+
+342
+00:30:36,990 --> 00:30:42,269
+监视器以及他们已经签名的事实意味着他们不能
+monitors and the fact that they've
+signed it means that they they can't
+
+343
+00:30:42,269 --> 00:30:45,570
+后来拒绝了，实际上是他们，因此产生了它
+disavow it later
+that was really them and produced it so
+
+344
+00:30:45,570 --> 00:30:53,340
+那就是您知道能够捕获说谎的日志服务器，所以重点
+that's you know just to be able to catch
+lying lying log servers and so the point
+
+345
+00:30:53,340 --> 00:30:59,850
+这是一旦日志服务器揭示了一个特定的符号树头
+here is that once a log server has
+revealed a particular sign tree head to
+
+346
+00:30:59,850 --> 00:31:05,669
+浏览器或监视器对某些特定日志内容的承诺，因为
+a browser or monitor its committed to
+some specific log contents because it
+
+347
+00:31:05,669 --> 00:31:08,730
+将永远无法产生不同的日志内容来产生
+won't be able to ever produce a
+different log contents to produce the
+
+348
+00:31:08,730 --> 00:31:14,700
+相同的哈希，所以您的哈希实际上是作为一种承诺起作用的，所以
+same hash so you hashes are really
+function as kind of commitments okay so
+
+349
+00:31:14,700 --> 00:31:20,370
+这是日志的内容，但默克尔树看起来像是现在的特定日志
+this is the with the log but the Merkel
+tree looks like for a particular log now
+
+350
+00:31:20,370 --> 00:31:25,110
+今天的三读概述了如何
+the third reading today sort of outlined
+how to
+
+351
+00:31:25,110 --> 00:31:32,790
+法律如何将记录添加到日志中以获取任意数量的记录
+and the law how to add records to the
+log for arbitrary numbers of Records I'm
+
+352
+00:31:32,790 --> 00:31:37,350
+只是假设对数总是以2的倍数增长，这是
+just going to assume that the log always
+grows by factors of 2 which is
+
+353
+00:31:37,350 --> 00:31:41,190
+不切实际，但可以更容易地解释Naumann，因此这意味着
+impractical but makes it easier to
+explain Naumann so that means that as
+
+354
+00:31:41,190 --> 00:31:45,299
+证书颁发机构发送新证书以将日志添加到日志中
+certificate authorities send in new
+certificates to add to the log the log
+
+355
+00:31:45,299 --> 00:31:50,820
+服务器将等待，直到它拥有与旧记录一样多的新记录为止，并且
+server will wait until it has as many
+new records as it has old records and
+
+356
+00:31:50,820 --> 00:31:56,760
+然后产生另一个树头，这样做的方式是
+then produce another tree head and the
+way it does that is it's gonna in order
+
+357
+00:31:56,760 --> 00:32:02,790
+为了扩展日志，日志服务器将等待另外四个记录，并且
+to extend the log the log servers going
+to wait off as another four records and
+
+358
+00:32:02,790 --> 00:32:10,190
+然后像以前一样将它们成对散列，然后产生一个新的
+then it's gonna hash them pairwise just
+as before and then it'll produce a new
+
+359
+00:32:10,490 --> 00:32:19,610
+树头，这是这两个哈希的串联的哈希，并且
+tree head that is the hash of the
+concatenation of these two hashes and
+
+360
+00:32:21,380 --> 00:32:28,950
+这是新的扩展法则的新树头，因此意味着随着时间的推移
+this is the new tree head for the new
+expanded law and so that means as time
+
+361
+00:32:28,950 --> 00:32:34,770
+继续运行，并且日志服务器的日志越来越长，它会产生一些
+goes on and a log server this log grows
+longer and longer it produces sort of
+
+362
+00:32:34,770 --> 00:32:42,169
+越来越高的树头序列作为对数
+higher and higher a sequence of higher
+and higher tree heads as the logarithms
+
+363
+00:32:44,809 --> 00:32:53,700
+好的，这就是我们期望日志服务器维护的结构
+okay so this is the structure that we're
+expecting log servers to maintain of
+
+364
+00:32:53,700 --> 00:32:57,000
+谁知道他们实际在做什么，当然，如果他们是恶意的
+course who knows what they're actually
+doing especially if they're malicious
+
+365
+00:32:57,000 --> 00:33:01,799
+但是写了证书透明协议种类的协议
+but the protocol the certificate
+transparency protocol sort of is written
+
+366
+00:33:01,799 --> 00:33:06,090
+您知道好像日志服务器实际上正在执行此操作，那么该怎么办
+you know as if the log server was was
+actually doing this all right so what do
+
+367
+00:33:06,090 --> 00:33:14,309
+我们需要做，但要做的是Merkle树的要点是使用它们来强制记录
+we need to do but do the point of this
+Merkle trees is to use them to force log
+
+368
+00:33:14,309 --> 00:33:18,840
+服务器证明有关日志的某些事情，他们可以关于日志
+servers to prove certain things about
+the logs that they can about the log
+
+369
+00:33:18,840 --> 00:33:24,059
+他们正在维护，我们将要知道那些证明是什么
+that they're maintaining we're going to
+want to know what those those proofs
+
+370
+00:33:24,059 --> 00:33:33,510
+看起来第一种是所谓的包含证明
+look like the first kind of
+is what I'll call a proof of inclusion
+
+371
+00:33:33,510 --> 00:33:39,030
+这就是一个
+and this is what a
+
+372
+00:33:40,050 --> 00:33:44,880
+当需要查找刚刚获得的证书时，NEADS 
+NEADS when it when it wants to find out
+if a certificate that has just been
+
+373
+00:33:44,880 --> 00:33:49,290
+如果该证书确实在法律上，则由网络服务器提供
+given by a web server if that
+certificate is really in the law it's
+
+374
+00:33:49,290 --> 00:33:57,090
+要问证书，要问日志服务器，看这里是证书
+gonna ask the certificate it's gonna ask
+the log server look here's a certificate
+
+375
+00:33:57,090 --> 00:34:01,110
+你知道这是它在您的日志中，并且证书服务器将要发送
+you know is it an is it in your log and
+the certificate server is gonna send
+
+376
+00:34:01,110 --> 00:34:07,080
+不仅证明证书在日志中，而且还证明
+back a proof of actually not just that
+the certificate is in the log but
+
+377
+00:34:07,080 --> 00:34:14,760
+实际上它在日志中的位置以及浏览器中的位置
+actually where it is what its position
+is in the log and of course the browser
+
+378
+00:34:14,760 --> 00:34:17,699
+需要此证明，因为如果不在其中，则不想使用证书
+wants this proof because it doesn't want
+to use the certificate if it's not in
+
+379
+00:34:17,699 --> 00:34:21,059
+该日志，因为如果不是，那么我将无法看到监视器，并且有
+
+380
+00:34:21,060 --> 00:34:27,270
+否/-无法防止其证书被伪造，因此需要
+no / - no protection against their
+certificate being bogus and it needs to
+
+381
+00:34:27,270 --> 00:34:35,370
+作为证明，因为我们无力让此日志服务器成为恶意日志
+be a proof because we we can't afford to
+let this log server a malicious log
+
+382
+00:34:35,370 --> 00:34:39,239
+永远改变主意，我们不想接受日志服务器这个词，因为
+forever change its mind we don't want to
+take the log servers word for it because
+
+383
+00:34:39,239 --> 00:34:44,309
+那么他们可能是恶意日志服务器可能会说“是”，而该证明将
+
+384
+00:34:44,310 --> 00:34:49,080
+帮助我们了解您是否知道日志服务器是否说谎，这些证明将
+help us catch it you know if a log
+server does lie these proofs are gonna
+
+385
+00:34:49,080 --> 00:34:54,330
+帮助我们了解日志服务器撒谎并提供证据表明
+help us catch the fact that the log
+servers lied and produce evidence that
+
+386
+00:34:54,330 --> 00:34:59,940
+日志服务器是恶意的，从现在开始应该被忽略的是
+the log server is malicious and should
+be ignored from now on is that sort of
+
+387
+00:34:59,940 --> 00:35:03,840
+对日志服务器的最终制裁是浏览器实际上
+the ultimate sanction against the log
+servers is that the browser's actually
+
+388
+00:35:03,840 --> 00:35:10,110
+列出可接受的日志服务器，这些证明将是
+have a list of acceptable log servers
+and these proofs would be part of the
+
+389
+00:35:10,110 --> 00:35:16,230
+导致导致其中一台日志服务器从日志中取出的证据
+evidence to cause one of the log servers
+to be taken out of the log if it was
+
+390
+00:35:16,230 --> 00:35:20,160
+恶意好，所以我们需要一个证明，我们希望日志服务器产生一个证明
+malicious okay so we need a proof we
+want the log server to produce a proof
+
+391
+00:35:20,160 --> 00:35:29,190
+给定证书在其日志中，因此实际上第一步是
+that a given certificate is in its log
+so actually the first step is that the
+
+392
+00:35:29,190 --> 00:35:35,670
+浏览器向日志服务器询问当前的符号树头，因此
+browser asks the log server for the
+current sign tree head so what the
+
+393
+00:35:35,670 --> 00:35:41,040
+浏览器真正的问题是摘要日志中的此证书
+browser's really asking is is this
+certificate in the log that summarized
+
+394
+00:35:41,040 --> 00:35:47,340
+通过这个当前的符号树头和日志服务器可能会说谎
+by this current by this sign tree head
+and the log server may lie about the
+
+395
+00:35:47,340 --> 00:35:52,220
+浏览器向右询问符号树头，然后询问它当前的符号树头，然后
+sign tree head right the browser asks it
+for the current sign tree head and then
+
+396
+00:35:52,220 --> 00:35:56,960
+为了证明证书在日志中，日志服务器可能会说谎
+for a proof that the certificate is in
+the log the log server could lie about
+
+397
+00:35:56,960 --> 00:36:01,160
+符号树头带将解决这个问题，我们稍后会考虑，但对于
+the sign tree headband will deal about
+that we'll consider that later but for
+
+398
+00:36:01,160 --> 00:36:09,619
+现在，假设浏览器具有正确的符号树头，并且
+now let's assume that the the browser
+has the correct sign tree head and is
+
+399
+00:36:09,619 --> 00:36:15,050
+要求证明还可以，所以为了简单起见，我将解释如何执行此操作
+demanding a proof okay so for simplicity
+I'm just gonna explain how to do this
+
+400
+00:36:15,050 --> 00:36:18,980
+对于具有两个记录的日志，事实证明，将其扩展为具有
+for a log with two records and it turns
+out that extending that to a log with
+
+401
+00:36:18,980 --> 00:36:26,330
+与两个记录的其他更高次幂相对容易一些，所以
+with other more higher power of two
+records is relatively easy um so the
+
+402
+00:36:26,330 --> 00:36:32,810
+浏览器实际上有一个特殊的符号树头，让我们假设正确的日志
+browser actually has a particular sign
+tree head let's suppose the correct log
+
+403
+00:36:32,810 --> 00:36:39,890
+位于该标志树头下方的是特定于日志B的两个LM 
+that sits under that sign tree head is
+the two LM in log a B for particular
+
+404
+00:36:39,890 --> 00:36:46,280
+证书a和B，这意味着正确
+certificates a and B and that means that
+the correct
+
+405
+00:36:46,280 --> 00:36:52,849
+默克尔树，因为它牢固地位于a和B的散列的底部，并且
+Merkle tree for that it securely is at
+the bottom as the hashes of a and B and
+
+406
+00:36:52,849 --> 00:37:01,220
+那么符号树的头部实际上就是一个与
+then the sign tree head is actually the
+hash of a hash of a concatenated with a
+
+407
+00:37:01,220 --> 00:37:09,859
+哈希将是这样，让我们​​假设这是证书的标志树头
+hash would be so let's suppose this is
+the sign tree head that the certificate
+
+408
+00:37:09,859 --> 00:37:16,609
+日志服务器实际上给了客户端的客户端当然不是
+that the log server actually gave to the
+client of course the client doesn't this
+
+409
+00:37:16,609 --> 00:37:21,410
+客户只知道这个值，这是最终的哈希值，实际上并不知道
+client only knows this value this is
+final hash value doesn't actually know
+
+410
+00:37:21,410 --> 00:37:28,460
+如果浏览器要求提供a的证明，则日志中的证明是什么
+what is in the log the proof if the if
+the browser asked for a proof that a is
+
+411
+00:37:28,460 --> 00:37:38,060
+在日志中，那么日志服务器可以返回的证明就是证明
+in the log then the proof that the log
+server can return is simply the proof
+
+412
+00:37:38,060 --> 00:37:50,950
+因为在日志中a是简单的eizan在日志中，而另一个的哈希
+for a is a in the log is simply eizan in
+the log and the hash of the other
+
+413
+00:37:50,950 --> 00:37:56,940
+日志中的元素，因此为零，b的哈希值
+element in the log so zero and the hash
+of b
+
+414
+00:37:56,940 --> 00:38:03,329
+而这足以让a服从自己，以对不起
+and that is enough information for a to
+convince itself that for sorry for the
+
+415
+00:38:03,329 --> 00:38:08,069
+客户说服自己真的处于零位，因为它可以
+client to convince itself that a really
+is at position zero because it can take
+
+416
+00:38:08,069 --> 00:38:13,829
+它知道证书有兴趣，可以将其哈希一部分证明是
+it knows the certificate is interested
+in it can hash it part of the proof was
+
+417
+00:38:13,829 --> 00:38:21,030
+该最低级别哈希中另一个元素的哈希，以便浏览器可以
+the hash of the other element in this
+lowest level hash so the browser can
+
+418
+00:38:21,030 --> 00:38:26,099
+现在知道H a和HB，您可以将它们哈希在一起，可以执行此哈希，并且
+that now knows H a and H B you can hash
+them together can execute this hash and
+
+419
+00:38:26,099 --> 00:38:29,760
+查看结果是否与发生的正弦树头相同，以及是否
+see if the result is the same as the
+sine tree head that it happens and if it
+
+420
+00:38:29,760 --> 00:38:35,700
+则表示证书日志实际上产生了有效的证明
+is then that means that the certificate
+log is actually produce a valid proof
+
+421
+00:38:35,700 --> 00:38:42,660
+证书a位于位置B，很抱歉，它的位置为零
+that certificate a is at position B
+that's a sorry it's a position zero in
+
+422
+00:38:42,660 --> 00:38:50,240
+该符号树头总结的日志，事实证明， 
+the log summarized by this sign tree
+head and it turns out that in larger
+
+423
+00:38:50,240 --> 00:38:57,329
+较大的日志，如果您需要查找，则知道是否需要证明
+larger logs you know if you're looking
+for if you need a proof that a is really
+
+424
+00:38:57,329 --> 00:39:05,280
+在这里，您需要做的是每个散列的另一个分支的哈希序列
+here all you need is the sequence of
+hashes of the other branch of each hash
+
+425
+00:39:05,280 --> 00:39:11,220
+直到您拥有的符号树头，如果在
+up to the sign tree head that you have
+so in a for element log if you if you
+
+426
+00:39:11,220 --> 00:39:15,660
+需要证明a位置为零，您需要此哈希单位，然后需要
+need a proof that a is position zero you
+need this hash units then you need this
+
+427
+00:39:15,660 --> 00:39:19,560
+哈希，如果锁更大，您知道八个元素，那么您也需要这个
+hash and if the lock is bigger you know
+eight elements then you also need this
+
+428
+00:39:19,560 --> 00:39:23,550
+散列，假设您已经击中了签名树，那么您可以将元素
+hash assuming that you have the signed
+tree hit so you can take the element you
+
+429
+00:39:23,550 --> 00:39:28,170
+知道并将其与其他哈希值一起哈希，看看它是否等于
+know and hash it together with each of
+these other hashes see if it's equal to
+
+430
+00:39:28,170 --> 00:39:34,560
+标志树的头还好，所以如果浏览器问的是假设浏览器
+the sign tree head okay so if the
+browser asks is supposing the browser
+
+431
+00:39:34,560 --> 00:39:41,720
+询问X是否在位置0的日志中X不在日志中，所以
+asks whether X is in the log at position
+zero well X isn't in the log right so
+
+432
+00:39:41,720 --> 00:39:46,140
+希望日志服务器没有简单的方法来产生X的证明
+hopefully there's no easy way for the
+log server to produce the proof that X
+
+433
+00:39:46,140 --> 00:39:50,670
+位于日志位置零，但假设日志服务器想要说谎并且
+is in the log in position zero but
+suppose the log servers wants to lie and
+
+434
+00:39:50,670 --> 00:39:55,500
+它的位置已经暴露了一个用于日志的符号树头
+it's in the position where it already
+exposed a sign tree head for log that
+
+435
+00:39:55,500 --> 00:40:01,109
+包含A，然后B浏览器不知道是A，B不知道其中包含什么
+contain a and then B browser doesn't
+know was a and B doesn't know what's in
+
+436
+00:40:01,109 --> 00:40:06,480
+日志和日志服务器想要欺骗客户端进入浏览器
+the log and the log server wants to
+trick the client into the browser into
+
+437
+00:40:06,480 --> 00:40:11,730
+认为它真的在零位，结果是
+thinking that it's really
+at position zero well it turns out that
+
+438
+00:40:11,730 --> 00:40:20,300
+为此，证书服务器必须为此小日志
+in order to do that the for this small
+log the certificate server has to
+
+439
+00:40:20,300 --> 00:40:36,630
+产生一些为什么它需要找到一个为什么，如果需要它是一个哈希
+produce for some why it needs to find a
+why that if it takes it's hash one
+
+440
+00:40:36,630 --> 00:40:41,910
+与X串联在一起，所以这就是它等于符号树
+concatenated with X you know so this is
+that's that it's equal to the sign tree
+
+441
+00:40:41,910 --> 00:40:45,300
+向右走，因为我们假设客户已经必须签署
+head right because the client we're
+assuming the client already has to sign
+
+442
+00:40:45,300 --> 00:40:50,820
+树头，我们需要在此处找到一些数字，将其与
+tree head we need to find a some number
+here that when hashed together with the
+
+443
+00:40:50,820 --> 00:40:55,710
+客户询问产生相同符号树的X哈希打得很好
+hash of X that the clients asking about
+produces that same sign tree hit well we
+
+444
+00:40:55,710 --> 00:40:58,260
+知道符号树的头或假设是分配给它的树
+know the sign tree head or the
+assumption is assigned tree it was
+
+445
+00:40:58,260 --> 00:41:00,750
+实际上是为了其他一些日志，因为我们正在尝试排除
+actually for some other log right
+because we're trying to rule out the
+
+446
+00:41:00,750 --> 00:41:06,540
+日志服务器可以给您一个日志的树头的可能性，但是
+possibility that the log server can give
+you a sign tree head for one log but
+
+447
+00:41:06,540 --> 00:41:10,800
+使您确信该日志中还存在其他内容，因此该符号
+that convince you that something else is
+in that log that's not there so the sign
+
+448
+00:41:10,800 --> 00:41:17,910
+真正的树是由记录的散列产生的
+tree had really was produced by from the
+hashes of the records that really were
+
+449
+00:41:17,910 --> 00:41:24,870
+在日志中，现在我们需要，因为您知道X绝对不同于a 
+in the log and now we need and since you
+know X is definitely different from a
+
+450
+00:41:24,870 --> 00:41:28,560
+这意味着X的哈希与a的哈希不同，这意味着
+that means the hash of X is different
+from the hash of a and that means that
+
+451
+00:41:28,560 --> 00:41:35,550
+日志服务器需要为哈希函数找到两个不同的输入
+the log server needs to find two
+different inputs to the hash function
+
+452
+00:41:35,550 --> 00:41:41,550
+产生了相同的输出，并且该假设被普遍认为是正确的
+that produced the same output and the
+Assumption widely believed to be true
+
+453
+00:41:41,550 --> 00:41:46,040
+出于实际目的，这对于加密散列是不可能的
+for practical purposes is that that's
+not possible for cryptographic hashes
+
+454
+00:41:46,040 --> 00:41:53,670
+因此，通过对一个日志进行哈希运算来生成分号树头
+therefore the cent sign tree head was
+produced by hashing up one log that it
+
+455
+00:41:53,670 --> 00:42:00,060
+将找不到这些其他类型的哈希值
+will not be possible to find these sort
+of other hash values that would be
+
+456
+00:42:00,060 --> 00:42:06,210
+需要提供证明，证明其他一些元素不在日志中
+required to produce a proof that some
+other element was in the log that wasn't
+
+457
+00:42:06,210 --> 00:42:13,520
+真的对此有任何疑问
+really there
+any questions about this about anything
+
+458
+00:42:17,090 --> 00:42:20,700
+ [音乐]有趣的是
+[Music]
+interesting a nice thing about this is
+
+459
+00:42:20,700 --> 00:42:27,540
+证明就是证明只是由其他散列组成
+that the proofs are the proofs consist
+of just the sort of other hashes on the
+
+460
+00:42:27,540 --> 00:42:32,190
+如果有n个证书，则上升到根目录，只有其他
+way up to the root if there's n
+certificates there's only log in other
+
+461
+00:42:32,190 --> 00:42:36,570
+哈希值，因此证明特别合理，其中很多
+hashes and so the proofs are reasonably
+concise in particular that are much much
+
+462
+00:42:36,570 --> 00:42:40,590
+小于完整日志，并且因为您知道每个需要连接的浏览器
+smaller than the full log and since you
+know every browser that needs to connect
+
+463
+00:42:40,590 --> 00:42:47,690
+到一个网站，他需要这些证明之一，如果它们很小的话，那很好
+to a website he's going to need one of
+these proofs it's good if they're small
+
+464
+00:42:48,110 --> 00:42:55,200
+好吧，这是整个讨论，是假设符号树具有
+okay well this was whole discussion was
+assuming that the sign tree had the
+
+465
+00:42:55,200 --> 00:42:57,590
+主题
+theum
+
+466
+00:42:58,099 --> 00:43:07,880
+或具有正确的符号树头（如果没有），但没有立即的原因
+or had was the correct sign tree head if
+the but no there's no immediate reason
+
+467
+00:43:07,880 --> 00:43:11,690
+相信日志服务器会给出如果日志是恶意的
+to believe that the log server would
+have given if the logs are is malicious
+
+468
+00:43:11,690 --> 00:43:14,900
+它想欺骗客户，你知道为什么会给客户正确的答案
+and it wants to trick a client you know
+why would it give the client the correct
+
+469
+00:43:14,900 --> 00:43:18,529
+看到标志树头为什么不给它，只是我给标志树头给
+see sign tree head why doesn't it give
+it just me giving the sign tree head for
+
+470
+00:43:18,529 --> 00:43:24,319
+它想要欺骗客户端使用的虚假日志，所以我们必须
+the bogus log that it wants to trick the
+client into using so we have to be
+
+471
+00:43:24,319 --> 00:43:28,549
+准备好日志服务器已经准备好的可能性
+prepared for the possibility that the
+log server has cooked up I just
+
+472
+00:43:28,549 --> 00:43:31,670
+与浏览器完全不同的日志，与其他人的日志不同
+completely different log for the browser
+that's not like anybody else's log and
+
+473
+00:43:31,670 --> 00:43:36,680
+它只包含恶意日志服务器想要的伪造证书
+it just contains the bogus certificates
+that a malicious log server wants to
+
+474
+00:43:36,680 --> 00:43:47,930
+诱使这个客户相信，所以我们该怎么做呢？ 
+trick this client into believing so what
+do we do about that well it turns out
+
+475
+00:43:47,930 --> 00:43:52,749
+至少在一开始就完全有可能
+that this is at least in the first
+instance this is totally possible
+
+476
+00:43:52,749 --> 00:43:57,289
+你知道通常会发生什么
+you know usually what's gonna happen
+usually the way this will play out is
+
+477
+00:43:57,289 --> 00:44:03,380
+我们将拥有一些浏览器，您会知道看到正确的日志，直到一些
+that we'd have some browser that was you
+know seeing the correct logs until some
+
+478
+00:44:03,380 --> 00:44:10,039
+当某人想要攻击它的时间点，并且您知道您想要
+point in time when when somebody wanted
+to attack it and you know you want the
+
+479
+00:44:10,039 --> 00:44:13,960
+浏览器学生可以使用它通常看到的所有网站
+browser student be able to use all the
+websites that it's ordinarily seeing
+
+480
+00:44:13,960 --> 00:44:21,289
+加上日志服务器所需的带有伪证书的其他日志
+plus a sort of different log with bogus
+certificates that the log server wants
+
+481
+00:44:21,289 --> 00:44:25,579
+欺骗那个客户只是受害者的浏览器来使用，所以现在这是
+to trick just that client just that
+victim browser into using so now this is
+
+482
+00:44:25,579 --> 00:44:35,930
+叉子攻击或更广泛的模棱两可，以及人们为什么
+a fork fork attack or more broadly
+equivocation and the reason why people
+
+483
+00:44:35,930 --> 00:44:41,380
+称这种攻击为分叉攻击是，如果我们从不
+call this kind of attack
+a fork attack is that if we just never
+
+484
+00:44:41,380 --> 00:44:45,460
+如果我们只考虑日志通常是日志，请介意默克尔树一会儿
+mind the Merkel tree for a moment if we
+just consider the log usually the log
+
+485
+00:44:45,460 --> 00:44:50,370
+已经知道您有数百万个证书，每个人都可以看到
+already has you know millions of
+certificates in it and everybody's seen
+
+486
+00:44:50,370 --> 00:44:57,340
+日志的开始部分，然后在某个时间点我们想攻击我们
+the beginning part of the log then at
+some point in time we want to attack we
+
+487
+00:44:57,340 --> 00:45:04,330
+想要说服我们的受害者使用一些伪造的证书B，但我们不想
+want to persuade our victim to use some
+bogus certificate B but we don't want to
+
+488
+00:45:04,330 --> 00:45:07,510
+向其他人展示B当然不在显示器上，所以我们要做饭
+show B to anybody else certainly not to
+the monitor so we're gonna sort of cook
+
+489
+00:45:07,510 --> 00:45:12,220
+在其他日志中继续照常进行，并包含新的提交
+up this other log the sort of continues
+as usual and contains new submissions
+
+490
+00:45:12,220 --> 00:45:18,550
+但绝对不包含伪造的证书B，您知道这是什么
+but definitely doesn't contain the bogus
+certificate B and you know what this
+
+491
+00:45:18,550 --> 00:45:23,680
+看起来像是一个叉子，因为同时显示了监视器的主日志类型
+looks like is a fork because both the
+sort of main log that monitors are shown
+
+492
+00:45:23,680 --> 00:45:28,630
+有点不合时宜，然后我们正在制作这个vlog，特别是
+is kind of off on one fork and then this
+vlog we're cooking up especially to
+
+493
+00:45:28,630 --> 00:45:33,460
+欺骗受害者是不同的叉子，这是恶意的构造
+trick a victim is a different fork this
+is the construction that the malicious
+
+494
+00:45:33,460 --> 00:45:37,590
+如果它想欺骗浏览器使用
+log server would have to produce if it
+wants to trick a browser into using a
+
+495
+00:45:37,590 --> 00:45:45,790
+伪造的证书，再次这些都是可能的，可以在
+bogus certificate and again these are
+possible it's possible to do this at
+
+496
+00:45:45,790 --> 00:45:52,260
+至少短暂地与证书颁发机构一起筛选合适的透明度
+least briefly in with certificate
+authority the sift a fit transparency
+
+497
+00:45:52,260 --> 00:45:57,550
+幸运的是，这还不是故事的结局，并且证书颁发机构还包含
+luckily though is not the end of the
+story and certificate authority contains
+
+498
+00:45:57,550 --> 00:46:06,840
+一些使它变得更困难的工具，所以基本方案
+some tools that allow it to make Forks
+much more difficult so the basic scheme
+
+499
+00:46:06,840 --> 00:46:16,390
+是不是这是证书颁发机构预期的方式
+is that this isn't this is the way the
+certificate authority sort of intended
+
+500
+00:46:16,390 --> 00:46:20,940
+使所有证书透明化都可以正常工作，但并不完全
+to work all certificate transparency is
+intended to work but doesn't quite
+
+501
+00:46:20,940 --> 00:46:26,290
+这里发生的是显示器和人员都没有
+what's going on here is that the the the
+monitors and people are not being
+
+502
+00:46:26,290 --> 00:46:32,470
+被攻击或会看到一棵标志树，特别是标志树的头，比如说
+attacked or gonna see a a sign tree
+particular sign tree head let's say
+
+503
+00:46:32,470 --> 00:46:37,240
+我们碰到的一门科学当然会随着日志的扩展和受害人而改变
+science we hit one of course is gonna
+change as the log extends and the victim
+
+504
+00:46:37,240 --> 00:46:41,350
+我们知道必须看到其他一些符号树的头部，因为这是一个符号树命中
+we know must see some other sign tree
+head because this is a signed tree hit
+
+505
+00:46:41,350 --> 00:46:44,370
+散列于此
+that is hashed over this
+
+506
+00:46:44,559 --> 00:46:48,279
+保证与标志树头不同的证书，这是
+certificates guaranteed to be different
+from the sign tree heads this is the
+
+507
+00:46:48,279 --> 00:46:53,739
+如果只有浏览器和监视器可以，民兵服务将显示两个监视器
+militia service showing two monitors
+if only the browsers and monitors could
+
+508
+00:46:53,739 --> 00:46:58,329
+比较笔记，他们可能会立即意识到他们看到了不同
+compare notes they would maybe instantly
+realize that they were seeing different
+
+509
+00:46:58,329 --> 00:47:02,559
+树木和它所需要的只是比较您是否知道我们是否正确地玩牌
+trees and all it takes is comparing you
+know if we play our cards right all it
+
+510
+00:47:02,559 --> 00:47:06,969
+需要比较的是从日志服务器获得的符号树到
+takes is comparing the sign tree had its
+they've gotten from the log server to
+
+511
+00:47:06,969 --> 00:47:10,959
+意识到等等，我们现在看到的是不同的日志
+realize wait a minute we're seeing
+different logs now something's terribly
+
+512
+00:47:10,959 --> 00:47:18,789
+错误的，所以我们需要做的关键事情是拥有不同的
+wrong so the critical thing we need to
+do is have have the different
+
+513
+00:47:18,789 --> 00:47:24,959
+系统的参与者能够比较标志树的头部和
+participants in the system be able to
+compare sign tree heads and the
+
+514
+00:47:24,959 --> 00:47:30,249
+证书透明性对此所谓的八卦及其使用方式做了规定
+certificate transparency has a provision
+for this called gossip and the way it's
+
+515
+00:47:30,249 --> 00:47:36,549
+旨在使浏览器运行良好，但细节并不重要，但重要的是
+intended to works that browsers well the
+details don't really matter but what it
+
+516
+00:47:36,549 --> 00:47:41,229
+真正的意义在于，所有参与者都将最近的
+really amounts to is that all the
+participants sort of drop off the recent
+
+517
+00:47:41,229 --> 00:47:47,829
+他们看到了一个大水池，他们都检查试图把树头签下， 
+sign tree heads they've seen into a big
+pool that they all inspect to try to
+
+518
+00:47:47,829 --> 00:47:52,709
+找出是否有不一致的标志树头清楚地表明
+figure out if there's inconsistent sign
+tree heads that clearly indicate
+
+519
+00:47:52,709 --> 00:47:58,380
+有不同的日志，所以我们将八卦，这实际上意味着
+divergent logs that have for it so we're
+going to gossip which really means
+
+520
+00:47:58,380 --> 00:48:01,380
+交换
+exchange
+
+521
+00:48:02,000 --> 00:48:09,480
+我正在签名树桩，并进行比较，结果表明当前的证书
+I'm sign tree heads and compare it turns
+out that current certificate
+
+522
+00:48:09,480 --> 00:48:16,109
+透明度实现不这样做，但他们应该这样做，并且会
+transparency implementations don't do
+this but they ought to and they'll
+
+523
+00:48:16,109 --> 00:48:21,359
+弄清楚一点好吧，所以给出了问题
+figure it out at some point
+all right okay so the question is given
+
+524
+00:48:21,359 --> 00:48:27,660
+签署树头，我们如何确定他们是否证明日志已被记录
+to sign tree heads how do we decide if
+they're evidence that the log has been
+
+525
+00:48:27,660 --> 00:48:36,180
+分叉的原因是，即使没有将日志分叉为
+forked the thing that makes this hard is
+that even if a log hasn't been forked as
+
+526
+00:48:36,180 --> 00:48:42,540
+这取决于新的符号树头是否会成为最新，所以您可能知道
+it's depended to new sign tree heads
+will become current so you know maybe
+
+527
+00:48:42,540 --> 00:48:47,970
+标志树的头一个是合法的，所以他此时有一个博客
+sign tree head one was the legitimate so
+he had a vlog at this point of then some
+
+528
+00:48:47,970 --> 00:48:54,150
+添加了更多证书，并且符号树的头部3成为了正确的头部
+more certificates are added and sign
+tree head 3 becomes the correct head of
+
+529
+00:48:54,150 --> 00:48:59,820
+法律，然后签名树头等等，所以这八卦到底是什么
+the law and then signed tree head for
+etc so really what this gossip
+
+530
+00:48:59,820 --> 00:49:07,109
+比较最少要做的是区分一个标志树头是
+comparison least to do is distinguish
+situations where one sign tree head is
+
+531
+00:49:07,109 --> 00:49:11,580
+真正描述了一个日志的前缀，它是另一个描述的日志的前缀
+really describes a prefix a log that's a
+prefix of the log described by another
+
+532
+00:49:11,580 --> 00:49:15,180
+标志树的头部，因为这是您拥有的合法情况
+sign tree head because this is the
+legitimate situation where you have the
+
+533
+00:49:15,180 --> 00:49:20,100
+这两个标志树头有两个不同，但第二个确实有
+two these two sign tree heads are
+different but the second one really does
+
+534
+00:49:20,100 --> 00:49:24,180
+包含第一个，我们想将其与两个有符号树区分开来
+subsume the first one we want to
+distinguish that from two signed tree as
+
+535
+00:49:24,180 --> 00:49:28,770
+不同之处在于，两者都没有描述作为前缀的日志
+that are different where neither
+describes a log that's a prefix of the
+
+536
+00:49:28,770 --> 00:49:40,020
+另一个人的日志将这两种情况分开，将这种情况分开
+other one's log one tell these two cases
+apart this telling that situation apart
+
+537
+00:49:40,020 --> 00:49:47,609
+一致性证明的目的是日志或默克尔一致性证明， 
+is the purpose of the consistency proof
+the log or Merkel consistency proof that
+
+538
+00:49:47,609 --> 00:49:51,410
+谈论阅读，所以这是
+the reading is talked about so this is
+the
+
+539
+00:49:52,080 --> 00:49:56,610
+一致性证明
+la consistency proof
+
+540
+00:49:58,430 --> 00:50:00,490
+您
+you
+
+541
+00:50:05,749 --> 00:50:12,299
+所以这里的游戏是让我们给树头H 1和H 2签名， 
+so the game here is that we're given to
+sign tree heads H 1 and H 2 and we're
+
+542
+00:50:12,299 --> 00:50:24,659
+问的是h 1s日志前缀，实际上不是这些-这些是哈希，所以
+asking is h 1s log prefix really it's
+not these are - these are hashes so it's
+
+543
+00:50:24,659 --> 00:50:38,489
+真正询问散列所代表的日志，您知道我们在
+really asking about the log that the
+hashes represent and you know we're
+
+544
+00:50:38,489 --> 00:50:41,789
+希望答案为是，如果答案为否，则意味着日志
+hoping the answer is yes and if the
+answer's no that means that the log
+
+545
+00:50:41,789 --> 00:50:51,059
+服务器Fork Dustin正在某一方或另一方隐藏东西，好吧
+servers Fork Dustin is hiding something
+from one party or the other okay well it
+
+546
+00:50:51,059 --> 00:50:57,269
+就像我们之前提到的那样，那个默克尔树作为对数
+turns out that um as we as I mentioned
+before the as the Merkel tree as the log
+
+547
+00:50:57,269 --> 00:51:03,569
+默克尔树也长了，我们看到的是一系列的迹象
+grows the Merkel tree also grows and
+what we see is a sequence of signs of
+
+548
+00:51:03,569 --> 00:51:14,939
+每棵树的头顶为原木的两倍，每棵树的头顶为左
+tree heads each one as a log doubles in
+size each one has its as its left thing
+
+549
+00:51:14,939 --> 00:51:20,729
+让我画一下这个哈希函数的实际哈希函数是将两个
+let me draw in the actual hash functions
+of this hash function is hashing up two
+
+550
+00:51:20,729 --> 00:51:23,929
+事情这个哈希函数的结果
+things the result of this hash function
+
+551
+00:51:24,079 --> 00:51:28,949
+是下一个符号树头的输入之一，此哈希的结果
+is one of the inputs to the next sign
+tree head the result of this hash
+
+552
+00:51:28,949 --> 00:51:34,999
+函数是下一个符号树头的输入之一，我知道我们知道了
+function is one of the inputs to the
+next sign tree head I know we get this
+
+553
+00:51:34,999 --> 00:51:45,509
+生命之树的种类签树头好吧，如果需要，我需要签树头
+kind of tree of life sign tree heads all
+right and I need to sign tree heads if
+
+554
+00:51:45,509 --> 00:51:49,079
+它们是合法的，您知道每个log是否为H 2的前缀
+they're legitimate you know if each one
+is log is a prefix of H 2 that means
+
+555
+00:51:49,079 --> 00:51:52,619
+也许这个人的H 1和这个人的H 2他们会拥有这个
+that maybe this one's H 1 and this one's
+H 2 and they're gonna have this
+
+556
+00:51:52,619 --> 00:51:57,449
+你知道的关系事物如果每个人都是一块H 2，那么他们一定有
+relationship thing you know if each one
+is a piece of H 2 then they must have
+
+557
+00:51:57,449 --> 00:52:02,219
+这种关系是通过对每个2进行散列来产生每个2 
+this relationship where each 2 was
+produced by taking each one hashing it
+
+558
+00:52:02,219 --> 00:52:06,719
+与其他东西，也许与其他东西哈希，直到我们得到
+with some other thing and maybe hashing
+that with some other thing until we get
+
+559
+00:52:06,719 --> 00:52:14,940
+到找到H 2的地步，意思是如果浏览器或监视器
+to the point where we find H 2 and with
+means is that if a browser or monitor
+
+560
+00:52:14,940 --> 00:52:23,460
+向日志服务器挑战日志，以证明每个人的日志确实是前缀
+challenges a log a log server to prove
+that each one's log is really a prefix
+
+561
+00:52:23,460 --> 00:52:31,860
+ h2s log日志服务器必须生成的是其他
+of h2s log what the log server has to
+produce is this sequence of other the
+
+562
+00:52:31,860 --> 00:52:39,200
+从h1到h2的途中，每个Hat标志树的头哈希值的另一侧， 
+other side of each of the Hat sign tree
+head hashes on the way from h1 to h2 and
+
+563
+00:52:39,200 --> 00:52:46,040
+这就是证明，然后再次您知道这让人想起
+this is the proof and then again you
+know this is reminiscent of the
+
+564
+00:52:46,040 --> 00:52:54,180
+包含证明然后检查证明，您需要将每个哈希与
+inclusion proofs then to check the proof
+you need to take each one hash it with
+
+565
+00:52:54,180 --> 00:52:58,680
+您知道的第一件事与第二件事
+the first other thing you know hash that
+along with the second other things that
+
+566
+00:52:58,680 --> 00:53:03,360
+您到达其中的最后一个，并且最好等于h2 
+you get to the last one of these and
+that had better be equal to h2 if it is
+
+567
+00:53:03,360 --> 00:53:13,280
+证明h2是每个后缀的后缀，否则日志服务器显然
+it's a proof that h2 is a suffix of each
+one otherwise the log servers evidently
+
+568
+00:53:13,280 --> 00:53:22,790
+试图分叉你一次又一次，你知道的基础是，没有别的
+tried to fork you and again you know the
+basis of this is that there's no other
+
+569
+00:53:22,790 --> 00:53:29,970
+你知道h2确实不是因为假设h1不是h2的前缀，所以不可能
+you know h2 really isn't as supposing h1
+isn't a prefix of h2 there's no way that
+
+570
+00:53:29,970 --> 00:53:36,720
+嗯，因为h2是根据与h1不同的实际日志创建的，所以没有
+uh since h2 was created from some actual
+log that's not the same as h1 there's no
+
+571
+00:53:36,720 --> 00:53:44,910
+日志服务器可以准备导致这些值的方法
+way that the log server could cook up
+these values that are required to cause
+
+572
+00:53:44,910 --> 00:53:50,910
+这种将h1等于H到H的重复哈希的哈希确实包含
+the hashes this sort of repeated hash of
+h1 to equal H to H do really encompass
+
+573
+00:53:50,910 --> 00:53:55,890
+这表明加密哈希确实阻止您绑定到其他
+ooming that the cryptographic hash does
+prevent you from binding to different
+
+574
+00:53:55,890 --> 00:53:59,210
+产生相同输出的输入
+inputs that produce the same out
+
+575
+00:54:02,930 --> 00:54:12,710
+好吧，所以这是日志一致性证明，所以这个问题
+alright ok so this is the log
+consistency proof okay so the question
+
+576
+00:54:12,710 --> 00:54:15,890
+通常是向日志服务器发起挑战的人，因此我将在
+is who usually challenges the log server
+so I'll actually talk about that in a
+
+577
+00:54:15,890 --> 00:54:24,339
+分钟，但事实证明，无论是浏览器还是监视器
+minute but it turns out that um both
+browsers and monitors
+
+578
+00:54:25,160 --> 00:54:30,090
+ Luke浏览器和监视器很好地挑战了您的日志服务器
+well Luke browsers and monitors
+challenge the log server you it's
+
+579
+00:54:30,090 --> 00:54:33,600
+实际上，通常浏览器会挑战日志服务器
+actually usually the browser's
+challenging the log server that's the
+
+580
+00:54:33,600 --> 00:54:36,600
+最重要的事情，但是有两个时间点需要
+most important thing but there's two
+points in time at which you need to
+
+581
+00:54:36,600 --> 00:54:41,220
+挑战日志服务器以提供这些证明，我将讨论
+challenge the log server to produce
+these proofs and I'll talk about both of
+
+582
+00:54:41,220 --> 00:55:06,030
+他们没事，实际上，所以第一点在哪一点
+them all right okay actually so the
+first place at which one point at which
+
+583
+00:55:06,030 --> 00:55:11,250
+这些证据用于八卦，正如我概述的八卦一样， 
+these proofs are used as for gossip as
+part of gossip as I outlined and the the
+
+584
+00:55:11,250 --> 00:55:16,770
+用于八卦的方案是浏览器会定期与
+scheme that's intended for gossip is
+that browsers will periodically talk to
+
+585
+00:55:16,770 --> 00:55:22,860
+一些中央存储库的一些中央存储库，只是贡献
+some central repository of some set of
+central repositories and just contribute
+
+586
+00:55:22,860 --> 00:55:28,080
+到标志树头池，标志树命中了最近从日志中看到的树
+to a pool of sign tree heads the sign
+tree hits the recently seen from the log
+
+587
+00:55:28,080 --> 00:55:34,040
+服务器和浏览器也定期提取随机元素
+server and the browsers were also
+periodically pull out random elements of
+
+588
+00:55:34,040 --> 00:55:37,920
+其他浏览器仅看到Brandon的树头，他们将其拔出
+sign tree heads that other browsers have
+seen just Brandon they pulled them out
+
+589
+00:55:37,920 --> 00:55:41,520
+池中的多个池，这些池将由这些池运行
+of the pool and it'll be multiple of
+these collects these pools run by
+
+590
+00:55:41,520 --> 00:55:46,710
+不同的人，所以如果其中一个人在作弊，那将证明
+different people so that if one of them
+is cheating that will be proof against
+
+591
+00:55:46,710 --> 00:55:53,370
+然后，浏览器将针对任何随机符号树具有的内容
+that and then the browser will for
+whatever just any random sign tree has
+
+592
+00:55:53,370 --> 00:55:59,100
+苹果从池中出来，它将要求日志服务器生成日志
+it apples out of the pool it will ask
+the log server to produce the logs
+
+593
+00:55:59,100 --> 00:56:03,570
+一对标志树头的持久性证明，你知道是否没人
+insistency proof for that pair of sign
+tree heads and you know if nobody's
+
+594
+00:56:03,570 --> 00:56:09,240
+作弊设计，日志服务器应该总是很容易产生您所知道的
+cheating design it should always be easy
+for the log server to produce you know
+
+595
+00:56:09,240 --> 00:56:15,630
+任何需要的一致性证明，但如果有人认为
+any consistency proof that's demanded of
+it but if it's for somebody suppose it
+
+596
+00:56:15,630 --> 00:56:19,170
+日志服务器是给某人的，给他们一个标志树
+the log server is for somebody and given
+them a sign tree had this really
+
+597
+00:56:19,170 --> 00:56:22,860
+描述一个完全不同的日志，甚至描述一个长时间的差异
+describes a totally different log or
+even a long the difference in one
+
+598
+00:56:22,860 --> 00:56:27,450
+其他人最终看到的日志中的元素
+element from the logs that everybody
+else is seeing eventually that browser
+
+599
+00:56:27,450 --> 00:56:34,170
+将有助于标志树头到池中的八卦池，然后
+will contribute that's that sign tree
+head to the pool the gossip pool then
+
+600
+00:56:34,170 --> 00:56:38,099
+最终，我们将其他人从招牌托盘中拉出
+eventually somebody else
+we'll pull that sign tray head out of
+
+601
+00:56:38,099 --> 00:56:42,390
+游泳池并要求提供证据，因为您知道其他一些标志树有
+the pool and ask for a proof for you
+know some other sign tree had that
+
+602
+00:56:42,390 --> 00:56:46,980
+大概是在另一个Fork上，那么日志服务器将无法
+presumably is on a different Fork and
+then the log server will not be able to
+
+603
+00:56:46,980 --> 00:56:52,049
+出示证明，我是因为他们是自科学家签署的，还是由
+produce the proof and I'm since they're
+signed since the scientist or signed by
+
+604
+00:56:52,049 --> 00:56:59,849
+绝对证明该日志服务器已分叉了两个日志服务器
+the log server that's just absolute
+proof that the log server has forked two
+
+605
+00:56:59,849 --> 00:57:05,220
+的客户大概有意向其中一个客户透露伪造证书
+of its clients presumably with intent
+reveal a bogus certificate to one of
+
+606
+00:57:05,220 --> 00:57:11,279
+将它们隐藏起来，但是实际上在另一个地方
+them and hide it from the other okay but
+there's actually another place where it
+
+607
+00:57:11,279 --> 00:57:18,180
+事实证明，您需要这些一致性，不仅在八卦期间，而且在
+turns out you need the these consistency
+proves not just during gossip but
+
+608
+00:57:18,180 --> 00:57:28,349
+实际上也在浏览器的常规操作过程中，所以
+actually also during the ordinary
+operation of the browsers so the the
+
+609
+00:57:28,349 --> 00:57:33,539
+困难是假设您知道假设浏览器是
+difficulty is that suppose you know
+suppose the browser is it's kind of
+
+610
+00:57:33,539 --> 00:57:39,930
+看到一致的日志版本与其他所有人相同，但随后是日志
+seeing consistent version of the log is
+the same as everybody else but then log
+
+611
+00:57:39,930 --> 00:57:48,930
+服务器想要欺骗它使用此伪造的证书，因此日志服务器
+server wants to trick it into using this
+bogus certificate so the log server
+
+612
+00:57:48,930 --> 00:57:53,579
+向其发送签名的树，您知道该签名的树与
+sends it a signed tree you know makes
+signed RIA that's different from
+
+613
+00:57:53,579 --> 00:57:58,260
+其他人都指的是您知道包含此错误的恶意日志
+everybody else that refers to a you know
+malicious log that contains this bad
+
+614
+00:57:58,260 --> 00:58:00,779
+证书首选视频，因为它不希望其他人注意到
+certificate preferred video since it
+doesn't want other people to notice
+
+615
+00:58:00,779 --> 00:58:04,470
+当然不希望您知道监视器知道您已经做饭了
+certainly doesn't want you know the
+monitors to notice you know cooks up
+
+616
+00:58:04,470 --> 00:58:12,569
+这是其他所有人都可以看到的其他日志，所以现在您
+this other log that is what everybody
+else is seeing all right so now the you
+
+617
+00:58:12,569 --> 00:58:18,270
+知道浏览器检查并看到您知道我要求提供包含证明，并且
+know the browser checks and sees you
+know I asked for inclusion proof and the
+
+618
+00:58:18,270 --> 00:58:21,539
+包含，日志服务器将能够产生包含证明，因为
+inclusion that log server will be able
+to produce the inclusion proof because
+
+619
+00:58:21,539 --> 00:58:25,859
+这个标志树有浏览器确实确实引用了这个错误的日志
+this sign tree had that the browser has
+really does refer to this bad log the
+
+620
+00:58:25,859 --> 00:58:30,089
+浏览器将继续使用此虚假证书，并可能被欺骗并
+browser will go ahead and use this bogus
+certificate and maybe get tricked and
+
+621
+00:58:30,089 --> 00:58:36,450
+泄露用户密码，您知道谁知道，但是取决于
+give away the user's password
+you know who knows what but depending on
+
+622
+00:58:36,450 --> 00:58:40,529
+其他浏览器的详细信息正常工作，我们将在下次浏览器中承担风险
+the details of other browsers work we're
+at risk of the next time the browser
+
+623
+00:58:40,529 --> 00:58:44,279
+它没有意识到有什么地方出了问题与日志服务器对话
+which it doesn't realize anything's gone
+wrong talks to the log server the log
+
+624
+00:58:44,279 --> 00:58:47,910
+然后，服务器可能会说您知道有一个新日志，上面有一堆新东西
+server might then say you know there's a
+new log with a bunch of new stuff on it
+
+625
+00:58:47,910 --> 00:58:52,809
+这是当前日志的符号树为什么不切换
+and here is the sign tree
+of the current log why don't you switch
+
+626
+00:58:52,809 --> 00:58:59,170
+我可以将其用作您的标志树命中率，所以现在就让它发生
+my to use that as your sign tree hit and
+so now if that were allowed to happen
+
+627
+00:58:59,170 --> 00:59:03,339
+那么浏览器现在将完全失去任何证据
+then the browser's now would completely
+lost the evidence that anything went
+
+628
+00:59:03,339 --> 00:59:06,940
+错误的，因为现在浏览器正在使用其他所有人使用的相同树
+wrong because now the browser is using
+the same trees everybody else no it's
+
+629
+00:59:06,940 --> 00:59:10,779
+将把这个标志树的头贡献到八卦池中
+going to contribute this sign tree head
+to the gossip pool it's all gonna look
+
+630
+00:59:10,779 --> 00:59:17,559
+好，我们有这种短暂的邪恶树，那是被揭露的邪恶日志
+good and we had this sort of brief evil
+tree that was evil log that was revealed
+
+631
+00:59:17,559 --> 00:59:22,630
+邪恶的日志叉，但是如果浏览器愿意接受新的符号树头
+evil log Fork but if the browser's are
+willing to accept a new sign tree head
+
+632
+00:59:22,630 --> 00:59:30,369
+那么我们基本上可以让浏览器忘掉，所以我们想要的是
+then we can basically have the browser
+forget about so we want what we want is
+
+633
+00:59:30,369 --> 00:59:38,279
+这是我们想要的，如果浏览器如果日志服务显示特定日志
+this what we want is for if a browser if
+the log service shows a particular log
+
+634
+00:59:38,279 --> 00:59:43,809
+浏览器，他们无法将浏览器诱骗到的浏览器
+to the browser that the browser that
+they can't trick the browser into
+
+635
+00:59:43,809 --> 00:59:48,819
+从该日志中切换，我们希望能够执行该日志
+switching away from that log that is
+that we want to be able to enforce that
+
+636
+00:59:48,819 --> 00:59:55,619
+浏览器只会看到已经看到的严格的日志扩展名，并且
+the browser sees only strict extensions
+to the log that it's seen already and
+
+637
+00:59:55,619 --> 01:00:00,190
+不仅会切换到与该日志不兼容的日志， 
+doesn't simply get switched to a log
+that is not compatible with the log the
+
+638
+01:00:00,190 --> 01:00:03,279
+在我们所寻找的属性之前看到的浏览器实际上是
+browser seen before it's the property
+that we're looking for it's actually
+
+639
+01:00:03,279 --> 01:00:14,500
+要求保持一致，任何前两个是，如果浏览器
+called for consistency and with any
+first two is that if the browser's been
+
+640
+01:00:14,500 --> 01:00:18,970
+与其他人分叉到另一个叉子上，那么他们必须留在那个叉子上
+forked onto a different fork from other
+people then they must stay on that fork
+
+641
+01:00:18,970 --> 01:00:25,270
+在其中它永远都不能切换到主叉子，其原因
+in it it should never be able to switch
+to the main fork and the reason for that
+
+642
+01:00:25,270 --> 01:00:29,860
+是我们要保存吗，您需要保存这个坏兆头和它的
+is we want to preserve you need to
+preserve this bad sign tree head and its
+
+643
+01:00:29,860 --> 01:00:36,760
+后继者，以便当浏览器参与八卦协议时
+successors so that when the browser
+participates in the gossip protocol it's
+
+644
+01:00:36,760 --> 01:00:44,380
+贡献没有其他人拥有且无法证明是的标志树头
+contributing sign tree heads that nobody
+else has and that cannot be proved to be
+
+645
+01:00:44,380 --> 01:00:48,220
+使用日志一致性证明可以兼容，那么我们如何实现
+compatible using the log consistency
+proof okay so how do we achieve for
+
+646
+01:00:48,220 --> 01:00:53,740
+一致性很好，使用我们现在每次使用的工具实际上都很容易
+consistency well um it's actually easy
+with the tools we have now every time
+
+647
+01:00:53,740 --> 01:00:58,330
+日志服务器告诉浏览器哦，这是一个更长的日志的新符号树头
+the log server tells a browser oh here's
+a new sign tree head for a longer log
+
+648
+01:00:58,330 --> 01:01:04,890
+浏览器将要求直到
+the browser will require the will not
+accept the new sign tree head until the
+
+649
+01:01:04,890 --> 01:01:10,210
+日志服务器已产生了日志一致性证明，即新的符号树
+log server has has produced a log
+consistency proof that the new sign tree
+
+650
+01:01:10,210 --> 01:01:17,560
+头描述了旧符号树的后缀，即旧日志的日志
+head describes a suffix of the old sign
+tree that is that the log of the old
+
+651
+01:01:17,560 --> 01:01:21,760
+符号树的前缀是新符号树的日志，当然如果有日志
+sign tree has a prefix of the log of the
+new sign tree and of course if a log
+
+652
+01:01:21,760 --> 01:01:26,620
+服务器与浏览器一样分叉，并且将浏览器保持在同一分叉上
+server is as forked the browser and it's
+keeping the browser on that same Fork it
+
+653
+01:01:26,620 --> 01:01:30,880
+可以产生证明，但您当然知道它正在更深入地挖掘自己的坟墓
+can produce the proofs but of course you
+know it's digging its grave even deeper
+
+654
+01:01:30,880 --> 01:01:35,800
+因为我正在生产越来越多的符号树头
+because I'm as producing more and more
+sign tree heads for a which will
+
+655
+01:01:35,800 --> 01:01:40,060
+最终被八卦协议所捕获，而如果博客服务器
+eventually be caught by the gossip
+protocol whereas if the blog server
+
+656
+01:01:40,060 --> 01:01:45,970
+尝试使浏览器切换到描述相同符号的树头
+tries to cause the browser to switch to
+a sign tree head that describes the same
+
+657
+01:01:45,970 --> 01:01:50,500
+记录其他人已经看到浏览器将要求一致性证明的日志
+log everybody else has been seeing the
+browser will demand a consistency proof
+
+658
+01:01:50,500 --> 01:01:55,240
+并且日志服务器将无法生成该日志，因为它会记录日志
+and the log server will not be able to
+produce it because deed the log
+
+659
+01:01:55,240 --> 01:02:00,610
+第一个符号树头描述的日志不是该日志描述的日志的前缀
+described by the first sign tree head is
+not a prefix of the log described by the
+
+660
+01:02:00,610 --> 01:02:03,270
+第二个标志树
+second sign tree
+
+661
+01:02:05,110 --> 01:02:13,400
+好吧好吧，所以这些日志一致性证明为系统提供了
+okay okay so the system these these log
+consistency proofs provide for
+
+662
+01:02:13,400 --> 01:02:20,540
+一致性，一致性和闲聊以及需要此日志的情况
+consistency and for consistency plus
+gossiping and that requiring this log
+
+663
+01:02:20,540 --> 01:02:24,230
+一致性证明了通过闲聊发现的科学
+consistency proves for the science found
+by gossiping
+
+664
+01:02:24,230 --> 01:02:31,490
+我是他们两个人一起使所有参与者或
+I'm the two of them together make it
+likely that all the participants or
+
+665
+01:02:31,490 --> 01:02:34,970
+看到相同的日志，如果他们没有看到相同的日志，他们将能够
+seeing the same log and that if they're
+not seeing the same log they'll be able
+
+666
+01:02:34,970 --> 01:02:42,100
+通过日志一致性证明的失败来检测该事实
+to detect that fact by the failure of a
+log consistency proof
+
+667
+01:02:45,400 --> 01:02:48,450
+任何问题
+any questions
+
+668
+01:02:53,579 --> 01:02:59,380
+好的，那么有多少个日志服务是一个很大的问题
+okay so that how many log service are
+there that is a great question
+
+669
+01:02:59,380 --> 01:03:03,730
+所以我将系统描述为好像只有一台日志服务器
+so I describe the system as if there was
+just one log server it turns out in the
+
+670
+01:03:03,730 --> 01:03:07,660
+在实际系统中，至少有很多日志服务器，因此这是一个已部署的
+real system there's lots of log servers
+at least dozens so this is a deployed
+
+671
+01:03:07,660 --> 01:03:12,130
+您可以在其中编程的系统实际上是由Chrome使用的，我认为
+system which you can programmed in that
+is actually used by Chrome and I think
+
+672
+01:03:12,130 --> 01:03:17,769
+ Safari至少有几十个这样的日志服务器，当有证书时
+Safari there are at least dozens of
+these log servers and when certificate
+
+673
+01:03:17,769 --> 01:03:21,009
+ chrome实际要求证书颁发机构提交所有证书
+and certificate authorities are actually
+required by chrome to submit all their
+
+674
+01:03:21,009 --> 01:03:29,170
+证书到日志服务器到多个日志服务器的不同
+certificates to the to the log servers
+to multiple log servers the different
+
+675
+01:03:29,170 --> 01:03:32,769
+日志服务器实际上并不保留相同的日志，约定是
+log servers don't actually keep
+identical logs the convention is that a
+
+676
+01:03:32,769 --> 01:03:37,210
+证书颁发机构将提交新证书，以节省您的时间。 
+certificate authority will submit a new
+certificate to save you know a couple
+
+677
+01:03:37,210 --> 01:03:44,140
+可能是五个不同的日志服务器，实际上在证书信息中
+maybe five different log servers and
+actually in the certificate information
+
+678
+01:03:44,140 --> 01:03:50,319
+网站告诉您的浏览器，其中包括日志服务器的身份
+that a website tells your browser it
+includes the identities of log servers
+
+679
+01:03:50,319 --> 01:03:54,730
+证书所在的证书透明度日志服务器的数量
+of the certificate transparency log
+servers that have the certificate in
+
+680
+01:03:54,730 --> 01:04:01,359
+他们的日志，以便您的浏览器知道与哪些日志服务器进行通信以及原因
+their log so your browser knows which
+log servers to talk to and the reason
+
+681
+01:04:01,359 --> 01:04:05,170
+为什么其中不止一个原因当然是其中一些可能会变坏
+why there's more than one of them is of
+course some of them may go bad some of
+
+682
+01:04:05,170 --> 01:04:09,489
+他们可能被证明是恶意软件或倒闭，或者谁知道该怎么办
+them may turn out to be malicious or go
+out of business or who knows what and in
+
+683
+01:04:09,489 --> 01:04:15,339
+那样的话，你仍然希望有更多的东西可以依靠
+that case you still want to have a
+couple more to fall back on they don't
+
+684
+01:04:15,339 --> 01:04:20,349
+必须相同，因为只要证书在
+have to be identical because they don't
+as long as the certificate is in at
+
+685
+01:04:20,349 --> 01:04:25,779
+据任何人所知，至少有一个日志是值得信赖的
+least one log that's you know as far as
+anybody knows is trustworthy that's
+
+686
+01:04:25,779 --> 01:04:33,140
+足够，因为您知道这里的问题
+sufficient because you know the issue
+here
+
+687
+01:04:33,140 --> 01:04:37,730
+日志中确实包含证书的事实并不一定，因为
+not really necessarily the fact that the
+log had the certificate in it because
+
+688
+01:04:37,730 --> 01:04:43,250
+这并不能证明证书是好的，我们正在寻找的只是日志
+that's not proof that the certificate is
+good all we're looking for is log
+
+689
+01:04:43,250 --> 01:04:50,960
+不分叉使用它们的监视器和浏览器的服务器，因此
+servers that aren't forking the monitors
+and browsers that use them so it's
+
+690
+01:04:50,960 --> 01:04:56,599
+足够一个证书甚至放在不分叉的单个日志服务器中
+enough for a certificate to be in even a
+single log server that's not forking
+
+691
+01:04:56,599 --> 01:04:59,930
+人们，因为然后保证监视器可以看到它，因为
+people because then the monitors are
+guaranteed to see it because the
+
+692
+01:04:59,930 --> 01:05:06,260
+监视器检查所有日志服务器，以便即使出现伪造的证书也不会显示
+monitors check all the log servers so if
+a bogus certificate shows up even even a
+
+693
+01:05:06,260 --> 01:05:10,549
+监视器最终将注意到单个日志服务器，因为所有
+single log server the monitors will
+eventually notice because all the
+
+694
+01:05:10,549 --> 01:05:18,609
+监视器查看浏览器愿意接受的所有日志服务器
+monitors look at all the log servers
+that the browsers are willing to accept
+
+695
+01:05:18,609 --> 01:05:25,309
+好的，另一个问题是什么阻止日志服务器宕机和发出
+all right another question what prevents
+a log server from going down and issuing
+
+696
+01:05:25,309 --> 01:05:31,190
+伪造的证书在被抓住之前您实际上一无所知
+bogus certificates before they get
+caught you know nothing actually if
+
+697
+01:05:31,190 --> 01:05:36,559
+您愿意，这肯定是系统的缺陷，至少对于
+you're willing to that's definitely a
+defect in the system that at least for a
+
+698
+01:05:36,559 --> 01:05:43,640
+当您可以恶意造假日志服务器时
+while you can
+malicious log server contributing bogus
+
+699
+01:05:43,640 --> 01:05:47,420
+证书，因此，如果您拥有的证书颁发机构已成为
+certificates so if you have a
+certificate authority that's become
+
+700
+01:05:47,420 --> 01:05:51,920
+恶意的，并且发出伪造的证书，它们看上去很正确，但是
+malicious and this issuing bogus
+certificates they look correct but
+
+701
+01:05:51,920 --> 01:06:00,589
+他们是伪造的，还有一个日志服务器，那么愿意为他们服务
+they're bogus and a log server then that
+that's willing to serve these it's
+
+702
+01:06:00,589 --> 01:06:04,009
+愿意将这些证书放在日志中，当然它们都在
+willing to put these certificates in the
+log and of course they all are then at
+
+703
+01:06:04,009 --> 01:06:07,160
+至少有一段时间，浏览器会愿意使用它们，尽管
+least for a while browsers will be
+willing to use them the thing is though
+
+704
+01:06:07,160 --> 01:06:12,170
+那你知道他们会被抓住的，这就是系统的意图
+that the you know they will be caught
+and this is the system is its intent is
+
+705
+01:06:12,170 --> 01:06:17,930
+改善神父的状况或建立透明度制度，如果
+to improve the situation in the priests
+or to make a transparency system if
+
+706
+01:06:17,930 --> 01:06:21,410
+有人发放伪造的证书，浏览器被欺骗
+somebody was issuing bogus certificates
+and browsers were being tricked into
+
+707
+01:06:21,410 --> 01:06:26,299
+使用它们，您可能永远不会在证书透明性世界中发现
+using them you might never find out ever
+in the certificate transparency world
+
+708
+01:06:26,299 --> 01:06:31,000
+您可能不会立即发现，因此有些人可能会使用它们，但是随后
+you may not find out right away and so
+some some people may use them but then
+
+709
+01:06:31,000 --> 01:06:35,059
+您很快就会知道几天或显示器将开始的工作
+relatively quickly you know a few days
+or something the monitors will start to
+
+710
+01:06:35,059 --> 01:06:39,829
+请注意，日志中有错误的证书，有人会去跟踪
+notice that there's bad certificates in
+the logs and somebody will go and track
+
+711
+01:06:39,829 --> 01:06:45,009
+找出并找出谁是恶意的或谁在犯错误
+it down and figure out who is malicious
+or who is making mistakes
+
+712
+01:06:52,740 --> 01:06:58,470
+是的，所以我想一个证书，一个证书透明度法可以
+yeah so I guess a certificate a
+certificate transparency law could
+
+713
+01:06:58,470 --> 01:07:08,250
+拒绝跟显示器说话，是的，我不确定我是否最终认为
+refuse to talk to the monitors yeah I'm
+not sure I think ultimately the if you
+
+714
+01:07:08,250 --> 01:07:11,940
+知道我们现在正在步入非技术领域，您知道该怎么做
+know we're now treading into a kind of
+non-technical region you know what to do
+
+715
+01:07:11,940 --> 01:07:15,809
+如果有证据表明出了问题，这实际上是很难的
+if there's evidence that something's
+gone wrong this is actually quite hard
+
+716
+01:07:15,809 --> 01:07:20,010
+因为很多时候甚至是虚假的东西都会出问题
+because much of the time is something
+seems to go wrong even bogus
+
+717
+01:07:20,010 --> 01:07:24,329
+证书经常是一个人犯错的原因，这是一个
+certificates often often the reason it's
+just somebody made a mistake it was a
+
+718
+01:07:24,329 --> 01:07:28,859
+您知道有人吹嘘的合法错误，但这不是恶意的证据
+legitimate mistake you know somebody
+blew it and it's not evidence of malice
+
+719
+01:07:28,859 --> 01:07:33,480
+只是有人犯了一个错误，我想如果监视器是
+is just that somebody made a mistake I
+think what would happen if a monitor was
+
+720
+01:07:33,480 --> 01:07:37,800
+几乎以任何方式表现不佳，例如在执行过程中不回答请求
+misbehaving in almost any way like not
+answering requests if it was doing
+
+721
+01:07:37,800 --> 01:07:43,859
+人们总是注意到并要求他们整形或将其从中取出
+consistently people notice and either
+ask them to shape up or take them out of
+
+722
+01:07:43,859 --> 01:07:46,410
+列表停止使用它们的浏览器供应商
+the list
+stop using them the browser vendors
+
+723
+01:07:46,410 --> 01:07:50,760
+过一会儿，它将把她从可接受的日志服务器列表中注销
+would take that logs her out of a list
+of acceptable log servers after a while
+
+724
+01:07:50,760 --> 01:07:56,190
+但是，是的，有一个灰色的不良行为区域，对于
+but yeah there's like a gray area of bad
+behavior that's not bad enough to the
+
+725
+01:07:56,190 --> 01:08:00,630
+保证从我认为是日志服务器的可接受列表中删除
+warrant being taken out of the
+acceptable list I think of a log server
+
+726
+01:08:00,630 --> 01:08:03,180
+被发现工作正常，问题是如果找到了日志服务器该怎么办
+has been found to work the question is
+what if the log server has been found
+
+727
+01:08:03,180 --> 01:08:09,030
+在发生什么事情之前，我想我认为将会发生的事情是
+before what happens then I think I think
+what would happen is the people who were
+
+728
+01:08:09,030 --> 01:08:15,720
+运行，您知道浏览器供应商将与日志服务器交谈的人员，以及
+run you know the people who the browser
+vendors would talk to the log server and
+
+729
+01:08:15,720 --> 01:08:19,979
+向他们询问运行日志服务器的人员，并询问他们发生了什么事以及是否
+ask them the people running the log
+server and ask them what happened and if
+
+730
+01:08:19,979 --> 01:08:22,409
+他们提出了令人信服的解释，他们没有做出
+
+731
+01:08:22,410 --> 01:08:26,729
+错误，您知道哪个也许他们不能，也许我不知道他们他们
+mistake you know which maybe they
+couldn't maybe I don't know they their
+
+732
+01:08:26,729 --> 01:08:31,468
+机器崩溃，丢失了他们的日志的一部分，他们重新启动，您知道从
+
+733
+01:08:31,469 --> 01:08:37,830
+日志的前缀，如果出现错误，则开始增加其他日志
+a prefix of the log and start growing a
+different log if it seems like a mistake
+
+734
+01:08:37,830 --> 01:08:44,339
+诚实的错误那么这是一个错误，但是如果日志服务器
+honest mistake then well it was a
+mistake but if it if the log server
+
+735
+01:08:44,339 --> 01:08:48,299
+运营商无法提供令人信服的解释，然后我
+operators can't provide a convincing
+explanation of what happened then I
+
+736
+01:08:48,299 --> 01:08:53,210
+认为浏览器供应商只会将它们从可接受的列表中删除
+think the browser vendors would just
+delete them from the list of acceptable
+
+737
+01:08:53,640 --> 01:09:06,240
+ klog服务器可以，但是您知道这些是
+klog servers okay but these are you know
+these are sort of problems with the
+
+738
+01:09:06,240 --> 01:09:11,340
+系统，因为您可以知道谁拥有名称或
+system because you can you know the
+definitions of like who owns a name or
+
+739
+01:09:11,340 --> 01:09:14,729
+可以接受，但是您知道服务器停机还是可以的
+what acceptable but you know whether
+it's okay for your server to be down or
+
+740
+01:09:14,729 --> 01:09:24,719
+不是这些很难确定属性，您知道我认为系统
+
+741
+01:09:24,720 --> 01:09:28,500
+还不满的话，你至少可以避免不良行为
+is not full you could definitely get
+away with bad behavior at least for a
+
+742
+01:09:28,500 --> 01:09:35,990
+虽然，但希望这里有足够的审核能力，如果有的话
+while but the hope is that there's
+strong enough auditing here that if some
+
+743
+01:09:35,990 --> 01:09:42,840
+证书颁发机构或日志服务器始终表现不良，人们
+certificate authority or log server was
+persistently badly behaved that people
+
+744
+01:09:42,840 --> 01:09:45,720
+会注意到监视器会注意到他们可能暂时不会做任何事情，但是
+would notice the monitors would notice
+they may not do anything for a while but
+
+745
+01:09:45,720 --> 01:09:52,200
+最终，他们会决定您知道自己要么太痛苦，要么
+eventually they would decide that you
+know you're either too much of a pain or
+
+746
+01:09:52,200 --> 01:09:58,440
+成为系统的一部分并从以下浏览器列表中删除您
+to malicious to be part of the system
+and delete you from the browser lists of
+
+747
+01:09:58,440 --> 01:10:03,060
+当然，他们将浏览器供应商划分为强大的公司，所以哇
+course they split the browser vendors in
+a position of quite strong power so Wow
+
+748
+01:10:03,060 --> 01:10:06,150
+系统通常是分散的，是的，可以有很多
+the system is in general pretty
+decentralized yeah there can be lots of
+
+749
+01:10:06,150 --> 01:10:10,470
+证书颁发机构和许多证书透明性日志服务器
+certificate authorities and lots of
+certificate transparency log servers
+
+750
+01:10:10,470 --> 01:10:15,450
+只有少数浏览器供应商，那是因为他们
+there's only a handful of browser
+vendors and that there because they
+
+751
+01:10:15,450 --> 01:10:21,900
+维护可接受的证书颁发机构和日志服务器的列表
+maintain the lists of acceptable
+certificate authorities and log servers
+
+752
+01:10:21,900 --> 01:10:31,110
+他们确实有很多力量，但是不幸的是，这就是这样，所以
+they do have a lot of power and you know
+it's the way it is unfortunately okay so
+
+753
+01:10:31,110 --> 01:10:38,100
+从证书透明性设计中脱颖而出的一件事是
+things to take away from a certificate
+transparency design so one thing is the
+
+754
+01:10:38,100 --> 01:10:43,850
+它具有非常重要的关键特性是每个人都看到相同的日志
+key property it has super important is
+just that everyone sees the same log
+
+755
+01:10:43,850 --> 01:10:48,420
+即使某些当事方是恶意的，每个人都可以看到相同的结果
+even if some of the parties are
+malicious either everyone sees the same
+
+756
+01:10:48,420 --> 01:10:53,310
+时间长了，否则他们可以从失败的证据中收集证据
+long or they can accumulate evidence
+from failed proofs that something's
+
+757
+01:10:53,310 --> 01:10:56,280
+有趣的是，这两个浏览器都在使用这些
+funny is going on and because both
+browsers who are using those
+
+758
+01:10:56,280 --> 01:11:01,830
+证书以及正在运行监视器的DNS名称的所有者，请参阅
+certificates and the owners of the DNS
+names who are running monitors see the
+
+759
+01:11:01,830 --> 01:11:08,530
+由于这些证据，监视器可以检测到问题并记录相同的日志
+same log because of these proofs
+the monitors can detect problems and
+
+760
+01:11:08,530 --> 01:11:11,860
+因此，即使浏览器实际上无法检测到虚假信息， 
+therefore the browser's even though the
+browsers can't actually detect bogus
+
+761
+01:11:11,860 --> 01:11:14,980
+证书，他们至少可以确信是否存在伪造
+certificates they can at least be
+confident that there if there's bogus
+
+762
+01:11:14,980 --> 01:11:19,510
+监控器可以检测到并可能将它们放到那里的证书
+certificates out there that monitors
+will detect them and possibly put them
+
+763
+01:11:19,510 --> 01:11:23,830
+实际上，在吊销清单上，如果没有
+on revocation lists actually that's
+something I didn't mention if if there's
+
+764
+01:11:23,830 --> 01:11:29,199
+监视器的证据可以发现麻省理工学院所看到的伪造证书
+evidence of a monitor spots what must be
+a bogus certificate like MIT sees
+
+765
+01:11:29,199 --> 01:11:34,870
+他们不知道要获得麻省理工学院证书的人吗？ 
+somebody they don't know about being
+issued a certificate for MIT did you it
+
+766
+01:11:34,870 --> 01:11:38,739
+原来有一个预先存在的吊销服务，您可能会认为它不好
+turns out there's a pre-existing
+revocation service that you can put bad
+
+767
+01:11:38,739 --> 01:11:44,410
+浏览器检查证书，以便监视器是否看到虚假证书
+certificates on that the browser's check
+so if a monitor sees a bogus certificate
+
+768
+01:11:44,410 --> 01:11:49,350
+实际上，可以通过吊销它来有效地禁用它
+it can actually be effectively disabled
+by putting it on in the revocation
+
+769
+01:11:49,350 --> 01:11:53,440
+证书吊销系统不是证书透明性的一部分
+certificate revocation system that's not
+part of certificate transparency it's
+
+770
+01:11:53,440 --> 01:11:58,600
+已经存在了很长时间，所以关键属性是每个人都看到相同的
+been around for a long time okay so the
+key property is everyone sees the same
+
+771
+01:11:58,600 --> 01:12:04,840
+证书日志的另一件事是，如果您不能
+log of certificates another thing to
+take away from this is that if you can't
+
+772
+01:12:04,840 --> 01:12:10,260
+找出防止不良行为的方法，也许您可​​以建立一些
+figure out a way to prevent bad behavior
+maybe you can build something these
+
+773
+01:12:10,260 --> 01:12:16,300
+依赖审计而不是防止可能发现不良的可用性
+usable that relies on auditing instead
+of preventing that is can detect bad
+
+774
+01:12:16,300 --> 01:12:21,190
+事实可能会足够好之后，通常比
+things after the fact that might be good
+enough it's often much easier than
+
+775
+01:12:21,190 --> 01:12:27,040
+防止坏事，这项工作中的一些技术思想是
+preventing the bad things some technical
+ideas are here in this this work one is
+
+776
+01:12:27,040 --> 01:12:33,400
+这个我很危险的模棱两可的想法是
+this idea of equivocation that I'm a big
+danger is the possibility that a
+
+777
+01:12:33,400 --> 01:12:38,590
+恶意服务器会某种程度上提供分割视图，一个视图只能查看一组人
+malicious server will sort of provide
+split views one viewed one set of people
+
+778
+01:12:38,590 --> 01:12:42,070
+对另一组人的另一种看法，通常称为叉子或
+another view to another set of people
+it's usually called a fork or
+
+779
+01:12:42,070 --> 01:12:46,570
+模棱两可是一种重要的攻击手段
+equivocation it's an important kind of
+attack another property this for
+
+780
+01:12:46,570 --> 01:12:50,199
+事实证明，一致性属性在您担心时通常很有价值
+consistency property it turns out it's
+often valuable to when you're worried
+
+781
+01:12:50,199 --> 01:12:55,780
+关于Forks建立一旦恶意软件入侵后强制恶意服务器的系统
+about Forks to build a system that
+forces the malicious server once it has
+
+782
+01:12:55,780 --> 01:13:00,460
+组建了一个人让他们留在那把叉子上，这样它就不能通过
+formed somebody to keep them on that
+fork so it can't erase evidence by
+
+783
+01:13:00,460 --> 01:13:06,940
+消掉叉子我最后的技术诀窍是在闲聊中
+erasing a fork I'm the final technical
+trick is the notion of gossiping in
+
+784
+01:13:06,940 --> 01:13:10,600
+进行检测，因为如果参与者没有，它实际上是生成的
+order to detect for because it's
+actually gen if the participants don't
+
+785
+01:13:10,600 --> 01:13:14,650
+彼此交流实际上通常是不可能的
+communicate with each other it's
+actually typically not possible to
+
+786
+01:13:14,650 --> 01:13:18,580
+请注意，有一个叉子，所以如果要检测叉子，必须有一个
+notice that there has been a fork so if
+you want to detect Forks there has to be
+
+787
+01:13:18,580 --> 01:13:22,020
+一种方式或另一种八卦某种
+one way or another
+some kind of gossip some kind of
+
+788
+01:13:22,020 --> 01:13:26,310
+双方之间的沟通，以便他们可以比较音符并检测音叉
+communication between the parties so
+they can compare notes and detect forks
+
+789
+01:13:26,310 --> 01:13:36,810
+我们下周再看比特币和
+and we'll see most of these things again
+next week when we look at Bitcoin and
+
+790
+01:13:36,810 --> 01:13:40,710
+那就是我要说的
+that's all I had to say
+

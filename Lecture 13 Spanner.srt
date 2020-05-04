@@ -1,0 +1,4935 @@
+1
+00:00:00,110 --> 00:00:10,050
+嗯，也许我们应该开始吧，因为我们已经有很长时间了
+um maybe maybe we should get started um
+it's been a long time since we've all
+
+2
+00:00:10,050 --> 00:00:16,020
+晚上在同一地方，希望大家今天过得不错，我想
+been in the same place at night I hope
+everybody's doing well today I'd like to
+
+3
+00:00:16,020 --> 00:00:21,480
+谈论扳手谈论这篇文章的原因是它很少见
+talk about spanner the reason to talk
+about this paper is that it's a rare
+
+4
+00:00:21,480 --> 00:00:27,210
+系统示例提供了基于广泛数据的分布式事务
+example of a system provides distributed
+transactions over data that's widely
+
+5
+00:00:27,210 --> 00:00:30,449
+分离的数据可能分散在整个互联网上， 
+separated that is data that might be
+scattered all over the internet and
+
+6
+00:00:30,449 --> 00:00:36,149
+我在Saul的生产系统中从来没有做过的不同数据中心
+different data centers I'm Saul most
+never done in production systems of
+
+7
+00:00:36,149 --> 00:00:39,420
+当然，非常需要能够进行交易
+course it's extremely desirable to be
+able to have transactions the
+
+8
+00:00:39,420 --> 00:00:44,730
+程序员非常喜欢它，并且非常希望能够传播数据
+programmers really like it and also
+extremely desirable to have data spread
+
+9
+00:00:44,730 --> 00:00:50,160
+在整个网络上进行容错处理并确保数据
+all over the network for both for fault
+tolerance and to ensure that data is
+
+10
+00:00:50,160 --> 00:01:01,039
+几乎每个想要使用它的人附近都有一个数据副本，并且
+near that there's a copy of the data
+near everybody who wants to use it and
+
+11
+00:01:01,039 --> 00:01:07,920
+在实现此扳手的过程中，至少使用了两个巧妙的想法，一个是
+on the way to achieving this spanner
+used at least two neat ideas one is that
+
+12
+00:01:07,920 --> 00:01:12,020
+他们运行两阶段提交，但实际上是在复制的paxos上运行它
+they run two-phase commit but they
+actually run it over paxos replicated
+
+13
+00:01:12,020 --> 00:01:17,850
+参与者我是为了避免问题的两阶段提交
+participants I'm in order to avoid the
+problem the two-phase commit that a
+
+14
+00:01:17,850 --> 00:01:22,650
+崩溃的协调员可以阻止所有人，另一个有趣的想法是
+crashed coordinator can block everyone
+and the other interesting idea is that
+
+15
+00:01:22,650 --> 00:01:26,820
+他们使用同步时间来获得非常有效的只读
+they use synchronize time in order to
+have very efficient read-only
+
+16
+00:01:26,820 --> 00:01:32,520
+交易和系统是实际上非常成功的
+transactions and the system is is that
+actually been very successful it's used
+
+17
+00:01:32,520 --> 00:01:38,040
+ Google内的许多不同服务带来了很多麻烦
+a lot by many many different services
+inside of Google it's been turned by
+
+18
+00:01:38,040 --> 00:01:43,320
+ Google成为一种产品，可为其基于云的客户提供服务， 
+Google into a product to service for
+their cloud-based customers and it's
+
+19
+00:01:43,320 --> 00:01:48,689
+启发了许多其他研究和其他系统
+inspired a bunch of other research and
+other systems both sort of by the
+
+20
+00:01:48,689 --> 00:01:53,090
+例如，这种广域交易是可能的， 
+example that it's kind of wide area
+transactions are possible and also
+
+21
+00:01:53,090 --> 00:01:58,229
+特别是至少有一个打开她的系统蟑螂数据库使用了很多
+specifically there's at least one opens
+her system cockroach DB that uses a lot
+
+22
+00:01:58,229 --> 00:02:05,100
+明确使用大量设计激励用例的原因
+of explicitly uses a lot of the design
+the motivating use case the reason that
+
+23
+00:02:05,100 --> 00:02:09,239
+报纸说他们首先开始设计扳手的是
+the paper says they first kind of
+started the design spanner was that they
+
+24
+00:02:09,239 --> 00:02:13,800
+实际上已经有很多大型数据库系统， 
+were already had a actually they had
+many big database systems and
+
+25
+00:02:13,800 --> 00:02:19,290
+ Google，但他们的广告系统特别是数据短缺
+Google but their advertising system in
+particular the data was shorted over
+
+26
+00:02:19,290 --> 00:02:25,770
+许多不同的续集和BigTable数据库，并保持
+many many distinct my sequel and
+BigTable databases and maintaining that
+
+27
+00:02:25,770 --> 00:02:30,630
+分片只是一个笨拙，手动和耗时的过程
+sharding was a just an awkward and
+manual and time-consuming process in
+
+28
+00:02:30,630 --> 00:02:36,180
+此外，他们以前的广告数据库系统不允许
+addition their previous advertising
+database system didn't allow
+
+29
+00:02:36,180 --> 00:02:40,020
+跨多个交易的交易基本上比单个交易多
+transactions that spanned more than a
+single basically more than a single
+
+30
+00:02:40,020 --> 00:02:44,820
+服务器，但他们确实希望能够将数据更多地分发出去
+server but they really wanted to be able
+to have to spread their data out more
+
+31
+00:02:44,820 --> 00:02:51,000
+广泛地获得更好的性能，并进行多个交易
+widely for better performance and to
+have transactions over the multiple
+
+32
+00:02:51,000 --> 00:02:56,970
+广告数据库的数据分片显然是
+shards of the data for their advertising
+database apparently the workload was
+
+33
+00:02:56,970 --> 00:03:00,780
+以只读事务为主，我的意思是您可以在表6中看到它，其中
+dominated by read-only transactions I
+mean you can see this in table 6 where
+
+34
+00:03:00,780 --> 00:03:06,860
+有数十亿的只读交易，只有数百万
+the there's billions of read-only
+transactions and only millions of
+
+35
+00:03:06,860 --> 00:03:11,880
+读写交易，因此他们对交易的表现非常感兴趣
+readwrite transactions so they're very
+interested in the performance of
+
+36
+00:03:11,880 --> 00:03:16,440
+只读仅执行杂草的事务，并且显然还需要
+read-only of transactions that only do
+weeds and apparently they also required
+
+37
+00:03:16,440 --> 00:03:21,209
+强大的一致性，并且您知道特别是什么交易，因此它们
+strong consistency and that you know
+what transactions in particular so they
+
+38
+00:03:21,209 --> 00:03:27,060
+需要可序列化的交易，他们还需要外部一致性
+wanted serializable transactions and
+they also wanted external consistency
+
+39
+00:03:27,060 --> 00:03:33,450
+这意味着如果一项事务提交，然后完成
+which means that if one transaction
+commits and then after it finishes
+
+40
+00:03:33,450 --> 00:03:37,700
+提交另一笔交易开始第二笔交易需要看到任何
+committing another transaction starts
+the second transaction needs to see any
+
+41
+00:03:37,700 --> 00:03:43,560
+修改是由第一个完成的，并且这种外部一致性证明是
+modification is done by the first and
+this external consistency turns out to
+
+42
+00:03:43,560 --> 00:03:52,010
+对复制的数据很感兴趣，所以
+be interesting with replicated data all
+right so
+
+43
+00:03:52,010 --> 00:03:57,480
+拥有权只是服务器的物理布置的基本安排
+ownage are just a basic arrangement sort
+of physical arrangement of their servers
+
+44
+00:03:57,480 --> 00:04:03,680
+扳手使用它的服务器已分布在数据中心
+that that spanner uses it has the its
+servers are spread over data centers
+
+45
+00:04:03,680 --> 00:04:08,880
+大概是全世界，当然是整个美国
+presumably all over the world certainly
+all over the United States and each
+
+46
+00:04:08,880 --> 00:04:14,030
+数据被复制到多个数据中心，因此图表必须具有
+piece of data is replicated at multiple
+data centers so the diagrams got to have
+
+47
+00:04:14,030 --> 00:04:19,649
+多个数据中心让我们说真的有三个数据中心
+multiple data centers let's say there's
+there's three data centers really
+
+48
+00:04:19,649 --> 00:04:23,330
+还会有更多糟糕
+there'd be many more oops
+
+49
+00:04:26,009 --> 00:04:29,990
+所以我们整日持不同意见，然后数据将其分
+so we have all day
+dissenters then the data shard it that
+
+50
+00:04:29,990 --> 00:04:35,389
+它被分解了，您可以想到它已被密钥和分解了
+it's broken up you can think of it has
+been being broken up by key into and
+
+51
+00:04:35,389 --> 00:04:39,770
+分散在许多服务器上，所以也许有一台服务器提供密钥启动
+split over many servers so maybe there's
+one server that serves keys starting
+
+52
+00:04:39,770 --> 00:04:46,490
+在此数据中心中以a或以B开头的另一个以此类推
+with a in this data center or another
+starting with B and so forth lots of
+
+53
+00:04:46,490 --> 00:04:52,520
+实际上，具有大量服务器的大量图表实际上每个数据中心在任何地方都具有
+lots of charting with lots of servers in
+fact every data center has on any piece
+
+54
+00:04:52,520 --> 00:04:57,319
+数据是在多个数据中心上复制的任何分片，因此
+of data is any shard is replicated at
+more than one data center so there's
+
+55
+00:04:57,319 --> 00:05:01,520
+将成为另一个副本的a键和B键的另一个副本，依此类推
+going to be another copy another replica
+of the a keys and the B keys and so on
+
+56
+00:05:01,520 --> 00:05:08,090
+在中心的第二天，又是另一个希望完全相同的副本
+the second day in the center and yet
+another hopefully identical copy of all
+
+57
+00:05:08,090 --> 00:05:14,300
+此数据位于第三个数据中心，此外每个数据中心都有多个
+this data at the third data center in
+addition each data center has multiple
+
+58
+00:05:14,300 --> 00:05:19,940
+客户或他们的扳手客户，以及这些客户在网络上的真实身份
+clients or their clients of spanner and
+what these clients really are as web
+
+59
+00:05:19,940 --> 00:05:24,250
+服务器，因此，如果我们普通人坐在网络浏览器前
+servers so if our ordinary human beings
+sitting in front of a web browser
+
+60
+00:05:24,250 --> 00:05:28,520
+连接到一些使用扳手的Google服务
+connects to some Google service that
+uses spanner
+
+61
+00:05:28,520 --> 00:05:31,550
+他们将连接到其中一个数据中心中的某些Web服务器，并且
+they'll connect to some web server in
+one of the data centers and that's going
+
+62
+00:05:31,550 --> 00:05:40,580
+成为这些扳手客户之一，可以复制
+to be one of these one of these spanner
+clients all right so that is replicated
+
+63
+00:05:40,580 --> 00:05:45,680
+复制实际上是由Paxos管理的，实际上，Paxos的变体
+the replication is managed by Paxos in
+fact that really a variant of Paxos that
+
+64
+00:05:45,680 --> 00:05:50,020
+有领导者，非常像我们都熟悉的木筏
+has leaders and is really very much like
+the raft that we're all familiar with
+
+65
+00:05:50,020 --> 00:05:56,840
+每个Paxos实例管理给定数据碎片的所有副本，因此
+and each Paxos instance manages all the
+replicas of a given shard of the data so
+
+66
+00:05:56,840 --> 00:06:06,620
+该分片的所有分片组成一个Paxos组，所有
+this shard all the copies of this shard
+form one Paxos group and all the
+
+67
+00:06:06,620 --> 00:06:09,740
+副本是这种碎片形式，其他包装是分组的，每个包装内都有
+replicas are this shard form other packs
+was group and within each these are
+
+68
+00:06:09,740 --> 00:06:14,900
+这些补丁实例是独立的，因为它自己的领导者运行自己的版本
+these patches instances independent as
+its own leader runs its own version of
+
+69
+00:06:14,900 --> 00:06:21,740
+礼包的诗歌实例是协议麻木，其原因是
+the of the poem instance of the packs
+was protocol numb and the reason for the
+
+70
+00:06:21,740 --> 00:06:29,539
+分片，对于每个分片的独立paxos实例，允许并行
+sharding and for the independent paxos
+instances per shard is to allow parallel
+
+71
+00:06:29,539 --> 00:06:34,190
+速度之快和大量并行吞吐量，因为数量众多
+speed-up and a lot of parallel
+throughput because there's a vast number
+
+72
+00:06:34,190 --> 00:06:37,490
+您知道的代表网络工作的客户数量
+of clients you know which are
+representing working on behalf of web
+
+73
+00:06:37,490 --> 00:06:41,190
+浏览器，所以通常并发
+browsers so this huge number typically
+of concurrent
+
+74
+00:06:41,190 --> 00:06:46,780
+请求，因此付出更大的代价将它们分成多个
+requests and so it pays and more
+immensely to split them up over multiple
+
+75
+00:06:46,780 --> 00:06:56,620
+碎片和多种并行运行的Paxos组
+shards and multiple sort of Paxos groups
+that are running in parallel okay and
+
+76
+00:06:56,620 --> 00:07:02,680
+您可能会想到，或者这些paxos组中的每一个都有一个领导，就像愤怒一样，所以
+you can think of or each of these paxos
+groups has a leader a lot like wrath so
+
+77
+00:07:02,680 --> 00:07:06,669
+也许这个分片的领导者不是数据是数据中心中的一个副本，并且
+maybe the leader for this shard isn't
+data is a replica in datacenter one and
+
+78
+00:07:06,669 --> 00:07:13,599
+该分片的领导者可能是副本和数据中心两个，依此类推
+the leader for this shard might be the
+replica and datacenter two and and so
+
+79
+00:07:13,599 --> 00:07:21,250
+并且您知道，这意味着如果您需要，如果客户需要
+forth and you know so that means that if
+you need to if a client needs to do a
+
+80
+00:07:21,250 --> 00:07:28,360
+它必须将其权利发送给其数据的分片的领导者
+right it has to send that right to the
+leader of the of the shard whose data it
+
+81
+00:07:28,360 --> 00:07:34,750
+需要仅用Raph编写这些Paxos实例，它们才是真正的
+needs to write just with Raph these
+Paxos instances are what they're really
+
+82
+00:07:34,750 --> 00:07:38,530
+做的是发送日志，领导者正在复制操作日志
+doing is sending out a log the leader is
+sort of replicating a log of operations
+
+83
+00:07:38,530 --> 00:07:42,819
+给所有跟随者，跟随者执行该日志，该日志用于数据
+to all the followers and the followers
+execute that log which is for data is
+
+84
+00:07:42,819 --> 00:07:53,199
+将被读取和写入，因此它将以相同的顺序执行所有日志
+gonna be reads and writes so it executes
+those logs all in the same order all
+
+85
+00:07:53,199 --> 00:07:58,389
+正确，所以这些设置的原因就是我提到的分片
+right so the reason for these for this
+setup the sharding as I mentioned for
+
+86
+00:07:58,389 --> 00:08:03,759
+在不同数据中心中的多个副本的吞吐量为两个
+throughput the multiple copies in
+different data centers is for two
+
+87
+00:08:03,759 --> 00:08:07,719
+原因之一是您想要复制和其他数据中心，以防一种数据
+reasons one is you want copies and
+different data centers in case one data
+
+88
+00:08:07,719 --> 00:08:12,729
+如果您知道整个城市的电源故障，则数据中心将失败
+center fails if you know maybe you power
+fails to the entire city the data
+
+89
+00:08:12,729 --> 00:08:16,930
+集中在地震，火灾或其他您想要的东西中
+centers in or there's an earthquake or a
+fire or something you'd like other
+
+90
+00:08:16,930 --> 00:08:20,560
+复制可能不会同时发生故障的其他数据中心
+copies that other data centers that are
+maybe not going to fail at the same time
+
+91
+00:08:20,560 --> 00:08:24,550
+然后您知道要为此付出代价，因为现在paxos协议
+and then you know there's a price to pay
+for that because now the paxos protocol
+
+92
+00:08:24,550 --> 00:08:29,409
+现在可能要长途交谈才能与关注者交谈， 
+now has to talk maybe over long
+distances to talk to followers and
+
+93
+00:08:29,409 --> 00:08:33,309
+不同的数据中心在多个数据中心拥有数据的另一个原因是
+different data centers the other reason
+to have data in multiple data centers is
+
+94
+00:08:33,309 --> 00:08:39,009
+它可以让您在所有不同的客户端附近拥有数据副本
+
+95
+00:08:39,010 --> 00:08:42,429
+使用它，因此，如果您有一条可以在两个加利福尼亚州读取的数据
+that use it so if you have a piece of
+data that may be read in both California
+
+96
+00:08:42,429 --> 00:08:48,250
+在纽约，也许可以很高兴地在加利福尼亚州拥有一份该数据的副本
+and New York maybe it's nice to have a
+copy of that data one copy in California
+
+97
+00:08:48,250 --> 00:08:53,140
+一本在纽约的副本，因此阅读速度非常快，实际上很多
+one copy in New York so that reads can
+be very fast and indeed a lot of the
+
+98
+00:08:53,140 --> 00:08:57,529
+重点是时间是从本地读取
+focus that
+time is to make reads from the local the
+
+99
+00:08:57,529 --> 00:09:04,790
+最近的副本既快速又正确，最后是另一个有趣的交互
+nearest replica both fast and correct
+finally another interesting interaction
+
+100
+00:09:04,790 --> 00:09:07,130
+ Paxos和多个数据中心之间的关系是
+between Paxos and multiple data centers
+is that
+
+101
+00:09:07,130 --> 00:09:13,400
+ paxos lie craft仅需要多数才能复制日志条目，并且
+paxos lie craft only requires a majority
+in order to replicate a log entry and
+
+102
+00:09:13,400 --> 00:09:18,020
+继续，这意味着如果有一个慢速，遥远或不稳定的数据中心， 
+proceed and that means if there's one
+slow or distant or flaky data center the
+
+103
+00:09:18,020 --> 00:09:22,760
+ Paxil系统可以保持协调并接受新请求，即使一个数据
+Paxil system can keep chugging along and
+accepting new requests even if one data
+
+104
+00:09:22,760 --> 00:09:31,460
+中心正在缓慢，好吧，这样的安排
+center is is being slow all right so
+with this arrangement there's a couple
+
+105
+00:09:31,460 --> 00:09:35,810
+论文必须克服的一大挑战是他们真的想阅读
+of big challenges that paper has to bite
+off one is they really want to do reads
+
+106
+00:09:35,810 --> 00:09:41,720
+来自本地数据中心，但是因为他们使用的是Paxos，而且因为Paxos 
+from local data centers but because
+they're using Paxos and because Paxos
+
+107
+00:09:41,720 --> 00:09:47,870
+只要求每个日志条目都以多数复制，这意味着
+only requires each log entry to be
+replicated on a majority that means a
+
+108
+00:09:47,870 --> 00:09:52,910
+少数副本可能滞后并且可能没有看到最新数据
+minority of the replicas may be lagging
+and may not have seen the latest data
+
+109
+00:09:52,910 --> 00:09:58,970
+这是由paxos提交的，这意味着如果我们允许客户阅读
+that's been committed by paxos and that
+means that if we allow clients to read
+
+110
+00:09:58,970 --> 00:10:04,610
+从本地副本以提高速度，他们可能正在读取过时的数据，如果它们
+from the local replicas for speed they
+may be reading out-of-date data if their
+
+111
+00:10:04,610 --> 00:10:08,120
+副本恰好在少数族群中，没有看到最新更新，因此
+replica happens to be in the minority
+that didn't see the latest updates so
+
+112
+00:10:08,120 --> 00:10:11,630
+他们必须这样做，因为他们需要正确性，他们需要这个
+they have to since they're requiring
+correctness they're requiring this
+
+113
+00:10:11,630 --> 00:10:18,470
+外部一致性的想法，即每次读取都可以看到他们最新的数据
+external consistency idea that every
+read see the most up-to-date data they
+
+114
+00:10:18,470 --> 00:10:22,850
+必须采用某种方式来处理本地副本的可能性
+have to have some way of dealing with
+the possibility that the local replicas
+
+115
+00:10:22,850 --> 00:10:28,310
+可能滞后于他们必须处理的另一个问题是，交易可能
+may be lagging another issue they have
+to deal with is that a transaction may
+
+116
+00:10:28,310 --> 00:10:32,300
+涉及多个分片，因此涉及多个paxos组，因此您可能
+involve multiple shards and therefore
+multiple paxos groups so you may be
+
+117
+00:10:32,300 --> 00:10:35,780
+读取或写入单个交易可能是读取或写入多个交易
+reading or writing a single transaction
+may be reading or writing multiple
+
+118
+00:10:35,780 --> 00:10:40,250
+数据库中存储在多个分片和多个Paxil中的记录
+records in the database that are stored
+in multiple shards and multiple Paxil
+
+119
+00:10:40,250 --> 00:10:49,700
+脚本，所以这些必须是我们，我们需要分布式事务，所以我
+scripts so those have to be we need
+distributed transactions okay so I'm
+
+120
+00:10:49,700 --> 00:10:52,700
+将会解释交易的工作方式
+going to explain how the transactions
+work that's going to be the kind of
+
+121
+00:10:52,700 --> 00:10:58,720
+演讲者的重点实际上是实现读写交易
+focus of the lecture spanner actually
+beats implements readwrite transactions
+
+122
+00:10:58,720 --> 00:11:02,389
+与只读交易大不相同，所以让我从您的
+quite differently from read-only
+transactions so let me start with your
+
+123
+00:11:02,389 --> 00:11:07,190
+如此之多的传统读写事务之美
+beauty of readwrite transactions which
+are so have a lot more conventional in
+
+124
+00:11:07,190 --> 00:11:27,490
+他们的设计还不错，所以第一次读写交易让我提醒您
+their design alright so first readwrite
+transactions let me just remind you at a
+
+125
+00:11:27,490 --> 00:11:32,020
+交易看起来像这样，让我们​​只选择一个简单的交易
+transaction looks like so let's just
+choose a simple one that's like
+
+126
+00:11:32,020 --> 00:11:39,010
+模仿银行转帐，所以我是其中的一台客户计算机
+mimicking bank transfer so I'm one of
+those client machines a client of
+
+127
+00:11:39,010 --> 00:11:42,460
+扳手，您将运行一些代码，您将运行此事务代码，代码会说哦
+spanner you'd run some code you run this
+transaction code the code would say oh
+
+128
+00:11:42,460 --> 00:11:46,330
+我正在开始交易，然后我会说哦，我想读写
+I'm beginning a transaction and then I
+would say oh I want to read and write
+
+129
+00:11:46,330 --> 00:11:50,350
+这些记录，所以也许您在数据库记录X中有一个银行余额，我们想要
+these records so maybe you have a bank
+balance in database record X and we want
+
+130
+00:11:50,350 --> 00:11:56,740
+你知道增加和增加这个银行余额减少你的银行
+to you know increment and increase this
+bank balance and decrease y's bank
+
+131
+00:11:56,740 --> 00:12:01,090
+余额，哦，交易到此结束，现在客户希望
+balance and oh that's the end of the
+transaction and now the client hopes the
+
+132
+00:12:01,090 --> 00:12:04,350
+数据库将关闭并提交
+database will go off and commit that
+
+133
+00:12:05,160 --> 00:12:11,080
+好吧，所以我想追溯所有必须发生的步骤
+alright so I want to trace through all
+the steps that that have to happen in
+
+134
+00:12:11,080 --> 00:12:17,560
+为了使扳手执行此读写事务，因此首先
+order to in order for spanner to execute
+this read write transaction so first of
+
+135
+00:12:17,560 --> 00:12:21,540
+一个数据中心中有一个客户正在推动这项交易
+all there's a client in one of the data
+centers that's driving this transaction
+
+136
+00:12:21,540 --> 00:12:25,690
+所以我在这里画这个客户让我们想象一下x和y在不同的位置
+so I'll draw this client here let's
+imagine that x and y are on different
+
+137
+00:12:25,690 --> 00:12:31,990
+分片，因为那是有趣的情况，而那些分片
+shards since that's the that's the
+interesting case and that those shards
+
+138
+00:12:31,990 --> 00:12:38,740
+两个分片中的每一个都在三个不同的数据中心中复制，因此我们知道
+each of the two shards is replicated in
+three different data centers so know we
+
+139
+00:12:38,740 --> 00:12:47,970
+我们在这里拥有三个数据中心，每个数据中心都有一台服务器， 
+got our three data centers here and at
+each data center there's a server that
+
+140
+00:12:47,970 --> 00:12:55,120
+我将为保留行为的碎片的副本编写x 
+I'm just going to write x for the
+replicas of the shard that's holding act
+
+141
+00:12:55,120 --> 00:13:03,360
+使用这三个服务器微调器的x和y的银行余额一次
+with the bank balance for x and y for
+the these three servers spinner once
+
+142
+00:13:03,360 --> 00:13:08,470
+两阶段提交只是为了完全承受我们的两阶段提交和两阶段
+two-phase commit just to totally stand
+our two-phase commit and two phase
+
+143
+00:13:08,470 --> 00:13:16,060
+几乎完全按照上周603的读数中所述进行锁定
+locking almost exactly as described in
+the reading from last week from the 603
+
+144
+00:13:16,060 --> 00:13:22,540
+三本教科书，其巨大的区别在于代替了参与者和
+three textbook and the huge difference
+is that instead of the participants and
+
+145
+00:13:22,540 --> 00:13:26,590
+交易管理者是个人计算机，参与者是
+the transaction manager being individual
+computers the participants in the
+
+146
+00:13:26,590 --> 00:13:33,270
+ Paxos复制了事务方式管理器
+transaction manner manager are Paxos
+replicated
+
+147
+00:13:33,340 --> 00:13:37,570
+多组服务器以提高容错能力，这意味着提醒
+groups of servers for increased fault
+tolerance so that means just to remind
+
+148
+00:13:37,570 --> 00:13:44,050
+你说该碎片存储X的碎片的三个副本， 
+you that the shard the three replicas of
+the shard that stores X it's a really
+
+149
+00:13:44,050 --> 00:13:49,330
+应用访问组与这三个副本的Y相同，我们可以想象
+app access group same with these three
+replicas strong Y and we'll just imagine
+
+150
+00:13:49,330 --> 00:13:53,790
+对于这三台服务器中的每台服务器来说，它都是领导者，所以我们说
+that for each of these one of the three
+servers is the leader so let's say the
+
+151
+00:13:53,790 --> 00:14:00,760
+服务器和数据中心2是Paxos的领导者，X是分片， 
+server and data center 2 is the Paxos
+leader for the X is shard and the
+
+152
+00:14:00,760 --> 00:14:08,080
+仆人说您是Paxos的领导者，您很清楚，所以第一个
+servant is saying one is the Paxos
+leader for y sharp okay so the first
+
+153
+00:14:08,080 --> 00:14:11,770
+发生的事情是硬币选择了唯一的交易ID 
+thing that happens is that the coin
+picks a unique transaction ID which is
+
+154
+00:14:11,770 --> 00:14:16,470
+将被携带在所有这些消息上，以便系统知道
+going to be carried on all these
+messages so that the system knows that
+
+155
+00:14:16,470 --> 00:14:21,100
+所有不同的操作都与单个交易相关联
+all the different operations are
+associated with a single transaction the
+
+156
+00:14:21,100 --> 00:14:25,270
+客户端的第一件事必须是这样，尽管代码看起来像
+first thing that does the client has to
+be so despite the way the code looks
+
+157
+00:14:25,270 --> 00:14:30,520
+它在其中读取和写入X，然后实际上以某种方式读取一些写入Y 
+where it reads and writes X then read
+some write Y in fact the way the code
+
+158
+00:14:30,520 --> 00:14:34,330
+必须组织交易代码，必须先进行所有读取， 
+has transaction code has to be organized
+it has to do all its reads first and
+
+159
+00:14:34,330 --> 00:14:39,220
+然后在最后，基本上同时将所有写入作为
+then at the very end do all the writes
+at the same time essentially as part of
+
+160
+00:14:39,220 --> 00:14:49,050
+提交，以便客户做得很好，这表明它是为了
+the commit so the clients to do good
+reads it turns out that it in order to
+
+161
+00:14:49,050 --> 00:14:57,520
+保持锁定，因为就像您上周每次阅读6:53一样
+maintain locks since just as as in last
+week's 6:53 reading every time you read
+
+162
+00:14:57,520 --> 00:15:03,790
+或写一个数据项，负责它的服务器必须关联一个
+or write a data item the server
+responsible for it has to associate a
+
+163
+00:15:03,790 --> 00:15:09,280
+用该数据项锁定锁，将保持读取锁和扳手的锁
+lock with that data item the locks are
+maintained the read locks and spanner
+
+164
+00:15:09,280 --> 00:15:14,530
+仅在Paxos领导者中维护，因此当客户交易想要
+maintain only in the Paxos leader so
+when the client transaction wants to
+
+165
+00:15:14,530 --> 00:15:23,560
+读取访问权限将读取的X请求发送给X的领导者，而该领导者是分片的，并且该领导者
+read access sends a read X request to
+the leader of X is shard and that leader
+
+166
+00:15:23,560 --> 00:15:28,630
+的分片返回x的当前值，当然，如果
+of the shard returns the current value
+of x plus sets a lock on X of course if
+
+167
+00:15:28,630 --> 00:15:32,250
+锁已经设置好了，您将直到任何时候都不会响应客户端
+the locks already set then you won't
+respond to the client until whatever
+
+168
+00:15:32,250 --> 00:15:36,370
+当前已锁定数据的事务通过提交释放锁
+transaction currently has the data
+locked releases the lock by committing
+
+169
+00:15:36,370 --> 00:15:42,970
+然后是该分片的领导者，因为将x的值返回给客户
+and then the leader for that shard since
+back the value of x to client the client
+
+170
+00:15:42,970 --> 00:15:46,300
+这次需要读Y很幸运，因为
+needs to read Y got lucky this time
+because the
+
+171
+00:15:46,300 --> 00:15:52,210
+假设像数据中心的客户一样，本地数据中心的领导者
+assuming like clients in data center one
+the leaders in the local data center so
+
+172
+00:15:52,210 --> 00:15:58,660
+这将使读取速度更快，从而将税金锁定在Y上
+this reads gonna be a lot faster that
+reads sets the lock on Y in the taxes
+
+173
+00:15:58,660 --> 00:16:02,260
+领导，然后返回好吧，现在所有读取的客户
+leader and then returns okay's now the
+clients on all the reads it does
+
+174
+00:16:02,260 --> 00:16:05,920
+内部计算并弄清楚想要做什么值的写入
+internal computations and figures out
+the writes that wants to do what values
+
+175
+00:16:05,920 --> 00:16:12,130
+想写x和y，所以现在客户端要发送更新的
+wants to write to x and y and so now the
+clients going to send out the updated
+
+176
+00:16:12,130 --> 00:16:18,820
+要写入的记录的值，并且一次完成所有操作
+values for the records that it wants to
+write and it does this all at once at
+
+177
+00:16:18,820 --> 00:16:23,170
+交易即将结束的第一件事
+the end towards the end of the
+transaction so the first thing it does
+
+178
+00:16:23,170 --> 00:16:28,000
+是从那些分组中选择一个作为交易
+is it chooses one of the packs those
+groups to act as the transaction
+
+179
+00:16:28,000 --> 00:16:33,130
+协调员，因为它提前选择了我们，因此会发送
+coordinator and as it chooses us in
+advance and it's gonna send out the
+
+180
+00:16:33,130 --> 00:16:37,510
+ Paxos组将充当交易的身份
+identity of the which Paxos group is
+going to act as the transaction
+
+181
+00:16:37,510 --> 00:16:42,790
+协调器，让我们假设它选择了这个Paxos组，我已经拆分了一个双框
+coordinator so let's assume it chooses
+this Paxos group i've split a double box
+
+182
+00:16:42,790 --> 00:16:47,530
+这里说的是，这台服务器不仅是其Paxos组的领导者，而且还是
+here to say that not only is this server
+the leader of its Paxos group it's also
+
+183
+00:16:47,530 --> 00:16:52,210
+充当此事务的事务协调者，然后客户端发送
+acting as transaction coordinator for
+this transaction then the client sends
+
+184
+00:16:52,210 --> 00:16:58,690
+列出要写入的更新值，以便发送写入
+out the updated values that it wants to
+write so it's going to send a write
+
+185
+00:16:58,690 --> 00:17:03,250
+在此处额外写入X请求，并带有新值和
+extra write X request here with a new
+value and the identity of the
+
+186
+00:17:03,250 --> 00:17:11,170
+交易协调员，当每个Paxos领导者获得每个书面价值时
+transaction coordinator when each the
+Paxos leader for each written value
+
+187
+00:17:11,170 --> 00:17:22,720
+收到写请求，它向其关注者发送一条准备消息，并
+receives the write request it sends out
+a prepare message to its followers and
+
+188
+00:17:22,720 --> 00:17:27,760
+将其输入到Paxos日志中，以便我用P代表它进入paxos 
+gets that into the Paxos log so that
+I'll represent that by P into the paxos
+
+189
+00:17:27,760 --> 00:17:33,190
+记录日志，因为它会承诺能够到达，这是一个错误的词
+log because it's gonna commit to being
+able to come it's the wrong word it's
+
+190
+00:17:33,190 --> 00:17:36,700
+承诺能够执行尚未崩溃的交易
+promising to be able to carry out this
+transaction that it hasn't crashed for
+
+191
+00:17:36,700 --> 00:17:43,210
+例子，并失去了锁，所以它发出此准备消息日志
+example and lost its locks so it sends
+out this prepare message logs the
+
+192
+00:17:43,210 --> 00:17:47,080
+当收到来自大多数用户的回复时，通过paxos准备消息
+prepare message through paxos when it
+gets a majority of responses from the
+
+193
+00:17:47,080 --> 00:17:54,940
+追随者，那么这个契约是领导者向交易发送“是” 
+followers then this pacts was leader
+sends a yes to the transaction
+
+194
+00:17:54,940 --> 00:17:59,590
+协调员说，是的，我很有希望能够履行我的职责。 
+coordinator saying yes I am a promising
+to be able to carry out my part of the
+
+195
+00:17:59,590 --> 00:18:07,039
+ YV趋势权，从概念上讲
+trend
+right to Y V and notionally the
+
+196
+00:18:07,039 --> 00:18:15,549
+交易中看到客户还判该值被咬-为什么- 
+transaction see the client also
+sentenced the value to be bitten - why -
+
+197
+00:18:15,549 --> 00:18:24,260
+为什么paxos领导者和充当paxos领导者的服务器发出准备
+why's paxos leader and this server
+acting as paxos leader sends out prepare
+
+198
+00:18:24,260 --> 00:18:29,710
+消息给他的追随者并记录下来，这会影响到
+messages to his followers and logs it
+impacts those weights for the
+
+199
+00:18:29,710 --> 00:18:36,769
+来自大多数人的感谢，然后您可以将其视为Paxos 
+acknowledgments from a majority and then
+you can think of it as as the Paxos
+
+200
+00:18:36,769 --> 00:18:43,090
+领导者发送同一台机器上的交易协调器
+leaders sending the transaction
+coordinator which is on the same machine
+
+201
+00:18:43,090 --> 00:18:48,440
+也许是同一程序，是的，赞成票，是的，我可以提交，所以当
+maybe the same program a yes vote saying
+yes I can I can commit okay so when the
+
+202
+00:18:48,440 --> 00:18:54,080
+交易协调员得到领导者的不同回应
+transaction coordinator gets responses
+from all the different from the leaders
+
+203
+00:18:54,080 --> 00:18:59,899
+涉及此事务的所有不同分片中的所有分片（如果它们
+of all the different shards whose data
+is involved in this transaction if they
+
+204
+00:18:59,899 --> 00:19:03,649
+所有人都说是的，那么交易协调员可以提交，否则
+all said yes then the transaction
+coordinator can commit otherwise it
+
+205
+00:19:03,649 --> 00:19:11,600
+不能假设它决定在此时进行提交
+can't let's assume it decides to commit
+at that point the transaction
+
+206
+00:19:11,600 --> 00:19:19,480
+协调员向paxos追随者发送一条提交消息，说看
+coordinator sends out to the paxos
+followers a commit message saying look
+
+207
+00:19:19,480 --> 00:19:26,120
+请记住，我们永久在交易日志中
+please remember that permanently in the
+transaction log that we're committing
+
+208
+00:19:26,120 --> 00:19:37,070
+这笔交易还告诉其他PAC的领导人
+this transaction and it also tells the
+leaders of the other PACs those groups
+
+209
+00:19:37,070 --> 00:19:42,919
+参与交易，那么他们也可以提交，所以现在
+involved in the transaction then they
+can commit as well and so now this
+
+210
+00:19:42,919 --> 00:19:49,130
+领导者在提交后立即向其关注者发送提交消息
+leader sends out commit messages to his
+followers as well as soon as the commits
+
+211
+00:19:49,130 --> 00:19:51,519
+是
+are
+
+212
+00:19:54,770 --> 00:19:58,040
+事务协调器可能不会将提交消息发送到
+the transaction coordinator probably
+doesn't send out the commit message to
+
+213
+00:19:58,040 --> 00:20:02,480
+其他分片，直到它在日志中被安全地提交为止，以便事务
+the other shards until it's committed as
+safe in the log so that the transaction
+
+214
+00:20:02,480 --> 00:20:07,850
+提交这些内容后，不保证协调员不会忘记其决定
+coordinator is not guaranteed not to
+forget its decision once commits these
+
+215
+00:20:07,850 --> 00:20:12,530
+提交消息分别提交到不同分片的paxos日志中
+commit messages are committed into the
+paxos logs of the different shards each
+
+216
+00:20:12,530 --> 00:20:16,809
+这些分片中的一部​​分实际上可以执行放置书面数据的权利
+of those shards can actually execute the
+rights that is place the written data
+
+217
+00:20:16,809 --> 00:20:26,260
+并释放数据项上的锁，以便其他事务可以使用它们
+and release the locks on the data items
+so that other transactions can use them
+
+218
+00:20:26,650 --> 00:20:36,890
+然后进行交易，因此首先请随时提出问题
+and then the transactions over so first
+of all please feel free to ask questions
+
+219
+00:20:36,890 --> 00:20:45,110
+如果通过举手示意，如果您有疑问，那么有几点要点
+if by raising your hand a few if you
+have questions ok so there's some points
+
+220
+00:20:45,110 --> 00:20:50,900
+观察到目前为止的设计，该设计仅涵盖了
+to observe about the design so far which
+is only covered the readwrite aspect of
+
+221
+00:20:50,900 --> 00:20:56,720
+事务之一是确保可串行性的锁定
+transactions one is that it's that the
+locking that is insuring serializability
+
+222
+00:20:56,720 --> 00:21:01,610
+这是两个事务冲突的原因，因为它们使用的数据相同
+that is of two transactions conflict
+because they use the same data one has
+
+223
+00:21:01,610 --> 00:21:05,179
+完全等待其他释放锁之后才能继续操作，因此
+to completely wait for the other
+releases locks before it can proceed so
+
+224
+00:21:05,179 --> 00:21:11,120
+因此，扳手使用完全标准的两相锁定，以便
+it's using so spanners using completely
+standard two-phase locking in order to
+
+225
+00:21:11,120 --> 00:21:15,740
+获得可序列化性和完全标准的两阶段提交以获取
+get serializability and completely
+standard two-phase commit to get
+
+226
+00:21:15,740 --> 00:21:22,850
+在分布式交易中，两阶段犯下了广泛的仇恨，因为如果
+distributed transactions the two-phase
+commits widely hated because if the
+
+227
+00:21:22,850 --> 00:21:27,290
+事务协调器应该比任何事务失败或变得不可访问
+transaction coordinator should fail or
+become unreachable than any transactions
+
+228
+00:21:27,290 --> 00:21:32,960
+它一直在无限期地管理区块，直到事务协调员回来
+it was managing block indefinitely until
+the transaction coordinator comes back
+
+229
+00:21:32,960 --> 00:21:37,610
+起来，并用锁锁起来，所以人们通常都非常
+up and they block with locks help so
+people have been in general very
+
+230
+00:21:37,610 --> 00:21:43,990
+在现实世界中不愿使用两阶段提交，因为它阻塞了扳手
+reluctant to use two-phase commit in the
+real world because it's blocking spanner
+
+231
+00:21:43,990 --> 00:21:48,230
+通过复制事务管理器来解决此问题
+solves this by replicating the
+transaction manager the transaction
+
+232
+00:21:48,230 --> 00:21:53,240
+管理器本身是Paxos复制状态机，所以它所做的一切
+manager itself is a Paxos replicated
+state machine so everything it does like
+
+233
+00:21:53,240 --> 00:21:57,740
+例如，请记住是否已将其提交到副本中
+for example remember whether it's
+committed or not is replicated into the
+
+234
+00:21:57,740 --> 00:22:04,790
+ paxos记录日志，因此即使领导者正在管理
+paxos log so if the leader here fails
+even though it was managing the
+
+235
+00:22:04,790 --> 00:22:08,509
+交易，因为它是木筏复制的两个
+transaction because it's raft replicated
+either of these two
+
+236
+00:22:08,509 --> 00:22:14,239
+复制品可以生机勃勃地接管领导，也可以接管
+replicas can spring to life take over
+leadership and also take over being the
+
+237
+00:22:14,239 --> 00:22:17,959
+交易经理，他们的法律将是交易经理
+transaction manager and they'll have in
+their law it's the transaction manager
+
+238
+00:22:17,959 --> 00:22:22,879
+决定承诺任何接管的领导者都会看到承诺，这是日志， 
+decided to commit any leader that takes
+over will see a commitment it's log and
+
+239
+00:22:22,879 --> 00:22:27,799
+然后能够立即告诉另一个参与者
+be able to then tell the other right
+away tell the other participants and
+
+240
+00:22:27,799 --> 00:22:30,559
+两阶段提交，看起来哦，此事务已提交，所以这
+two-phase commit that look oh this
+transaction was committed so this
+
+241
+00:22:30,559 --> 00:22:36,049
+有效地消除了可以阻止的两阶段提交问题
+effectively eliminates the problem a
+two-phase commit that it can block with
+
+242
+00:22:36,049 --> 00:22:41,469
+如果发生故障，则持有锁，这确实很重要，因为此问题
+locks held if there's a failure this is
+a really big deal because this problem
+
+243
+00:22:41,469 --> 00:22:45,199
+基本上使两阶段提交对于其他情况完全不可接受
+basically makes two-phase commit
+otherwise completely unacceptable for
+
+244
+00:22:45,199 --> 00:22:49,879
+任何具有很多可能会导致其他部分失效的大型系统
+any sort of large-scale system that has
+a lot of parts that might fail the other
+
+245
+00:22:49,879 --> 00:22:55,879
+还要注意的另一件事是，在此中有大量消息
+another thing to note is that there's a
+huge amount of messages on in this
+
+246
+00:22:55,879 --> 00:23:02,599
+此处的图表，这意味着其中许多是跨数据中心的， 
+diagram here and that means that many of
+them are across data centers and said
+
+247
+00:23:02,599 --> 00:23:05,899
+在分片之间或客户端之间传递的一些消息
+the some of these messages that go
+between the shards or between a client
+
+248
+00:23:05,899 --> 00:23:09,969
+一个碎片，另一个数据中心的领导者可能需要花费几毫秒的时间
+and a shard whose leaders in another
+data center may take many milliseconds
+
+249
+00:23:09,969 --> 00:23:16,959
+在一个您知道计算需要纳秒的世界中，这是
+and in a world in which you know
+computations take nanoseconds this is
+
+250
+00:23:16,959 --> 00:23:25,219
+本质上相当严峻的支出，实际上您可以从表中看到
+essentially pretty grim expense and
+indeed you can see that from in table
+
+251
+00:23:25,219 --> 00:23:32,299
+六和表六（如果您查看的话）描述了扳手的性能
+six and table six if you look at it it's
+describing the performance of a spanner
+
+252
+00:23:32,299 --> 00:23:35,389
+部署，其中不同副本位于联合国的不同侧
+deployment where the different replicas
+are on different sides of the United
+
+253
+00:23:35,389 --> 00:23:41,319
+我位于东西海岸的国家，大约需要一百毫秒
+States I east and west coast and it
+takes about a hundred milliseconds to do
+
+254
+00:23:41,319 --> 00:23:45,349
+完成涉及不同副本的交易
+complete a transaction where the
+different replicas involved are on
+
+255
+00:23:45,349 --> 00:23:50,299
+不同的外套需要大量的时间，大约是十分之一秒
+different coats that's a huge amount of
+time it's a tenth of a second there's
+
+256
+00:23:50,299 --> 00:23:53,179
+也许没有看起来那么糟糕，因为系统的吞吐量
+maybe not quite as bad as it may seem
+because the throughput of the system
+
+257
+00:23:53,179 --> 00:23:57,379
+因为它经过分片，并且可以在其中运行许多无冲突的事务
+since it's sharded and it can run a lot
+of non conflicting transactions in
+
+258
+00:23:57,379 --> 00:24:02,239
+并行吞吐量可能非常高，但是它们的延迟对于单个
+parallel the throughput may be very hard
+high but their delay for individual
+
+259
+00:24:02,239 --> 00:24:05,659
+交易非常重要，我的意思是一百毫秒可能有点
+transactions very significant I mean a
+hundred milliseconds is maybe somewhat
+
+260
+00:24:05,659 --> 00:24:09,679
+少于人类所注意到的，但是如果您必须做几个
+less than a human is going to notice but
+if you have to do a couple of them to
+
+261
+00:24:09,679 --> 00:24:13,429
+只是说要生成网页或进行人工指导就可以了
+just say generate a webpage or carry out
+a human instruction it's starting to be
+
+262
+00:24:13,429 --> 00:24:16,700
+你注意到你开始烦恼的时间
+amount of time whoops
+you noticeable start to be bothering
+
+263
+00:24:16,700 --> 00:24:21,250
+另一方面，我觉得很麻烦
+bothersome
+on the other hand for I think I suspect
+
+264
+00:24:21,250 --> 00:24:26,980
+从扳手的许多用途来看，所有副本都可能在同一城市或
+from many uses of spanner all the
+replicas might be in in the same city or
+
+265
+00:24:26,980 --> 00:24:31,270
+在整个城镇中，它们是您可以在表中看到的更快的时间
+sort of across town and they're the much
+faster times that you can see in Table
+
+266
+00:24:31,270 --> 00:24:36,520
+三个与地球表有关。三个表明它可以完成
+three are relevant in the Earth's Table
+three shows that it can complete
+
+267
+00:24:36,520 --> 00:24:40,300
+您知道，数据中心就在附近的交易
+transactions where the data centers are
+nearby in all right you know I think
+
+268
+00:24:40,300 --> 00:24:44,640
+是14毫秒而不是100毫秒，所以不是很
+it's 14 milliseconds instead of 100
+milliseconds so that's not quite so that
+
+269
+00:24:44,640 --> 00:24:50,680
+但是，这些读/写事务的速度足够慢，以至于我们会
+nevertheless these read/write
+transactions are slow enough that we'd
+
+270
+00:24:50,680 --> 00:24:58,090
+如果可能的话，我想避免花这笔钱，这将使我们
+like to avoid the expense if we possibly
+can so that's going to take us to
+
+271
+00:24:58,090 --> 00:25:01,450
+只读事务，事实证明，如果您不写，那就是
+read-only transactions it turns out that
+if you're not writing that is if you
+
+272
+00:25:01,450 --> 00:25:05,320
+事先知道交易中的所有操作都是
+know in advance that all of the
+operations in a transaction are
+
+273
+00:25:05,320 --> 00:25:10,300
+保证会被读取，然后扳手的速度就会大大提高
+guaranteed to be reads then spanner has
+a much faster much more streamlined much
+
+274
+00:25:10,300 --> 00:25:18,480
+执行只读事务的消息量较小的消息密集型方案
+less massive message intensive scheme
+for executing read-only transactions
+
+275
+00:25:19,680 --> 00:25:30,010
+好的，所以只读事务开始一个新主题，即只读事务
+okay so so read-only transactions start
+a new topic the reader only transactions
+
+276
+00:25:30,010 --> 00:25:33,730
+尽管他们依赖于读写事务中的某些信息，但仍能正常工作
+work although they rely on some
+information from readwrite transactions
+
+277
+00:25:33,730 --> 00:25:45,040
+设计与读取扳手中的读写事务完全不同的设计
+to designs quite different from the read
+of the readwrite transactions in spanner
+
+278
+00:25:45,040 --> 00:25:50,860
+消除了两大成本，并且它的只读事务设计消除了
+eliminates two big costs and it's
+read-only transaction design eliminates
+
+279
+00:25:50,860 --> 00:25:54,670
+首先存在的两个成本是读写交易，因为我
+two of the costs that were present and
+readwrite transactions first of all as I
+
+280
+00:25:54,670 --> 00:26:00,910
+提到它从本地副本读取，因此如果您有一个副本，只要
+mentioned it reads from local replicas
+and so if you have a replica as long as
+
+281
+00:26:00,910 --> 00:26:04,300
+客户需要本地交易的DVD的副本
+there's a replica the DVD the client
+needs the transaction needs in the local
+
+282
+00:26:04,300 --> 00:26:08,080
+您可以从该数据中心读取数据并从该本地副本中读取数据
+data center you can do the read and from
+that local replica which may take a
+
+283
+00:26:08,080 --> 00:26:12,540
+与之对话的一小部分，而不是数十个
+small fraction of a millisecond to talk
+to instead of maybe dozens of
+
+284
+00:26:12,540 --> 00:26:15,910
+毫秒，如果您必须去越野，以便可以从本地读取
+milliseconds if you have to go cross
+country so it can read from local
+
+285
+00:26:15,910 --> 00:26:20,920
+副本，但是您再次知道这里存在的危险是任何给定的副本
+replicas but node you know again a
+danger here is that any given replicas
+
+286
+00:26:20,920 --> 00:26:24,780
+可能不是最新的，所以必须有一个故事
+may not be up-to-date so there has to be
+a story for that
+
+287
+00:26:24,780 --> 00:26:29,850
+另一个大的节省和只读设计是它不使用
+and the other big savings and the
+read-only design is that it doesn't use
+
+288
+00:26:29,850 --> 00:26:33,960
+锁定它不使用两阶段提交，我的意思是不需要事务
+locks it doesn't use two-phase commit I
+mean that doesn't need a transaction
+
+289
+00:26:33,960 --> 00:26:39,660
+经理，这使跨数据中心或跨数据中心之类的东西无效
+manager and this the voids things like
+cross data center or inter data center
+
+290
+00:26:39,660 --> 00:26:44,610
+给领导人的消息，因为不仅没有锁， 
+messages to PACs those leaders and
+because no locks are taken out not only
+
+291
+00:26:44,610 --> 00:26:47,550
+这样可以使只读事务更快，但可以避免
+does that make the read-only
+transactions faster but it avoids
+
+292
+00:26:47,550 --> 00:26:50,850
+减慢只读读写事务，因为它们不必
+slowing down read only read write
+transactions because they don't have to
+
+293
+00:26:50,850 --> 00:26:54,810
+只读事务持有的锁的费率现在我的意思是
+rate for locks held by read-only
+transactions now I mean just to kind of
+
+294
+00:26:54,810 --> 00:27:01,980
+预览为什么这对他们很重要表3和6显示了十倍的延迟
+preview why this is important to them
+tables 3 & 6 show a ten times latency
+
+295
+00:27:01,980 --> 00:27:07,410
+与读写事务相比，只读事务有所改进，因此
+improvement for read-only transactions
+compared to readwrite transactions so
+
+296
+00:27:07,410 --> 00:27:13,950
+主要的唯一设计是提交因素使延迟增加了十倍，而且少得多
+the main only design is submit factor
+ten boost in latency and much less
+
+297
+00:27:13,950 --> 00:27:17,580
+几乎可以肯定，复杂性也将带来更大的吞吐量，这也是巨大的挑战
+complexity is almost certainly far more
+throughput as well and the big challenge
+
+298
+00:27:17,580 --> 00:27:21,630
+将会如何平方您知道的交易确实不会做很多
+is going to be how to square the you
+know really transactions don't do a lot
+
+299
+00:27:21,630 --> 00:27:25,260
+需要安静的事物，我们不重写事务来获取
+of things that were quiet required and
+we don't rewrite transactions to get
+
+300
+00:27:25,260 --> 00:27:30,570
+序列化功能，所以我们需要找到一种求平方的方法
+serialize ability so we need to find a
+need to find a way to kind of square
+
+301
+00:27:30,570 --> 00:27:35,940
+正确性提高了效率，所以实际上有两个
+this increased efficiency with
+correctness and so there's really two
+
+302
+00:27:35,940 --> 00:27:42,390
+他们想要进行只读事务的主要正确性约束
+main correctness constraints that they
+wanted to have read-only transactions
+
+303
+00:27:42,390 --> 00:27:46,680
+首先要说的是，他们喜欢仍然需要进行的所有交易
+imposed the first is that they like all
+transactions they still need to be
+
+304
+00:27:46,680 --> 00:27:55,130
+可序列化，这意味着即使只是回顾
+serializable and what that means is that
+even though just a review even though
+
+305
+00:27:55,130 --> 00:28:01,890
+系统可以并行并行执行事务，结果
+the system may execute transactions
+concurrently in parallel the results
+
+306
+00:28:01,890 --> 00:28:06,600
+一堆并发事务必须同时产生两种
+that a bunch of concurrent transactions
+must yield both in terms of sort of
+
+307
+00:28:06,600 --> 00:28:10,650
+返回给客户端的值以及对数据库的修改
+values that they return to the client
+and modifications to the database the
+
+308
+00:28:10,650 --> 00:28:14,250
+一堆并发事务的结果必须与某些
+results of a bunch of concurrent
+transactions must be the same as some
+
+309
+00:28:14,250 --> 00:28:23,580
+一次或串行执行这些事务，并且只读
+one at a time or serial execution of
+those transactions and for read-only
+
+310
+00:28:23,580 --> 00:28:28,620
+交易本质上意味着的是
+transactions what that essentially means
+is that the an entire all the reads of a
+
+311
+00:28:28,620 --> 00:28:34,560
+只读交易必须有效地整齐地放在
+read-only transaction must effectively
+fit neatly between all the rights of a
+
+312
+00:28:34,560 --> 00:28:38,610
+一堆可以被视为先行的交易
+bunch of transactions that can be viewed
+as going before it
+
+313
+00:28:38,610 --> 00:28:42,870
+并且它一定不能看到我们正在交易的任何权利
+and and it must not see any of the
+rights of the transactions that we're
+
+314
+00:28:42,870 --> 00:28:47,040
+紧随其后去查看，因此我们需要一种适合所有阅读方式的方法
+going to view as it's going after it so
+we need a way to sort of fit to read all
+
+315
+00:28:47,040 --> 00:28:50,790
+事务的只读只读
+the reads of a transaction read-only
+transaction kind of neatly between
+
+316
+00:28:50,790 --> 00:29:00,000
+很好地写交易，这是本文讨论的另一大障碍
+readwrite transactions well the other
+big constraint that the paper talks
+
+317
+00:29:00,000 --> 00:29:08,760
+关于他们想要外部一致性，这意味着什么
+about is that they want external
+consistency and what this means it's
+
+318
+00:29:08,760 --> 00:29:16,770
+实际上等同于我们在此之前看到的线性化能力
+actually equivalent to linearise ability
+that we've seen before what this really
+
+319
+00:29:16,770 --> 00:29:21,900
+意思是，如果一个事务提交完成，另一个事务提交
+means is that if one transaction commits
+finishes committing and another
+
+320
+00:29:21,900 --> 00:29:27,929
+交易在第一笔交易实时完成后开始，然后
+transaction starts after the first
+transaction completed in real time then
+
+321
+00:29:27,929 --> 00:29:32,610
+第二笔交易需要查看第一笔交易的权利
+the second transaction is required to
+see the rights done by the first
+
+322
+00:29:32,610 --> 00:29:36,630
+交易的另一种表达方式是，交易甚至是只读的
+transaction another way of putting that
+is that transactions even read-only
+
+323
+00:29:36,630 --> 00:29:42,960
+事务不应看到过时的数据，并且是否存在来自
+transactions should not see stale data
+and if there's a committed write from a
+
+324
+00:29:42,960 --> 00:29:47,520
+已完成的交易比只读交易先于
+completed transaction that's prior to
+the readonly transaction prior to the
+
+325
+00:29:47,520 --> 00:29:51,240
+只读事务的开始，需要只读事务才能看到
+start of the read-only transaction the
+read-only transaction is required to see
+
+326
+00:29:51,240 --> 00:29:58,650
+好的，所以实际上这两者都不是特别重要
+that right ok so this is actually none
+of neither of these is particularly
+
+327
+00:29:58,650 --> 00:30:07,320
+令人惊讶，但是像我的续集之类的标准数据库还是可以的
+surprising but standard databases like
+my sequel or something for example can
+
+328
+00:30:07,320 --> 00:30:11,309
+被配置为提供这种一致性，因此在某种程度上
+be configured to provide this kind of
+consistency so in a way it's sort of the
+
+329
+00:30:11,309 --> 00:30:16,200
+一致性，如果您不了解的话，这就是一致性
+consistency that if you didn't know
+better this is exactly the consistency
+
+330
+00:30:16,200 --> 00:30:21,900
+您会期望一个简单的系统，并且在您
+that you would expect of a
+straightforward system and in the you
+
+331
+00:30:21,900 --> 00:30:24,990
+知道有它，但是它使程序员生活
+know
+have it but it makes programmers lives
+
+332
+00:30:24,990 --> 00:30:30,120
+这样就更容易产生正确答案，否则您就不会
+it makes it much easier to produce
+correct answers in otherwise you don't
+
+333
+00:30:30,120 --> 00:30:34,740
+具有这种一致性，则程序员负责
+have this kind of consistency then the
+programmers are responsible for kind of
+
+334
+00:30:34,740 --> 00:30:38,460
+围绕数据库可能提供的异常进行编程，所以就像
+programming around whatever anomalies
+the database may provide so this is like
+
+335
+00:30:38,460 --> 00:30:42,350
+一个夜晚，这是正确性的黄金标准
+a night this is sort of the gold
+standard of correctness
+
+336
+00:30:42,350 --> 00:30:50,130
+好吧，让我来谈一谈如何仅交易有效
+okay so let's I want to gonna talk about
+how we'd only transactions work it's a
+
+337
+00:30:50,130 --> 00:30:54,920
+有点复杂的故事，所以我想首先谈的是
+bit of a complex story so I think what
+I'd like to talk about first is to just
+
+338
+00:30:54,920 --> 00:30:59,490
+考虑如果我们绝对做最愚蠢的事情会发生什么， 
+consider what would happen if we did
+just absolutely the stupidest thing and
+
+339
+00:30:59,490 --> 00:31:05,340
+只读事务没有做任何特殊的事情来实现一致性
+had the read-only transactions not do
+anything special to achieve consistency
+
+340
+00:31:05,340 --> 00:31:09,000
+但只要读取数据的最新副本，以便每次我只读取
+but just read the very latest copy of
+the data so every time I read only
+
+341
+00:31:09,000 --> 00:31:15,930
+事务会读取，我们可以让它查看本地副本并
+transaction does a read we could just
+have it look at the local replicas and
+
+342
+00:31:15,930 --> 00:31:21,330
+找到当前数据的最新副本，那将非常
+find the current most up-to-date copy of
+the data and that would be very
+
+343
+00:31:21,330 --> 00:31:27,620
+直接的非常低的开销，所以我们需要了解为什么它不起作用
+straightforward very low overhead so we
+need to understand why that doesn't work
+
+344
+00:31:27,620 --> 00:31:43,650
+为了这样，所以为什么不读取最新值呢？ 
+in order so this is a so why not read
+the just a the latest value and so maybe
+
+345
+00:31:43,650 --> 00:31:51,420
+我们将想象该事务是只读取x和y的事务
+we'll imagine that the transaction is a
+transaction that simply reads x and y
+
+346
+00:31:51,420 --> 00:31:57,150
+并以只读方式将其打印为财务文件我将以Y打印我以X逗号打印
+and prints them finance read-only I'm
+going to print Y I'll just print X comma
+
+347
+00:31:57,150 --> 00:31:59,360
+ ÿ 
+Y
+
+348
+00:32:01,100 --> 00:32:07,070
+好的，所以我想给你看一个例子，其中阅读
+okay so all I want to show you an
+example of a situation in which read
+
+349
+00:32:07,070 --> 00:32:12,070
+进行此交易只是简单地将最新价值产生为不正确
+having this transaction is just simply
+be the latest value yields incorrect not
+
+350
+00:32:12,070 --> 00:32:21,519
+无法序列化的结果，因此假设我们有三个正在运行的事务t1 t2 t3 
+not serializable results so suppose we
+have three transactions running t1 t2 t3
+
+351
+00:32:21,639 --> 00:32:27,409
+ t3将是我们的事务t1和t2或我们重写的事务
+t3 is going to be our transaction t1 and
+t2 or transactions that are our rewrite
+
+352
+00:32:27,409 --> 00:32:36,200
+所以说t1正确的性别和权利为什么然后提交和
+transactions so let's say that t1 right
+sex and rights why and then commits and
+
+353
+00:32:36,200 --> 00:32:39,080
+你知道也许这是银行转账操作，所以它在转账
+you know maybe it's a bank transfer
+operation so it's transferring money
+
+354
+00:32:39,080 --> 00:32:42,769
+从X到Y，我们正在打印x和y，因为我们正在对银行进行审计
+from X to Y and we're printing x and y
+because we're doing an audit of the bank
+
+355
+00:32:42,769 --> 00:32:48,759
+尝试确保它没有亏钱，让我们想象一下交易2 
+try to make sure it hasn't lost money
+let's imagine that transaction 2 also
+
+356
+00:32:48,759 --> 00:32:54,919
+在余额x和y之间进行另一次转移，然后提交，现在我们有了
+does another transfer between balances x
+and y and then commits and now we have
+
+357
+00:32:54,919 --> 00:32:59,960
+我们的交易交易t3需要读取x和y，所以它将有一个
+our transaction transaction t3 it needs
+to read x and y so it's gonna have a
+
+358
+00:32:59,960 --> 00:33:04,730
+读X假设说X的读发生在这个时间点，所以我
+read of X let's say the read of X
+happens at this point in time and so I'm
+
+359
+00:33:04,730 --> 00:33:10,519
+我绘制这些图的方式是实时移动到右侧
+the way I'm drawing these diagrams is
+that real time moves to the right wall
+
+360
+00:33:10,519 --> 00:33:14,899
+您在手表上看到的时钟时间向右移动，因此X的读数
+clock time time you'd see on your watch
+moves to the right so the read of X
+
+361
+00:33:14,899 --> 00:33:20,289
+在事务1完成之后，事务2开始之前在这里发生
+happens here after transaction 1
+completes before transaction 2 starts
+
+362
+00:33:20,289 --> 00:33:24,769
+假设T 3在速度较慢的计算机上运行，​​因此它只能设法发出
+and let's say T 3 is running on a slow
+computer so it only manages to issue the
+
+363
+00:33:24,769 --> 00:33:31,460
+读Y的时间很晚，所以交易的方式是交易3 
+read of Y much later so the way this is
+gonna play out is that transaction 3
+
+364
+00:33:31,460 --> 00:33:41,590
+将看到t1写入的Y值，但t2写入的x值
+will see the Y value that t1 wrote but
+the x value that t2 wrote
+
+365
+00:33:41,710 --> 00:33:47,360
+假设它使用简单地读取最新值的可疑程序
+assuming it uses this dubious procedure
+of simply reading the latest value
+
+366
+00:33:47,360 --> 00:33:56,539
+在数据库中，因此无法序列化，因为我们知道
+that's in the database and so this is
+not serializable because well we know
+
+367
+00:33:56,539 --> 00:34:06,080
+可能存在的任何串行订单都必须带有t1，然后是t2，只有
+that any serial order that could exist
+must have t1 followed by t2 there's only
+
+368
+00:34:06,080 --> 00:34:11,560
+ 2个地方的牙齿里卡去了，所以t3可以去这里
+2 places teeth rica go so t3 could go
+here
+
+369
+00:34:13,540 --> 00:34:18,040
+之所以不适合此处，是因为如果t3在同等顺序中排第二
+can't fit here because if t3 was second
+in the equivalent serial order then it
+
+370
+00:34:18,040 --> 00:34:22,630
+在t2之后不应该看到权利，而在t2之后应该看到Y的值
+shouldn't see rights by t2 which comes
+after it should see the value of Y
+
+371
+00:34:22,630 --> 00:34:28,330
+ t1产生的值，但没有写入，因此看到t2产生的t3值，因此
+produced by t1 but it doesn't write it
+see the value produced by t3 by t2 so
+
+372
+00:34:28,330 --> 00:34:33,040
+这不是等效的，此序列订单不会产生相同的结果
+this is not an equivalent this serial
+order wouldn't produce the same results
+
+373
+00:34:33,040 --> 00:34:39,130
+我们唯一可以使用的另一个是这个序列订单可以得到的
+the only other one available to us is
+this one this serial order would get the
+
+374
+00:34:39,130 --> 00:34:45,370
+与t3实际产生的y相同，但是如果这是串行的
+same value for y that t3 actually
+produced but if this was the serial
+
+375
+00:34:45,370 --> 00:34:49,510
+顺序，那么t3应该已经看到了t2写入的值，但实际上看到了
+order then t3 should have seen the value
+written by t2 but it actually saw the
+
+376
+00:34:49,510 --> 00:34:55,090
+ t1编写的有价值的代码，因此此执行一次等效于任何一次执行
+valuable written by t1 so this execution
+is not equivalent to any one at a time
+
+377
+00:34:55,090 --> 00:35:03,250
+灼热的顺序，所以这就像读的东西有问题
+searing the order so this is like
+there's something broken about reads
+
+378
+00:35:03,250 --> 00:35:08,140
+只需读取最新值，就可以知道您不知道该怎么做
+simply reading the latest value so we
+know that doesn't work you know what
+
+379
+00:35:08,140 --> 00:35:13,120
+我们真正在寻找的当然是我们的交易
+we're really looking for of course is
+that either the our our transaction
+
+380
+00:35:13,120 --> 00:35:20,200
+或者在此时读取两个值，或者在两个时间读取两个值
+either reads the both values at this
+point in time or it reads both values at
+
+381
+00:35:20,200 --> 00:35:36,040
+在这个时间点还可以，所以将我们的口味扩展到这一点的方法是
+this point in time okay so the approach
+that span our taste to this it's a
+
+382
+00:35:36,040 --> 00:35:42,730
+有点复杂，第一个大创意是现有的创意
+somewhat complex the first big idea is
+an existing idea
+
+383
+00:35:42,730 --> 00:35:46,020
+这就是快照隔离
+it's called snapshot isolation
+
+384
+00:35:52,369 --> 00:36:01,930
+我要描述的方式是让我们想象一下
+and the way I'm gonna describe this is
+that let's imagine that all the
+
+385
+00:36:01,930 --> 00:36:06,680
+涉及的计算机具有同步时钟，这就是您知道它们都有一个
+computers involved had synchronized
+clocks that is you know they all have a
+
+386
+00:36:06,680 --> 00:36:13,579
+时钟所使用的时钟会产生我们或墙上时钟的时间，例如oh在143 
+clock the clock wields yields us or wall
+clock time like oh it's 143 in the
+
+387
+00:36:13,579 --> 00:36:20,089
+ 2020年4月7日下午，这就是我们所说的挂钟时间
+afternoon on April 7th 2020 so that's
+what we mean by a wall clock time a time
+
+388
+00:36:20,089 --> 00:36:25,069
+因此假设所有计算机都假设即使这不是真的
+so it's assumed that all the computers
+assume even though this isn't true that
+
+389
+00:36:25,069 --> 00:36:29,779
+所有涉及的计算机都已同步时间，让我们
+all the computers involved have
+synchronized times furthermore let's
+
+390
+00:36:29,779 --> 00:36:37,059
+想象每个事务都在特定的时间分配了时间戳
+imagine that every transaction is
+assigned a particular time a time stamp
+
+391
+00:36:37,420 --> 00:36:40,420
+和
+and
+
+392
+00:36:42,360 --> 00:36:48,510
+为其壁钟添加时间戳记，这些时间取自这些同步时钟
+time stamps their wall clocks times
+taken from these synchronized clocks for
+
+393
+00:36:48,510 --> 00:36:55,080
+读写事务，它的时间戳就是为此
+readwrite transaction its timestamp is
+I'm going to say just for this for this
+
+394
+00:36:55,080 --> 00:37:01,370
+简化的设计是提交时的实时
+simplified design is the real time at at
+the commit
+
+395
+00:37:01,960 --> 00:37:08,680
+并在事务管理器启动时读取或
+and for read for a or at the time at
+which the transaction manager starts the
+
+396
+00:37:08,680 --> 00:37:17,740
+提交，对于只读事务，时间戳等于所有的开始时间
+commit and for read-only transaction the
+timestamp is equal to the start time all
+
+397
+00:37:17,740 --> 00:37:22,599
+没错，所以每个人都有时间，我们将设计我们的系统
+right so every turns out
+time and we're gonna design our system
+
+398
+00:37:22,599 --> 00:37:28,839
+或快照隔离系统gets被设计为好像要获取
+or a snapshot isolation system gets is
+designed to execute as if to get the
+
+399
+00:37:28,839 --> 00:37:34,210
+就像所有事务都按时间戳顺序执行一样，所以我们
+same results as if all the transactions
+had executed in timestamp order so we're
+
+400
+00:37:34,210 --> 00:37:37,839
+将为每个交易分配一个时间戳，然后我们
+going to assign the transactions each
+transaction a timestamp and then we're
+
+401
+00:37:37,839 --> 00:37:42,910
+将安排执行，以便事务获得结果，就好像
+going to arrange the executions so that
+the transactions gets the results as if
+
+402
+00:37:42,910 --> 00:37:46,869
+他们以该顺序执行，因此考虑到时间戳，我们需要
+they had executed in that order so given
+the timestamps we sort of need to have
+
+403
+00:37:46,869 --> 00:37:51,489
+一个可以轻松实现时间戳和
+an implementation that will kind of
+easily honor the timestamps and
+
+404
+00:37:51,489 --> 00:37:57,779
+基本上，您知道向每个事务显示其存在的数据类型
+basically you know show each transaction
+the data sort of as it existed at its
+
+405
+00:37:57,779 --> 00:38:09,190
+时间戳没问题，因此它适用于只读事务的方式是
+timestamp okay so the way that this
+works for read-only transactions is that
+
+406
+00:38:09,190 --> 00:38:13,569
+每个副本在存储数据时实际上具有多个版本
+each replica when it stores data it
+actually has multiple versions of the
+
+407
+00:38:13,569 --> 00:38:24,850
+数据，所以我们有一个多版本数据库，每个数据库记录都有
+data so we have a multiple version
+database every database record has you
+
+408
+00:38:24,850 --> 00:38:27,970
+知道也许已经写过几次了，它有一个单独的副本
+know maybe if it's been written a couple
+times it has a separate copy of that
+
+409
+00:38:27,970 --> 00:38:30,130
+记录每次写入的时间
+record for each of the times it's been
+written
+
+410
+00:38:30,130 --> 00:38:35,350
+其中每一个都与编写的事务的时间戳相关联
+each one of them associated with the
+timestamp of the transaction that wrote
+
+411
+00:38:35,350 --> 00:38:45,040
+然后是基本策略，即当交易
+it and then the basic strategies that
+read only transactions when they when a
+
+412
+00:38:45,040 --> 00:38:49,530
+只读事务进行读取，它已经为其自身分配了时间戳
+read-only transaction does a read it's
+already allocated itself a timestamp
+
+413
+00:38:49,530 --> 00:38:55,900
+当它开始时，因此它伴随着其时间戳的读取请求和
+when it started and so it accompanies
+its read request with its timestamp and
+
+414
+00:38:55,900 --> 00:39:02,890
+任何存储数据副本的服务器
+the whatever server that stores the
+replicas of the data that the
+
+415
+00:39:02,890 --> 00:39:06,130
+交易需求，它将进入其多版本数据库并查找
+transaction needs it's going to look
+into its multi version database and find
+
+416
+00:39:06,130 --> 00:39:12,580
+被要求的记录是最短的时间
+the record that's being asked for that
+as the highest time that's still less
+
+417
+00:39:12,580 --> 00:39:17,920
+比只读事务指定的时间戳大，因此意味着
+than the timestamp specified by the
+read-only transaction so that means to
+
+418
+00:39:17,920 --> 00:39:23,080
+是唯一的事务类型，它看到的是截至目前为止的数据
+be the only transaction sort of sees
+data that is data as of the time as up
+
+419
+00:39:23,080 --> 00:39:32,380
+现在是时间jozin时间戳了，所以这是用于快照隔离的想法
+it's time jozin timestamp okay so this
+is for this snapshot isolation idea
+
+420
+00:39:32,380 --> 00:39:36,190
+适用于只读事务或扳手将其用于只读
+works for read-only transactions or
+spanner uses it for read-only
+
+421
+00:39:36,190 --> 00:39:42,520
+事务微调器用户仍使用两阶段锁定和两阶段提交
+transactions spinner users still uses
+two-phase locking and two-phase commit
+
+422
+00:39:42,520 --> 00:39:47,230
+用于读写事务，因此读写事务分配
+for readwrite transactions and so the
+readwrite transactions allocate
+
+423
+00:39:47,230 --> 00:39:50,650
+时间戳为他们自己的承诺时间，但除了他们在
+timestamps for themselves a commit time
+but other than that they work in the
+
+424
+00:39:50,650 --> 00:39:54,150
+带锁和两阶段提交的通常方式是只读
+usual way with locks and two-phase
+commit where's the read-only
+
+425
+00:39:54,150 --> 00:39:59,680
+事务访问数据库中的多个版本，并获取
+transactions access multiple versions in
+the database and get the version that's
+
+426
+00:39:59,680 --> 00:40:04,450
+您知道由撰写的带有时间戳记
+you know written by the has the
+timestamp
+
+427
+00:40:04,450 --> 00:40:07,770
+最高，仍低于只读交易次数的日期
+that's highest that's still less than
+the read-only transactions times date
+
+428
+00:40:07,770 --> 00:40:11,650
+而这将使我们得到的是您知道只读事务
+and where this is going to get us is
+that you know read-only transactions
+
+429
+00:40:11,650 --> 00:40:16,270
+将以较低的时间戳看到读写事务的所有权利，并且
+will see all the rights of readwrite
+transactions with lower timestamps and
+
+430
+00:40:16,270 --> 00:40:21,930
+没有具有更高的tyst时间戳的读/写事务的权利
+none of the rights of read/write
+transactions with higher tyst timestamps
+
+431
+00:40:21,930 --> 00:40:31,810
+好的，那么如何隔离我们的示例
+okay so how would
+isolation work out for our example
+
+432
+00:40:33,579 --> 00:40:39,970
+我以前在这里遇到的例子，在此之前我们发生了串行故障
+example that I had here before in which
+we had a failure of serial
+
+433
+00:40:39,970 --> 00:40:51,230
+可序列化，因为在读取值之前先读取事务
+serializability because reading
+transaction read before I read values
+
+434
+00:40:51,230 --> 00:40:56,000
+不在其他两个之间的交易是光明的交易，所以这是一个
+that were not between any two other be
+bright transactions okay so this is an
+
+435
+00:40:56,000 --> 00:41:04,820
+我们的示例，但具有快照隔离功能，我向您展示此内容以表明
+our example but with snapshot isolation
+I'm showing you this to show that the
+
+436
+00:41:04,820 --> 00:41:11,930
+快照隔离技术解决了我们导致只读事务的问题
+snapshot isolation technique solves our
+problem causes the read-only transaction
+
+437
+00:41:11,930 --> 00:41:18,320
+可以序列化，所以我们又有了这两个读写事务t1和
+to be serializable so again we have
+these two readwrite transactions t1 and
+
+438
+00:41:18,320 --> 00:41:29,750
+ t2，我们的交易是只读交易t1和t2， 
+t2 and we have our transaction that's a
+read-only transaction t1 and t2 right as
+
+439
+00:41:29,750 --> 00:41:36,859
+在他们写之前，他们承诺但现在
+before they write and they commit but
+now
+
+440
+00:41:36,859 --> 00:41:41,900
+他们在提交时间之前分配自己的时间戳，所以除了
+they're allocating themselves timestamps
+as of the commit time so in addition to
+
+441
+00:41:41,900 --> 00:41:44,960
+使用双面命令和两阶段锁定这些读/写事务
+using two-faced command and two-phase
+locking these read/write transactions
+
+442
+00:41:44,960 --> 00:41:49,609
+分配一个时间戳，让我们想象一下在提交T时
+allocate a timestamp so let's imagine
+that at the time of the commit T one
+
+443
+00:41:49,609 --> 00:41:54,799
+看着时钟，发现时间是十点，我要用十点的时间
+looked at the clock and saw that it the
+time was ten I'm gonna use times of ten
+
+444
+00:41:54,799 --> 00:41:59,150
+还有二十点什么，但是你知道你应该把时间想象成真实的时间
+and twenty and whatnot but you know you
+should imagine times as being real times
+
+445
+00:41:59,150 --> 00:42:05,150
+就像某天早晨四点，所以我们说T人看到了
+like four o'clock in the morning on a
+given day so let's say that T one sees
+
+446
+00:42:05,150 --> 00:42:11,599
+提交的时间为10，T 2看到提交时间为
+the time as 10 when it committed and T 2
+sees that the commit time the time was
+
+447
+00:42:11,599 --> 00:42:18,680
+ 20，所以我要在@符号后的时间戳中选择这些事务，然后
+20 so I'm gonna write these transactions
+chosen timestamp after the @ sign then
+
+448
+00:42:18,680 --> 00:42:25,329
+我们存储系统将要存储的数据库存储系统
+the database storage systems the span
+our storage systems are going to store
+
+449
+00:42:25,329 --> 00:42:29,900
+当事务1进行写操作时，它们将存储一种新的
+when transaction 1 does its writes
+they're gonna store a new sort of not
+
+450
+00:42:29,900 --> 00:42:33,319
+而不是覆盖当前值，他们只是要添加一个新副本
+instead of overwriting in the current
+value they're just gonna add a new copy
+
+451
+00:42:33,319 --> 00:42:37,099
+带有时间戳的记录，因此数据库将
+of this record with the timestamp so
+it's gonna the database is going to
+
+452
+00:42:37,099 --> 00:42:43,009
+储存一条新记录，这表示x在时间10的值等于
+store away a new record this says the
+value of x at time 10 is whatever it
+
+453
+00:42:43,009 --> 00:42:51,710
+碰巧是说9在时间10的记录Y的值是C 11也许我们是
+happens to be let's say 9 the value of
+record Y at time 10 is C 11 maybe we're
+
+454
+00:42:51,710 --> 00:42:58,489
+从X到Y的转移类似，C 2选择时间戳为20，因为那是
+doing a transfer from X to Y similarly C
+2 chose timestamp of 20 because that was
+
+455
+00:42:58,489 --> 00:43:02,089
+提交时的实时时间，数据库将记住一组新的
+the real time at commit time and the
+database is gonna remember a new set of
+
+456
+00:43:02,089 --> 00:43:10,599
+记录这些旧记录，它会在20点说X也许我们做了一个
+Records in addition these old ones it's
+gonna say X at time 20 maybe we did a
+
+457
+00:43:10,599 --> 00:43:18,259
+在时间20从X到Y和Y的另一次转移等于12哦，所以现在我们有两个
+another transfer from X to Y and Y at
+time 20 equals 12 oh so now we have two
+
+458
+00:43:18,259 --> 00:43:21,859
+每个记录在不同时间的副本现在将出现事务3 
+copies of each record at different times
+now transaction 3 is gonna come along
+
+459
+00:43:21,859 --> 00:43:27,950
+再一次，它大约在这个时候开始，并读取X，再一次， 
+and again it starts at about this time
+and does a read of X and again it's
+
+460
+00:43:27,950 --> 00:43:31,880
+会很慢，所以你知道直到很长时间都不会读书
+gonna be slow so you know it's not gonna
+get around to reading wine till much
+
+461
+00:43:31,880 --> 00:43:38,450
+稍后实时得多，但是在事务3开始时
+later much later in real time
+however when transaction 3 started it
+
+462
+00:43:38,450 --> 00:43:43,640
+通过查看当前时间来选择时间戳记，所以让我们
+chose a timestamp by looking at the
+looking at the current time and so let's
+
+463
+00:43:43,640 --> 00:43:48,589
+说，因为我们实时知道交易3是在交易后开始的
+say since we know in real time that
+transaction 3 started after transaction
+
+464
+00:43:48,589 --> 00:43:52,239
+交易2之前的一个否，必须选择一项交易
+one on before transaction 2
+no it's got to have chosen a transaction
+
+465
+00:43:52,239 --> 00:43:59,440
+时间在10到20之间，让我们假设它从15开始
+time somewhere between 10 and 20 and
+let's suppose it started it time 15 and
+
+466
+00:43:59,440 --> 00:44:05,710
+自己选择了时间戳15，这意味着当它读取X时
+chose timestamp 15 for itself so that
+mean when it does the read of X it's
+
+467
+00:44:05,710 --> 00:44:11,559
+将发送一个请求，该请求包含X的本地副本将被陪伴
+gonna send a request the local replica
+that holds X and it's gonna accompany it
+
+468
+00:44:11,559 --> 00:44:15,730
+它的时间戳记是15它会说请给我最新的数据
+with it it's time stamp of 15 it's gonna
+say please give me the latest data as of
+
+469
+00:44:15,730 --> 00:44:21,970
+当然，事务2000的第15次执行了，但是
+time 15 of course transaction 2000
+executed yet and but nevertheless the
+
+470
+00:44:21,970 --> 00:44:29,289
+ X的最高时间戳副本是从事务10写入的时间10开始的副本
+highest time stamp copy of X is the one
+from time 10 written by transaction 1 so
+
+471
+00:44:29,289 --> 00:44:35,619
+我们这次将获得9，通过事务2提交
+we're gonna get 9 for this one time
+passes transaction 2 commits now
+
+472
+00:44:35,619 --> 00:44:39,700
+事务3在公司再次进行第二次读取以适合读取请求
+transaction 3 does the second read again
+at a company suit the read requests with
+
+473
+00:44:39,700 --> 00:44:43,569
+它自己的时间戳记15将服务器居中现在服务器必须
+its own time stamp of 15 Center the
+server's now the server's have to
+
+474
+00:44:43,569 --> 00:44:48,849
+记录，但又一次因为服务器获取15的交易三分时间戳
+records but again because the server
+gets transaction threes time stamp of 15
+
+475
+00:44:48,849 --> 00:44:53,349
+它查看记录并说ha 15坐在这两个之间，我要返回
+it looks at its records and say ha 15
+sits between these two I'm gonna return
+
+476
+00:44:53,349 --> 00:44:59,140
+ X的y的最高时间戳记录，它小于请求的时间
+the highest time stamp record for X for
+y it's less than the requested time
+
+477
+00:44:59,140 --> 00:45:04,930
+戳，这仍然是从时间10开始的Y版本，因此Y的读数将
+stamp and that's still the version of Y
+from time 10 so the read of Y will
+
+478
+00:45:04,930 --> 00:45:09,489
+返回11，本质上是X的读取
+return at 11
+that is the read of X essentially
+
+479
+00:45:09,489 --> 00:45:13,450
+发生在这个时候，但是因为我们想起了一个时间戳， 
+happens at this time but because we
+remembered a time stamp and we have the
+
+480
+00:45:13,450 --> 00:45:17,769
+数据库保留数据的不同写入时间
+database keep data as of different times
+it was written
+
+481
+00:45:17,769 --> 00:45:25,630
+好像两次读取都发生在时间15而不是时间15的一次
+it's as if both reads happened the time
+15 instead of one at time 15 and one
+
+482
+00:45:25,630 --> 00:45:33,730
+稍后，现在您会看到，实际上这实际上是在模拟一个串行
+later and now you'll see that in fact
+this just essentially emulates a serial
+
+483
+00:45:33,730 --> 00:45:38,470
+一次执行，其中订单是时间戳订单事务1 
+one at a time execution in which the
+order is timestamp order transaction 1
+
+484
+00:45:38,470 --> 00:45:46,569
+和交易-对不起，然后交易3然后是序列交易2 
+and transaction - sorry then transaction
+3 then transaction 2 that is a serial
+
+485
+00:45:46,569 --> 00:45:50,619
+等同于实际产生的订单是时间戳
+order that is equivalent to that was
+also actually produced is the time stamp
+
+486
+00:45:50,619 --> 00:45:54,210
+ 10 15 20的订单
+order of 10 15 20
+
+487
+00:45:55,780 --> 00:46:05,510
+好的，那是扳手真正作用的简化版本
+alright okay so that's a simplified
+version of what spanner does for really
+
+488
+00:46:05,510 --> 00:46:11,589
+交易，还有更多的复杂性，我将在稍后介绍
+transactions there's more complexity
+which I'll get to in a minute
+
+489
+00:46:11,589 --> 00:46:17,839
+您可能会遇到的一个问题是，为什么事务3可以读取一个
+one question you might have is why it
+was okay for transaction 3 to read an
+
+490
+00:46:17,839 --> 00:46:23,720
+ y的旧值，它是在此时间点发出对Y的读取
+old value of y that is it issued this
+read of Y at this point in time the
+
+491
+00:46:23,720 --> 00:46:29,150
+为什么该值是12的最新数据，但实际得到的值是
+freshest data for why was this value 12
+but the value would actually got was
+
+492
+00:46:29,150 --> 00:46:34,700
+有意的是，陈旧的值不是最新的值，而是来自
+intentionally a stale value not the
+freshest value but the value from a
+
+493
+00:46:34,700 --> 00:46:39,770
+而之前这个值是11，那为什么还可以，为什么不使用
+while ago this value 11 so why is that
+okay why is it okay not to be using the
+
+494
+00:46:39,770 --> 00:46:47,450
+数据的最新版本以及相应的技术依据
+freshest version of the data and the
+kind of technical justification for that
+
+495
+00:46:47,450 --> 00:46:53,150
+是交易2和交易3是并发的，即
+is that transaction 2 and transaction 3
+are concurrent that is the overlap in
+
+496
+00:46:53,150 --> 00:46:58,369
+时间，这样交易2的时间范围就在这里和时间
+time so those sort of time extent of
+transaction 2 is here and the time
+
+497
+00:46:58,369 --> 00:47:03,290
+事务3的范围在这里是并发的，并且线性化的规则
+extent of transaction 3 is here they're
+concurrent and the rules for linearise
+
+498
+00:47:03,290 --> 00:47:09,890
+能力和外部一致性，或者如果两个事务并发，那么
+ability and external consistency or that
+if two transactions are concurrent then
+
+499
+00:47:09,890 --> 00:47:15,349
+允许数据库使用的串行命令可以放两个
+the serial order that the database is
+allowed to use can be can put the two
+
+500
+00:47:15,349 --> 00:47:20,180
+以任何顺序进行事务，并且数据库扳手选择在此处放置
+transactions in either order and here
+the database spanner has chosen to put
+
+501
+00:47:20,180 --> 00:47:28,280
+交易2在顺序2之前的交易3好的，罗伯特，我们有
+transaction 3 before transaction 2 in
+the serial order okay Robert we we have
+
+502
+00:47:28,280 --> 00:47:32,359
+一个学生问题是否总是像时间戳一样保持外部一致性
+a student question does external
+consistency like with timestamps always
+
+503
+00:47:32,359 --> 00:47:43,250
+表示很强的一致性，我是，是，我认为是
+imply a strong consistency I'm
+yes yes I think so
+
+504
+00:47:43,250 --> 00:47:48,290
+如果强一致性，强一致性通常是人们的意思是
+if strong consistency strong consistency
+usually what people mean by that is
+
+505
+00:47:48,290 --> 00:47:53,590
+我相信线性化能力和
+linearise ability and I believe the
+definition of linearise ability and
+
+506
+00:47:53,590 --> 00:48:01,070
+外部一致性是相同的，所以我会说是，另一个问题是
+external consistency are the same so I
+would say yes and another question how
+
+507
+00:48:01,070 --> 00:48:05,930
+这不是绝对会炸毁存储空间吗，这是一个很好的问题和答案
+does this not absolutely blow up storage
+that is a great question and the answer
+
+508
+00:48:05,930 --> 00:48:12,050
+肯定会炸毁存储空间，原因是现在的存储空间
+is it definitely blows up storage and
+the reason is that now the storage
+
+509
+00:48:12,050 --> 00:48:17,840
+系统必须保留多个副本数据记录，这些记录最近已被修改
+system has to keep multiple copies data
+records that have been recently modified
+
+510
+00:48:17,840 --> 00:48:23,660
+多次，这肯定是在成本和存储上都付出了代价
+multiple times and that's definitely
+expense both both this cost and storage
+
+511
+00:48:23,660 --> 00:48:28,370
+和内存中磁盘上的空间，也就像增加了一层
+and space on the disk in the memory and
+also it's just like an added layer of
+
+512
+00:48:28,370 --> 00:48:34,540
+您现在知道的簿记查找必须考虑时间戳和密钥
+bookkeeping you know now lookups have to
+consider the timestamps as well as keys
+
+513
+00:48:34,630 --> 00:48:41,990
+我认为存储费用并没有那么高，因为系统
+the storage expense I think is not as
+great as it could be because the system
+
+514
+00:48:41,990 --> 00:48:49,000
+丢弃旧记录，即纸张未说明政策是什么，但大概
+discards old records that paper does not
+say what the policy is but presumably
+
+515
+00:48:49,000 --> 00:48:53,480
+好吧，如果唯一的原因是一定要丢弃旧记录
+well it must be discarding old records
+certainly if the only reason for the
+
+516
+00:48:53,480 --> 00:48:57,680
+多个记录是实现这些类型的快照隔离
+multiple records is to implement
+snapshot isolation of these kinds of
+
+517
+00:48:57,680 --> 00:49:02,980
+交易，那么您真的不需要记住过去的价值
+transactions then you don't really need
+to remember values too far in the past
+
+518
+00:49:02,980 --> 00:49:08,920
+因为您只需要记住可以追溯到
+because you only need to remember values
+back to the sort of earliest time that a
+
+519
+00:49:08,920 --> 00:49:13,760
+交易本来可以开始的，现在仍在运行，如果您的
+that a transaction could have started at
+that's still running now and if your
+
+520
+00:49:13,760 --> 00:49:18,080
+大多数情况下，交易总是可以完成，或者通过杀死交易来强制完成，或者
+transactions mostly you're always finish
+or force the finish by killing them or
+
+521
+00:49:18,080 --> 00:49:22,400
+一分钟之内的事情，如果没有交易会花费超过一分钟的时间
+something within say one minute if no
+transaction can take longer than a
+
+522
+00:49:22,400 --> 00:49:26,930
+分钟，那么您只需要记住版本中的最后一分钟
+minute then you only have to remember
+the last minute of versions in the
+
+523
+00:49:26,930 --> 00:49:30,810
+实际上，该数据库现在暗示着它们
+database now in fact the paper implies
+that they
+
+524
+00:49:30,810 --> 00:49:36,570
+第二天比那晚，因为他们似乎有意支持
+day two farther back than that because
+it appears they support intentionally
+
+525
+00:49:36,570 --> 00:49:42,870
+支持这些快照读取，使它们能够支持看到您的想法
+support these snapshot reads which allow
+them to support the notion of seeing you
+
+526
+00:49:42,870 --> 00:49:46,590
+知道前一段时间的数据，您知道昨天或其他什么，但他们不知道
+know data from a while ago you know
+yesterday or something but they don't
+
+527
+00:49:46,590 --> 00:49:52,380
+说，但是垃圾收集策略是针对旧值的，所以我不知道
+say but but the garbage collection
+policy is for old values so I don't know
+
+528
+00:49:52,380 --> 00:50:02,400
+对他们来说会很昂贵，好吧，所以冰的理由
+how expensive it would be for them okay
+okay so the the justification for ice
+
+529
+00:50:02,400 --> 00:50:06,900
+合法的是，在外部一致性方面，唯一的规则是外部
+legal is that in external consistency
+that the only rule that external
+
+530
+00:50:06,900 --> 00:50:11,220
+一致性表明，如果一项交易已完成，则
+consistency imposes is that if one
+transaction has completed then a
+
+531
+00:50:11,220 --> 00:50:16,740
+在必须看到其权利之后开始的事务，因此t1可能已完成
+transaction that starts after it must
+see its rights so t1 may be t1 completed
+
+532
+00:50:16,740 --> 00:50:23,040
+假设t1在此时完成，而t3可能在之后才开始
+let's say that t1 completed at this time
+and t3 started just after it may be
+
+533
+00:50:23,040 --> 00:50:28,170
+外部一致性，但要求t3看到关键的权利，但由于c2 
+external consistency but demand that t3
+sees key ones rights but since c2
+
+534
+00:50:28,170 --> 00:50:32,400
+绝对没有在t3开始之前完成，我们没有义务
+definitely didn't finish before t3
+started we have no obligation under
+
+535
+00:50:32,400 --> 00:50:38,190
+外部一致性43看教师权利
+external consistency forty-three to see
+teachers rights and indeed in this
+
+536
+00:50:38,190 --> 00:50:46,050
+例如，事实并非如此，这实际上是合法的，好吧，另一个问题来了
+example it does not so it's actually
+legal um okay another problem that comes
+
+537
+00:50:46,050 --> 00:50:52,860
+从某种意义上说，事务T 3需要读取数据
+up is that the transaction T 3 is needs
+to read data as of a particular
+
+538
+00:50:52,860 --> 00:50:58,110
+时间戳记，但您知道为什么这样做很理想，因为它允许
+timestamp but you know the reason why
+this is desirable is that were it allows
+
+539
+00:50:58,110 --> 00:51:02,760
+我们从同一数据中心的本地副本读取数据，但也许
+us to read from the local replicas in
+the same data center but maybe that
+
+540
+00:51:02,760 --> 00:51:08,970
+本地复制品是很少看到的paxos追随者
+local replica is in the minority of
+paxos followers that didn't see the
+
+541
+00:51:08,970 --> 00:51:13,710
+最新的日志记录了领导者，所以也许我们的本地副本可能永远都不会
+latest log records the leader so maybe
+our local replicas maybe it's never even
+
+542
+00:51:13,710 --> 00:51:19,950
+看到您知道从未见过对X＆Y的这些权利，但它仍然是一个版本
+seen you know never saw these rights to
+X&Y at all it's still back at a version
+
+543
+00:51:19,950 --> 00:51:25,710
+从松树上，你知道五六个或七个，所以如果我们不做一些聪明的事情
+from pine you know five or six or seven
+and so if we don't do something clever
+
+544
+00:51:25,710 --> 00:51:31,820
+当我们要求获得最高版本记录时，您所了解的不到
+when we ask for the sort of highest
+version record you know less than
+
+545
+00:51:31,820 --> 00:51:36,990
+时间戳15我们可能会得到一些实际上不是您的旧版本
+timestamp 15 we may get some much older
+version that's not actually the you
+
+546
+00:51:36,990 --> 00:51:41,540
+由交易一产生，需要查看
+produced by transaction one which were
+required to see
+
+547
+00:51:41,950 --> 00:51:52,070
+所以他的扳手处理这个问题的方式是我们的安全时间观念
+so the way he spanner deals with this is
+with our notion of safe time and the
+
+548
+00:51:52,070 --> 00:51:58,310
+独家新闻是每个副本都记得您知道它正在从其副本中获取日志记录
+scoop is that each replica remembers you
+know it's getting log records from its
+
+549
+00:51:58,310 --> 00:52:03,980
+税务负责人和日志记录表明，文件安排得如此
+taxes leader and the log records it
+turns out that the paper arranges so
+
+550
+00:52:03,980 --> 00:52:07,340
+领导发送日志记录并严格增加时间戳顺序
+that the leader sends out log records
+and strictly increasing timestamp order
+
+551
+00:52:07,340 --> 00:52:12,770
+因此副本可以查看从其领导者获得的最后一个日志记录
+so a replica can look at the very last
+log record it's gotten from its leader
+
+552
+00:52:12,770 --> 00:52:20,650
+知道它是如何更新的，如果我要求从时间戳15开始的值，但是
+to know how up to dated it so if I ask
+for a value as of timestamp 15 but the
+
+553
+00:52:20,650 --> 00:52:26,000
+副本仅从我的pax处获得日志条目是领导者几次邮票13 
+replica has only gotten log entries from
+my pax was leader a few times stamp 13
+
+554
+00:52:26,000 --> 00:52:31,190
+副本会使我们延迟，直到得到日志，它才回答
+the replicas gonna make us delay it's
+not gonna answer until it's gotten a log
+
+555
+00:52:31,190 --> 00:52:36,980
+记录带领导者的时间戳记15，这可确保副本
+record with time stamped 15 from the
+leader and this ensures that replicas
+
+556
+00:52:36,980 --> 00:52:41,000
+在确定给定时间戳之前，不要回答请求
+don't answer a request for a given
+timestamp until they're guaranteed to
+
+557
+00:52:41,000 --> 00:52:45,440
+直到那个时间戳都知道领导者的一切，所以这可能
+know everything from the leader up
+through that time stamp so this may
+
+558
+00:52:45,440 --> 00:52:55,000
+延迟这可能会延迟读取
+delay this may delay the reads okay
+
+559
+00:52:58,410 --> 00:53:03,450
+所以我一直假设的下一个问题是在本次讨论中
+so the next question I've been assuming
+I assumed in this discussion that the
+
+560
+00:53:03,450 --> 00:53:07,470
+时钟和所有不同的服务器完全同步，因此每个人的
+clocks and all the different servers are
+perfectly synchronized so everybody's
+
+561
+00:53:07,470 --> 00:53:15,150
+时钟说您完全知道1001和30秒，但是它变成
+clock says you know 1001 and 30 seconds
+at exactly the same time but it turns
+
+562
+00:53:15,150 --> 00:53:27,750
+导致您无法同步恰恰是您的时钟
+out that you can't synchronize clocks
+that precisely you it's basically
+
+563
+00:53:27,750 --> 00:53:35,099
+无法获得完全同步的时钟，原因是合理的
+impossible to get perfectly synchronized
+clocks and the reasons are reasonably
+
+564
+00:53:35,099 --> 00:53:41,700
+基本，所以主题是时间同步
+fundamental so the topic is time
+synchronization which is sort of making
+
+565
+00:53:41,700 --> 00:53:50,150
+确保时钟说出相同的实时值，不同的时钟读出相同的值
+sure clocks say the same real time value
+different clocks read the same value the
+
+566
+00:53:53,990 --> 00:53:59,160
+我会说基本的问题是时间定义为
+I'll tell the sort of fundamental
+problem is that time is defined as
+
+567
+00:53:59,160 --> 00:54:04,589
+基本上，它说的时间是关于一组高度准确的昂贵物品的
+basically the time it says on a
+collection of highly accurate expensive
+
+568
+00:54:04,589 --> 00:54:07,859
+在一组政府实验室中进行计时，因此我们无法直接阅读
+clocks in a set of government
+laboratories so we can't directly read
+
+569
+00:54:07,859 --> 00:54:12,420
+尽管我们知道这些政府实验室可以广播
+them although we can know is that these
+government laboratories can broadcast
+
+570
+00:54:12,420 --> 00:54:20,369
+时间以各种方式，广播需要时间，所以这是一些
+the time in various ways and the
+broadcast take time and so it's some
+
+571
+00:54:20,369 --> 00:54:24,809
+时间过后，可能是未知的时间过后，我们听到了有关
+time later some possibly unknown time
+later we hear these announcements of
+
+572
+00:54:24,809 --> 00:54:27,329
+您知道现在几点钟可能会在以下时间听到这些公告
+what the time it's own you know it may
+all hear these announcements at
+
+573
+00:54:27,329 --> 00:54:34,950
+由于延迟时间的不同，所以我实际上首先不想考虑
+different times due to varying delays so
+I actually first don't want to consider
+
+574
+00:54:34,950 --> 00:54:43,190
+如果没有时钟，如果对快照隔离有什么影响的问题
+the problem of what the impact is if on
+snapshot isolation if the clocks are not
+
+575
+00:54:43,190 --> 00:54:49,130
+同步他们不会的
+synchronize which they won't be
+
+576
+00:54:52,960 --> 00:54:58,280
+好吧，如果时钟不存在怎么办？ 
+okay so what if the clocks are
+there's actually no problem at all for
+
+577
+00:54:58,280 --> 00:55:02,180
+扳手进行读写事务，因为使用了读写事务
+the spanners readwrite transactions
+because the readwrite transactions used
+
+578
+00:55:02,180 --> 00:55:05,990
+锁和两阶段提交，它们实际上并没有使用解决方案中的快照
+locks and two-phase commit they're not
+actually using snaps out of a solution
+
+579
+00:55:05,990 --> 00:55:09,290
+所以他们不在乎，因此读写事务仍将通过
+so they don't care so the readwrite
+transactions will still be serialized by
+
+580
+00:55:09,290 --> 00:55:14,030
+锁定两阶段锁定机制，所以我们只对发生的事情感兴趣
+the lock the two-phase locking mechanism
+so we're only interested in what happens
+
+581
+00:55:14,030 --> 00:55:22,180
+对于RF或只读事务，让我们假设一个只读事务
+for an RF or read-only transaction so
+let's suppose a read-only transaction
+
+582
+00:55:22,690 --> 00:55:29,480
+选择一个太大的时间戳，以至于在不久的将来
+chooses a timestamp that is too large so
+that is far in the future you know it's
+
+583
+00:55:29,480 --> 00:55:39,560
+现在是12:01 pm，并且它选择的时间戳记是下午1点C，因此如果
+now 12:01 p.m. and it chooses a
+timestamp at C 1 o'clock p.m. so if a
+
+584
+00:55:39,560 --> 00:55:46,340
+选择的时间戳记过大的事务实际上并不差劲
+transactions chosen timestamps too big
+that's actually not that bad what it'll
+
+585
+00:55:46,340 --> 00:55:50,440
+意思是它将执行读取请求，并将读取请求发送给某些
+mean is that it will do read requests
+it'll send a read request to some
+
+586
+00:55:50,440 --> 00:55:53,930
+副本会告诉您稍等片刻，您知道自己的时钟是
+replicas the replicas would say wait a
+minute you're you know your clock is
+
+587
+00:55:53,930 --> 00:55:58,850
+更进一步，您的提示音似乎比我上一个日志条目大得多
+Farrer it's far greater your chime seems
+far greater than the last log entry I
+
+588
+00:55:58,850 --> 00:56:03,050
+看到我的pax是领导者，所以我要让你等到PAX在
+saw for my pax was leader so I'm gonna
+make you wait until the PAX was at the
+
+589
+00:56:03,050 --> 00:56:05,990
+时间和日志条目，Paxos领导者赶上了您的时间
+time and the log entries and the Paxos
+leader catches up to the time you've
+
+590
+00:56:05,990 --> 00:56:11,810
+要求我只回答，所以这是正确的，但读者会很慢
+requested I'm only gonna respond then so
+this is correct but slow the reader will
+
+591
+00:56:11,810 --> 00:56:19,039
+被迫离开世界上不是最坏的情况，但是如果我们有
+be forced away that's not the worst
+in the world but what happens if we have
+
+592
+00:56:19,039 --> 00:56:27,109
+一个只读事务，它的时间戳太小，这将
+a read-only transaction and it's
+timestamp is too small and this would
+
+593
+00:56:27,109 --> 00:56:31,849
+对应于它的时钟少或设置错误，所以说
+correspond to its clock being less
+either set wrong so that it's said in
+
+594
+00:56:31,849 --> 00:56:36,140
+过去或者也许它最初设置正确，但是时钟的时钟在滴答作响
+the past or maybe it was originally set
+correctly but the clock its clock ticks
+
+595
+00:56:36,140 --> 00:56:41,359
+太慢了，这是一个明显引起正确性问题的问题
+too slowly the problem with this this is
+a obviously causes a correctness problem
+
+596
+00:56:41,359 --> 00:56:46,130
+这将导致违反外部一致性，因为多版本
+this will cause a violation of external
+consistency because the multi version
+
+597
+00:56:46,130 --> 00:56:50,089
+数据库，您会给它一个过去一个小时之前的时间戳
+databases you'll give it a timestamp
+that's far in the past say an hour ago
+
+598
+00:56:50,089 --> 00:56:55,400
+并且数据库将从中读取与之关联的时间戳记
+and the database will read you a value
+associated with it the timestamp from an
+
+599
+00:56:55,400 --> 00:57:01,460
+一小时前，可能会忽略最近的写入，因此使用分配时间戳记
+hour ago which may ignore more recent
+writes so using a assigning a timestamp
+
+600
+00:57:01,460 --> 00:57:05,989
+交易太小会导致您错过最近提交的交易
+to a transaction that's too small will
+cause you to miss recent committed
+
+601
+00:57:05,989 --> 00:57:21,029
+写，这是对外部一致性的侵犯，所以不是外部
+writes and that's a violation of
+external consistency so not externally
+
+602
+00:57:21,029 --> 00:57:26,249
+所以在这里我们实际上有一个问题，即时钟是
+so so we actually have a problem here
+the assumption that the clocks were
+
+603
+00:57:26,249 --> 00:57:31,439
+同步实际上是一个非常认真的假设，并且您不能
+synchronized is in fact a very serious
+assumption and the fact that you cannot
+
+604
+00:57:31,439 --> 00:57:35,339
+依靠它意味着除非我们做某事，否则系统将是
+count on it means that unless we do
+something the system is going to be
+
+605
+00:57:35,339 --> 00:57:46,529
+好的，这样我们可以完全同步时钟了吗
+incorrect all right so so can we
+synchronize clocks perfectly all right
+
+606
+00:57:46,529 --> 00:57:51,869
+那将是理想的事情，如果不是，那么为什么呢？ 
+that would be the ideal thing and if not
+why not so so what about clock
+
+607
+00:57:51,869 --> 00:58:01,409
+同步，正如我提到的那样，它实际上是
+synchronization the as I mentioned we're
+done come from this it's actually a
+
+608
+00:58:01,409 --> 00:58:06,859
+收集时钟和政府实验室的中位数
+collection of the kind of median of a
+collection of clocks and government labs
+
+609
+00:58:06,859 --> 00:58:11,880
+我们听到的时间是通过各种协议广播的
+the way that we hear about the time is
+that it's broadcast by various protocols
+
+610
+00:58:11,880 --> 00:58:16,469
+有时通过无线电协议，例如GPS基本上为扳手做什么
+sometimes by radio protocols like
+basically what GPS is doing for spanner
+
+611
+00:58:16,469 --> 00:58:22,259
+是GPS充当广播当前时间的无线电广播系统
+is a GPS acts as a radio broadcast
+system that broadcasts the current time
+
+612
+00:58:22,259 --> 00:58:27,689
+从一些政府实验室通过GPS卫星到坐在
+from some government lab through the GPS
+satellites to GPS receiver sitting in
+
+613
+00:58:27,689 --> 00:58:34,140
+ Google机房，还有许多其他无线电协议，例如WWB 
+the Google machine rooms and there's a
+number of other radio protocols like WWB
+
+614
+00:58:34,140 --> 00:58:39,409
+是另一个用于广播当前时间的较旧的无线电协议， 
+is another older radio protocol for
+broadcasting the current time and
+
+615
+00:58:39,409 --> 00:58:45,559
+有更新的协议，例如可以在
+there's newer protocols like there's
+this NTP protocol that operates over the
+
+616
+00:58:46,130 --> 00:58:51,299
+所以基本上也负责广播时间的互联网
+Internet that also is in charge of
+basically broadcasting time so the sort
+
+617
+00:58:51,299 --> 00:58:57,329
+系统图的一部分是，有一些政府实验室和政府实验室
+of system diagram is that there are some
+government labs and the government labs
+
+618
+00:58:57,329 --> 00:59:02,099
+精确的时钟定义了一种普遍的时间概念，即
+with their accurate clocks define a
+universal notion of time that's called
+
+619
+00:59:02,099 --> 00:59:09,329
+ UTC，所以我们有一些实验室的UTC来自某些时钟，那么我们就知道一些
+UTC so we've UTC coming from some clocks
+in some labs then we have some you know
+
+620
+00:59:09,329 --> 00:59:19,949
+无线电互联网广播或扳手的情况下，我们可以
+radio internet broadcast or something
+for the case of spanner it's the we can
+
+621
+00:59:19,949 --> 00:59:25,650
+想到政府允许向GPS卫星广播
+think of the government allowed to
+broadcasting to GPS satellites the
+
+622
+00:59:25,650 --> 00:59:31,469
+卫星依次广播，而广播公司您知道数百万个GPS 
+satellites in turn broadcast and the
+broadcaster you know the millions of GPS
+
+623
+00:59:31,469 --> 00:59:37,220
+那里的接收器，您可以购买一对夫妇的GPS接收器
+receivers that are out there
+you can buy GPS receivers for a couple
+
+624
+00:59:37,220 --> 00:59:44,240
+一百美元，它将解码GPS信号中的时间戳， 
+hundred bucks that will decode the
+timestamps in the in the GPS signals and
+
+625
+00:59:44,240 --> 00:59:49,510
+可以让您随时了解校正时间的最新信息
+sort of keep you up to date with exactly
+what the time is corrected for the
+
+626
+00:59:49,510 --> 00:59:53,570
+政府实验室与GPS卫星之间的传播延迟，以及
+propagation delay between the government
+labs and the GPS satellites and also
+
+627
+00:59:53,570 --> 00:59:59,020
+校正了您当前位置的GPS卫星之间的延迟，并且
+corrected for the delay between the GPS
+satellites in your current position and
+
+628
+00:59:59,020 --> 01:00:10,960
+然后每个数据中心都有一个GPS接收器，该接收器连接到
+then there's in each data center there's
+a GPS receiver that's connected up to
+
+629
+01:00:10,960 --> 01:00:16,880
+本文所说的时间主控器是一台服务器，将会有更多
+what the paper calls a time master which
+is some server there's going to be more
+
+630
+01:00:16,880 --> 01:00:21,440
+而不是数据中心中的一种，以防万一发生故障，然后
+than one of these for data center in
+case one fails and then there's all the
+
+631
+01:00:21,440 --> 01:00:24,350
+数据中心中数百个正在运行扳手的服务器
+hundreds of servers in the data center
+that are running spanner either as
+
+632
+01:00:24,350 --> 01:00:33,080
+服务器或作为客户端的每个服务器都将定期发送请求
+servers or as clients each one of them
+is going to periodically send a request
+
+633
+01:00:33,080 --> 01:00:37,850
+说到当地时间几点了，通常不止一件
+saying aw what time is it to the local
+one or more usually more than one piece
+
+634
+01:00:37,850 --> 01:00:43,100
+感觉到时间大师，时间大师会回复哦
+one feels to the time masters and the
+time master will reply with oh you know
+
+635
+01:00:43,100 --> 01:00:51,080
+我认为GPS的当前接收时间已经内置了
+I think the current time has received
+for GPS is such-and-such now built into
+
+636
+01:00:51,080 --> 01:00:59,270
+不幸的是，这是一定程度的不确定性和主要来源
+this unfortunately is a certain amount
+of uncertainty and the primary sources
+
+637
+01:00:59,270 --> 01:01:03,410
+我认为不确定性存在根本性的不确定性
+of uncertainty I think well there's
+there's fundamentally uncertainty in
+
+638
+01:01:03,410 --> 01:01:08,930
+我们实际上并不知道我们离GPS卫星有多远
+that we don't actually know how far we
+are from the GPS satellites exactly so
+
+639
+01:01:08,930 --> 01:01:12,560
+您知道即使GPS，无线电信号也要花费一些时间
+the you know radio signals take some
+amount of time even though the GPS
+
+640
+01:01:12,560 --> 01:01:15,620
+卫星确切知道现在是几点，这些信号需要一些时间才能到达
+satellite knew exactly what time it is
+those signals take some time to get to
+
+641
+01:01:15,620 --> 01:01:19,730
+我们的GPS接收器我们不确定这是什么意思
+our GPS receiver we're not sure what
+that is that means that when the Jeep we
+
+642
+01:01:19,730 --> 01:01:25,250
+从GPS卫星的无线电消息中获取一条消息，说正好12 
+get a message from the radio message
+from the GPS satellite saying exactly 12
+
+643
+01:01:25,250 --> 01:01:28,190
+你知道传播延迟是否可能
+o'clock
+you know if the propagation delay might
+
+644
+01:01:28,190 --> 01:01:32,710
+一直以来，您都知道几纳秒的时间，这意味着
+have been you know a couple of
+nanoseconds that mean that's there were
+
+645
+01:01:32,710 --> 01:01:35,960
+实际上，传播延迟比实际不确定性要大得多
+actually the propagation delays much
+more than that it's really uncertainty
+
+646
+01:01:35,960 --> 01:01:40,370
+传播延迟意味着我们并不确定
+in the propagation delay means that
+we're not really sure exactly whether
+
+647
+01:01:40,370 --> 01:01:44,810
+总是12点钟或一点点之后
+it's 12 o'clock or a little before a
+little after in addition all the times
+
+648
+01:01:44,810 --> 01:01:49,400
+在沟通时，您不确定是否需要考虑
+at time is communicated there's
+did uncertainty that you have to account
+
+649
+01:01:49,400 --> 01:01:54,380
+的最大来源是，当服务器在
+for and the biggest sources are that
+when a server sends requests after a
+
+650
+01:01:54,380 --> 01:02:01,850
+如果响应说是恰好是12点，那么它会得到响应，但是
+while it gets a response if the response
+says it's exactly 12 o'clock but the
+
+651
+01:02:01,850 --> 01:02:06,470
+数量，但是说第二遍，您知道服务器发送请求之间的间隔
+amount but um say a second pass you know
+between when the server sent the request
+
+652
+01:02:06,470 --> 01:02:11,120
+当我得到响应时，所有服务器都知道即使主服务器
+and when I got the response all the
+server knows is that even if the master
+
+653
+01:02:11,120 --> 01:02:18,140
+服务器知道的正确时间是该时间在
+had the correct time all the server
+knows is that the time is within a
+
+654
+01:02:18,140 --> 01:02:24,500
+ 12点的第二点，因为也许这可能是即时请求，但是
+second of 12 o'clock because maybe that
+may be the request was instant but the
+
+655
+01:02:24,500 --> 01:02:30,170
+回复被延迟，或者请求被延迟了一秒钟，响应
+reply was delayed or maybe the request
+was delayed by a second and the response
+
+656
+01:02:30,170 --> 01:02:34,400
+那是事件，所以您真正知道的是它在您知道的12点之间
+was the incident so all you really know
+is that it's between you know 12 o'clock
+
+657
+01:02:34,400 --> 01:02:45,590
+零秒十二点和一秒钟还可以，所以总有这样
+and zero seconds and twelve o'clock and
+one second okay so there's always this
+
+658
+01:02:45,590 --> 01:02:50,960
+不确定性以及我们真正不能忽略的原因，因为
+uncertainty and in order to which we
+really can't ignore though because the
+
+659
+01:02:50,960 --> 01:02:55,400
+我们在这里谈论毫秒的不确定性，我们会发现
+uncertainties we're talking about
+milliseconds here and we're gonna find
+
+660
+01:02:55,400 --> 01:03:00,170
+这些不确定性和时间直接关系到这些如何
+out that these that the uncertainty and
+the time goes directly to the these how
+
+661
+01:03:00,170 --> 01:03:03,590
+这些安全的等待时间必须是多长，其他一些停顿时间必须是多长时间
+long these safe waits have to be and how
+long some other pauses have to be the
+
+662
+01:03:03,590 --> 01:03:10,010
+提交等待，我们将看到，因此您知道毫秒级别的不确定性
+commit wait as we'll see so you know
+uncertainty in the level of milliseconds
+
+663
+01:03:10,010 --> 01:03:13,130
+是一个严重的问题，另一个很大的不确定性是
+is a serious problem the other big
+uncertainty is that each of these
+
+664
+01:03:13,130 --> 01:03:16,640
+服务器每隔一段时间仅向主服务器请求当前时间
+servers only request the current time
+from the master every once in a while
+
+665
+01:03:16,640 --> 01:03:22,730
+说每分钟或每隔一分钟，在每台服务器之间运行
+say every minute or however often and
+between that the each server runs its
+
+666
+01:03:22,730 --> 01:03:26,990
+自己的本地时钟，使时间从上次的最后一个时间开始
+own local clock that sort of keeps the
+time starting with the last time from
+
+667
+01:03:26,990 --> 01:03:32,150
+师父，那些本地时钟实际上是非常糟糕的，并且可能会漂移
+the master those local clocks are
+actually pretty bad and can drift by
+
+668
+01:03:32,150 --> 01:03:36,220
+服务器与主服务器对话的时间之间的毫秒数
+things by milliseconds between times
+that the server talks to the master and
+
+669
+01:03:36,220 --> 01:03:44,120
+因此系统必须添加未知但估计的局部漂移
+so the system has to sort of add the
+unknown but estimated drift of the local
+
+670
+01:03:44,120 --> 01:03:50,810
+把握时间的不确定性，所以我要捕捉这种不确定性
+clock to the uncertainty of the time so
+I'm in order to capture this uncertainty
+
+671
+01:03:50,810 --> 01:03:54,760
+并解决它
+and account for it
+
+672
+01:03:55,719 --> 01:04:01,849
+扳手使用这种实时计划，在这种情况下，当您问几点到几点
+spanner uses this true time scheme in
+which when you ask what time it is what
+
+673
+01:04:01,849 --> 01:04:12,440
+您实际上是作为这些TT间隔事件之一返回的， 
+you actually get back as one of these TT
+interval things which is a pair of an
+
+674
+01:04:12,440 --> 01:04:21,589
+最早的时间和最近的最早的时​​间是他们的时间越早越早
+earliest time and a latest earliest time
+is their early early as the time could
+
+675
+01:04:21,589 --> 01:04:27,710
+可能是第二个是最近的时间，当
+possibly be and the second is the latest
+the time can possibly be so when the
+
+676
+01:04:27,710 --> 01:04:32,599
+您知道的应用程序会进行此库调用，并要求获取时间
+application you know makes this library
+call that asked for the time it gets
+
+677
+01:04:32,599 --> 01:04:35,719
+返回该付款人，它所知道的是当前时间介于
+back this payer all it knows is that the
+current time is somewhere between
+
+678
+01:04:35,719 --> 01:04:39,920
+在这种情况下，最早和最新的信息可能就是最早的
+earliest and latest that's what you know
+earliest might be in this case earliest
+
+679
+01:04:39,920 --> 01:04:42,950
+可能是十二点钟，可能是一秒钟十二点钟
+might be twelve o'clock and may this
+might be twelve o'clock in one second
+
+680
+01:04:42,950 --> 01:04:48,859
+只是我们保证正确的时间不少于
+just just our guarantee that the that
+the correct time isn't less than
+
+681
+01:04:48,859 --> 01:04:53,210
+最早，并且不比最新大，我们不知道之间
+earliest and isn't greater than latest
+what we don't know where between
+
+682
+01:04:53,210 --> 01:05:01,160
+否则还可以，所以这就是交易时
+otherwise okay
+so this is what uh when a transaction
+
+683
+01:05:01,160 --> 01:05:05,150
+问系统现在是什么时间，这就是实际的交易
+asks the system what time it is this is
+this is what the transaction actually
+
+684
+01:05:05,150 --> 01:05:11,049
+从时间系统回到现在
+gets back from the time system and now
+
+685
+01:05:11,440 --> 01:05:17,859
+让我们回到最初的问题是，如果时钟太慢， 
+let's return to our original problem was
+that if the clock was too slow that a
+
+686
+01:05:17,859 --> 01:05:23,210
+只读事务可能会读取过去的数据太远而不会
+read-only transaction might read data
+too far in the past and that it wouldn't
+
+687
+01:05:23,210 --> 01:05:27,529
+从最近提交的事务中读取数据，所以我们需要知道什么
+read data from a recent committed
+transaction so we need to know what
+
+688
+01:05:27,529 --> 01:05:32,089
+我们正在寻找的是扳手如何在其真实概念中使用这些TT间隔
+we're looking for is how spanner uses
+these TT intervals in its notion of true
+
+689
+01:05:32,089 --> 01:05:36,650
+时间，以确保尽管不确定什么时间
+time in order to ensure that despite
+uncertainty in what time it is
+
+690
+01:05:36,650 --> 01:05:42,200
+事务外部一致性是只读事务，它是
+transaction a external consistency that
+is a read-only transaction it's
+
+691
+01:05:42,200 --> 01:05:47,479
+保证看到由交易利率交易完成的写操作
+guaranteed to see writes done by a
+transaction rate transaction that
+
+692
+01:05:47,479 --> 01:05:55,130
+在我们面前已经完成，并且论文谈到了两个规则
+completed before us and there are two
+rules that the paper talks about that
+
+693
+01:05:55,130 --> 01:06:04,249
+合谋执行此规则以及第4-1节中的两条规则-其中一项
+conspire to enforce this and the two
+rules which are in section 4-1 - one of
+
+694
+01:06:04,249 --> 01:06:07,059
+这是开始规则
+them is the start rule
+
+695
+01:06:07,380 --> 01:06:14,100
+另一个是提交等待
+and the other is commit wait
+
+696
+01:06:16,940 --> 01:06:23,060
+此注释规则告诉我们实际上是什么时间戳训练什么时间戳
+this note rule tells us what time stamps
+trains actually what time stamps
+
+697
+01:06:23,060 --> 01:06:29,780
+交易选择，基本上说交易时间戳必须是
+transactions choose and basically says
+that a transactions timestamp has to be
+
+698
+01:06:29,780 --> 01:06:38,870
+等于当前时间的最新时间的一半，所以现在是TT 
+equal to the latest half of the true
+time current time so this is T T now
+
+699
+01:06:38,870 --> 01:06:43,460
+调用返回最早的最新对之一，即当前时间和
+call which returns one of those earliest
+latest pairs that's the current time and
+
+700
+01:06:43,460 --> 01:06:48,410
+交易时间戳必须是最新的，这将是
+that transactions timestamp has to be
+the latest that is it's going to be a
+
+701
+01:06:48,410 --> 01:06:52,190
+保证还没有发生的时间，因为真正的时间是
+time that's guaranteed not to have
+happened yet because the true time is
+
+702
+01:06:52,190 --> 01:06:59,840
+在最早和最新之间，对于只读事务，这是一个标志
+between earliest and latest and for a
+read-only transaction it's a sign the
+
+703
+01:06:59,840 --> 01:07:06,560
+截至其开始并进行读或写事务的最晚时间为
+latest time as of its the time it starts
+and for a read or write transaction is
+
+704
+01:07:06,560 --> 01:07:14,020
+在开始提交时为其分配一个最新的时间戳
+to assign a timestamp this latest value
+as of the time it starts to commit
+
+705
+01:07:16,180 --> 01:07:21,109
+好的，所以开始规则说这是扳手选择提交时间戳的方式
+okay so the start rule says this is how
+spanner chooses time stamps the commit
+
+706
+01:07:21,109 --> 01:07:31,780
+仅适用于读写事务的权重规则表示，当
+weight rule only for readwrite
+transactions says that when a
+
+707
+01:07:31,780 --> 01:07:36,410
+交易协调员，您知道收集票并看到
+transaction coordinator is you know
+collects the votes and sees that it's
+
+708
+01:07:36,410 --> 01:07:41,420
+能够提交并在选择此时间戳后选择时间戳
+able to commit and and chooses a time
+stamp after it chooses this time stamp
+
+709
+01:07:41,420 --> 01:07:45,980
+它需要延迟等待一定的时间，直到我不得不
+it's required to delay to wait a certain
+amount of time before til I have to
+
+710
+01:07:45,980 --> 01:07:52,060
+实际提交并写入值并释放锁，以便进行读写事务
+actually commit and write the values and
+release locks so a readwrite transaction
+
+711
+01:07:52,060 --> 01:08:00,560
+必须延迟到开始思考时选择的时间戳记
+has to delay until it's time stamps that
+it chose when it was starting to think
+
+712
+01:08:00,560 --> 01:08:11,430
+关于提交的时间最早小于当前时间
+about commit is less than the current
+time the earliest
+
+713
+01:08:11,430 --> 01:08:14,960
+抱歉，这是怎么回事
+sorry
+so what's going on here is the
+
+714
+01:08:14,960 --> 01:08:20,000
+现在坐在调用TS的循环中，并且一直停留到该循环中，直到时间戳记
+sits in a loop calling TS now and it
+stays in that loop until the timestamp
+
+715
+01:08:20,000 --> 01:08:23,240
+它在提交过程开始时选择的值小于
+that it had chosen at the beginning of
+the commit process is less than the
+
+716
+01:08:23,240 --> 01:08:30,770
+当前时间最早的一半，这保证了从现在开始
+current times earliest half and what
+this guarantees is that since now the
+
+717
+01:08:30,770 --> 01:08:36,290
+最早的正确时间大于交易时间戳
+earliest possible correct time is
+greater than the transactions timestamp
+
+718
+01:08:36,290 --> 01:08:39,859
+这意味着当提交等待为
+that means that when this loop is
+finished when the commit wait is
+
+719
+01:08:39,859 --> 01:08:43,579
+绝对保证交易完成此时间戳
+
+720
+01:08:43,580 --> 01:08:52,220
+过去可以，那么系统实际上如何利用这两个
+be in the past okay so how does the
+system actually make use of these two
+
+721
+01:08:52,220 --> 01:09:02,510
+规则以对只读事务强制实施外部一致性
+rules in order to enforce external
+consistency for read-only transactions I
+
+722
+01:09:02,510 --> 01:09:14,210
+想回到我们这里，或者我想在
+want to go back to our or I want to cook
+up a someone simplified scenario in
+
+723
+01:09:14,210 --> 01:09:18,740
+为了说明这一点，我将想象写作交易
+order to illustrate this so I'm gonna
+imagine that the writing transactions
+
+724
+01:09:18,740 --> 01:09:24,340
+每次只写一次只是降低复杂性，我们说有两个
+only do one write each just reduce the
+complexity let's say that there's two
+
+725
+01:09:24,340 --> 01:09:32,240
+读/写事务，所以我们有t0和t1是读/写事务， 
+read/write transactions so we have t0
+and t1 are read/write transactions and
+
+726
+01:09:32,240 --> 01:09:37,609
+他们都写X，我们有一个t2来读X，我们想
+they both write X and we have a t2 which
+is going to read X and we want to make
+
+727
+01:09:37,609 --> 01:09:42,379
+确保t2看到您知道它将在时间戳上使用快照隔离
+
+728
+01:09:42,380 --> 01:09:48,800
+想确保看到最新的书面价值，所以我们要想象
+want to make sure that sees the latest
+written value so we're going to imagine
+
+729
+01:09:48,800 --> 01:09:56,150
+ t2写X并向X写一个，然后提交我们将要执行的操作
+that t2 does a write of X and writes one
+to X and then commits we're going to
+
+730
+01:09:56,150 --> 01:10:00,830
+想象一下，对不起，t1做爱，也来t2 
+imagine that
+sorry t1 write sex and come at t2 also
+
+731
+01:10:00,830 --> 01:10:07,550
+写X向X写一个值2，我们需要区分可以准备
+writes X writes a value 2 to X and we
+need to distinguish between can prepare
+
+732
+01:10:07,550 --> 01:10:11,330
+并提交，所以我们要说这真的是交易的准备
+and commit so we're going to say it it's
+really a prepare that the transaction
+
+733
+01:10:11,330 --> 01:10:16,310
+选择其时间戳，因此这是选择时间戳的点， 
+chooses its timestamps so this is a
+point at which it chooses timestamp and
+
+734
+01:10:16,310 --> 01:10:21,620
+它在一段时间后提交，然后我们假设t2 
+it commits some time later and then
+we're imagining by assumption that t2
+
+735
+01:10:21,620 --> 01:10:27,700
+在t1完成后开始，因此它将读取X 
+starts after t1 finishes so it's going
+to read X
+
+736
+01:10:27,770 --> 01:10:34,760
+之后，我们要确保它可以看到-好的，让我们假设
+afterwards and we want to make sure it
+sees - all right so let's suppose that
+
+737
+01:10:34,760 --> 01:10:46,280
+ t0选择一个提交的时间戳记写数据库，假设t1开始
+t0 chooses a time stamp of one commits
+writes the database let's say t1 starts
+
+738
+01:10:46,280 --> 01:10:51,120
+在选择时间戳时，它会得到一些它不会得到一个
+at the time it chooses a time stamp it's
+gonna get some it's not get a single
+
+739
+01:10:51,120 --> 01:10:57,900
+真实时间系统中的数字确实得到了一系列您知道的数字
+number from the true time system really
+gets a range of numbers you know
+
+740
+01:10:57,900 --> 01:11:04,700
+最早和最新的价值，比如说在选择时间戳记时
+earliest and a latest value let's say at
+the time it chooses its time stamp it
+
+741
+01:11:04,700 --> 01:11:12,270
+最早获得的值的范围是1，而
+the range of values that earliest time
+it gets is 1 and the latest field in the
+
+742
+01:11:12,270 --> 01:11:20,340
+当前时间是10，所以规则说它必须选择10作为最新值
+current time is 10 so the rule says that
+it must choose 10 the latest value as
+
+743
+01:11:20,340 --> 01:11:24,920
+它的时间戳记，因此t1将与时间步10一起提交
+its time stamp so t1 is gonna commit
+with its time step 10
+
+744
+01:11:24,920 --> 01:11:29,520
+现在您还不能提交，因为提交权重规则表示必须等待
+now you can't commit yet because the
+commit weight rule says it has to wait
+
+745
+01:11:29,520 --> 01:11:35,610
+直到确定时间戳是过去的时间，这样事务1才能进行
+until it's time stamp is guaranteed to
+be in the past so transaction 1 is going
+
+746
+01:11:35,610 --> 01:11:37,980
+坐在那里继续问现在几点了
+to sit there keep asking what time is it
+what time is it
+
+747
+01:11:37,980 --> 01:11:45,590
+直到它返回的间隔不包括时间10，所以在某个时候
+until it gets an interval back that
+doesn't include time 10 so at some point
+
+748
+01:11:45,590 --> 01:11:49,710
+会问现在几点了，我们会最早
+it's gonna ask what time it is is gonna
+get a time that we're the earliest
+
+749
+01:11:49,710 --> 01:11:54,240
+价值观是11，精英是我不知道，比如说20，现在我要说AHA 
+values 11 and elitist is I don't know
+let's say 20 and now I was gonna say AHA
+
+750
+01:11:54,240 --> 01:11:57,750
+现在我知道我的时间Sam一定会过去，我可以
+now I know that my time Sam it's
+guaranteed to be in the past and I can
+
+751
+01:11:57,750 --> 01:12:03,930
+提交，所以t1实际上是它的提交等待时间，坐在那里等待
+commit so t1 will actually this is its
+commit wait period to sit there and wait
+
+752
+01:12:03,930 --> 01:12:10,560
+提交事务之前需要一段时间，现在提交事务之后会出现两次
+for a while before it commits okay now
+after it commits transaction two comes
+
+753
+01:12:10,560 --> 01:12:16,710
+沿着怪物B Dex会选择一个时间戳，我们也假设它是
+along a monster B Dex it's gonna choose
+a time stamp also we're assuming that it
+
+754
+01:12:16,710 --> 01:12:21,390
+在t1完成后开始，因为这是外部的有趣场景
+starts after t1 finishes because that's
+the interesting scenario for external
+
+755
+01:12:21,390 --> 01:12:28,500
+一致性，所以让我们说它何时要求时间
+consistency so let's say when it asks
+for the time it asks at a time after
+
+756
+01:12:28,500 --> 01:12:34,000
+时间11，所以它将返回一个包含时间11的间隔
+time 11 so it's going to get back an
+interval that includes time 11
+
+757
+01:12:34,000 --> 01:12:39,490
+因此，让我们假设它从十点开始又恢复了一点
+so let's suppose it gets back in a
+little bit goes from time ten this is
+
+758
+01:12:39,490 --> 01:12:45,160
+最早的时间是十二点，最晚的时间是十二点
+the earliest and time twelve the latest
+and of course the time twelve has to be
+
+759
+01:12:45,160 --> 01:12:50,680
+因为我们知道交易第二个开始之后至少必须是11点
+since we know that must be at least time
+11 since transaction two started after
+
+760
+01:12:50,680 --> 01:12:55,900
+交易一完成，这意味着第11个必须小于最新的
+transaction one finished that means that
+the 11th must be less than the latest
+
+761
+01:12:55,900 --> 01:13:02,950
+价值交易2将选择最新的1/2作为其时间戳，因此
+value transaction 2 is going to choose
+this latest 1/2 as its timestamp so it's
+
+762
+01:13:02,950 --> 01:13:12,670
+会实际选择时间戳记12，在本示例中，当它进行读取时
+gonna actually choose timestamp 12 and
+in this example when it does its read
+
+763
+01:13:12,670 --> 01:13:18,430
+它要问存储系统哦，我想从时间戳12开始阅读
+it's gonna ask the storage system oh I
+want to read as of timestamp 12 since
+
+764
+01:13:18,430 --> 01:13:22,090
+事务1以时间戳10编写，这意味着您知道
+transaction 1 wrote with timestamp 10
+that means that you know assuming the
+
+765
+01:13:22,090 --> 01:13:27,160
+安全等待安全时间机制工作，我们实际上会读正确的
+safe wait the safe time machinery works
+we're actually gonna read the correct
+
+766
+01:13:27,160 --> 01:13:32,730
+价值，这里发生的是
+value and what's going on here is that
+
+767
+01:13:33,060 --> 01:13:39,580
+所以这碰巧解决了，但确实可以保证
+the so this happened to work out but
+indeed it's guaranteed to work out if
+
+768
+01:13:39,580 --> 01:13:43,720
+只要事务1提交后事务2开始，事务2 
+transaction 2 as long as transaction 2
+starts after transaction 1 commits and
+
+769
+01:13:43,720 --> 01:13:49,810
+原因是提交权重导致事务1无法完成提交
+the reason is that commit weight causes
+transaction 1 not to finish committing
+
+770
+01:13:49,810 --> 01:13:53,050
+直到确定其时间戳记已过去
+until its timestamp is guaranteed to be
+in the past
+
+771
+01:13:53,050 --> 01:13:59,640
+好的，因此事务1选择时间戳，可以保证提交
+all right so transaction 1 chooses a
+timestamp it's guaranteed to commit
+
+772
+01:13:59,640 --> 01:14:10,840
+在该时间戳记事务2之后，在提交它之后开始，所以我们
+after that timestamp transaction 2
+starts after the commit it and so we
+
+773
+01:14:10,840 --> 01:14:14,170
+对其最早的价值一无所知，但最新
+don't know anything about what its
+earliest value will be but its latest
+
+774
+01:14:14,170 --> 01:14:17,710
+值肯定会在当前时间之后，但是我们知道
+value is guaranteed to be after the
+current time but we know that the
+
+775
+01:14:17,710 --> 01:14:23,080
+当前时间是在T 1的提交时间之后，因此可以传授最新信息
+current time is after the commit time of
+T 1 and therefore that teaches latest
+
+776
+01:14:23,080 --> 01:14:29,680
+值选择的时间戳保证在C提交之后
+value the timestamp it chooses is
+guaranteed to be after when C committed
+
+777
+01:14:29,680 --> 01:14:37,870
+因此，在C使用的时间戳之后，因为事务2如果
+and therefore after the timestamp that C
+used and because transaction 2 if
+
+778
+01:14:37,870 --> 01:14:42,430
+事务2在T 1完成后开始
+transaction 2 starts after T 1 finishes
+transaction 2 is guaranteed to get a
+
+779
+01:14:42,430 --> 01:14:46,950
+较高的时间戳和快照隔离机制
+higher timestamp
+and the snapshot isolation machinery the
+
+780
+01:14:46,950 --> 01:14:53,430
+多个版本将导致其读取到所有较低的值
+multiple versions will cause it to read
+to it's read to see all lower valued
+
+781
+01:14:53,430 --> 01:14:56,970
+从所有较低时戳的事务中写入信息，这意味着教您
+writes from all the lower time-stamped
+transactions that means teach you is
+
+782
+01:14:56,970 --> 01:15:01,020
+将会看到t1 nom，这基本上意味着我们就是这个
+going to see t1 nom and that basically
+means that we're this this is how
+
+783
+01:15:01,020 --> 01:15:09,300
+扳手为其交易强制执行外部一致性，因此任何问题
+spanner enforces external consistency
+for its transactions so any questions
+
+784
+01:15:09,300 --> 01:15:22,140
+关于这个机械，嗯，我要退后一点
+about this machinery alright um I'm
+gonna step back a little bit there's
+
+785
+01:15:22,140 --> 01:15:27,840
+从我的角度来看，实际上发生了两件事：快照
+really from my point of view sort of two
+big things going on here one is snapshot
+
+786
+01:15:27,840 --> 01:15:32,910
+本身的隔离快照本身的隔离足以为您提供
+isolation by itself snapshot isolation
+by itself is enough to give you that
+
+787
+01:15:32,910 --> 01:15:36,860
+它保留了多个版本，并为每个交易提供了时间戳
+it's keeping the multiple versions and
+giving every transaction a timestamp
+
+788
+01:15:36,860 --> 01:15:41,190
+快照隔离保证为您提供可序列化的只读事务
+snapshot isolation is guaranteed to give
+you serializable read-only transactions
+
+789
+01:15:41,190 --> 01:15:45,390
+因为基本上快照隔离意味着我们要
+because basically what snapshot
+isolation means is that we're going to
+
+790
+01:15:45,390 --> 01:15:50,160
+使用这些时间戳作为等效的串行顺序以及诸如保险柜之类的东西
+use these timestamps as the equivalent
+serial order and things like the safe
+
+791
+01:15:50,160 --> 01:15:57,270
+等待安全时间，以确保只读事务在读取时确实能够读取
+wait the safe time ensure that read-only
+transactions really do read as of their
+
+792
+01:15:57,270 --> 01:16:01,290
+时间戳可以看到之前的每个读写事务，而之后没有
+time stamps see every readwrite
+transaction before that and none after
+
+793
+01:16:01,290 --> 01:16:08,370
+因此，快照隔离实际上有两部分
+that so there's really two pieces
+snapshot isolation snapshot isolation by
+
+794
+01:16:08,370 --> 01:16:14,160
+尽管实际上它本身不仅经常被扳手使用，而且通常不被
+itself though is actually often used not
+just by spanner but generally doesn't by
+
+795
+01:16:14,160 --> 01:16:18,780
+一个自我保证的外部一致性，因为在分布式系统中
+a self guarantee external consistency
+because in a distributed system it's
+
+796
+01:16:18,780 --> 01:16:22,380
+不同的计算机选择时间戳，因此我们不确定是否存在
+different computers choosing the
+timestamp so we're not sure there's
+
+797
+01:16:22,380 --> 01:16:26,450
+时间戳将遵守外部一致性，即使它们会交付
+timestamps will obey external
+consistency even if they'll deliver
+
+798
+01:16:26,450 --> 01:16:32,850
+序列化功能，因此除了快照隔离扳手外，还具有
+serialize ability so in addition to
+snapshot isolation spanner also has
+
+799
+01:16:32,850 --> 01:16:37,230
+同步时间戳，它是同步时间戳加上提交
+synchronized timestamps and it's the
+synchronized timestamps plus the commit
+
+800
+01:16:37,230 --> 01:16:43,860
+重量规则，允许扳手也保证外部一致性
+weight rule that allow spanner to
+guarantee external consistency as well
+
+801
+01:16:43,860 --> 01:16:49,470
+作为可序列化性，而再次使所有这些有趣的原因是
+as serializability and again the reason
+why all this is interesting is that
+
+802
+01:16:49,470 --> 01:16:53,550
+程序员非常喜欢事务，而且我非常喜欢外部一致性
+programmers really like transactions and
+I really like external consistency
+
+803
+01:16:53,550 --> 01:16:57,170
+因为这使应用程序更容易编写
+because that makes the applications much
+easier to write
+
+804
+01:16:57,170 --> 01:17:01,130
+传统上不会在分布式设置中提供它们，因为它们也是如此
+they traditionally not been provided in
+distributed settings because they're too
+
+805
+01:17:01,130 --> 01:17:04,780
+速度慢，所以扳手设法释放的事实使它成为只读的
+slow and so the fact that spanner
+manages to release make read-only
+
+806
+01:17:04,780 --> 01:17:10,160
+交易非常快，非常有吸引力，没有锁定，没有两阶段
+transactions very fast is extremely
+attractive right no locking no two-phase
+
+807
+01:17:10,160 --> 01:17:14,270
+提交，甚至没有远距离读取它们的只读事务
+commit and not even any distant reads
+for a read-only transactions they
+
+808
+01:17:14,270 --> 01:17:19,100
+从本地副本非常有效地运行，这又是一件好事
+operate very efficiently from the local
+replicas and again this is what's good
+
+809
+01:17:19,100 --> 01:17:25,790
+基本上改善了10个延迟， 
+for a basically attend factor of 10
+latency improvement as measured in
+
+810
+01:17:25,790 --> 01:17:34,300
+表3和表6，但只是提醒您，这还不是全部，还不是全部
+tables 3 & 6 but just to remind you it's
+not all it's not all fabulous the the
+
+811
+01:17:34,300 --> 01:17:38,240
+所有这台出色的机器，实际上仅适用于只读事务
+all this wonderful machine it really
+only applies to read-only transactions
+
+812
+01:17:38,240 --> 01:17:43,610
+读写事务仍然使用两阶段提交和锁定，并且有一个
+readwrite transactions still use
+two-phase commit and locks and there's a
+
+813
+01:17:43,610 --> 01:17:47,180
+出于安全考虑，甚至连扳手也会出现阻塞的情况的数量
+number of cases in which even spanner
+will have the block like due to the safe
+
+814
+01:17:47,180 --> 01:17:53,150
+时间和提交等待，但只要它们的时间足够准确
+time and the commit wait but as long as
+their times are accurate enough
+
+815
+01:17:53,150 --> 01:17:59,390
+这些提交权重可能相对较小，可以概括一下
+these commit weights are likely to be
+relatively small okay just to summarize
+
+816
+01:17:59,390 --> 01:18:05,000
+当时的扳手有点突破，因为
+the spanner at the time was kind of a
+breakthrough because it was very rare to
+
+817
+01:18:05,000 --> 01:18:10,280
+查看运行分布式事务的已部署系统，其中数据
+see deployed systems that operate
+distributed transactions where the data
+
+818
+01:18:10,280 --> 01:18:17,150
+在地理位置上完全不同的数据中心中，我很惊讶您知道
+was geographically in very different
+data centers I'm surprising you know
+
+819
+01:18:17,150 --> 01:18:21,200
+扳手的人惊讶于有人正在使用一个数据库
+spanner people were surprised that
+somebody was using a database that
+
+820
+01:18:21,200 --> 01:18:26,120
+实际上做得很好，而且性能是可以忍受的， 
+actually did a good job of this and that
+the performance was tolerable and the
+
+821
+01:18:26,120 --> 01:18:30,830
+快照隔离和时间戳可能是最可能的一部分
+snapshot isolation and a timestamp being
+part of the probably the most
+
+822
+01:18:30,830 --> 01:18:40,810
+本文有趣的方面，而这就是我今天要说的
+interesting aspects of the paper and
+that is all I have to say for today any
+
+823
+01:18:40,810 --> 01:18:51,720
+最后一个问题好吧，我想
+last questions okay
+I think on
+
+824
+01:18:51,720 --> 01:18:57,300
+我们要去看农场，这是一个截然不同的地方
+we're gonna we're going to see farm
+which is a sort of very different slice
+
+825
+01:18:57,300 --> 01:19:05,370
+通过提供高性能交易的愿望，所以我见
+through the desire to provide very high
+performance transactions so I'll see you
+
+826
+01:19:05,370 --> 01:19:07,520
+星期四
+on Thursday
+

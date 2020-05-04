@@ -1,0 +1,5151 @@
+1
+00:00:02,689 --> 00:00:09,319
+大家好，我们开始吧
+alright hello everyone let's get started
+
+2
+00:00:10,849 --> 00:00:20,910
+今天的话题是因果一致性，然后使用警察制度
+today the topic is causal consistency
+and then use the cop system the cop's
+
+3
+00:00:20,910 --> 00:00:26,099
+我们每天的论文都是因果一致性的案例研究，因此
+paper that we're every day is a case
+study for causal consistency so the
+
+4
+00:00:26,099 --> 00:00:35,850
+设置实际上很熟悉，我们再次谈论大型网站
+setting is actually familiar we're
+talking again about big websites that
+
+5
+00:00:35,850 --> 00:00:42,120
+在多个数据中心中有数据，他们想在每个数据中心中复制数据
+have data in multiple data centers and
+they want to replicate the data in each
+
+6
+00:00:42,120 --> 00:00:45,750
+每个数据中心的所有数据都必须保存副本
+of their all their data in each their
+data centers have to keep a copy close
+
+7
+00:00:45,750 --> 00:00:55,020
+给用户，也许是为了容错，所以像往常一样，我们可能会
+to users and for perhaps for fault
+tolerance so as usual we have maybe I'll
+
+8
+00:00:55,020 --> 00:00:59,600
+有三个数据中心
+have three data centers
+
+9
+00:01:02,630 --> 00:01:05,690
+而且您知道，因为我们正在构建大型系统，所以我们将分片数据
+and you know because we're building big
+systems we're going to shard the data
+
+10
+00:01:05,690 --> 00:01:09,380
+每个数据中心都将有多台服务器，您可能都知道
+and every data center is going to have
+multiple servers with you know maybe all
+
+11
+00:01:09,380 --> 00:01:14,570
+以Z a开头的所有托管人对应分片的密钥
+the keys that start with Z a through all
+the custodian corresponding shards of
+
+12
+00:01:14,570 --> 00:01:31,520
+我们已经看到过的URL，您知道人们知道的通常目标
+URLs we've seen this for and you know
+the usual goals people have you know
+
+13
+00:01:31,520 --> 00:01:34,820
+如何进行这项工作有很多不同的设计，但您知道吗
+there's many different designs for how
+to make this work but you know you
+
+14
+00:01:34,820 --> 00:01:39,080
+真的很喜欢阅读，当然也很喜欢阅读，因为这些网站
+really like reads to be certainly like
+reads to be fast because these web
+
+15
+00:01:39,080 --> 00:01:45,680
+工作负载往往以阅读为主，并且您知道自己想要工作和
+workloads tend to be read dominated and
+you know you'd like rights to work and
+
+16
+00:01:45,680 --> 00:01:52,640
+您想让我们尽可能地保持一致
+you'd like to have us as much
+consistency as you can so the fast
+
+17
+00:01:52,640 --> 00:01:55,970
+原因很有趣，因为客户端通常是Web浏览器，因此
+reasons are interesting because the
+clients are typically web browsers so
+
+18
+00:01:55,970 --> 00:02:03,020
+网络将有一组网络浏览器，所有这些浏览器都将客户端称为
+and there's web going to be some set of
+web browsers which all call clients the
+
+19
+00:02:03,020 --> 00:02:07,039
+客户端存储系统，但它们实际上是与用户
+clients the storage system but they're
+really web browsers talking to a user's
+
+20
+00:02:07,039 --> 00:02:11,800
+浏览器，所以典型的安排是这些发生在本地的原因
+browser some so the typical arrangement
+is that the reason these happen locally
+
+21
+00:02:11,800 --> 00:02:18,470
+权利可能会稍微复杂一点，因此适合这种情况的系统
+and rights might be little more
+complicated so one system that fits this
+
+22
+00:02:18,470 --> 00:02:24,890
+模式是扳手，您还记得涉及的扳手和扳手权利
+pattern is spanner you remember that a
+spanner and spanner rights involved
+
+23
+00:02:24,890 --> 00:02:29,800
+运行在所有数据中心的Paxos，因此如果您在paxos中进行写操作
+Paxos that runs across all the data
+centers so if you do a write in paxos
+
+24
+00:02:29,800 --> 00:02:35,959
+也许数据中心的客户需要写一份涉及通信的文件
+maybe a client in a data center needs to
+do a write the communication involve
+
+25
+00:02:35,959 --> 00:02:41,300
+实际需要税收可能在这些服务器之一上运行以进行通话
+actually need requires taxes maybe
+running on one of these servers to talk
+
+26
+00:02:41,300 --> 00:02:45,319
+至少要复制到其他大多数数据中心，因此权利
+to at least a majority of the other data
+centers that are replicas so the rights
+
+27
+00:02:45,319 --> 00:02:52,500
+往往会有点慢，但除此之外，萨凡纳（Savannah）支持
+tend to be a little bit slow but there
+consistent in addition Savannah supports
+
+28
+00:02:52,500 --> 00:02:57,450
+两阶段提交，因此我们有事务，读取速度更快，因为
+two-phase commit so we had transactions
+and the reads are much faster because
+
+29
+00:02:57,450 --> 00:03:04,709
+微风使用了真正的时间计划，论文的跨度描述了
+the breeze used a true time scheme that
+the span of paper described and really
+
+30
+00:03:04,709 --> 00:03:09,959
+只咨询了当地人，我们还阅读了Facebook内存缓存的新论文，该论文是
+only consulted local we also read the
+Facebook memcache new paper which is
+
+31
+00:03:09,959 --> 00:03:15,269
+在此演示模式中的另一种设计Facebook memcache关键文件中有一个
+another design in this demo pattern the
+Facebook memcache key paper there's a
+
+32
+00:03:15,269 --> 00:03:21,060
+具有我的续集数据库的主要集合的主站点，因此如果客户想要
+primary site that has the primary set of
+my sequel databases so if a client wants
+
+33
+00:03:21,060 --> 00:03:25,140
+做正确的事，我想这个数据中心3的主要方面是发送所有
+to do a right I suppose the primary side
+this data center 3 does to send all
+
+34
+00:03:25,140 --> 00:03:30,540
+数据中心3的权限，然后数据中心3发送新信息或
+rights to data center 3 and then data
+center 3 sends out new information or in
+
+35
+00:03:30,540 --> 00:03:33,750
+对其他数据中心的验证正确，因此实际上有点贵
+validations to the other data centers
+right so actually a little bit expensive
+
+36
+00:03:33,750 --> 00:03:41,220
+与另一方面的扳手不同，当客户端时所有读取都是本地的
+and not unlike spanner on the other hand
+all the reads are local when a client
+
+37
+00:03:41,220 --> 00:03:44,579
+需要做一个珠子，它可以查询本地数据中的内存缓存密钥服务器
+needs to do a bead it could consult a
+memcache key server in the local data
+
+38
+00:03:44,579 --> 00:03:51,840
+中心，还有memcachedb先生，这让人眼花fast乱
+center and there's memcachedb sir just
+blindingly fast this the people
+
+39
+00:03:51,840 --> 00:03:56,519
+向他们报告单个内存缓存，服务器每次保存一百万次读取
+reporting them a single memcache the
+server conserve a million reads per
+
+40
+00:03:56,519 --> 00:04:02,700
+第二个非常快，因此Facebook memcache D方案也需要
+second which is very fast so again the
+Facebook memcache D scheme needs to
+
+41
+00:04:02,700 --> 00:04:06,450
+涉及跨数据通信中心的权利，但阅读
+involve cross data center of
+communication for rights but the reads
+
+42
+00:04:06,450 --> 00:04:11,220
+是本地的，所以今天的问题和警察文件的问题
+are local so the question for today and
+the question of the cops papers
+
+43
+00:04:11,220 --> 00:04:16,880
+答案是我们是否可以拥有允许权利追究的制度
+answering is whether we can have a
+system that allows rights to pursue
+
+44
+00:04:16,880 --> 00:04:21,060
+纯粹在本地，从客户的角度来看，客户可以交谈
+purely locally and this from the clients
+point of views that the client can talk
+
+45
+00:04:21,060 --> 00:04:26,729
+从正确到正确，他们可以自己发送正确的本地副本
+to the from once it were right they can
+send the right local replica in its own
+
+46
+00:04:26,729 --> 00:04:31,050
+数据中心以及某些读取仅本地副本，而永远不会
+data center as well as some reads to
+just the local replicas and never have
+
+47
+00:04:31,050 --> 00:04:34,770
+等待其他数据中心无需与其他数据中心对话
+to wait for other data centers never
+have to talk to other data centers or
+
+48
+00:04:34,770 --> 00:04:40,830
+等待其他数据中心行使权利，所以我们真正想要的是一个
+wait for other data centers to do rights
+so what we really want is a system that
+
+49
+00:04:40,830 --> 00:04:47,780
+可以具有本地读取和本地权限
+can have local reads and local rights
+
+50
+00:04:48,440 --> 00:04:53,580
+那是大目标这是大目标实际上是一个绩效目标
+that's the big that's the big goal
+really a performance goal this would
+
+51
+00:04:53,580 --> 00:04:59,040
+当然可以帮助提高性能，因为与以前的扳手和Facebook论文不同
+help for performance of course cuz now
+unlike spanner and Facebook paper we had
+
+52
+00:04:59,040 --> 00:05:04,200
+从客户的角度来看，纯粹的本地权利要快得多
+a purely local rights be much faster
+from the clients point of view um it
+
+53
+00:05:04,200 --> 00:05:08,160
+如果可以在本地完成权限，则还可能有助于提高容错能力
+might also help with fault tolerance
+robustness if rights can be done locally
+
+54
+00:05:08,160 --> 00:05:10,980
+那么我们不必担心其他数据中心是否正常运行或
+then we don't have to worry about
+whether other data centers are up or
+
+55
+00:05:10,980 --> 00:05:15,090
+是否可以快速与他们交谈，因为客户不需要等待
+whether we can talk to them quickly
+because the clients don't need to wait
+
+56
+00:05:15,090 --> 00:05:20,790
+为他们服务，所以我们将要寻找具有这种水平的系统
+for them so we're gonna be looking for
+systems that have this this level of
+
+57
+00:05:20,790 --> 00:05:27,810
+性能，最后我们将让您知道的一致性模型
+performance and in the end we're gonna
+let the consistency model you know cuz
+
+58
+00:05:27,810 --> 00:05:29,880
+如果您只行使权利，我们将担心一致性
+we're going to be worried about
+consistency if you only do the rights
+
+59
+00:05:29,880 --> 00:05:33,690
+首先到本地副本，您知道其他数据中心副本的情况
+initially to the local replicas you know
+what about other data centers replicas
+
+60
+00:05:33,690 --> 00:05:36,840
+数据，所以我们一定会担心一致性
+data so we'll certainly be worried about
+consistency
+
+61
+00:05:36,840 --> 00:05:40,260
+但是至少本次演讲的态度是我们要让
+but the attitude for this lecture at
+least is that we're gonna let the
+
+62
+00:05:40,260 --> 00:05:44,640
+一旦我们弄清楚，一致性跟踪就会跟踪您知道的性能
+consistency trail along behind the
+performance you know once we figure out
+
+63
+00:05:44,640 --> 00:05:48,450
+如何获得良好的表现，然后就会弄清楚如何定义
+how to get good performance will well
+then sort of figure out how to define
+
+64
+00:05:48,450 --> 00:05:54,330
+在考虑是否足够好方面保持一致性，这就是整体
+consistency in think about whether it's
+good enough okay so that's the overall
+
+65
+00:05:54,330 --> 00:06:02,040
+我实际上会谈论两种稻草人设计的策略，但是
+strategy I'm gonna actually talk about
+two strawman designs to sort of okay but
+
+66
+00:06:02,040 --> 00:06:08,160
+在我们实际谈论警察如何工作之前的途中，设计不是很好
+not great designs on the way to before
+we actually talk about how cops works so
+
+67
+00:06:08,160 --> 00:06:16,770
+首先，我想谈一个遵循该本地评级的最简单的设计
+first i want to talk about a simplest
+design that follows this local rating
+
+68
+00:06:16,770 --> 00:06:27,560
+我能想到的策略我将这个稻草人称为1 
+strategy that I can think of I'll call
+this straw man 1 so in straw and one
+
+69
+00:06:27,560 --> 00:06:33,680
+我们将拥有三个数据中心
+we're going to have three data centers
+
+70
+00:06:34,669 --> 00:06:41,490
+并假设每种数据以两种方式绘制图表，因此他
+and let's just assume that the data is
+charted two ways in each of them so he's
+
+71
+00:06:41,490 --> 00:06:45,300
+也许是ATM机和大使馆的钥匙在每个
+from maybe ATM and keys from embassy
+shard it the same way in each of the
+
+72
+00:06:45,300 --> 00:06:59,370
+数据中心和客户端将在本地读取，如果客户端写入
+data centers and the clients will read
+locally and if a client writes so
+
+73
+00:06:59,370 --> 00:07:03,660
+假设客户需要编写以M开头的密钥，客户将
+supposing a client needs to write it key
+that starts with M the clients gonna
+
+74
+00:07:03,660 --> 00:07:10,610
+将密钥M的写入发送到具有以下内容的本地分片服务器的分片服务器
+send a write of key M to the shard
+server the local shard server that has
+
+75
+00:07:10,610 --> 00:07:15,840
+它负责以分片服务器返回回复的M开始
+its responsible he's starting with M
+that shard server would return reply to
+
+76
+00:07:15,840 --> 00:07:22,200
+客户立即说哦，是的，我是对的，但除此之外
+the client immediately saying oh yes I
+did you're right but in addition each
+
+77
+00:07:22,200 --> 00:07:29,010
+服务器将维护已发送的未决权利队列
+server will maintain a queue of
+outstanding rights that have been sent
+
+78
+00:07:29,010 --> 00:07:32,190
+它最近得到了需要发送到其他数据中心的客户，并且它
+to it recently got clients that it needs
+to send to other data centers and it
+
+79
+00:07:32,190 --> 00:07:38,100
+会将这些权利在后台异步流式传输到相应的权限
+will stream these rights asynchronously
+in the background to the corresponding
+
+80
+00:07:38,100 --> 00:07:42,960
+其他数据中心中的服务器，因此在向客户应用我们的分片之后
+servers in the other data center so
+after applying to the client our shard
+
+81
+00:07:42,960 --> 00:07:48,960
+此处的服务器将向其他每个数据发送客户端权限的副本
+server here will send a copy of the
+clients right to each of the other data
+
+82
+00:07:48,960 --> 00:07:53,250
+设置，您知道这些权利会通过网络传播，也许他们需要
+setups and you know those rights go
+through the network maybe they take a
+
+83
+00:07:53,250 --> 00:07:57,120
+很长一段时间，他们最终将到达目标数据集
+long time eventually they're gonna
+arrive at the target data set the other
+
+84
+00:07:57,120 --> 00:08:00,930
+数据中心以及这些分片服务器中的每一个都将对该服务器应用权限
+data centers and each of those shard
+servers will then apply the right to its
+
+85
+00:08:00,930 --> 00:08:10,560
+本地数据表，因此这是一种具有非常好的性能的设计
+local table of data so this is a design
+that has very good performance right the
+
+86
+00:08:10,560 --> 00:08:13,979
+原因权利全部在本地完成，可能永远不会有两个客户
+reason rights are all done locally may
+never have two clients never have to
+
+87
+00:08:13,979 --> 00:08:18,990
+等待，有很多并行性，因为您知道此分片服务器用于
+wait there's a lot of parallelism
+because you know this shard server for a
+
+88
+00:08:18,990 --> 00:08:22,710
+如果是碎片的话，衬衫可以独立地提供更多的机会
+and the shirts are for a more
+opportunity independently if the shard
+
+89
+00:08:22,710 --> 00:08:27,120
+一个正确的服务器，您知道它必须将其数据推送到相应的
+server for a gets right you know it has
+to push its data to the corresponding
+
+90
+00:08:27,120 --> 00:08:30,300
+分片服务器和其他数据中心，但可以执行这些推送
+shard servers and other data centers but
+it can do those push pushes
+
+91
+00:08:30,300 --> 00:08:34,799
+独立于其他分片服务推送，因此在
+independently of other shard service
+pushes so there's parallelism both in
+
+92
+00:08:34,799 --> 00:08:41,429
+如果稍微考虑一下，就可以提供服务并推动写作
+serving and and pushing the writes
+around if you think about it a little
+
+93
+00:08:41,429 --> 00:08:48,250
+一点是，这种设计实际上也实际上有利于阅读和阅读
+bit it's this design also essentially
+effectively favors reads and the reads
+
+94
+00:08:48,250 --> 00:08:52,150
+尽管这样做确实不会对本地数据中心产生任何影响。 
+really never have any impact beyond the
+local data center the rights though do a
+
+95
+00:08:52,150 --> 00:08:54,820
+只要您做对了一点工作，您就知道客户不必等待
+bit of work whenever you do a right you
+know the client doesn't have to wait for
+
+96
+00:08:54,820 --> 00:08:59,320
+它，但分片服务器随后必须将权限推给其他数据中心
+it but the shard server then has to push
+the rights out to the other data centers
+
+97
+00:08:59,320 --> 00:09:03,220
+而且您知道这意味着另一个数据中心的新数据将继续进行
+and you know means that new data the
+other data center then proceed very
+
+98
+00:09:03,220 --> 00:09:09,040
+速度很快，因此阅读所涉及的工作少于权利，这对阅读而言是适当的
+quickly so reads involve less work than
+rights and that's appropriate for a read
+
+99
+00:09:09,040 --> 00:09:14,470
+繁重的工作量，如果您更担心速率性能，可以想象
+heavy workload if you are more worried
+about rate performance you could imagine
+
+100
+00:09:14,470 --> 00:09:18,220
+例如其他设计，您可以想象其中实际读取的设计
+other designs for example you can
+imagine design in which reads actually
+
+101
+00:09:18,220 --> 00:09:22,360
+必须咨询多个数据中心，并且权限完全是本地的，因此您可以
+have to consult multiple data centers
+and rights are purely local so you can
+
+102
+00:09:22,360 --> 00:09:25,690
+想象一个方案，当您执行读取操作时，您实际上会读取数据
+imagine a scheme in which you have when
+you do a read you actually read the data
+
+103
+00:09:25,690 --> 00:09:30,970
+从其他每个日期开始，从每个日期获取所需密钥的当前副本
+from each of the other date the current
+copy of the key you want from each of
+
+104
+00:09:30,970 --> 00:09:34,990
+其他数据中心，然后选择最新的数据中心
+the other data centers and choose the
+one that's most recent perhaps and then
+
+105
+00:09:34,990 --> 00:09:38,430
+权利很便宜，品种很贵，或者您可以想象
+rights are very cheap and breeds are
+expensive or you can imagine
+
+106
+00:09:38,430 --> 00:09:44,860
+这两种策略的组合采用某种法定人数重叠方案，或者
+combinations of these two strategies
+some sort of quorum overlap scheme or
+
+107
+00:09:44,860 --> 00:09:48,490
+您写多数，只在多数数据时写多数
+you write a majority and write a
+majority at the only a majority of data
+
+108
+00:09:48,490 --> 00:09:53,440
+中心和满足大多数数据中心的需求，并依靠重叠和
+centers and meet a majority of data
+centers and rely on the overlap and in
+
+109
+00:09:53,440 --> 00:10:00,040
+实际上，人们有真实的实时系统用于商业用途
+fact there are real live systems that
+people use in commercially in real
+
+110
+00:10:00,040 --> 00:10:04,120
+遵循这种设计的网站，因此，如果您对真正的
+websites that follow much this design so
+if you're interested in sort of a real
+
+111
+00:10:04,120 --> 00:10:11,230
+的世界版本，您可以查找亚马逊的发电机系统或开放式
+world version of this you can look up
+Amazon's dynamo system or the open
+
+112
+00:10:11,230 --> 00:10:14,410
+源码Kassandra系统
+source
+Kassandra system
+
+113
+00:10:14,410 --> 00:10:19,760
+比我在这里草拟草图时要详细得多，但他们会遵循
+there was much more elaborated than when
+I've sketched out here but they follow
+
+114
+00:10:19,760 --> 00:10:26,960
+相同的基本模式，所以这种方案的通常名称是最终的
+the same basic pattern so the usual name
+for this kind of scheme is eventual
+
+115
+00:10:26,960 --> 00:10:40,910
+一致性，其原因是至少在开始时
+consistency and the reason for that is
+that at least initially if you do a
+
+116
+00:10:40,910 --> 00:10:46,360
+向其他读者和其他数据中心写信不能保证EC或正确
+write other readers and other data
+centers are not guaranteed EC or right
+
+117
+00:10:46,360 --> 00:10:50,180
+但他们总有一天会因为您要推广权利，所以他们会
+but they will someday because you're
+pushing out the rights so they'll
+
+118
+00:10:50,180 --> 00:10:56,120
+最终会看到您的数据，因此无法保证订购，因此例如
+eventually see your data there's no
+guarantee about order so for example if
+
+119
+00:10:56,120 --> 00:11:00,020
+我是客户，我写他从他们开始，然后我写钥匙
+I'm a client and I write he's starting
+with them and then I write a key
+
+120
+00:11:00,020 --> 00:11:07,100
+从确定您知道M发出开始，这就是我获得篮圈碎片的权利
+starting with a sure you know M sends
+out it's my right to shards of a rim
+
+121
+00:11:07,100 --> 00:11:12,560
+发出一项权利，服务器发出a发出我的权利，但是您知道
+sends out one right and the server for a
+sends out my right for a but you know
+
+122
+00:11:12,560 --> 00:11:15,830
+这些可能会在广域以不同的速度或不同的路线传播
+these may travel at different speeds or
+different routes on the wide area
+
+123
+00:11:15,830 --> 00:11:19,880
+网络，也许我写了，也许客户首先写了他们，然后写了一个，但是
+network and maybe I wrote maybe the
+client wrote em first and then a but
+
+124
+00:11:19,880 --> 00:11:24,260
+也许如果他们先到达，然后更新为上午，也许我
+maybe if they for a arrives first and
+then the update for am and maybe I
+
+125
+00:11:24,260 --> 00:11:28,850
+以相反的顺序到达另一个数据中心，因此不同的客户端
+arrive at the opposite order at the
+other datacenter so different clients
+
+126
+00:11:28,850 --> 00:11:36,470
+会按照不同的顺序观察更新，所以您知道没有顺序
+are gonna observe updates in different
+orders so there's you know no order
+
+127
+00:11:36,470 --> 00:11:39,040
+保证
+guarantee
+
+128
+00:11:40,230 --> 00:11:46,209
+从某种意义上说，最终意义的最终一致性是
+the sense the sort of ultimate meaning
+eventual consistency is that if things
+
+129
+00:11:46,209 --> 00:11:51,880
+安顿下来，人们停止写作，所有这些最终写出消息
+settle down and people stop writing and
+all of these write messages finally
+
+130
+00:11:51,880 --> 00:11:56,800
+到达他们的目的地已处理，然后我最终
+arrive at their destinations are
+processed then I'm an eventually an
+
+131
+00:11:56,800 --> 00:12:03,370
+最终一致的系统应该最终以所有存储的相同值结束
+eventually consistent system ought to
+end up with the same value stored at all
+
+132
+00:12:03,370 --> 00:12:12,880
+最终所有复制品的意义
+of the all of the replicas that's the
+sense of which it's eventually
+
+133
+00:12:12,880 --> 00:12:16,870
+如果您等待尘埃落定，您将得到
+consistent if you wait for the dust to
+settle you're gonna end up with
+
+134
+00:12:16,870 --> 00:12:20,889
+每个人都有相同的数据，这是一个很弱的规范，这是一个非常
+everybody having the same data and
+that's a pretty weak spec that's a very
+
+135
+00:12:20,889 --> 00:12:26,620
+规格较弱，但您知道，因为规格较宽松，因此有很大的自由度
+weak spec but you know because it's a
+loose spec there's a lot of freedom in
+
+136
+00:12:26,620 --> 00:12:30,250
+实施和很多机会来获得良好的绩效
+the implementation and a lot of
+opportunities to get good performance
+
+137
+00:12:30,250 --> 00:12:34,449
+因为该系统基本上不需要您立即执行任何操作或
+because the system basically doesn't
+require you to instantly do anything or
+
+138
+00:12:34,449 --> 00:12:40,029
+遵守任何排序规则，这与大多数一致性大不相同
+to observe any ordering rules it's quite
+different from most of the consistency
+
+139
+00:12:40,029 --> 00:12:45,240
+到目前为止，我们再次提到的方案已在已部署的系统中使用
+schemes we've seen so far again as I
+mentioned it's used in deployed systems
+
+140
+00:12:45,240 --> 00:12:50,319
+最终的一致性是很不错的，但对于应用程序程序员来说却很难
+eventual consistency is but it can be
+quite tricky for application programmers
+
+141
+00:12:50,319 --> 00:12:54,910
+因此，让我画出一个您可能想在网络上做的事的例子
+so let me sketch out a an example of
+something you might want to do in a web
+
+142
+00:12:54,910 --> 00:13:04,149
+还有您必须非常小心的网站，您可能会感到惊讶
+and the website where you would have to
+be pretty careful you might be surprised
+
+143
+00:13:04,149 --> 00:13:13,569
+如果这是最终的一致性应用程序示例，假设我们正在构建一个网站
+if this is an eventual consistency app
+example suppose we're building a website
+
+144
+00:13:13,569 --> 00:13:19,959
+存储照片，每个用户都有一组您知道的照片存储为
+that stores photos and every user has a
+you know set of photo photos stored as
+
+145
+00:13:19,959 --> 00:13:26,170
+您知道具有某种唯一ID的键值对是键，每个用户
+you know key value pairs with some sort
+of unique ID is the key and every user
+
+146
+00:13:26,170 --> 00:13:31,689
+有一份清单，其中包含一份允许其他人使用的公开照片清单
+has a list of maintains a list of their
+public photos that they allow other
+
+147
+00:13:31,689 --> 00:13:37,899
+人们看到这样的假设，我拍了张照片，然后将其插入
+people to see so supposing I take a
+photograph and I want to insert it into
+
+148
+00:13:37,899 --> 00:13:43,329
+该系统，或者您知道我与Web服务器联系，然后Web服务器运行
+this system or you know I human contact
+the web server and the web server runs
+
+149
+00:13:43,329 --> 00:13:47,589
+代码将我的照片插入存储系统，然后添加一个
+code that's gonna insert my photo into
+the storage system and then add a
+
+150
+00:13:47,589 --> 00:13:51,540
+引用我的照片到我的照片列表，所以也许
+reference to my photo to my photo list
+so maybe
+
+151
+00:13:51,540 --> 00:13:57,240
+运行，也许会发生这种情况，我们会说它发生在客户端c1（即网络）上
+run maybe this happens we'll say it
+happens on clients c1 which is the web
+
+152
+00:13:57,240 --> 00:14:03,899
+我正在与之交谈的服务器，但是代码看起来好像有一个代码调用
+server I'm talking to and maybe but the
+code looks like is there's a code calls
+
+153
+00:14:03,899 --> 00:14:09,290
+我的照片的放置操作，这真的应该引起您的注意
+the put operation for my photo
+and it really should be a keen about you
+
+154
+00:14:09,290 --> 00:14:15,500
+我只是求职者而已，因此我将我的照片和
+I'm just gonna candidates just a few
+plus value so I insert my photograph and
+
+155
+00:14:15,500 --> 00:14:22,770
+然后当这个放置完成时，II将照片添加到我的列表中
+then when this put finishes then I I add
+the photo to my list
+
+156
+00:14:22,770 --> 00:14:28,020
+对，这就是我的客户代码看起来像别人在看的东西
+right that's what my my clients code
+looks like somebody else is looking at
+
+157
+00:14:28,020 --> 00:14:34,080
+我的照片看上去松散地看起来是我的照片列表的副本，然后
+my photographs loosely gonna look fetch
+a copy of my list of photos and then
+
+158
+00:14:34,080 --> 00:14:39,120
+他们将查看列表中的照片，以便客户致电
+they're gonna look at the photos that
+are on the list so client to maybe calls
+
+159
+00:14:39,120 --> 00:14:48,570
+获取我的列表，然后向下查看列表，然后呼叫获取该照片
+get for my list and then looks down the
+list and then calls get on that photo
+
+160
+00:14:48,570 --> 00:14:51,209
+也许他们看到我刚刚上传的照片在列表中
+maybe they see the photo I just uploaded
+it on the list
+
+161
+00:14:51,209 --> 00:14:57,089
+他们会为那张照片的你知道的钥匙做的，是的，所以这
+and they're gonna do a get it for the
+you know key for that photo yeah so this
+
+162
+00:14:57,089 --> 00:15:02,910
+就像完全简单的代码看起来应该可以工作，但是
+is like totally straightforward code
+looks like it ought to work but in an
+
+163
+00:15:02,910 --> 00:15:07,589
+最终保持一致的系统并不一定要正常工作， 
+eventually consistent system it's not
+necessarily going to work and the
+
+164
+00:15:07,589 --> 00:15:12,899
+问题是，即使客户在这样一个
+problem is that these two puts even
+though the client did them in such an
+
+165
+00:15:12,899 --> 00:15:17,670
+明显的顺序是先插入照片，然后将对该照片的引用添加到我的照片中
+obvious order first insert the photo and
+then add a reference to that photo to my
+
+166
+00:15:17,670 --> 00:15:22,380
+照片列表，事实是，在这种情况下， 
+list of photos the fact is that in this
+event early consistent scheme that I
+
+167
+00:15:22,380 --> 00:15:29,570
+概述了第二个放置点可能会在第一个放置点之前到达其他数据中心
+outlined this second put could arrive at
+other data centers before the first put
+
+168
+00:15:29,570 --> 00:15:34,770
+因此，如果另一个客户端正在其他数据中心进行读取，则可能会看到
+so this other client if it's reading at
+a different data center might see the
+
+169
+00:15:34,770 --> 00:15:40,500
+更新列表，其中包含我的新照片，但当其他客户和其他数据出现时
+updated list with my new photo in it but
+when that other client and another data
+
+170
+00:15:40,500 --> 00:15:44,490
+中心去获取列表中的照片，该照片可能尚不存在
+center goes to fetch the photo that's in
+the list this photo may not exist yet
+
+171
+00:15:44,490 --> 00:15:50,670
+因为优先权未必会超过客户的妻子
+because the first right may not have
+arrived over the wife of the client
+
+172
+00:15:50,670 --> 00:15:57,870
+周二是这样，如果这只是例行公事， 
+Tuesday's so if this is just gonna be
+routine occurrence in an eventually
+
+173
+00:15:57,870 --> 00:16:05,399
+一致的系统，如果我们不考虑这种更聪明的事情
+consistent system if we don't sort of
+think of anything more clever this kind
+
+174
+00:16:05,399 --> 00:16:09,390
+在某种程度上看起来像是代码失效的行为
+of behavior where it sort of looks like
+the code out of work you know at some
+
+175
+00:16:09,390 --> 00:16:13,050
+直观的水平，但是当您实际去阅读该系统的规格时， 
+intuitive level but when you actually go
+and read the spec for the system which
+
+176
+00:16:13,050 --> 00:16:18,810
+就是说不能保证你意识到啊，你知道这显然是正确的
+is to say no guarantees you realize that
+ah you know this obviously this correct
+
+177
+00:16:18,810 --> 00:16:23,100
+看代码可能完全不行，我想它将要做的是
+looking code may totally not do it I
+think it's going to do these are often
+
+178
+00:16:23,100 --> 00:16:27,890
+称为异常和
+called anomalies and
+
+179
+00:16:29,490 --> 00:16:33,399
+您知道思考的方式并不一定就是您的这种行为
+you know the way to think about it is
+not necessarily that this behavior you
+
+180
+00:16:33,399 --> 00:16:37,360
+知道您在列表中看到了第三名，但照片不存在但还不存在
+know you saw the list third on a list
+but the photo didn't exist yet it's not
+
+181
+00:16:37,360 --> 00:16:41,050
+一个错误，它不是不正确的，因为毕竟系统永远无法保证
+an error it's not incorrect because
+after all the system never guaranteed
+
+182
+00:16:41,050 --> 00:16:46,389
+这种食物会做，实际上会在这里产生照片，所以
+that this food was gonna do that it's
+gonna actually yield the photo here so
+
+183
+00:16:46,389 --> 00:16:52,630
+不是因为它不正确，而是因为它比您可能要弱
+it's not that it's incorrect it's just
+that it's weaker than you might have
+
+184
+00:16:52,630 --> 00:16:58,180
+希望这样，仍然有可能对这样的系统进行编程，而人们会全力以赴
+hoped so it's still possible to program
+such a system and people do it all the
+
+185
+00:16:58,180 --> 00:17:03,699
+时间，并且有很多技巧可以使用，例如，您知道
+time and there's a whole lot of tricks
+you can use for example you know a
+
+186
+00:17:03,699 --> 00:17:07,750
+防御性程序员可能会观察到程序员可能会编写代码
+defensive programmer might observe
+programmer might might write code
+
+187
+00:17:07,750 --> 00:17:11,049
+很清楚，如果您说我的意思是列出它可能还不存在
+knowing that well if you say something I
+mean list it may not really exist yet
+
+188
+00:17:11,049 --> 00:17:14,799
+因此，如果您在列表中看到对某张照片的引用，则会得到一张
+and so if you see a reference to a photo
+in the list you get a photograph that's
+
+189
+00:17:14,799 --> 00:17:19,799
+不在那里，您只是重试，请稍等一下，然后重试，因为by by by 
+not there you just retry just wait a
+little bit and retry because by and by
+
+190
+00:17:19,799 --> 00:17:24,309
+照片可能会显示出来，如果不显示，我们将跳过它，不要
+the photo will probably show up and if
+it doesn't we'll just skip it and don't
+
+191
+00:17:24,309 --> 00:17:31,120
+向用户显示它，因此完全可以用这种样式进行编程，但是我们
+display it to the user so it's totally
+possible to program in this style but we
+
+192
+00:17:31,120 --> 00:17:35,470
+绝对可以希望存储系统的行为更加直观
+could definitely hope for behavior from
+the storage system that's more intuitive
+
+193
+00:17:35,470 --> 00:17:40,809
+比这会使程序员撒谎的生活更容易
+than this that would make the
+programmers lie life easier sort of we
+
+194
+00:17:40,809 --> 00:17:46,650
+可以想象系统异常少然后是非常简单
+could imagine systems that have fewer
+anomalies then yes very simple
+
+195
+00:17:46,650 --> 00:17:54,309
+最终保持一致的系统还可以，然后再继续讨论如何
+eventually consistent system okay before
+I go on to talking about how to maybe
+
+196
+00:17:54,309 --> 00:17:59,230
+使一致性更好一点我想讨论一些重要的事情
+make the consistency a little bit better
+I want to discuss something important I
+
+197
+00:17:59,230 --> 00:18:02,860
+忽略了当前的最终一致性系统，这就是如何
+left out about this current eventual
+consistency system and that's how to
+
+198
+00:18:02,860 --> 00:18:12,309
+决定最近的权利，以便对某些数据（如果有的话） 
+decide on which right is most recent so
+for some data if data might ever be
+
+199
+00:18:12,309 --> 00:18:20,080
+由不止一个政党撰写，我们可能不得不
+written by more than one party there's
+the possibility that we might have to
+
+200
+00:18:20,080 --> 00:18:27,320
+确定哪个数据项是较新的，所以假设我们有一些密钥或可以调用
+decide which data item is newer so
+suppose we have some key or call okay
+
+201
+00:18:27,320 --> 00:18:35,120
+以及它的权利，您知道客户启动K的速率，因此当客户写时
+and to rights for it you know to clients
+launch rates for K so when client writes
+
+202
+00:18:35,120 --> 00:18:42,350
+一个值另一个客户写一个值两个，我们需要建立一个系统
+a value one another client writes a
+value of two we need to set up a system
+
+203
+00:18:42,350 --> 00:18:50,570
+这样所有三个数据中心都同意密钥K的最终值是什么，因为
+so that all three data centers agree on
+what the final value of key K is because
+
+204
+00:18:50,570 --> 00:18:53,240
+毕竟，我们至少要保证最终的一致性。 
+after all we're at least guaranteeing
+eventual consistency when the dust
+
+205
+00:18:53,240 --> 00:18:58,520
+结算所有数据中心都具有相同的数据，所以您知道数据中心
+settles all the data centers all have
+the same data so you know data center
+
+206
+00:18:58,520 --> 00:19:02,510
+三个将获得这两项权利，并将其中一项作为最后一项
+three is gonna get these two rights and
+it's gonna pick one of them as the final
+
+207
+00:19:02,510 --> 00:19:08,090
+当然是um数据中心对K的价值-看到相同的权利
+value for K well of course um datacenter
+- sees the same rights right it sees its
+
+208
+00:19:08,090 --> 00:19:14,810
+拥有自己的权利，所以他们都看到这对组合破裂，而且他们最好都做出
+own right so they're all seeing this
+pair breaks and they all had better make
+
+209
+00:19:14,810 --> 00:19:20,780
+同样的决定，无论哪一个都是最终值，以及
+the same decision about which one that'd
+be the final value regardless and the
+
+210
+00:19:20,780 --> 00:19:26,150
+命令他们到达正确的位置，因为我们不知道您知道数据中心
+order that they arrived in right because
+we don't know you know the data center
+
+211
+00:19:26,150 --> 00:19:29,810
+三个可能会观察到这些以一种顺序到达，而另一些数据中心可能会
+three may observe these to arrive in one
+order and some other data center may
+
+212
+00:19:29,810 --> 00:19:33,920
+观察他们以不同的顺序到达我们不能只接受第二个
+observe them to arrive in a different
+order we can't just accept the second
+
+213
+00:19:33,920 --> 00:19:38,240
+一个，并使其成为最终值，满足更强大的决策方案
+one and have that be the final value
+meet a more robust scheme for deciding
+
+214
+00:19:38,240 --> 00:19:46,550
+钥匙的最新最终价格是多少，所以我们需要一些
+what the final the most recent value is
+for a key so we're gonna need some
+
+215
+00:19:46,550 --> 00:19:52,340
+版本号的概念和最简单的版本签名方法
+notion of version numbers and the the
+most straightforward way to sign version
+
+216
+00:19:52,340 --> 00:20:01,520
+数字是使用挂钟时间，所以为什么不使用挂钟时间和想法
+numbers is to use the wall clock time so
+so why not wall clock time and the idea
+
+217
+00:20:01,520 --> 00:20:07,490
+是当客户端生成分片服务器或分片服务器时， 
+is that when a what a client generates a
+put either it or the shard server the
+
+218
+00:20:07,490 --> 00:20:12,250
+本地图表服务器正在与之交谈的对象将查看当前时间，哦，您知道它是
+local chart server talks to will look at
+the current time oh it's you know it's
+
+219
+00:20:12,250 --> 00:20:17,740
+现在是125，它将把那个时间与版本号相关联
+125 right now and it'll sort of
+associate that time as a version number
+
+220
+00:20:17,740 --> 00:20:25,060
+在密钥的版本上，然后我们注释这些写消息
+on its version of the key so then we'd
+annotate these these write messages
+
+221
+00:20:25,060 --> 00:20:30,470
+这些实际上都将时间戳存储在数据库中并注释这些写入
+these actually both store the timestamp
+in the database and annotate these write
+
+222
+00:20:30,470 --> 00:20:35,360
+数据中心之间随时间发送的消息，所以您可能知道这是
+messages sent between data centers with
+the time so you know maybe this one was
+
+223
+00:20:35,360 --> 00:20:40,390
+在102处签发，此权利在103发生
+written at 102 and this right occurred
+at 103
+
+224
+00:20:41,049 --> 00:20:49,269
+因此，如果102位作家或假设三个权利之一先到达，则
+and so if if 102 writer or suppose the
+one of three right arrives first then
+
+225
+00:20:49,269 --> 00:20:56,139
+数据中心三将把该密钥和时间戳一放入数据库
+the data center three will put in its
+database this key and the timestamp one
+
+226
+00:20:56,139 --> 00:21:00,070
+两三，当102的权利到达时
+two three
+and when the right for 102 arrives the
+
+227
+00:21:00,070 --> 00:21:04,269
+标准中心会说，哦，那实际上是我的一项较早的权利
+standard Center will say oh actually
+that's an older right I'm just gonna
+
+228
+00:21:04,269 --> 00:21:08,019
+忽略此权限，因为它具有较低的时间戳和时间步长
+ignore this right because it has a lower
+timestamp and the time step I already
+
+229
+00:21:08,019 --> 00:21:11,919
+有，当然，如果他们到达，而另一个命令做了一个句子，我们会
+have and of course if they arrive and
+the other order did a sentence we would
+
+230
+00:21:11,919 --> 00:21:16,239
+实际上已经短暂存储了此权限，直到具有较高权限的权限为止
+have actually stored this right briefly
+until the right with the higher
+
+231
+00:21:16,239 --> 00:21:19,389
+时间戳到了，但是它将取代它，因为每个人都看到
+timestamp arrived but then it would
+replace it I mean since everybody sees
+
+232
+00:21:19,389 --> 00:21:24,609
+至少有一些时间戳，你知道他们什么时候终于收到所有
+it some time stamps at least you know
+when they finally receive whatever all
+
+233
+00:21:24,609 --> 00:21:29,289
+这些互联网上的好消息都会以
+these great messages over the Internet
+they're all gonna end up with the
+
+234
+00:21:29,289 --> 00:21:39,600
+具有最高编号值的数据库可以，所以这几乎可以工作，并且
+databases that have the highest numbered
+values okay so this almost works and
+
+235
+00:21:39,600 --> 00:21:47,889
+有两个，它有两个小问题，一个是两个数据中心
+there's two there's two little problems
+with it one is that the two data centers
+
+236
+00:21:47,889 --> 00:21:51,009
+如果他们确实同时写，可能实际上分配了这个小时间戳
+if they do writes at the same time may
+actually assign this little time stamp
+
+237
+00:21:51,009 --> 00:21:57,190
+这是相对容易解决的，通常的方式是时间
+this is relatively easy to solve and the
+way it's typically done is the time
+
+238
+00:21:57,190 --> 00:22:02,080
+邮票实际上是时间对或其他东西，而高位本质上
+stamps are actually pairs of time or
+whatever and the High bits essentially
+
+239
+00:22:02,080 --> 00:22:06,399
+只要某种标识符，实际上只要是
+hand some sort of identifier could
+actually be almost anything as long as
+
+240
+00:22:06,399 --> 00:22:11,769
+它是唯一的某种标识符，例如数据中心名称或ID等
+it's unique some sort of identifier like
+the data center name or ID or something
+
+241
+00:22:11,769 --> 00:22:19,600
+在低位只是为了引起来自不同数据中心的所有管道标志或
+in the low bits just to cause all pipe
+signs from different data centers or
+
+242
+00:22:19,600 --> 00:22:23,889
+您想要的不同服务器，然后如果两个权限相同
+different servers to be you want and
+then if two rights ride with the same
+
+243
+00:22:23,889 --> 00:22:28,330
+来自不同数据中心的时间会有不同的低位
+time in them from different data centers
+are gonna have different low bits and
+
+244
+00:22:28,330 --> 00:22:33,549
+这些一点将用于消除歧义的两个说
+these little bits will be used to
+disambiguate which of the two right says
+
+245
+00:22:33,549 --> 00:22:40,090
+是较低的时间戳，因此应与
+is the lower timestamp and therefore
+should yield to the other with the
+
+246
+00:22:40,090 --> 00:22:46,090
+更高，好吧，我们要在底部位粘贴一些ID， 
+higher okay so we're gonna stick some
+sort of ID in the bottom bits and the
+
+247
+00:22:46,090 --> 00:22:50,499
+论文实际上谈到了这样做，这是很常见的，另一个问题是
+paper actually talks about doing this
+it's very common the other problem is
+
+248
+00:22:50,499 --> 00:22:56,009
+如果所有数据中心都完全正确，则该系统可以正常工作
+that this system works okay if all of
+the data centers are exactly
+
+249
+00:22:56,009 --> 00:23:00,340
+时间同步，这是扳手论文强调的
+synchronized in time and this is
+something a spanner paper stressed a
+
+250
+00:23:00,340 --> 00:23:04,799
+长度很大，所以如果所有数据中心都同意所有服务器上的时钟
+great length so if the clocks on all the
+servers that all the data centers agree
+
+251
+00:23:04,799 --> 00:23:11,200
+这会没事的，但是如果时钟按秒关闭或
+and this is gonna this is gonna be okay
+but if the clocks are off by seconds or
+
+252
+00:23:11,200 --> 00:23:16,899
+也许只有几分钟，然后我们在这里遇到了一个严重问题
+maybe even minutes then we have a
+serious problem here one not so
+
+253
+00:23:16,899 --> 00:23:26,710
+重要的问题是，您早知道的权利
+important problem is that rights that
+come earlier in time you know that
+
+254
+00:23:26,710 --> 00:23:30,879
+应该被较晚的权利覆盖，所以可能是较早的权利
+should be overwritten by later right so
+it could be the rights that came earlier
+
+255
+00:23:30,879 --> 00:23:35,710
+实时是因为时钟被分配了高时间戳，并且
+in real time are because the clocks are
+on are assigned high time stamps and
+
+256
+00:23:35,710 --> 00:23:43,480
+因此不会被后来出现的权利所取代
+therefore not superseded by rights that
+came later in time now we never made any
+
+257
+00:23:43,480 --> 00:23:49,359
+关于此ID的最终保证，我们从没说过哦，权利
+guarantees about this ID eventual
+consistency and we never said oh rights
+
+258
+00:23:49,359 --> 00:23:58,409
+稍后，我们仍将正确地赢得客户
+that come later in time we're gonna win
+over rightfully the clients nevertheless
+
+259
+00:23:58,409 --> 00:24:04,840
+我们不想已经足够弱的一致性，我们不想拥有它
+we don't want to be already weak enough
+consistency we don't want to have it
+
+260
+00:24:04,840 --> 00:24:09,519
+有不必要的奇怪行为，例如用户，真的很好
+have needlessly
+strange behavior like users really well
+
+261
+00:24:09,519 --> 00:24:14,499
+注意到他们在吃东西，然后稍后更新似乎并不需要
+notice they eat something and then they
+updated later doesn't seem to take
+
+262
+00:24:14,499 --> 00:24:19,169
+效果，因为先前的更新被分配了两次，认为它太大
+effect because the earlier update was
+assigned two times thinks it's too large
+
+263
+00:24:19,169 --> 00:24:26,169
+此外，如果某些服务器时钟太高，这不对，您是否知道
+in addition if some servers clock is too
+high and it doesn't right you know if
+
+264
+00:24:26,169 --> 00:24:37,389
+核心小组说快一分钟，然后当我们没有其他人的时候将一整分钟
+it's caucus say a minute fast then it'll
+be a whole minute when no other we have
+
+265
+00:24:37,389 --> 00:24:41,649
+等待所有服务想法赶上最新的快速服务器
+to wait for all the service thoughts to
+catch up to the minute fast servers
+
+266
+00:24:41,649 --> 00:24:46,419
+在其他人可以写有关热量的时钟之前解决这个问题
+clock before anybody else can do the
+write about heat in order to solve that
+
+267
+00:24:46,419 --> 00:24:54,549
+问题解决此问题的一种方法是称为Lamport的时钟
+problem one way to solve that problem is
+this idea called Lamport clocks the
+
+268
+00:24:54,549 --> 00:24:59,440
+论文谈论了这一点，尽管论文并未真正说出
+paper talks about this
+although the paper doesn't really say
+
+269
+00:24:59,440 --> 00:25:02,890
+他们为什么使用灯或时钟，我猜至少是因为
+why they use the lamp or clocks I'm
+guessing it's at least partially for the
+
+270
+00:25:02,890 --> 00:25:08,770
+我只是不介意Flambeau时钟是Wade分配的时间
+reason I just I don't mind
+Flambeau clock is Wade assigned time
+
+271
+00:25:08,770 --> 00:25:14,560
+与实时相关的邮票，但希望在某些情况下会出现此问题
+stamps that are related to real time but
+which hope would this problem at some
+
+272
+00:25:14,560 --> 00:25:22,360
+服务器的时钟运行速度太快，因此每个服务器都保持其价值
+servers having clocks that are running
+too fast so every server keeps a value
+
+273
+00:25:22,360 --> 00:25:28,570
+称为这个T max，这是迄今为止看来最高的版本号
+called this T max which is the highest
+version number it seems so far from
+
+274
+00:25:28,570 --> 00:25:31,980
+其他任何地方
+anywhere else so
+
+275
+00:25:34,390 --> 00:25:37,909
+因此，如果其他人正在生成您提前知道的时间戳
+so if somebody else is generating
+timestamps that are you know ahead of
+
+276
+00:25:37,909 --> 00:25:41,600
+实时您知道其他服务器可以看到其团队轴将使用的时间戳
+real-time you know the other servers to
+see this timestamps their team axes will
+
+277
+00:25:41,600 --> 00:25:48,500
+反映在实时之前，然后在服务器需要分配时间戳时
+reflect ahead of real time and then when
+a server needs to assign a timestamp of
+
+278
+00:25:48,500 --> 00:25:56,500
+版本号转换为新版本的方式是： 
+version number to a new put the way it
+will do that is it'll take the max of
+
+279
+00:25:56,500 --> 00:26:05,380
+这个团队的斧头加一个和墙上的时钟时间
+this team ax plus one and the wall clock
+time
+
+280
+00:26:05,850 --> 00:26:13,350
+实时，这意味着新的版本号，所以这是版本
+the real-time so that means that new
+version number so this is the version
+
+281
+00:26:13,350 --> 00:26:18,379
+文丘里一致性系统中值所需的数字
+numbers that we need to accompany the
+values in our venturi consistent system
+
+282
+00:26:18,379 --> 00:26:22,649
+因此每个新版本号都将高于最高版本
+so each new version number is going to
+be higher than the highest version
+
+283
+00:26:22,649 --> 00:26:28,859
+看到的数字比最后一个礼仪的数字高得多
+number seen so higher than whatever the
+last Rite was for example to the data
+
+284
+00:26:28,859 --> 00:26:35,369
+我们正在更新并且至少与实时一样高，所以如果没有人的时钟在
+that we're updating and at least as high
+as real-time so if nobody's clock is
+
+285
+00:26:35,369 --> 00:26:38,999
+在此Tmax之前加一个实际上可能比实时时间小， 
+ahead this Tmax plus one will probably
+actually be smaller than real time and
+
+286
+00:26:38,999 --> 00:26:43,979
+如果某些服务器有一个疯狂的时钟，则时间戳工具会实时结束
+the time stamp tool end up in real time
+if some server has a crazy clock that's
+
+287
+00:26:43,979 --> 00:26:48,779
+太快了，那么将导致所有其他服务器全部更新
+too fast then that will cause all other
+servers all the ones it's updates
+
+288
+00:26:48,779 --> 00:26:53,700
+推进团队坐标轴，以便他们分配的新版本号高于
+advanced the team axes so that when they
+allocate new version numbers higher than
+
+289
+00:26:53,700 --> 00:26:58,919
+他们从服务器上看到的任何女士评分的版本号
+the version number of whatever ladies
+rate they saw from the server whose
+
+290
+00:26:58,919 --> 00:27:08,720
+时钟太快了，所以这是兰伯特时钟，这就是论文的方式
+clock is too fast okay so this is
+Lampert clocks and this is how the paper
+
+291
+00:27:08,720 --> 00:27:16,229
+分配版本号总是在分布式系统中出现
+assigns version numbers come up all the
+time in distributed systems alright so
+
+292
+00:27:16,229 --> 00:27:25,229
+我想提出关于我们最终一致的系统的另一个问题是
+another problem I want to bring up about
+our eventually consistent system is the
+
+293
+00:27:25,229 --> 00:27:32,639
+关于如何对同一键的并发速率进行实际处理的问题
+problem of what to do about concurrent
+rates to the same key it's actually even
+
+294
+00:27:32,639 --> 00:27:38,609
+更糟的是，同时发生的利率可能同时承担的可能性
+worse the possibility that concurrent
+rates might carry might both carry
+
+295
+00:27:38,609 --> 00:27:49,799
+应该保留的重要信息，以便考试双方的客户
+important information that ought to be
+preserved so for exam a client of both
+
+296
+00:27:49,799 --> 00:27:54,479
+这两个您是否知道不同的客户，一个客户和一个客户-他们
+did both of these you know different
+clients client one and client - they
+
+297
+00:27:54,479 --> 00:27:59,960
+都发布相同的密钥
+both issue a put to the same key
+
+298
+00:28:04,370 --> 00:28:14,190
+这两个都让我们将其发送到数据中心3的问题是
+and both of these let's get sent it to
+datacenter 3 the question is what's a
+
+299
+00:28:14,190 --> 00:28:24,059
+数据中心3处理这里的信息，这是一个
+data center 3 do about the information
+here and the information here this is a
+
+300
+00:28:24,059 --> 00:28:26,429
+真正的难题实际上没有一个好的答案
+real puzzle actually there's not a good
+answer
+
+301
+00:28:26,429 --> 00:28:30,570
+该论文使用的是最后的Raider胜利，即他是数据中心3 
+the what the paper uses is the last
+Raider wins that is datacenter 3 he's
+
+302
+00:28:30,570 --> 00:28:33,870
+看一下这里签名的版本号
+gonna look at the version number that is
+signed here and the version number is
+
+303
+00:28:33,870 --> 00:28:39,600
+在此处分配的其中一个数据中心ID会稍晚一些
+assigned here one of them will be higher
+slightly later in time data center ID
+
+304
+00:28:39,600 --> 00:28:44,400
+再高一点或者我是数据中心3 
+and a little bit higher or something I'm
+a datacenter 3 you will simply throw
+
+305
+00:28:44,400 --> 00:28:49,350
+删除具有较低时间戳的数据，并接受具有较高时间戳的数据
+away the data with the lower timestamp
+and accept the data with the higher
+
+306
+00:28:49,350 --> 00:28:58,700
+裤子上印有印章的东西，就这样，它就使用了最后的Raider取胜策略， 
+pants that stampin and that's it so it's
+using this last Raider wins policy and
+
+307
+00:28:58,700 --> 00:29:05,730
+因为它具有确定性，每个人都会得到的优点
+in that has the virtue that it's
+deterministic and everybody's gonna get
+
+308
+00:29:05,730 --> 00:29:17,070
+相同的答案，您可以想到的例子就是人，所以您
+the same answer you can think of
+examples in which it's people so you
+
+309
+00:29:17,070 --> 00:29:20,880
+知道例如假设这些看跌期权试图做的是增加a 
+know for example supposing what these
+puts are trying to do is increment a
+
+310
+00:29:20,880 --> 00:29:27,809
+因此，这些客户都看到了他们都拥有的价值10的柜台附近
+counter so these clients both saw near
+the counter with value 10 they both had
+
+311
+00:29:27,809 --> 00:29:32,130
+一个，也许我们已经把11正确了，但是您知道我们真正想做的是
+one and maybe we've put 11 right and but
+you know what we really wanted to do is
+
+312
+00:29:32,130 --> 00:29:35,070
+让他们都增加计数器的值12 
+have them both increment the counter and
+have it had value 12
+
+313
+00:29:35,070 --> 00:29:39,600
+所以在这种情况下，最后的攻略胜利并不是我们真正的伟大
+so in that case last Raider wins is
+really not that great what we really
+
+314
+00:29:39,600 --> 00:29:43,350
+本来希望数据中心3将这种增量与
+would have wanted was for datacenter 3
+to sort of combine this increment and
+
+315
+00:29:43,350 --> 00:29:53,929
+该增量最终为12，所以您知道这些系统确实
+that increment end up with the value of
+12 so you know these systems are really
+
+316
+00:29:53,929 --> 00:30:01,200
+通常足够强大，可以做到这一点，但我们希望我们能真正做到更好
+generally powerful enough to do that but
+we would like better what we'd really
+
+317
+00:30:01,200 --> 00:30:08,360
+像是更复杂的冲突解决方案
+like is more sophisticated conflict
+resolution
+
+318
+00:30:08,860 --> 00:30:13,649
+您以及我们看到的其他系统的方式
+you
+and the way other systems we've seen saw
+
+319
+00:30:13,649 --> 00:30:20,820
+这是支持真实交易的最强大的系统，因此代替
+this the most powerful system to support
+real transactions so instead of instead
+
+320
+00:30:20,820 --> 00:30:24,379
+刚放入get的过程实际上具有执行原子操作的增量运算符
+of just having put in get it actually
+has increment operators that do atomic
+
+321
+00:30:24,379 --> 00:30:30,269
+交易增量增量没有丢失，这有点像
+transactional increments increments
+weren't lost and that's sort of a
+
+322
+00:30:30,269 --> 00:30:35,759
+交易可能是解决冲突的最强大方法
+transactions of maybe the most powerful
+way of doing resolving conflicting
+
+323
+00:30:35,759 --> 00:30:39,539
+更新我们还看到了一些支持mini概念的系统
+updates we've also seen some systems
+that support a notion of mini
+
+324
+00:30:39,539 --> 00:30:44,850
+至少在单个数据上您可以拥有原子的交易
+transactions where at least on a single
+piece of data you can have atomic
+
+325
+00:30:44,850 --> 00:30:52,559
+原子增量或原子测试和设置等操作，您也可以想象
+operations like atomic increment or
+atomic test and set you can also imagine
+
+326
+00:30:52,559 --> 00:30:57,720
+想要有一个确实可以解决自定义冲突的系统
+wanting to have a system that does come
+sort of custom conflict resolution so
+
+327
+00:30:57,720 --> 00:31:01,320
+暴露我们保留在这里的这个价值是您所知道的一个购物车
+exposing this value that we're keeping
+here is a shopping cart you know with a
+
+328
+00:31:01,320 --> 00:31:05,730
+一堆项目，我们的用户可能因为他们正在运行，所以您知道两个
+bunch of items in it and our user may
+because they're running you know two
+
+329
+00:31:05,730 --> 00:31:08,669
+风浏览器中的Windows窗口将两个不同的项添加到它们的窗口中
+windows in the wind browser
+adds two different items to their
+
+330
+00:31:08,669 --> 00:31:11,730
+来自两个不同Web服务器的购物车
+shopping cart from two different web
+servers
+
+331
+00:31:11,730 --> 00:31:16,590
+我们希望这两个相互冲突的写入同一个购物车来解决
+we'd like these two conflicting writes
+to the same shopping cart to resolve
+
+332
+00:31:16,590 --> 00:31:21,509
+可能是通过将两个购物车和球固定在一起而不是
+probably by taking set union of the two
+shopping carts and ball instead of
+
+333
+00:31:21,509 --> 00:31:29,330
+扔掉一个并接受另一个我正在提出
+throwing one away and accepting the
+other I'm bringing this up
+
+334
+00:31:30,210 --> 00:31:35,250
+令人满意的解决方案的确，该论文并没有提出太多建议
+satisfying solution indeed the paper
+doesn't really propose much of a
+
+335
+00:31:35,250 --> 00:31:43,590
+解决方案，这只是每周保持一致的系统的一个缺点，很容易获得
+solution it's just a drawback of weekly
+consistent systems that it's easy to get
+
+336
+00:31:43,590 --> 00:31:47,730
+您可能对相同的数据拥有冲突的权利
+into a situation where you might have
+conflicting rights to the same data that
+
+337
+00:31:47,730 --> 00:31:52,680
+您想拥有针对特定应用的复杂解决方案
+you would like to have sophisticated
+sort of application specific resolution
+
+338
+00:31:52,680 --> 00:31:58,260
+但这很难，而且就像人们的荆棘一样
+to but it's generally quite hard and
+it's just like a thorn in people's sides
+
+339
+00:31:58,260 --> 00:32:05,610
+通常必须忍受，最终
+that has to be lived with typically and
+that that goes for both the eventual
+
+340
+00:32:05,610 --> 00:32:10,350
+一致，我的稻草人在这里为P和P与纸舞之手
+consistency my straw man here hand for
+the and for the P versus the paper dance
+
+341
+00:32:10,350 --> 00:32:13,560
+和几个段落，它可以用来做得更好
+and a couple of paragraphs it it could
+be used to do better
+
+342
+00:32:13,560 --> 00:32:21,090
+他们并没有真正探索这一点，因为很难回到最终状态
+they don't really explore that because
+it's difficult okay back to eventual
+
+343
+00:32:21,090 --> 00:32:32,280
+如果你还记得我的稻草人系统有一个真正的问题，甚至连
+consistency my straw man system if you
+recall it had a real problem with even
+
+344
+00:32:32,280 --> 00:32:38,880
+非常简单，这非常简单，我知道我们确实放了一张照片并放了一张照片
+very simple this very simple scenario I
+know we did put a photo and put a photo
+
+345
+00:32:38,880 --> 00:32:42,900
+列出，然后其他人有所不同，它会读取新的，但是
+list and then somebody else in a
+difference and it reads the new this but
+
+346
+00:32:42,900 --> 00:32:47,100
+当他们阅读照片时，发现那里什么也没有，所以我们可以做
+when they read the photo they find
+there's nothing there so can we do
+
+347
+00:32:47,100 --> 00:32:52,800
+更好地建立一个系统，它仍然允许本地读取和本地
+better can we build a system of it's
+still allows local reads and local
+
+348
+00:32:52,800 --> 00:33:03,290
+权利，但有一点小教训，托马斯，我要提出一个
+rights but is has slightly mini-lesson
+Thomas I'm going to propose one that's
+
+349
+00:33:03,290 --> 00:33:08,790
+使我更接近论文，这是稻草人
+strong me into this kind of one step
+closer to papers so this is straw man
+
+350
+00:33:08,790 --> 00:33:11,030
+太
+too
+
+351
+00:33:12,300 --> 00:33:19,129
+在这个方案中，我要提出一个新的
+and
+in this scheme I'm gonna propose a new
+
+352
+00:33:19,129 --> 00:33:24,580
+运算符不仅可以放置和获取，还可以是客户可以使用的接收器运算符， 
+operator not just put and get but also a
+sink operator that clients can use and
+
+353
+00:33:24,580 --> 00:33:34,339
+接收器操作员将执行的操作将是键，版本号以及接收器
+the sink operator will do will be the
+key and a version number and what sink
+
+354
+00:33:34,339 --> 00:33:40,159
+当客户端调用它为接收器时执行操作，直到所有数据中心的副本
+does when a client calls it is sink
+waits until all data centers copies of
+
+355
+00:33:40,159 --> 00:33:47,690
+键K至少是最新的指定版本号，因此这是一种方法
+key K are at least up to date as of the
+specified version number so it's a way
+
+356
+00:33:47,690 --> 00:33:51,379
+客户可以说我要等待的命令我也要等所有人知道
+of forcing order the client can say look
+I'm gonna wait as well everybody knows
+
+357
+00:33:51,379 --> 00:33:56,719
+关于这个价值，我只想看看每一件事都是中心
+about this value and I wanna only see
+after every one everything is Center
+
+358
+00:33:56,719 --> 00:34:02,169
+知道此值，以便客户知道要使用的版本号
+knows about this value and in order for
+clients to know what version numbers to
+
+359
+00:34:02,169 --> 00:34:08,659
+为了通过接收器，我们将稍微改变看跌期权的调用，以便您说出看跌期权的钥匙
+to pass the sink we're gonna change the
+put call a bit so that you say put key
+
+360
+00:34:08,659 --> 00:34:21,260
+ value和put返回您可以调用的此更新的K的版本号
+value and put returns the version number
+of the of this updated K you could call
+
+361
+00:34:21,260 --> 00:34:28,129
+这个下沉的人问演戏是一种障碍，我们可以
+this this sink is asking that acting is
+a sort of a barrier offense we could
+
+362
+00:34:28,129 --> 00:34:34,659
+称之为最终一致性加
+call this eventual consistency plus
+
+363
+00:34:36,069 --> 00:34:41,169
+障碍见呼唤障碍
+barriers see calls the barrier
+
+364
+00:34:46,400 --> 00:34:49,850
+我会在稍后向用户介绍如何操作，但请记住这一点
+I'm gonna talk about how to users in a
+moment but just keep in mind this thing
+
+365
+00:34:49,850 --> 00:34:54,949
+呼叫可能会非常慢，因为它的自然实现是
+calls likely to be pretty slow because
+the natural implementation of it is that
+
+366
+00:34:54,949 --> 00:34:58,610
+它实际上熄灭了，并与所有其他数据中心进行了对话，并要求他们
+it actually goes out and talks to all
+the other data centers and asked them
+
+367
+00:34:58,610 --> 00:35:03,950
+您知道是您的密钥支付版本，至少您知道此版本号
+you know is your version of key pay up
+to at least you know this version number
+
+368
+00:35:03,950 --> 00:35:07,730
+然后必须等待展位等待数据中心做出响应，如果有的话
+and then have to wait booth for the data
+centers to respond and if any of them
+
+369
+00:35:07,730 --> 00:35:13,270
+说不，是的，然后必须读取该数据，是的，那么您将如何使用它
+say no it's got to then read that data
+yes all right so how would you use this
+
+370
+00:35:13,270 --> 00:35:19,940
+再说一遍，现在我们的照片列表也许是正在更新的客户
+well again for our photo list
+now maybe client one that's updating
+
+371
+00:35:19,940 --> 00:35:23,690
+它将被调用的照片插入将要获得版本的照片
+photos it's going to call put to insert
+the photo it's gonna get a version
+
+372
+00:35:23,690 --> 00:35:36,920
+现在您知道程序员必须拥有的编号，这里存在更新的危险
+number now you know the programmer now
+has to there's a danger here that update
+
+373
+00:35:36,920 --> 00:35:40,760
+这张照片，但是您知道如果您知道的其他数据中心还没有出现怎么办
+the photo this but you know what if some
+other data center you know hasn't seen
+
+374
+00:35:40,760 --> 00:35:48,590
+我的照片还没有，所以程序员会说“同步”，而你会沉没
+my photo yet so then the programmer is
+gonna say sync and you're gonna sink the
+
+375
+00:35:48,590 --> 00:35:53,480
+照片等待所有数据中心使用该版本号返回的版本号
+photo wait for all data centers to have
+that version number that was returned by
+
+376
+00:35:53,480 --> 00:36:00,440
+放置，并且只有在同步返回之后，客户端一次调用放置更新才会更新
+put and only after the sync return will
+client one call put update update the
+
+377
+00:36:00,440 --> 00:36:05,210
+照片列表，现在如果客户2出现，我必须阅读照片列表并
+photo list and now if client two comes
+along I must read the photo list and
+
+378
+00:36:05,210 --> 00:36:09,800
+然后在照片中，你知道谁知道客户二将做
+then to be in the photo you know who
+knows client two is going to do a get of
+
+379
+00:36:09,800 --> 00:36:18,560
+照片列表，假设时间流逝对他们来说是一样的
+the photo list let's say time is
+passing the same for them it's gonna do
+
+380
+00:36:18,560 --> 00:36:23,120
+获取照片列表，如果看到该列表中的照片，它将获取
+a get at the photo list and if it sees
+the photo on that list it'll do a get
+
+381
+00:36:23,120 --> 00:36:29,330
+您再次在照片的本地数据中心知道了，现在我们实际上在
+you know again in its local data center
+of the photo and now we're actually in
+
+382
+00:36:29,330 --> 00:36:36,260
+如果客户在其他数据中心看到照片，情况会好得多
+much better situation if client to in a
+different data center saw the photo in
+
+383
+00:36:36,260 --> 00:36:45,770
+则表示该客户希望已经调用此列表
+this list then that means that client
+want had already called put on this list
+
+384
+00:36:45,770 --> 00:36:50,300
+因为如果客户需要的话，就是这个清单添加了清单的素材
+because it's this put that adds the
+footage of the list if client wanted
+
+385
+00:36:50,300 --> 00:36:54,290
+已经被称为“放到此列表中”，这意味着客户现在已经给出了方法
+already called put on this list that
+means the client one now given the way
+
+386
+00:36:54,290 --> 00:36:58,580
+此代码正常工作，已经调用过接收器，接收器直到
+this code works right had already called
+sink and sink doesn't return until the
+
+387
+00:36:58,580 --> 00:37:03,500
+照片出现在所有数据中心，这意味着客户端两个可以
+photo is present at all data centers so
+that means that client two can the
+
+388
+00:37:03,500 --> 00:37:09,200
+客户二的程序员可以很好地依赖列表中的照片，这意味着
+programmer for client two can rely on
+well the photos in the list that means
+
+389
+00:37:09,200 --> 00:37:16,160
+这个将镜头添加到列表中的人，他们的同步已完成，并且事实
+this whoever added the footage to the
+list their sync completed and the fact
+
+390
+00:37:16,160 --> 00:37:18,680
+完成此操作意味着照片随处可见，并且
+that this thing completed means the
+photo is present everywhere and
+
+391
+00:37:18,680 --> 00:37:28,270
+因此，我们可以依靠此获取照片实际返回照片，这样
+therefore we can rely on this get photo
+actually returning the photograph ok so
+
+392
+00:37:28,270 --> 00:37:37,100
+这行得通，而且实际上相当实用，确实需要相当小心
+this works and it's actually reasonably
+practical it does require fairly careful
+
+393
+00:37:37,100 --> 00:37:40,520
+在您所知道的程序或程序员方面已经思考过了
+thought on the part of the program or
+the programmer you know has to think aha
+
+394
+00:37:40,520 --> 00:37:45,770
+我在这里需要一个水槽，我需要放一个水槽以使工作正常
+I need a sink here I need to put sink
+put in order for things to work out
+
+395
+00:37:45,770 --> 00:37:50,330
+对读者来说，读者的速度要快得多，但读者仍然需要
+right the reader for the readers much
+faster but the reader still needs to
+
+396
+00:37:50,330 --> 00:37:56,570
+想想，您知道我至少要测试一下程序员对您的要求
+think oh you know I'm gonna at least
+tested that the programmer has to you
+
+397
+00:37:56,570 --> 00:37:59,780
+知道检查一下是否他是程序员是否做了一个获取列表，然后我
+know check with it if he's if the
+programmer does a get list and then I
+
+398
+00:37:59,780 --> 00:38:03,580
+从该列表中获取照片，您知道吗，请验证代码是否正确
+get photo from that list that uh you
+know verify that indeed the code
+
+399
+00:38:03,580 --> 00:38:08,390
+在为列表添加一些东西之前修改了名为接收器的列表
+modified the list called sink before
+adding some things for list that is
+
+400
+00:38:08,390 --> 00:38:11,020
+相当多的想法
+quite a bit of thought
+
+401
+00:38:11,190 --> 00:38:15,090
+这与接收器有关，因为所有与执行命令有关，请确保
+with this is all about the sink cause
+all about is enforcing order make sure
+
+402
+00:38:15,090 --> 00:38:22,830
+在读者发生这种事情之前完全完成
+that this completely finishes before
+this happens the readers so that sink
+
+403
+00:38:22,830 --> 00:38:26,580
+对于作家来说，明确的强制秩序也是读者必须考虑的问题。 
+and sort of explicitly forces order for
+writers readers also have to think about
+
+404
+00:38:26,580 --> 00:38:31,590
+顺序在本示例中，顺序实际上是显而易见的，但是如果
+order the order is actually obvious in
+this example but it is true that if the
+
+405
+00:38:31,590 --> 00:38:36,390
+作家确实放了一个看跌期权，然后下沉，然后放了第二件事，然后几乎总是
+writer did put a put then sink and then
+put of a second thing then almost always
+
+406
+00:38:36,390 --> 00:38:41,580
+读者需要阅读第二件事，然后阅读第一件事，因为
+readers need to read the second thing
+and then read the first thing because
+
+407
+00:38:41,580 --> 00:38:46,110
+保证您从此沉没方案中摆脱出来这些障碍是
+guarantees you get out of this out of
+this sink scheme these barriers is that
+
+408
+00:38:46,110 --> 00:38:51,780
+如果读者看到第二条数据，那么他们一定也会看到
+if a reader sees the second piece of
+data then they're guaranteed to also see
+
+409
+00:38:51,780 --> 00:38:55,140
+第一块数据，这意味着读者需要成为第二块
+the first piece of data so that means
+the reader sort of need to be the second
+
+410
+00:38:55,140 --> 00:39:03,330
+首先是数据，然后是第一项数据，所以有一个
+piece of data first and then and then
+the first item of data okay so there's a
+
+411
+00:39:03,330 --> 00:39:07,080
+关于容错的问题主要在于一个数据中心是否发生故障
+there's a question about fault tolerance
+mainly at if one data center goes down
+
+412
+00:39:07,080 --> 00:39:10,590
+这意味着接收器会阻塞，直到其他数据中心启动
+that means the sink blocks until the
+other data centers brought up
+
+413
+00:39:10,590 --> 00:39:16,680
+那是绝对正确的，所以您完全正确，这是一个不是
+that's absolutely right so you're
+totally correct this is a this is not a
+
+414
+00:39:16,680 --> 00:39:21,450
+好办法，这在警察下沉的路上有点像个稻草人
+great scheme alright this is sort of a
+straw man on the way the cops this sink
+
+415
+00:39:21,450 --> 00:39:26,760
+被称为会阻止这种方式的人们
+called would block the way this actually
+that sort of version of this that people
+
+416
+00:39:26,760 --> 00:39:31,920
+在现实世界中使用以避免此问题，您是否知道任何数据
+use in the real world to avoid this
+problem will you know whatever data
+
+417
+00:39:31,920 --> 00:39:37,080
+居中向下将永远阻止水槽堵塞
+centers down will the sink block forever
+is that puts and gets both actually
+
+418
+00:39:37,080 --> 00:39:45,450
+请咨询数据中心的法定人数，以便此接收器仅在等待您知道
+consult a quorum of data center so that
+this a sink will only wait for you know
+
+419
+00:39:45,450 --> 00:39:50,580
+说大多数数据中心承认他们拥有最新的
+say a majority year of data centers to
+acknowledge that they have the latest
+
+420
+00:39:50,580 --> 00:39:55,260
+照片的版本及其获取实际上必须参考重叠部分
+version of the photo and it get will
+actually have to consult an overlapping
+
+421
+00:39:55,260 --> 00:40:01,590
+大多数数据中心为了获取数据所以事情并不是真的
+majority of data centers to in order to
+get the data so things are not really
+
+422
+00:40:01,590 --> 00:40:08,520
+真实版本可能不像我可能再次暗示的那样乐观
+real versions of this are not perhaps as
+rosy aasaiya as I may be implying again
+
+423
+00:40:08,520 --> 00:40:16,440
+以这种方式工作的系统就是您感兴趣的发电机
+the the systems that work in this way is
+you're interested it's dynamo
+
+424
+00:40:16,440 --> 00:40:28,140
+和卡桑德拉（Cassandra），他们使用法定人数来避免壁谈。 
+and Cassandra and they use quorums to
+avoid the wall talks pop okay okay so
+
+425
+00:40:28,140 --> 00:40:32,910
+这是一个简单的设计，尽管速度很慢，但语义也很不错
+this is a straightforward design and has
+decent semantics even though it's slow
+
+426
+00:40:32,910 --> 00:40:36,540
+而且正如您所观察到的那样，容错性能不是很好
+and this as you observe not very fault
+tolerant the read performance is
+
+427
+00:40:36,540 --> 00:40:41,819
+出色的，因为至少在我们达到法定人数的情况下，读取仍然是本地的
+outstanding because the reads are still
+for local at least if we if the quorum
+
+428
+00:40:41,819 --> 00:40:47,190
+设置是一次读取所有写入，写入性能虽然不是很好，但是
+setup is read one write all and the
+write performance is not great but it's
+
+429
+00:40:47,190 --> 00:40:52,020
+好吧，如果您写得不是很多，或者您不介意等待很长时间， 
+okay if you don't write very much or if
+you don't mind great waiting and the
+
+430
+00:40:52,020 --> 00:40:55,849
+为什么您可以说服自己利率表现是
+reason why you can maybe convince
+yourself that the rate performance is
+
+431
+00:40:55,849 --> 00:41:01,230
+不是灾难，毕竟Facebook memcache D论文必须发送
+not a disaster is that after all the
+Facebook memcache D paper has to send
+
+432
+00:41:01,230 --> 00:41:04,470
+通过主数据中心拥有所有权利，是的，您知道Facebook在运行
+all rights through the primary data
+center so yeah you know Facebook runs
+
+433
+00:41:04,470 --> 00:41:08,760
+多个数据中心和客户都与他们交谈，但是费率却要
+multiple data centers and clients talk
+to all of them but the rates have to all
+
+434
+00:41:08,760 --> 00:41:13,490
+被发送到一个主要数据中心的我的续集数据库中
+be sent to the my sequel databases at
+the one primary data center
+
+435
+00:41:13,490 --> 00:41:18,119
+同样，扳手写入必须等待大多数副本站点才能完成
+similarly spanner writes have to wait
+for a majority of replica sites to
+
+436
+00:41:18,119 --> 00:41:21,630
+在客户认为继续进行之前先确认权利，因此这一概念
+acknowledge the rights before the
+clients thought to proceed so the notion
+
+437
+00:41:21,630 --> 00:41:25,859
+客户可能会裁定，权利可能必须等待与之交谈
+that clients might have dis rule that
+the rights might have to wait to talk to
+
+438
+00:41:25,859 --> 00:41:30,540
+其他数据中心为了使读取速度更快，似乎没有
+other data centers in order to allow the
+reads to be fast is does not appear to
+
+439
+00:41:30,540 --> 00:41:38,040
+在实践中还是很暴行的妈妈我仍然知道你可能还是想
+be outrageous in practice mom still I
+you know you might like to nevertheless
+
+440
+00:41:38,040 --> 00:41:42,900
+有一个比这更好的系统，以某种方式具有同步的语义
+have a system that does better than this
+to somehow have semantics of sync that
+
+441
+00:41:42,900 --> 00:41:48,270
+某种程度或同步性正在迫使这一投放肯定在所有人看来都在发生
+sort of or sync is forcing this put
+definitely appears to everyone to happen
+
+442
+00:41:48,270 --> 00:41:54,329
+在第二次投放之前，您可能希望拥有而无需花费任何费用，因此我们将
+before the second put you might like to
+have that and without the cost so we'll
+
+443
+00:41:54,329 --> 00:41:58,440
+对系统感兴趣，这已经开始接近警察的工作
+be interested in systems and this is
+starting to get close to what cops does
+
+444
+00:41:58,440 --> 00:42:02,790
+对那些不是强迫客户等待的系统感兴趣的系统
+interested in systems in which instead
+of sort of forcing the clients to wait
+
+445
+00:42:02,790 --> 00:42:06,780
+在这一点上，我们以某种方式将订单编码为一条信息， 
+at this point we somehow just encode the
+order as a piece of information that
+
+446
+00:42:06,780 --> 00:42:16,010
+我们将告诉读者或告诉其他数据中心和一个简单的
+we're going to tell the readers or tell
+the other data centers and a simple
+
+447
+00:42:16,010 --> 00:42:24,710
+本文提到的不可扩展的实现是
+do that which the paper mentions as a
+non scalable implementation is that at
+
+448
+00:42:24,710 --> 00:42:31,490
+每个数据中心，所以这是每个数据中心的日志记录方法，而不是
+each data center so this is a logging
+approach at each data center instead of
+
+449
+00:42:31,490 --> 00:42:36,140
+让不同的分片服务器在其他数据中与对方通信
+having the different shard servers talk
+to their counterparts in other data
+
+450
+00:42:36,140 --> 00:42:43,700
+服务器有点独立，而不是每天我们都会在中心
+servers sort of independently instead at
+every day the center we're gonna have a
+
+451
+00:42:43,700 --> 00:42:49,700
+指定的日志服务器，负责向其发送写操作
+designated log server that's in charge
+of communicating of sending writes to
+
+452
+00:42:49,700 --> 00:42:56,300
+另一个数据中心，这意味着如果客户正确执行了操作，则将其置于
+the other data center so that means if a
+client does it right does it put to its
+
+453
+00:42:56,300 --> 00:43:00,680
+本地分片，而不是仅发送数据的图表
+local shard and that's chart that shard
+instead of just sending that the data
+
+454
+00:43:00,680 --> 00:43:07,010
+与其他数据中心分开，将与他的本地日志对话
+out sort of separately to the other data
+centers will talk to his local log
+
+455
+00:43:07,010 --> 00:43:13,280
+服务器，并将权限附加到该数据中心所在的一个日志中
+server and append the right to the one
+log that this data center is
+
+456
+00:43:13,280 --> 00:43:18,650
+积累，然后如果客户说对另一个密钥进行写操作，也许
+accumulating and then if a client say
+does a write to a different key maybe
+
+457
+00:43:18,650 --> 00:43:25,520
+我们在这里写密钥a和密钥b，而不是再次写shard 
+we're writing key a and key B here
+instead of again instead of this shard
+
+458
+00:43:25,520 --> 00:43:31,010
+服务器独立地发送密钥B的权利，它将告诉
+server sending the right to key B sort
+of independently it's gonna tell the
+
+459
+00:43:31,010 --> 00:43:37,280
+本地日志服务器将权限附加到日志，然后日志服务器发送出去
+local log server to append the right to
+the log and then the log server send out
+
+460
+00:43:37,280 --> 00:43:45,080
+将其日志按日志顺序发送到其他数据中心，以便所有数据中心
+their log to the other data centers in
+log order so that all data centers are
+
+461
+00:43:45,080 --> 00:43:49,400
+保证会看到第一次诉讼的权利，他们将希望能够处理该比率
+guaranteed to see the right to a first
+and they're gonna hope process that rate
+
+462
+00:43:49,400 --> 00:43:53,630
+首先，然后所有数据中心都将看到我们拥有B的权利， 
+to a first and then all data centers are
+going to see our right to B and that
+
+463
+00:43:53,630 --> 00:43:57,950
+意味着如果客户首先拥有权利，然后又有权成为
+means if a client does a right to a
+first and then does it right to be the
+
+464
+00:43:57,950 --> 00:44:01,640
+写入将以该顺序显示，并在其日志a和b中显示，并且将被发送
+writes will show up in that order and it
+in its log a and B and they'll be sent
+
+465
+00:44:01,640 --> 00:44:06,200
+首先拥有t的数据权，然后拥有t的每个数据中心的权利
+the right to a first and then the right
+to be to each of the t's data centers
+
+466
+00:44:06,200 --> 00:44:11,870
+并且实际上可能必须将它们发送到某种单一日志接收中
+and they probably actually have to be
+sent to a kind of single log receiving
+
+467
+00:44:11,870 --> 00:44:19,550
+服务器以日志顺序到达时一次播放一个速率，因此
+server which plays out the rates one at
+a time as they arrive in log order so
+
+468
+00:44:19,550 --> 00:44:23,810
+如果论文批评，这就是采伐策略
+this is the logging strategy if the
+paper criticizes
+
+469
+00:44:23,810 --> 00:44:29,240
+它实际上重新获得了我们想要的一些性能，因为现在客户
+it's actually regain some of the
+performance we want because now clients
+
+470
+00:44:29,240 --> 00:44:33,380
+我们不再是现在，我们消除了客户可以回去的汇
+we're no longer we now eliminate the
+sinks the clients can go back to this
+
+471
+00:44:33,380 --> 00:44:41,450
+先放a然后放B，他们的客户看跌期权可以在
+going put of a and then put B and they
+client puts can return as soon as the
+
+472
+00:44:41,450 --> 00:44:46,670
+数据位于本地日志服务器上的日志中，因此现在客户端放置和获取
+data is sitting in the log at the local
+log server so now client puts and gets
+
+473
+00:44:46,670 --> 00:44:51,620
+现在又很快了，但我们保留的排序方式是
+are now quite fast again
+but we're preserving order sort of by
+
+474
+00:44:51,620 --> 00:44:56,480
+基本上是通过条目和日志的序号，而不是
+basically through the sequence numbers
+of the entries and the logs rather than
+
+475
+00:44:56,480 --> 00:45:01,640
+通过让客户等待，这很好，我们得到了您现在知道的订单， 
+by having the clients wait so that's
+nice we get the order you know now we're
+
+476
+00:45:01,640 --> 00:45:08,180
+强制执行有序的写操作，我们使权利按顺序显示在
+forcing ordered writes and we're causing
+the rights to show up in order at the
+
+477
+00:45:08,180 --> 00:45:11,720
+其他数据中心，以便阅读客户可以按顺序看到它们，等等
+other data center so that reading
+clients will see them in order and so
+
+478
+00:45:11,720 --> 00:45:16,990
+我们的示例应用程序实际上可以使用此方案解决它们
+our my example application might
+actually work them out with this scheme
+
+479
+00:45:17,770 --> 00:45:24,170
+本文指出的这种解决方案风格的缺点是
+the drawback that the paper points to
+about this style of solution is that the
+
+480
+00:45:24,170 --> 00:45:29,420
+现在，日志服务器的所有权利都必须通过此一台日志服务器，因此，如果我们
+log server now all the rights have to go
+through this one log server and so if we
+
+481
+00:45:29,420 --> 00:45:34,700
+有一个很大的大型数据库，可能有数百台服务器至少在
+have a big big database with maybe
+hundreds of servers serving at least in
+
+482
+00:45:34,700 --> 00:45:39,200
+总共有相当高的工作量正确的工作量，所有权利
+total a reasonably high workload the
+right workload all the rights have to go
+
+483
+00:45:39,200 --> 00:45:45,170
+通过此日志服务器，可能所有权限都必须通过
+through this log server and possibly all
+the rights have to be played out through
+
+484
+00:45:45,170 --> 00:45:50,900
+远端有一台接收日志服务器，而一台日志服务器作为
+a single receiving log server at the far
+end and a single log server as the
+
+485
+00:45:50,900 --> 00:45:54,410
+系统不断增长，单个日志服务器可能停止运行的碎片越来越多
+system grows there get to be more and
+more shards a single log server may stop
+
+486
+00:45:54,410 --> 00:46:01,880
+足够快地处理所有这些比率，因此警察不遵守此规定
+being fast enough to process all these
+rates and so cops does not follow this
+
+487
+00:46:01,880 --> 00:46:10,870
+将订单约束传达给其他数据中心的方法
+approach to conveying the order
+constraints to other data centers
+
+488
+00:46:10,870 --> 00:46:17,120
+好吧，所以我们要建立一个至少可以从客户角度出发的系统
+okay so we want to build a system that
+can at least from the clients point of
+
+489
+00:46:17,120 --> 00:46:20,600
+查看处理速度并纯粹在本地读取，我们不想等待
+view process rates and reads purely
+locally we don't want to have to wait
+
+490
+00:46:20,600 --> 00:46:25,610
+您不希望客户等待以获得订单，我们想要我们喜欢的货代
+you don't want clients to wait in order
+to get order we want a forward we like
+
+491
+00:46:25,610 --> 00:46:31,490
+这些速率正在异步转发的事实，但我们不知何故
+the fact that these rates are being
+forward asynchronously but we somehow
+
+492
+00:46:31,490 --> 00:46:37,850
+想消除中央日志服务器，所以我们想以某种方式传达
+want to eliminate the central log server
+so we want to somehow convey
+
+493
+00:46:37,850 --> 00:46:41,440
+向其他数据中心订购信息，而不必考虑所有费用
+order information to other data centers
+without having to funnel all our rates
+
+494
+00:46:41,440 --> 00:46:48,560
+通过一个原木好吧，现在让我们了解实际的警察
+through a single logs alright so now
+that brings us to what cops is actually
+
+495
+00:46:48,560 --> 00:46:54,410
+到现在为止，当我可以谈论的时候，开始是警察的职责和职责
+up to so when I can talk about now is
+starting to be what cops does and what
+
+496
+00:46:54,410 --> 00:47:00,740
+我说的是警察的非GTE版本
+I'm talking about though is the non GTE
+version of cops cops without get
+
+497
+00:47:00,740 --> 00:47:11,600
+交易很好，所以警察是这里的基本策略是当警察客户
+transactions ok so the cops is the basic
+strategy here is that when cops clients
+
+498
+00:47:11,600 --> 00:47:16,130
+在本地读写，它们积累有关顺序的信息
+read and write locally they accumulate
+information about the order in which
+
+499
+00:47:16,130 --> 00:47:21,050
+他们所做的事情比日志记录方案要精细一些
+they're doing things that's a little
+more fine-grain than the logging scheme
+
+500
+00:47:21,050 --> 00:47:26,750
+并且只要有客户，该信息就会发送到远程数据中心
+and that information is sent to the
+remote data centers whenever a client
+
+501
+00:47:26,750 --> 00:47:34,580
+没有引用，因此我们拥有客户端上下文的概念，并且作为客户端
+doesn't quote so this we have this
+notion of client context and as a client
+
+502
+00:47:34,580 --> 00:47:42,070
+确实得到一些看跌期权，您可能知道一个客户获得了X，然后得到了Y 
+does get some puts you know maybe a
+client as a get of X and then I get it Y
+
+503
+00:47:42,070 --> 00:47:48,430
+然后有一些价值的Z看跌期权
+and then a put of Z with some value
+
+504
+00:47:49,569 --> 00:47:57,499
+客户端用来实现Budhan get的库正在运行
+the context the library that the client
+uses that implements Budhan get is going
+
+505
+00:47:57,499 --> 00:48:01,789
+在这种情况下，作为沙堆放在一边
+to be accumulated in this context
+information on the side as the put sand
+
+506
+00:48:01,789 --> 00:48:07,069
+会发生，因此如果客户端无法获得，则版本会产生一些价值
+gets occur so if a client doesn't get
+and that yields some value with version
+
+507
+00:48:07,069 --> 00:48:13,249
+ 2我将保存为例，也许get返回当前
+2 I'm just going to save that as an
+example maybe get returns the current
+
+508
+00:48:13,249 --> 00:48:20,179
+ x的值，以及当前版本2的当前值，也许Y返回
+value of x and that current value House
+version 2 and maybe Y returns the
+
+509
+00:48:20,179 --> 00:48:25,459
+版本在上下文中要累积的当前值
+current value of version for what's
+going to be accumulated in the context
+
+510
+00:48:25,459 --> 00:48:37,119
+是该客户端已读取X并获得了版本2，然后在获取之后了解为什么
+is that this client has read X and a got
+version 2 then after the get for why the
+
+511
+00:48:37,119 --> 00:48:43,099
+警察客户端库将添加到上下文中，以便不仅仅是我们已经阅读过
+cops client libraries gonna add to the
+context so that it's not just we've read
+
+512
+00:48:43,099 --> 00:48:47,739
+ X并获得版本2，但现在我们已经阅读Y并获得版本4， 
+X and gotten version 2 but also now
+we've read Y and gotten version 4 and
+
+513
+00:48:47,739 --> 00:48:57,009
+当客户做一个把发送到本地的信息
+when the client does a put the
+information that's sent to the local
+
+514
+00:48:57,009 --> 00:49:06,589
+分片服务器不只是放置密钥，如果值是，还这些
+shard server is not just put key and
+what if the value is but also these
+
+515
+00:49:06,589 --> 00:49:12,589
+依赖关系，所以我们将告诉Z的本地分片服务器
+dependencies so we're going to tell the
+local shard server for Z that this
+
+516
+00:49:12,589 --> 00:49:19,189
+客户在执行看跌期权X之前已经阅读并获得版本2和Y 
+client has already read before doing the
+put X and got version 2 and Y and got
+
+517
+00:49:19,189 --> 00:49:21,819
+版本4 
+version 4
+
+518
+00:49:23,220 --> 00:49:28,540
+而且您知道这里发生的是我们告诉客户在哪里
+and you know what's going on here is
+that we're telling where the client is
+
+519
+00:49:28,540 --> 00:49:34,600
+表示客户现在拥有的此订购信息
+expressing this ordering information
+that this put to Z now the client had
+
+520
+00:49:34,600 --> 00:49:39,040
+在做脚之前，似乎是X版本2和Y版本4 
+seemed X version 2 and Y version 4
+before doing the foot so anybody else
+
+521
+00:49:39,040 --> 00:49:44,140
+读过Z版本的人最好还是和野兽一起看X＆Y 
+who reads this version of Z had also
+better be seeing X&Y with the Beasties
+
+522
+00:49:44,140 --> 00:49:54,450
+版本，如果客户随后又做了其他操作，则类似地说Q 
+versions and similarly if the client
+then does a put of something else say Q
+
+523
+00:49:54,960 --> 00:50:01,630
+发送到本地分片服务器的不仅是Q， 
+what's going to be sent to the local
+shard server is not just the Q and this
+
+524
+00:50:01,630 --> 00:50:08,020
+而且这个客户以前做过的事实也得到了输入，所以让我们
+but also the fact that this client had
+previously done some gets input so let's
+
+525
+00:50:08,020 --> 00:50:14,950
+假设此看跌期权产生版本3，您知道本地分片服务器说
+suppose this put yields version 3 you
+know the local shard server says a high
+
+526
+00:50:14,950 --> 00:50:19,390
+将版本3分配给Z的新值，然后当我们退出时
+assigned version three to your new value
+for Z then when we come to do the quit
+
+527
+00:50:19,390 --> 00:50:22,990
+ Q的内容将伴随着依赖信息，该信息表示
+of Q is going to be accompanied with
+dependency information that says this
+
+528
+00:50:22,990 --> 00:50:29,020
+放置在此Q放置在创建Z的Z放置之后
+put comes after this put of Q comes
+after the put of Z that created Z
+
+529
+00:50:29,020 --> 00:50:36,750
+第三版，至少在概念上其余部分
+version three and at least notionally
+the rest of the context
+
+530
+00:50:38,079 --> 00:50:46,670
+还应该通过，尽管出于各种原因我们会看到警察
+ought to be passed as well although
+we'll see that for various reasons cops
+
+531
+00:50:46,670 --> 00:50:51,980
+可以优化此信息，如果有处理权，则仅发送
+can optimize away this information and
+if there's a proceeding put only sends
+
+532
+00:50:51,980 --> 00:50:58,010
+要点的版本信息，所以问题对
+the version information for the point so
+the question is is it important for the
+
+533
+00:50:58,010 --> 00:51:09,109
+命令的上下文我不相信，所以我认为我认为治疗就足够了
+context to be ordered I don't believe so
+I think I think it's sufficient to treat
+
+534
+00:51:09,109 --> 00:51:15,770
+上下文或至少在看跌期权中发送的信息只是一个大袋子
+the context or at least the information
+that's sent in the put as just a big bag
+
+535
+00:51:15,770 --> 00:51:25,819
+至少有四个非交易警察的依存关系，所以
+of dependencies for at least four
+non-transactional cops okay so the
+
+536
+00:51:25,819 --> 00:51:29,300
+客户是这个上下文的社区，并且基本上每次发送时都发送上下文
+clients are community this context and
+basically send the context with each put
+
+537
+00:51:29,300 --> 00:51:36,829
+上下文正在编码此订单信息，这在我之前的稻草中
+and the context is encoding this order
+information that in my previous straw
+
+538
+00:51:36,829 --> 00:51:41,359
+稻草人2被水槽强迫而不是那样做，我们不是
+man straw man 2 was sort of forced by
+sink instead of doing that we're not
+
+539
+00:51:41,359 --> 00:51:47,089
+等待伴随着这些看跌期权，哦，这个看跌期权需要在这些之后
+waiting for accompanying these puts with
+oh this put needs to come after these
+
+540
+00:51:47,089 --> 00:51:56,119
+先前的值，而这个看跌期权需要在这些先前的值警察之后
+previous values and this put needs to
+come after these previous values cops
+
+541
+00:51:56,119 --> 00:52:00,890
+称这些关系需要在之前的这些之后
+calls these relationships that this put
+needs to come after these previous
+
+542
+00:52:00,890 --> 00:52:04,270
+依赖值
+values of dependency
+
+543
+00:52:05,900 --> 00:52:14,779
+和依赖关系，并将其写为假设这只脚产生了Z版本
+and dependency and it writes it as
+supposing this foot produces Z version
+
+544
+00:52:14,779 --> 00:52:23,720
+三个我们表示为真的，实际上有两个依赖关系，一个在这里
+three we express it as really there's
+two actually two dependencies here one
+
+545
+00:52:23,720 --> 00:52:32,799
+是X版本2在Z版本3之前，另一个是Y 
+is that X version two comes before Z
+version three and the other is that Y
+
+546
+00:52:32,799 --> 00:52:42,859
+版本4出现在Z版本3之前，而这仅仅是定义
+version four comes before Z version
+three and these are it's just definition
+
+547
+00:52:42,859 --> 00:52:50,779
+或本文用来谈论这些个别订单的注释
+or notation that the paper uses to talk
+about these individual pieces of order
+
+548
+00:52:50,779 --> 00:52:58,339
+警察需要执行的信息还可以，那么这是什么
+information that cops needs to enforce
+alright so so then what is this what is
+
+549
+00:52:58,339 --> 00:53:02,000
+这个依赖信息传递给本地分片服务器，那是什么
+this dependency information this passed
+to the local shard server what does that
+
+550
+00:53:02,000 --> 00:53:12,289
+实际导致警察做得很好，当它收到来自
+actually cause cops to do well eats cops
+shard server when it receives a put from
+
+551
+00:53:12,289 --> 00:53:18,710
+本地客户端首先分配新版本号，然后存储新版本号
+a local client first it assigns the new
+version number then it stores the new
+
+552
+00:53:18,710 --> 00:53:22,910
+您知道的值会为Z存储此新值以及该版本号
+value you know it stores for Z this new
+value along with the version number that
+
+553
+00:53:22,910 --> 00:53:33,260
+它分配的长版本号，然后将整个混乱发送给每个
+it long version number that allocated
+and then it sends the whole mess to each
+
+554
+00:53:33,260 --> 00:53:38,599
+另一个数据中心的数据，因此至少有一些非GT应对本地分片服务器
+of the other data center so at least
+some non GT cops the local shard server
+
+555
+00:53:38,599 --> 00:53:43,369
+只记住键值，而最新版本号实际上不记得
+only remembers the key value and latest
+version number doesn't actually remember
+
+556
+00:53:43,369 --> 00:53:46,609
+依赖关系，并且仅将它们通过网络转发给其他数据
+the dependencies and only forwards them
+across the network to the other data
+
+557
+00:53:46,609 --> 00:53:57,319
+中心，所以现在的位置是，假设我们有一个客户
+centers so now the position were in is
+that let's say we had a client produced
+
+558
+00:53:57,319 --> 00:54:08,900
+ Z的看跌期权和一些值，它被分配了版本号v3，并且具有
+a put of Z and some value it was
+assigned version number v3 and it had
+
+559
+00:54:08,900 --> 00:54:11,859
+这些依赖
+these dependencies
+
+560
+00:54:13,090 --> 00:54:22,630
+ XV 2 + YB 4对，这是从数据中心1发送的，比如说
+XV 2 + a YB 4 right and this is sent
+from datacenter 1 let's say to the other
+
+561
+00:54:22,630 --> 00:54:29,020
+数据中心，所以我们有一个数据中心2和数据中心3现在都收到了
+data center so we got a datacenter 2 and
+datacenter 3 both receive this now in
+
+562
+00:54:29,020 --> 00:54:34,360
+实际上，此信息是从The Shard服务器发送给ze的，所以有很多
+fact this information is sent from The
+Shard server for ze so there's lots of
+
+563
+00:54:34,360 --> 00:54:40,530
+分片服务器，但仅涉及Z的分片
+shard servers but only the shard for Z
+is involved in this
+
+564
+00:54:40,530 --> 00:54:49,960
+所以这里数据中心3的衬衫是Z的，这是从发送来的。 
+so here datacenter 3 the shirts are for
+Z is going to receive this put from sent
+
+565
+00:54:49,960 --> 00:54:54,960
+由客户端短服务器转发
+by the client short server forwards it
+
+566
+00:54:56,070 --> 00:55:02,200
+这个短服务器具有您知道XV的此依赖项信息
+this short server the the with this
+dependency information that you know X V
+
+567
+00:55:02,200 --> 00:55:06,910
+ 2和Y在出现在ZB 3之前，但这实际上意味着在操作上是
+2 and Y before come before Z B 3 but
+that really means is operationally is
+
+568
+00:55:06,910 --> 00:55:14,620
+直到Z的新版本才能向客户公开
+that this new version of Z can't be
+revealed to clients until its
+
+569
+00:55:14,620 --> 00:55:22,180
+依赖关系，这些版本的x和y已经在
+dependencies these versions of x and y
+have already been revealed to clients in
+
+570
+00:55:22,180 --> 00:55:27,070
+数据中心3，这意味着分片服务器visi必须拥有此权限
+datacenter 3 so that means that the
+shard server visi must hold this right
+
+571
+00:55:27,070 --> 00:55:33,370
+必须延迟将此权限应用于Z，直到知道这2个依赖项
+must delay applying this right to Z
+until it knows that these 2 dependencies
+
+572
+00:55:33,370 --> 00:55:38,920
+在本地数据中心中可见，这意味着Z必须关闭
+are visible in the local data center so
+that means that Z has to go off let's
+
+573
+00:55:38,920 --> 00:55:43,180
+说您知道我们为X提供这些分片服务器，而短裤则为Y 
+say the you know we have these shard
+server for X and the shorts are for Y
+
+574
+00:55:43,180 --> 00:55:47,320
+ Z的实际上必须向X的分片服务器和分片服务器发送消息
+Z's gotta actually send a message to the
+shard server for X and the shard server
+
+575
+00:55:47,320 --> 00:55:52,330
+ Y表示您知道当前版本的版本号是多少
+for Y saying you know what's the version
+number for a current version for a
+
+576
+00:55:52,330 --> 00:55:58,030
+ x和y的数字，如果这两个分片都必须等待结果
+number for x and y and has to wait for
+the result if both of these shards
+
+577
+00:55:58,030 --> 00:56:01,450
+服务器说哦，您知道他们给出的版本号是2或更高或4 
+servers say oh you know they give a
+version number that's 2 or higher or 4
+
+578
+00:56:01,450 --> 00:56:09,420
+或Y更高，则Z可以继续并将其应用于本地数据表
+or higher for Y then Z can go ahead and
+apply to put to its local table of data
+
+579
+00:56:09,420 --> 00:56:16,390
+但是您知道这两个分片服务器可能尚未收到更新
+however you know maybe these two shard
+servers haven't received the updates
+
+580
+00:56:16,390 --> 00:56:20,260
+对应于Y的外向版本2，而KC必须
+that correspond to version 2 of
+extraversion for Y and that KC has to
+
+581
+00:56:20,260 --> 00:56:23,890
+坚持这个更新，分片服务器必须坚持这个更新，并且
+hold on to this update the shard server
+is he has to hold on to this update and
+
+582
+00:56:23,890 --> 00:56:27,310
+告诉所指示的X或Y版本
+tell
+the indicated versions of X or Y ever
+
+583
+00:56:27,310 --> 00:56:32,020
+实际到达并安装在这两个短服务器上，因此可能
+actually arrived and been installed on
+these two short servers so there may be
+
+584
+00:56:32,020 --> 00:56:37,510
+现在并且只有在数据中心3看到这些依赖关系之后才有一些延迟
+some delays now and only after these
+dependencies are visible at datacenter 3
+
+585
+00:56:37,510 --> 00:56:43,320
+只有这样，a4z的碎片才能继续运行，并为Z编写更新的稳定值
+only then can the shards of a4z go ahead
+and write updated stable for Z to have
+
+586
+00:56:43,320 --> 00:56:54,640
+版本3好的，这当然意味着，如果客户
+version 3 ok and what's what that means
+of course is that if a client the
+
+587
+00:56:54,640 --> 00:56:59,170
+数据中心3会读取Z，然后看到版本3，因为他已经在等待
+datacenter 3 does a read for Z and sees
+version 3 then because he already waited
+
+588
+00:56:59,170 --> 00:57:04,210
+这意味着如果该客户端随后读取X或Y，则可以确保至少看到
+that means if that client then reads X
+or Y it's guaranteed to see at least
+
+589
+00:57:04,210 --> 00:57:10,420
+ X的版本2和Y的至少版本2，因为他没有显示碎片或
+version 2 of X and at least version 2 of
+Y because he didn't reveal the shards or
+
+590
+00:57:10,420 --> 00:57:19,210
+直到确定依赖项可见之后才显示Z 
+didn't reveal Z until it was sure the
+dependencies would be visible ok so
+
+591
+00:57:19,210 --> 00:57:22,870
+问题，如果x和y可能由于网络而永远无法获得其值怎么办
+question what if x and y never get their
+values perhaps due to a network
+
+592
+00:57:22,870 --> 00:57:29,260
+永远用Z碎片块进行分区，是的，而语义要求Z 
+partition with the Z shard block forever
+yeah the um the semantics require the Z
+
+593
+00:57:29,260 --> 00:57:36,400
+永远阻止碎片是绝对正确的，所以您肯定有一个
+shard to block forever that's absolutely
+true so you know there's certainly an
+
+594
+00:57:36,400 --> 00:57:42,850
+假设在这里，他们就是您，您可能会知道两种可能的结果
+assumption here that well they're you
+know two ways that that might turn out
+
+595
+00:57:42,850 --> 00:57:48,130
+好吧，有人修理网络或修理任何损坏的东西，x和
+ok one is somebody repairs the network
+or repairs whatever was broken and x and
+
+596
+00:57:48,130 --> 00:57:52,420
+ y最终确实获得了更新，这是解决此问题的一种方法，然后z将
+y do eventually get their updates that
+be one way to fix this and then z will
+
+597
+00:57:52,420 --> 00:57:57,640
+最终能够应用更新可能需要等待很长时间
+finally be able to apply the update
+might have to wait a long time the other
+
+598
+00:57:57,640 --> 00:58:00,430
+可能是数据中心被完全破坏了
+possibility is maybe the data center is
+entirely destroyed
+
+599
+00:58:00,430 --> 00:58:04,500
+你的意思是建筑物烧毁了，所以我们根本不必担心
+you mean the building burns down and so
+we don't have to worry about this at all
+
+600
+00:58:04,500 --> 00:58:13,680
+但这确实指出了一个对因果一致性和
+but it does point out a problem that's
+real criticism of causal consistency and
+
+601
+00:58:13,680 --> 00:58:21,370
+那就是这些延误实际上是很讨厌的，因为你可以想象哦
+that's that these delays can actually be
+quite nasty because you can imagine oh
+
+602
+00:58:21,370 --> 00:58:25,030
+您知道Z正在等待X的正确值到达，即使
+you know Z is waiting for the correct
+value for X to arrive you know even if
+
+603
+00:58:25,030 --> 00:58:29,710
+没有失败，没有任何消耗，即使仅仅是缓慢也可以
+there's no failures and nothing burns
+down even mere slowness can be
+
+604
+00:58:29,710 --> 00:58:34,570
+令人讨厌的Z伙伴，您必须等待X良好显示，可能是X具有
+irritating Z mate you have to wait for X
+to show up well it could be that X has
+
+605
+00:58:34,570 --> 00:58:38,980
+已经出现并到达此图表
+already showed up and has arrived at
+this charts
+
+606
+00:58:38,980 --> 00:58:43,630
+但它本身可能依赖于键a，因此此图表服务器无法
+but it itself had dependencies maybe on
+key a and so this chart server can't
+
+607
+00:58:43,630 --> 00:58:49,240
+安装它直到更新更新为止，因为X的X取决于X 
+install it until the update for a
+arrives because X this put of X depended
+
+608
+00:58:49,240 --> 00:58:54,339
+在某个键a上，Z仍然需要等待，因为Z等待的是
+on some key a and Z still has to wait
+for that because what Z's waiting for is
+
+609
+00:58:54,339 --> 00:58:59,500
+为了使该版本的X对客户端可见，因此必须安装它，以便
+for this version of X to be visible to
+client so it has to be installed so if
+
+610
+00:58:59,500 --> 00:59:02,920
+如果X的更新已到达但它本身正在等待一些更新，则到达
+it's arrived if the update for X is
+arrived but itself is waiting for some
+
+611
+00:59:02,920 --> 00:59:09,880
+其他依赖性，那么我们可能会得到这些级联的依赖性
+other dependency then we may get these
+cascading dependency Waits and in real
+
+612
+00:59:09,880 --> 00:59:15,310
+生活实际上这些，你知道这些可能会发生，这是其中之一
+life actually these you know these
+probably would happen and it's one of
+
+613
+00:59:15,310 --> 00:59:21,460
+人们提出的问题以及您知道反对来电的问题是一致性
+the problems that people bring up and
+you know against calls are consistency
+
+614
+00:59:21,460 --> 00:59:27,070
+当您尝试说服他们时，最好是这个层叠的问题
+when when you try to persuade them it's
+a good idea this problem of cascading
+
+615
+00:59:27,070 --> 00:59:33,760
+延迟，所以这太糟糕了，尽管在这一点上确实是
+delays so that's too bad um although on
+that note it is true that the authors of
+
+616
+00:59:33,760 --> 00:59:38,440
+警察文件对P的关注实际上有几个有趣的地方
+the cops paper have a follow on P
+actually a couple of interesting
+
+617
+00:59:38,440 --> 00:59:43,930
+后续论文，但其中之一对这种级联有一定的缓解作用
+follow-on papers but one of them has
+some mitigations for this cascading
+
+618
+00:59:43,930 --> 00:59:50,589
+体重问题还可以，所以对于一个照片示例，这是该警察的方案
+weight problem okay so for a photo
+example this is the scheme this cop
+
+619
+00:59:50,589 --> 00:59:53,950
+方案实际上将解决我们的照片示例，原因是您知道
+scheme will actually solve our photo
+example and the reason is that you know
+
+620
+00:59:53,950 --> 00:59:58,359
+我们正在谈论的这个投放是照片列表的投放，依赖项是
+this put we're talking about is the put
+for the photo list the dependencies is
+
+621
+00:59:58,359 --> 01:00:05,020
+将要拥有的依赖列表是照片的插入，这意味着
+gonna have and its dependency list is
+the insert of the photo and that means
+
+622
+01:00:05,020 --> 01:00:10,300
+当威利斯的照片的推杆到达远程站点时， 
+that when the put for the photo Willis
+arrives at the remote site the remote
+
+623
+01:00:10,300 --> 01:00:13,990
+ chard服务器本质上将等待插入照片，然后
+chard server is essentially going to
+wait for the photo to be inserted and
+
+624
+01:00:13,990 --> 01:00:19,359
+在更新照片列表之前可见，因此远程站点中的任何客户端
+visible before it updates the photo list
+so any client in a remote site that is
+
+625
+01:00:19,359 --> 01:00:25,810
+能够看到更新后的照片列表中的新照片，因此能够
+able to see the new photo of the updated
+photo list is guaranteed to be able to
+
+626
+01:00:25,810 --> 01:00:33,780
+还可以查看照片，因此此COP方案可以修复照片和照片列表示例
+see the photo as well so this cop scheme
+fixes the photo and photo list example
+
+627
+01:00:33,990 --> 01:00:45,060
+警察实施的方案通常称为因果一致性
+this the scheme the cops is implementing
+is is usually called causal consistency
+
+628
+01:00:52,270 --> 01:00:58,310
+所以有一个问题是由程序员来指定依赖项
+so there's a question is it's off to the
+programmer to specify the dependencies
+
+629
+01:00:58,310 --> 01:01:04,760
+不，事实证明，尽管该上下文信息此上下文信息
+no it turns out that though that context
+information this context information
+
+630
+01:01:04,760 --> 01:01:11,090
+在这里积累，警察客户库可以自动积累
+that's accumulated here the cops client
+library can accumulate it automatically
+
+631
+01:01:11,090 --> 01:01:23,000
+因此该程序仅会获取和放入，甚至可能不需要查看版本
+so the program only does gets and puts
+and may not even need to see the version
+
+632
+01:01:23,000 --> 01:01:28,910
+数字如此简单的程序，我们只是做得到输入和内部警察
+numbers so simple program we just do
+gets inputs and internally the cops
+
+633
+01:01:28,910 --> 01:01:32,870
+库维护这些上下文并将这些额外信息添加到put 
+library maintains these contexts and
+adds this extra information to the put
+
+634
+01:01:32,870 --> 01:01:41,750
+我们的个人电脑，以便程序员只是得到一些推杆和系统
+our pcs so that the programmer just just
+does get some puts and system kind of
+
+635
+01:01:41,750 --> 01:01:47,740
+自动跟踪依赖项信息，因此非常方便
+automatically tracks the dependency
+information so that's very convenient I
+
+636
+01:01:47,740 --> 01:01:53,330
+就是说，您知道，您会弹出一个级别，了解我们现在已经建立了一个系统
+mean just a you know pop up a level for
+a moment you know we now built a system
+
+637
+01:01:53,330 --> 01:02:00,500
+那就是语义足够强大，可以制作照片示例代码
+that's that is as semantics powerful
+enough to make the photo example code
+
+638
+01:02:00,500 --> 01:02:04,450
+正确地进行锻炼以使其具有预期的结果，而不是
+work out correctly to have it sort of
+had the expected result instead of
+
+639
+01:02:04,450 --> 01:02:10,670
+结果异常，至少可以说它相当有效，因为没有人
+anomalous results and at least arguably
+it's reasonably efficient because nobody
+
+640
+01:02:10,670 --> 01:02:14,300
+您是否知道客户永远不必等待权限完成就可以了
+was you know the client never has to
+wait for rights to complete there's none
+
+641
+01:02:14,300 --> 01:02:19,280
+该沉没业务的一部分，而且沟通大多是独立的
+of this sink business and also the
+communication is mostly independent
+
+642
+01:02:19,280 --> 01:02:22,790
+没有中央日志服务器，因此可以说两者都相当高
+there's no central log server so
+arguably this is both reasonably high
+
+643
+01:02:22,790 --> 01:02:31,580
+性能并具有合理的语义和合理的一致性，因此
+performance and has reasonably good
+semantics reasonably good consistency so
+
+644
+01:02:31,580 --> 01:02:38,270
+这种设计产生的一致性通常称为因果关系
+the the consistency that this design
+produces is usually called causal
+
+645
+01:02:38,270 --> 01:02:45,890
+一致性，实际上这是比本文提出的要早得多的想法
+consistency and it's actually a much
+older idea than this paper there's been
+
+646
+01:02:45,890 --> 01:02:50,510
+一堆电话，所以本文之前的一致性方案确实是一堆
+a bunch of call so consistency schemes
+before this paper indeed a bunch of
+
+647
+01:02:50,510 --> 01:02:55,300
+后续工作，这是一个让人非常喜欢的治疗想法
+follow-on work so it's a treating idea
+that people like a lot
+
+648
+01:02:55,300 --> 01:03:02,000
+因果一致性是什么意思，在这里我提出
+what causal consistency is what it sort
+of means and here I am putting up I
+
+649
+01:03:02,000 --> 01:03:05,119
+从纸上想出图二的副本
+think a copy of figure two from the
+paper
+
+650
+01:03:05,119 --> 01:03:10,869
+定义说的是客户行为引起的
+the sort of what the definition says is
+that the clients actions induce
+
+651
+01:03:10,869 --> 01:03:17,660
+依赖关系，因此有两种方法可以诱导依赖关系，一种是
+dependencies so there's two ways that
+dependencies are induced one is if a
+
+652
+01:03:17,660 --> 01:03:24,200
+给定客户有一个看跌期权，然后我得到它得到，然后是PUD或看跌期权
+given client there's a put and then I
+get does it get and then a PUD or a put
+
+653
+01:03:24,200 --> 01:03:31,430
+然后看跌期权，然后我们说看跌期权取决于前一个看跌期权或获得
+and then a put then we say that the the
+put depends on the previous put or get
+
+654
+01:03:31,430 --> 01:03:37,220
+因此，在这种情况下，为什么要放两个是否取决于一个的X的放置，那就是
+so that in this case put of why if two
+depends on the put of X of one so that's
+
+655
+01:03:37,220 --> 01:03:43,579
+一种形式的依赖关系另一种形式的依赖关系，如果一个客户释放了一个
+one form of dependency another form of
+dependency if is if one client frees a
+
+656
+01:03:43,579 --> 01:03:49,130
+从存储系统中获取价值，然后我们说，获得那一秒
+value out of the storage system then we
+say that that the get that that second
+
+657
+01:03:49,130 --> 01:03:53,570
+客户端发出的取决于实际插入的相应认沽期权
+client issued depends on the
+corresponding put that actually inserted
+
+658
+01:03:53,570 --> 01:03:59,630
+来自先前客户的价值，此外，我们还说
+the value from a previous client and
+furthermore we say that the dependency
+
+659
+01:03:59,630 --> 01:04:06,770
+关系是可传递的，因此您知道此投放取决于获得此
+relationship is transitive so that you
+know this put depends on that get this
+
+660
+01:04:06,770 --> 01:04:11,630
+由客户二获得取决于客户一的认沽权和
+get by client two depends on the put by
+client one and by transitivity in
+
+661
+01:04:11,630 --> 01:04:18,220
+此外，我们可以得出结论，委托人的礼物取决于委托人的礼物
+addition we can conclude that the client
+two's get depends on client ones gift
+
+662
+01:04:18,220 --> 01:04:23,980
+因此，这意味着例如客户三的最后一次看盘取决于
+and so that means that this last put of
+by client three for example depends on
+
+663
+01:04:23,980 --> 01:04:35,380
+所有这些先前的操作，所以这是因果相关性的定义
+all of these previous operations so
+that's a definition of causal dependency
+
+664
+01:04:35,380 --> 01:04:45,440
+然后因果一致的系统说，如果通过
+and then a causally consistent system
+says that says that if through the
+
+665
+01:04:45,440 --> 01:04:51,890
+依赖性的定义我刚刚概述了a取决于B对不起B取决于a和
+definition of dependency I just outlined
+a depends on B sorry B depends on a and
+
+666
+01:04:51,890 --> 01:04:59,089
+客户端读取B，则客户端随后还必须看到依赖项
+a client reads B then the client must
+subsequently also see a the dependency
+
+667
+01:04:59,089 --> 01:05:05,270
+因此，如果客户查看了两个有序操作中的第二个操作
+so if client ever sees through a second
+of two ordered operations operations
+
+668
+01:05:05,270 --> 01:05:09,770
+通过依存关系排序，然后客户端也保证
+ordered by dependency and the client is
+also then after that guaranteed to be
+
+669
+01:05:09,770 --> 01:05:16,780
+能够看到该操作所依赖的一切
+able to see the everything that that
+operation depended
+
+670
+01:05:17,099 --> 01:05:21,430
+你知道，这就是定义，从某种意义上来说，你知道
+you know so that's the definition and
+it's you know in a sense kind of
+
+671
+01:05:21,430 --> 01:05:29,050
+直接来自系统实际执行的操作，因此当
+directly derived from what the system
+actually does so this is very nice when
+
+672
+01:05:29,050 --> 01:05:35,440
+更新是因果相关的，即如果您知道这些客户端，并且在某些情况下
+updates are causally related that is if
+yeah you know these clients and in some
+
+673
+01:05:35,440 --> 01:05:37,930
+感觉他们正在通过存储间接认识彼此
+sense they're talking to each other you
+know indirectly through the storage
+
+674
+01:05:37,930 --> 01:05:42,160
+系统，所以客户很喜欢我，如果有人
+system and so the clients are I kind of
+wear that of you know if we somebody
+
+675
+01:05:42,160 --> 01:05:46,630
+读取此值，c5看到五个，并检查您知道的代码
+reads this value and c5 sees five and
+inspects the code you know they can
+
+676
+01:05:46,630 --> 01:05:51,599
+得出结论，真的，您真的知道这存在某种意义
+conclude that really really you know
+this there's a sense in which this put
+
+677
+01:05:51,599 --> 01:05:56,950
+肯定是在最后一次下注之前已经来了，所以如果您看到斜线但您
+definitely must have come before this
+last put and so if you see slash but you
+
+678
+01:05:56,950 --> 01:06:00,580
+真的很不错，您真的应该看到这个第一眼，所以在这种意义上
+really gosh you really just deserve to
+see this first put so in that sense
+
+679
+01:06:00,580 --> 01:06:08,140
+因果一致性为您提供了这种程序员的良好体验
+causal consistency gives you this
+programmers kind of a sort of well
+
+680
+01:06:08,140 --> 01:06:14,740
+行为良好的签证使他们能够看到良好的行为价值
+behaved visas allows them to see well
+behave values coming out of the storage
+
+681
+01:06:14,740 --> 01:06:20,349
+系统因果一致性的另一个好处是，当它
+system another thing that's good about
+causal consistency is that when it
+
+682
+01:06:20,349 --> 01:06:25,089
+当系统中的两个值不是两个时更新不是因果的
+updates when two values in the system
+are not two updates are not causally
+
+683
+01:06:25,089 --> 01:06:31,450
+有关因果一致性系统，您知道警察存储系统没有
+related the causal consistency system
+you know the cops storage system has no
+
+684
+01:06:31,450 --> 01:06:35,859
+义务是关于维持非因果关系的更新之间的顺序
+obligation is about maintaining order
+between updates that are not causally
+
+685
+01:06:35,859 --> 01:06:43,359
+相关，例如，如果我的意思是对性能有好处，那么例如，如果我们
+related so for example if I mean that's
+good for performance so example if we
+
+686
+01:06:43,359 --> 01:06:49,480
+你知道委托人做一个X的交易，然后我放Z，然后围绕
+have you know client one does a put of X
+and then I put Z and then around the
+
+687
+01:06:49,480 --> 01:06:55,480
+同时客户二对为什么会有一个你知道没有因果关系
+same time client two does a put of why
+there's a you know there's no causal
+
+688
+01:06:55,480 --> 01:07:00,339
+这些之间的关系，因此您知道对不起没有因果关系
+relationship between these and therefore
+you know sorry there's no causal
+
+689
+01:07:00,339 --> 01:07:04,900
+ Y的看跌期权与委托人的任何行动之间的关系等
+relationship between the put of Y and
+any of the actions of client one and so
+
+690
+01:07:04,900 --> 01:07:11,980
+警察可以完全完成与Y的推杆相关的所有工作
+the cops is allowed to do all the work
+associated with the put of Y completely
+
+691
+01:07:11,980 --> 01:07:16,060
+对于客户而言，是独立投放的，而播放的方式是完成了
+independently for client ones puts and
+the way that plays out is that it's done
+
+692
+01:07:16,060 --> 01:07:22,240
+而Y的投放则完全发生在
+and the put of Y is sort of entirely
+happens in the servers that for the
+
+693
+01:07:22,240 --> 01:07:29,360
+为什么这两个puts只涉及分片服务器
+shard of why these two puts
+are only involve servers for the shards
+
+694
+01:07:29,360 --> 01:07:35,180
+ X和Z在其中可能需要进行一些交互，因为远程
+that X and Z are in it may require some
+interaction here because the remote
+
+695
+01:07:35,180 --> 01:07:39,410
+ Z的服务器可能不得不等待此放置时间到达，但不必
+servers for Z may have to wait for this
+put to arrive not but they don't have to
+
+696
+01:07:39,410 --> 01:07:44,990
+与负责Y的服务器进行通讯，如果在某种意义上
+talk to the servers that are in charge
+of of Y so if that's a sense in which
+
+697
+01:07:44,990 --> 01:07:51,320
+因果一致性允许良好，允许并行性和良好的性能，并且您
+causal consistency allows good allows
+parallelism and good performance and you
+
+698
+01:07:51,320 --> 01:07:55,940
+知道这与像Anna这样的线性化系统可能不同
+know this is different from potentially
+from linearizable systems like Anna
+
+699
+01:07:55,940 --> 01:07:59,750
+可线性化的系统，这个Y实际位于X的真实位置之后
+linearizable system the fact that this
+put Y came after the put of X in real
+
+700
+01:07:59,750 --> 01:08:04,670
+时间实际上对线性化存储系统有一些要求，但
+time actually imposes some requirements
+on the linearizable storage system but
+
+701
+01:08:04,670 --> 01:08:09,530
+这里没有因果一致性的此类要求，因此您可能会
+there's no such requirements here for
+causal consistency and so you might be
+
+702
+01:08:09,530 --> 01:08:13,460
+能够建立因果一致性因果一致的系统，速度更快
+able to build a causal consistency
+causally consistent system that's faster
+
+703
+01:08:13,460 --> 01:08:20,390
+比线性化系统还好，还有一个问题是警察会获得更多收益
+than a linearizable system okay there's
+a question would cops gain any more
+
+704
+01:08:20,390 --> 01:08:26,120
+通过将信息放入客户端上下文中就可以了，所以这可能是
+information by including puts in the
+client context okay so it's this may be
+
+705
+01:08:26,120 --> 01:08:33,529
+是今天的演讲问题的参考，所以我为什么不
+a reference to the today's lecture
+question it is the case so why don't I
+
+706
+01:08:33,529 --> 01:08:45,799
+如果客户确实得到XI，则说明电子问题的答案
+
+707
+01:08:45,800 --> 01:08:53,330
+意思是看它的上下文可能得到X，然后放到Y，然后放一个
+mean look at its context does the get of
+X maybe and then put to Y and then a
+
+708
+01:08:53,330 --> 01:09:02,060
+在上下文中退出Z最初是X版本，您知道当我们
+quit to Z in the context initially is X
+version something you know that when we
+
+709
+01:09:02,060 --> 01:09:06,470
+客户，因为服务器的放置将包括此上下文
+client since the puts of the server it's
+gonna include this context along with it
+
+710
+01:09:06,470 --> 01:09:13,630
+但在实际系统中，存在这种优化
+but in the actual system there's this
+optimization that after a put the
+
+711
+01:09:13,630 --> 01:09:22,640
+上下文被替换为put的版本号和任何
+context is replaced by simply the
+version number for the put and any
+
+712
+01:09:22,640 --> 01:09:26,870
+上下文中的先前内容（即有关X的信息是
+previous stuff in the context like
+namely this information about X is a
+
+713
+01:09:26,870 --> 01:09:30,859
+来自客户上下文的竞争，因此仅包含
+race from the from the clients context
+so it only includes after put the
+
+714
+01:09:30,859 --> 01:09:37,040
+上下文只是替换为从put返回的数字，因此
+context is just replaced with
+number returned from the put that so
+
+715
+01:09:37,040 --> 01:09:44,270
+这不是返回吗，您知道为什么的第七版以及为什么
+isn't this returns you know version
+version seven of why and the reason why
+
+716
+01:09:44,270 --> 01:09:49,520
+这是正确的，不会因非交易而丢失任何信息
+this is correct and doesn't lose any
+information for the non-transactional
+
+717
+01:09:49,520 --> 01:10:01,490
+为此，当把这个看跌期权发送到所有远程站点时， 
+cops is that for this when this put is
+sent out to all the remote sites the put
+
+718
+01:10:01,490 --> 01:10:06,080
+附带了X版本，无论在依赖项列表中是什么，因此不会放置
+is accompanied by X version whatever in
+the dependency list so this put won't be
+
+719
+01:10:06,080 --> 01:10:13,880
+直到所有X都被应用为止
+applied until at all and each data
+center until this X is also applied so
+
+720
+01:10:13,880 --> 01:10:18,710
+然后，如果客户随后将其正确处理，则将其发送给客户
+then when if the client then does this
+put right what this turns into is sent
+
+721
+01:10:18,710 --> 01:10:24,530
+到其他数据中心的确是Z值和一些依赖项的看跌期权
+to other data centers is really a put
+with Z and some value and the dependency
+
+722
+01:10:24,530 --> 01:10:29,350
+只是Y版本，其他所有数据中心都将等待
+is just Y version seven all the other
+data centers are going to wait for
+
+723
+01:10:29,350 --> 01:10:34,520
+他们将在应用Z之前进行检查他们将检查Y版本7 
+they're gonna check before applying Z
+they're gonna check that Y version seven
+
+724
+01:10:34,520 --> 01:10:39,110
+已经在他们的数据中心应用了，我们知道Y版本7不会
+has been applied at their data center
+well we know the Y version seven won't
+
+725
+01:10:39,110 --> 01:10:43,310
+可以在其数据中心应用，直到提供X版本为止
+be applied at their data center until X
+version whatever is supplied at that
+
+726
+01:10:43,310 --> 01:10:48,310
+数据中心，所以这里存在级联延迟
+data center so there's sort of a
+cascading delays here where that is
+
+727
+01:10:48,310 --> 01:10:53,300
+告诉其他数据中心等待安装Y版本7意味着
+telling other data centers to wait for Y
+version seven to be installed implies
+
+728
+01:10:53,300 --> 01:10:59,240
+他们还必须已经在等待7依赖的Y版本
+that they must also already be waiting
+for whatever Y version seven depended on
+
+729
+01:10:59,240 --> 01:11:06,170
+因此，我们不需要同时包含X版本，X版本和
+and because of that we don't need to
+also include X version the X version and
+
+730
+01:11:06,170 --> 01:11:10,400
+此依赖项列表，因为这些数据中心已经在等待它
+this dependency list because those data
+centers will already be waiting for it
+
+731
+01:11:10,400 --> 01:11:15,890
+那个版本的X，所以答案是没有警察叫
+that version of X so the answer the
+question is no cops call the
+
+732
+01:11:15,890 --> 01:11:20,390
+非交易警察不需要有任何东西不需要记住
+non-transactional cops doesn't need to
+have anything doesn't need to remember
+
+733
+01:11:20,390 --> 01:11:25,270
+完成后放入上下文中
+the gets in the context after it's done
+put
+
+734
+01:11:27,269 --> 01:11:36,999
+好的，关于该方案的最后一件事要注意的是，警察只能看到
+all right a final thing to note about
+this scheme is that cops only see
+
+735
+01:11:36,999 --> 01:11:45,820
+某些关系只有它知道某些因果关系
+certain relationships it's only aware of
+certain causal relationships that is it
+
+736
+01:11:45,820 --> 01:11:50,320
+只有您知道警察知道，如果单个客户端线程执行放置操作，然后
+only you know cops is aware that if a
+single client thread does a put and then
+
+737
+01:11:50,320 --> 01:11:55,989
+您知道警察记录的另一个看跌期权客户，因此第二个看跌期权取决于
+another put client you know cops record
+so this the second put depends on the
+
+738
+01:11:55,989 --> 01:12:01,210
+第一本书还让警察知道，哦，客户阅读了什么
+first book furthermore cops is aware
+that oh what a client does a read of a
+
+739
+01:12:01,210 --> 01:12:07,630
+取决于我的确定性价值，是创造价值的依据
+certain value that it's depending on I'm
+the one to put the created that value
+
+740
+01:12:07,630 --> 01:12:11,050
+因此，取决于任何依赖的东西，所以你知道警察是
+and therefore depending on anything that
+that depended on so you know cops is
+
+741
+01:12:11,050 --> 01:12:18,969
+在这里直接知道这些依赖关系，但是通常
+directly aware of these dependencies
+here however it could it is often the
+
+742
+01:12:18,969 --> 01:12:24,730
+通过更广泛的渠道传达因果关系的案例
+case that causality in the larger sense
+is conveyed through channels that cops
+
+743
+01:12:24,730 --> 01:12:34,840
+并不知道，例如，您知道客户是否做了X的看跌期权，然后
+is not aware of so for example you know
+if client one does a put of X and then
+
+744
+01:12:34,840 --> 01:12:41,650
+您所知道的控制客户的人会呼叫客户
+the human you know who's controlling
+client one calls up client to on the
+
+745
+01:12:41,650 --> 01:12:45,579
+电话，还是您知道电子邮件，或者说您知道我只是
+telephone or it's you know email or
+something that says look you know I just
+
+746
+01:12:45,579 --> 01:12:48,550
+用一些新信息更新了数据库，为什么不看一下
+updated the database with some new
+information why don't you go look at it
+
+747
+01:12:48,550 --> 01:12:57,519
+对，然后您知道的客户从更大的意义上讲得到了X 
+right and then client to you know does
+it get of X sort of in a larger sense
+
+748
+01:12:57,519 --> 01:13:01,910
+您是否知道因果关系暗示客户确实应该
+causality would you know
+suggest the client to really ought to
+
+749
+01:13:01,910 --> 01:13:07,070
+看到更新的X，因为客户端从X过去的电话中获得了新的
+see the updated X because client to new
+from the telephone call that X had been
+
+750
+01:13:07,070 --> 01:13:12,740
+更新，所以如果警察知道电话，它将有
+updated and so if cops had known about
+the telephone call it would have
+
+751
+01:13:12,740 --> 01:13:27,170
+实际包括，如果
+actually included the it would have
+actually caused the extra sorry if the
+
+752
+01:13:27,170 --> 01:13:31,340
+电话本身就是看跌期权，你知道那应该是看跌期权
+telephone call had been itself a put
+right you know it would have been a put
+
+753
+01:13:31,340 --> 01:13:36,740
+的电话在这里，我得到的电话在这里，如果得到
+of telephone call here and I get of
+telephone call here and if this get had
+
+754
+01:13:36,740 --> 01:13:41,680
+看到推特警察会知道足够的知识来安排这个获得会看到那个推特
+seen that put cops would know enough to
+arrange that this get would see that put
+
+755
+01:13:41,680 --> 01:13:47,150
+但是因为警察完全不知道电话，所以没有理由
+but because cops was totally unaware of
+the telephone call there's no reason to
+
+756
+01:13:47,150 --> 01:13:55,240
+期望这个收益会实际产生看跌期权的价值，所以警察有点
+expect that this get would actually
+yield the put value so cops is sort of
+
+757
+01:13:55,240 --> 01:14:00,680
+强制因果一致性，但仅针对来源而言
+enforcing causal consistency but only
+for the sources the kinds of causation
+
+758
+01:14:00,680 --> 01:14:08,360
+警察是直接意识到的，这意味着警察的意义是
+the cops is directly aware of and that
+means that the sense in which cops is
+
+759
+01:14:08,360 --> 01:14:13,160
+因果一致性可以很好地消除异常行为
+causal consistency sort of eliminates
+anomalous behavior well it only
+
+760
+01:14:13,160 --> 01:14:19,010
+如果将因果关系的概念限制在以下范围，则可以消除异常行为
+eliminates anomalous behavior if you
+restrict your notion of causality to
+
+761
+01:14:19,010 --> 01:14:23,300
+从什么意义上说警察会看到它，您仍然会看到奇怪的行为
+what cops can see it in the larger sense
+you're going to still see odd behavior
+
+762
+01:14:23,300 --> 01:14:27,500
+您肯定会看到某些情况，您知道有人相信
+you definitely going to see situations
+where you know someone believes that a
+
+763
+01:14:27,500 --> 01:14:31,370
+值已更新，但他们看不到更新的值，这是因为
+values been updated and yet they do not
+see the updated value that's because
+
+764
+01:14:31,370 --> 01:14:41,290
+他们的信仰是由警察不了解的事情引起的
+their belief was caused by something
+that cops wasn't aware of all right
+
+765
+01:14:41,290 --> 01:14:51,140
+我不会谈论的另一个潜在问题是，记住
+another potential problem which I'm not
+gonna talk about is that the remember
+
+766
+01:14:51,140 --> 01:14:55,520
+对于带有照片列表的照片示例，有一个特定的顺序
+for the photo example with the photo
+list there was a particular order of the
+
+767
+01:14:55,520 --> 01:14:59,780
+添加照片以及查看照片的特定顺序
+adding a photo and that particular
+different order of looking at photos
+
+768
+01:14:59,780 --> 01:15:04,550
+因为我们绝对依赖
+that made the system work with causal
+consistency as we're definitely relying
+
+769
+01:15:04,550 --> 01:15:10,910
+如果读者阅读了照片列表，然后阅读了
+on the there being sort of if the reader
+reads the photo list and then reads the
+
+770
+01:15:10,910 --> 01:15:14,030
+按照照片引用的顺序排列照片
+photo in that order that the fact that a
+photos refer
+
+771
+01:15:14,030 --> 01:15:19,190
+乔安娜（Joana）图片列表意味着可以成功读取照片，但是
+joana photo list means that the read of
+the photo will succeed it is however the
+
+772
+01:15:19,190 --> 01:15:25,970
+在某些情况下，没有一个阅读顺序或
+case that there are situations where no
+one order of reading or combination of
+
+773
+01:15:25,970 --> 01:15:32,990
+阅读或写作的顺序将导致我们想要的行为，并且
+orders of reading or writing will cause
+sort of the behavior we want and that
+
+774
+01:15:32,990 --> 01:15:36,800
+但这导致了我没有足够的时间进行交易
+but this is leading into transactions
+which I'm not gonna have time enough to
+
+775
+01:15:36,800 --> 01:15:42,560
+解释一下，但至少我想提一下本文设置的问题
+explain but at least I want to mention
+the problems the paper set up so
+
+776
+01:15:42,560 --> 01:15:50,210
+假设我们有照片列表，并且受访问控制列表保护
+supposing we have our photo list and
+it's protected by an access control list
+
+777
+01:15:50,210 --> 01:15:55,240
+和访问控制，这基本上是允许使用的用户名列表
+and an access control this is basically
+a list of usernames that are allowed to
+
+778
+01:15:55,240 --> 01:16:01,480
+看看我列表上的照片，是否意味着该软件
+look at the photos on my list
+does that means that the software that
+
+779
+01:16:01,630 --> 01:16:07,490
+通过访问控制实现这些照片列表，这需要您
+implements these photo lists with access
+control this needs to be able to you
+
+780
+01:16:07,490 --> 01:16:11,540
+知道阅读列表，然后阅读访问控制列表，看看用户是否
+know read the list and then read the
+access control list and see if the user
+
+781
+01:16:11,540 --> 01:16:17,060
+尝试进行读取的操作在访问控制列表中，但是顺序都不行
+trying to do the read is in the access
+control list and however neither order
+
+782
+01:16:17,060 --> 01:16:22,580
+获取访问控制列表和照片列表的过程，因此，如果
+of getting the access control list and
+the list of photos works out so if the
+
+783
+01:16:22,580 --> 01:16:29,150
+客户端代码首先获取访问控制列表，然后获取以下列表： 
+client code first gets the access
+control list and then gets the list of
+
+784
+01:16:29,150 --> 01:16:36,860
+实际上，订购的照片并不总是能很好地工作，因为
+photos that order actually doesn't
+always work so well because supposing my
+
+785
+01:16:36,860 --> 01:16:40,880
+客户端Reesie访问控制列表，看到我在列表中，但是随后
+client Reesie access control list and
+sees that I'm on the list but then right
+
+786
+01:16:40,880 --> 01:16:47,510
+在这里，此照片的所有者将我从访问控制列表中删除
+here the owner of this photo this
+deletes me from the access control list
+
+787
+01:16:47,510 --> 01:16:51,760
+并插入一张我不应该在列表中看到的新照片
+and inserts a new photograph that I'm
+not supposed to see in the list list
+
+788
+01:16:51,760 --> 01:16:59,660
+对，所以c2做了一个，您知道访问控制的端口是要删除我，然后
+right so c2 does a you know a port of
+access control is to delete me and then
+
+789
+01:16:59,660 --> 01:17:05,840
+放入照片列表以添加照片，然后我的客户将无法看到
+a put of the photo list to add a photo
+I'm not allowed to see then my client
+
+790
+01:17:05,840 --> 01:17:09,770
+绕到第二个得到它看到此列表，您可能会看到此列表是
+gets around to the second get it sees
+this list you may see this list which is
+
+791
+01:17:09,770 --> 01:17:12,800
+现在更新的列表中有我不允许看到的照片，但我
+the now the updated list that has the
+photo I'm not allowed to see but my
+
+792
+01:17:12,800 --> 01:17:15,710
+客户认为aha我在访问控制列表中，因为它正在读取旧的
+client thinks aha I'm in the access
+control list because it's reading an old
+
+793
+01:17:15,710 --> 01:17:17,980
+一
+one
+
+794
+01:17:18,510 --> 01:17:23,490
+这是这张照片，所以我可以看到你，在这种情况下，你知道我们
+and here's this photo so I'm allowed to
+see you so in that case you know we're
+
+795
+01:17:23,490 --> 01:17:29,250
+得到不一致的组合，我们知道这是一种不一致的组合
+getting an inconsistent what we know to
+be an inconsistent sort of combination
+
+796
+01:17:29,250 --> 01:17:34,590
+一个新列表和一个旧的访问控制列表，但实际上除了
+of a new list and an old access control
+list but there was really nothing but
+
+797
+01:17:34,590 --> 01:17:40,650
+但是因果一致性可以做到这一点，它称之为一致性只能说得很好
+but causal consistency allows this it'll
+it calls a consistency only says well
+
+798
+01:17:40,650 --> 01:17:46,380
+每次您都会看到至少与依赖项一样新的数据
+you're gonna see data that's at least as
+new as the dependencies every time you
+
+799
+01:17:46,380 --> 01:17:52,680
+做到这一点，确实，如论文所指出的那样，如果您认为
+do a get so and indeed if you know as
+the paper points out if you think it
+
+800
+01:17:52,680 --> 01:17:58,050
+阅读客户首先阅读以下内容的列表也不正确： 
+through it's also not correct for the
+reading client to first read the list of
+
+801
+01:17:58,050 --> 01:18:05,510
+照片，然后阅读访问控制，因为在此之间潜行
+photos and then read the access control
+this because sneaking in between this
+
+802
+01:18:05,510 --> 01:18:09,480
+虽然这可能是我阅读的这张照片可能有我不允许的照片
+though this might have a this that I
+read may have a photo I'm not allowed to
+
+803
+01:18:09,480 --> 01:18:14,160
+看到，那时也许访问控制不包括我，但是在
+see and at that time maybe the access
+control this didn't include me but at
+
+804
+01:18:14,160 --> 01:18:18,240
+这时列表的所有者可能会删除私人照片，将我添加到
+this point the owner of the list may
+delete the private photo add me to the
+
+805
+01:18:18,240 --> 01:18:22,230
+访问控制列表，然后我可能会在列表中看到自己
+access control list and then I may see
+myself in the list so again if we do it
+
+806
+01:18:22,230 --> 01:18:28,110
+按照这个顺序也不正确，因为我们可能会看到我们可能会变旧
+in this order it's also not right
+because we might see we might get an old
+
+807
+01:18:28,110 --> 01:18:34,890
+列表和新的访问控制列表，以确保因果关系的一致性
+list and a new access control list so
+causal consistency as I've described it
+
+808
+01:18:34,890 --> 01:18:37,890
+到目前为止，还不足以处理这种情况，您知道我们需要
+so far isn't powerful enough to deal
+with this situation you know we need
+
+809
+01:18:37,890 --> 01:18:42,720
+能够获得相互一致的列表和访问权限的一些概念
+some notion of being able to get a
+mutually consistent list and access
+
+810
+01:18:42,720 --> 01:18:48,500
+控制列表通过某种形式在更新之前或之后进行
+control lists through either sort of
+both before some update or both after
+
+811
+01:18:48,500 --> 01:18:55,830
+警察GT实际上提供了一种方法
+and cops GT actually provides a way of
+doing this it by essentially doing both
+
+812
+01:18:55,830 --> 01:19:02,700
+加兹，但警察GT发送了全套
+Gatz
+but but cops GT sends the full set of
+
+813
+01:19:02,700 --> 01:19:07,320
+依赖关系会在客户端无法获取时返回给客户端，这意味着
+dependencies back to the client when it
+doesn't get and that means that the
+
+814
+01:19:07,320 --> 01:19:10,680
+客户端提交可以实际检查两者的依赖关系
+client is submit is in a position to
+actually check the dependencies of both
+
+815
+01:19:10,680 --> 01:19:16,800
+这些返回值中，看到啊哈，您知道列表存在依赖性
+of these return values and see that aha
+you know there's a dependency for list
+
+816
+01:19:16,800 --> 01:19:23,970
+这是这些版本的抱歉，因为可能存在依赖关系
+that is a version of these sorry for
+that there might be a the dependency
+
+817
+01:19:23,970 --> 01:19:28,230
+我提到的访问控制列表取决于它的版本
+list for the access control list me
+mention that it depends on a version of
+
+818
+01:19:28,230 --> 01:19:31,920
+这比Lists版本更远
+this that's in the farther ahead than
+the version of Lists the
+
+819
+01:19:31,920 --> 01:19:41,940
+死了，在那种情况下，警察可以通过一个问题来正确获取数据
+begone and in that case cops GT would be
+fetch the data alright with one question
+
+820
+01:19:41,940 --> 01:19:50,880
+与执行的威胁有关吗，是他们的因果关系
+is it related to the threat of execution
+yeah so it's true their causal
+
+821
+01:19:50,880 --> 01:19:55,800
+一致性不是真的与挂钟时间无关，所以它没有
+consistency doesn't really it's not
+about wall clock time so it has no
+
+822
+01:19:55,800 --> 01:20:00,810
+挂钟时间的概念只有唯一形式的命令
+notion of wall clock time there's only
+the only sort of forms of order that
+
+823
+01:20:00,810 --> 01:20:05,699
+服从甚至与步行时间有关，或者
+it's obeying that are even a little bit
+related to walk walk time or that if a
+
+824
+01:20:05,699 --> 01:20:08,699
+单线程做一件事，然后又做另一件事
+single thread does one thing and then
+another and another
+
+825
+01:20:08,699 --> 01:20:13,590
+那么因果一致性确实考虑了这三个操作
+then causal consistency does consider
+these three operations to be in that
+
+826
+01:20:13,590 --> 01:20:18,210
+顺序，但这是因为一个客户端线程执行了这些顺序的操作，而不是
+order but it's because one client thread
+did these sequence of things and not
+
+827
+01:20:18,210 --> 01:20:24,780
+因为存在实时关系，所以这里总结一下
+because there was a real time
+relationship so just a wrap up here to
+
+828
+01:20:24,780 --> 01:20:32,580
+某种程度地将其置于更大的范围内，因果一致性具有
+sort of put this into a kind of larger
+world context causal consistency has has
+
+829
+01:20:32,580 --> 01:20:39,090
+就像一个非常有前途的研究领域，已经有很长一段时间了
+been an is like a very kind of promising
+research area and has been for a long
+
+830
+01:20:39,090 --> 01:20:43,920
+时间，因为它似乎可以为您提供足够好的一致性
+time because it does seem like it might
+provide you with good enough consistency
+
+831
+01:20:43,920 --> 01:20:49,590
+而且还有更多的机会和线性化能力
+but also opportunities more
+opportunities and linearise ability to
+
+832
+01:20:49,590 --> 01:20:54,570
+获得高性能，但实际上并没有获得太大的吸引力
+get high performance however it hasn't
+actually gotten much traction in the
+
+833
+01:20:54,570 --> 01:20:58,410
+现实世界中的人们使用最终的一致性系统
+real world
+people use eventual consistency systems
+
+834
+01:20:58,410 --> 01:21:02,790
+他们使用高度一致的系统，但是很少看到部署
+and they use strongly consistent systems
+but it's very rare to see a deployed
+
+835
+01:21:02,790 --> 01:21:06,810
+系统和因果一致性，还有很多潜在的原因
+system and as causal consistency and
+there's a bunch of reasons potential
+
+836
+01:21:06,810 --> 01:21:11,520
+您知道的原因总是很难准确地说出人们为什么这样做或
+reasons for that you know it's always
+hard to tell exactly why people do or
+
+837
+01:21:11,520 --> 01:21:19,920
+不要在现实世界中使用某些技术，原因之一是
+don't use some technology for real-world
+systems one reason is that it can be
+
+838
+01:21:19,920 --> 01:21:25,890
+难以追踪用户和浏览器在现实世界中每个客户端的因果关系
+awkward to track per client causality in
+the real world a user and browser are
+
+839
+01:21:25,890 --> 01:21:31,020
+可能会在不同时间联系不同的Web服务器，这意味着
+likely to contact different web servers
+at different times and that means it's
+
+840
+01:21:31,020 --> 01:21:36,300
+单个Web服务器不足以保持用户上下文，我们需要某种方式
+not enough for a single web server to
+keep users context we need some way to
+
+841
+01:21:36,300 --> 01:21:40,650
+在单个用户访问不同的Web服务器时将其缝合在一起
+stitch together context for a single
+user as they visit different web servers
+
+842
+01:21:40,650 --> 01:21:45,100
+在同一个网站上，这很痛苦，我知道警察会遇到这个问题
+at the same website so that's painful
+I know there is this problem that cops
+
+843
+01:21:45,100 --> 01:21:50,680
+不不跟踪仅跟踪它知道的因果相关性
+doesn't doesn't track only tracks causal
+dependencies it knows about and that
+
+844
+01:21:50,680 --> 01:21:55,960
+意味着它没有铁定的解决方案或没有
+means it doesn't doesn't have a sort of
+ironclad solution or doesn't sort of
+
+845
+01:21:55,960 --> 01:22:00,810
+提供铁定的因果关系，并且仅提供某种因果关系
+provide ironclad causality and only sort
+of certain kinds of causality which is
+
+846
+01:22:00,810 --> 01:22:09,190
+很好的限制另一个吸引人的地方是您知道最终
+well sort of limits how appealing it is
+another is that the you know eventual
+
+847
+01:22:09,190 --> 01:22:13,270
+因果一致的系统只能提供最有限的概念
+and causal consistent systems can
+provide only the most limited notion of
+
+848
+01:22:13,270 --> 01:22:19,540
+我认为随着时间的流逝交易和人越来越多
+transactions and people more and more I
+think as time goes on are sort of
+
+849
+01:22:19,540 --> 01:22:25,420
+希望他们的存储系统有交易，我终于
+wishing that their storage systems had
+transactions I'm finally the amount of
+
+850
+01:22:25,420 --> 01:22:30,190
+推动轨道并存储所有依赖项所需的开销
+overhead required to push around a track
+and store all that dependency
+
+851
+01:22:30,190 --> 01:22:35,980
+信息可能非常重要，您知道我无法检测到
+information can be quite significant and
+you know I was unable to kind of detect
+
+852
+01:22:35,980 --> 01:22:40,030
+这在本文的性能部分中，但事实是很多
+this in the performance section of the
+paper but the fact is it's quite a lot
+
+853
+01:22:40,030 --> 01:22:44,110
+必须存储和推送的信息，您知道是否
+of information that has to be stored and
+pushed around and it you know if you
+
+854
+01:22:44,110 --> 01:22:47,800
+希望每秒可以进行数百万次操作
+were hoping for the sort of millions of
+operations per second level of
+
+855
+01:22:47,800 --> 01:22:52,930
+至少Facebook摆脱了内存缓存D的性能
+performance that at least Facebook was
+getting out of memcache D the kind of
+
+856
+01:22:52,930 --> 01:22:57,250
+使用因果一致性需要支付的开销可能是
+overhead that you would have to pay to
+use causal consistency might be
+
+857
+01:22:57,250 --> 01:23:02,080
+对于性能而言非常重要，所以这些就是为什么我
+extremely significant for the
+performance so those are reasons why I'm
+
+858
+01:23:02,080 --> 01:23:08,350
+因果一致性目前可能尚未流行，尽管也许
+causal consistency maybe hasn't
+currently caught on although maybe
+
+859
+01:23:08,350 --> 01:23:14,860
+总有一天我会说的没问题，实际上是从下一个开始
+someday it will be okay that's all I
+have to say and actually starting next
+
+860
+01:23:14,860 --> 01:23:20,350
+讲座中，我们将改变存储和顺序的齿轮
+lecture we'll be switching gears away
+from storage and sequence of three
+
+861
+01:23:20,350 --> 01:23:26,790
+涉及区块链的讲座，所以我星期四见
+lectures that involve block chains so
+I'll see you on Thursday
+
+862
+01:23:27,490 --> 01:23:29,550
+您
+you
+

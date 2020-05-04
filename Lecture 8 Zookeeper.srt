@@ -1,0 +1,5112 @@
+1
+00:00:01,600 --> 00:00:06,770
+好吧，上次我开始谈论线性化能力，我想
+alright last time I started talking
+about linearize ability and I want to
+
+2
+00:00:06,770 --> 00:00:11,660
+这次结束，我们之所以再次谈论它，是因为这是我们的
+finish up this time the reason why we're
+talking about it again is that it's our
+
+3
+00:00:11,660 --> 00:00:19,039
+关于强一致性在存储中意味着什么的标准定义
+kind of standard definition for what
+strong consistency means in storage
+
+4
+00:00:19,039 --> 00:00:28,369
+风格的系统，例如需要满足实验室3的要求
+style systems so for example lab 3 is a
+needs to obey your lab 3 needs to be
+
+5
+00:00:28,369 --> 00:00:32,930
+线性化，有时会出现，因为我们正在谈论
+linearizable and sometimes this will
+come up because we're talking about a
+
+6
+00:00:32,930 --> 00:00:35,360
+高度一致的系统，我们想知道是否有特定行为
+strongly consistent system and we're
+wondering whether a particular behavior
+
+7
+00:00:35,360 --> 00:00:40,760
+是可以接受的，其他时候线性化能力会提高，因为
+is acceptable and other times linearize
+ability will become come up because
+
+8
+00:00:40,760 --> 00:00:44,000
+我们将要讨论的是不可线性化的系统
+we'll be talking about a system that
+isn't linearizable and we'll be
+
+9
+00:00:44,000 --> 00:00:49,520
+想知道您可能会以何种方式不足或偏离线性化
+wondering you know in what ways might it
+fall short or deviate from linearize
+
+10
+00:00:49,520 --> 00:00:55,160
+能力，所以您需要做的一件事就是查看特定的序列
+ability so one thing you need to be able
+to do is look at a particular sequence
+
+11
+00:00:55,160 --> 00:01:00,950
+操作的特定系统执行读取和
+of operations a particular execution of
+some system that executes reads and
+
+12
+00:01:00,950 --> 00:01:04,699
+像实验室3一样写，并且能够回答这个问题，哦，那是
+writes like your lab 3 and be able to
+answer the question oh was that was that
+
+13
+00:01:04,699 --> 00:01:10,490
+我刚刚看过作业的史蒂文斯（Stevens），我是否可以线性化，所以我们要
+Stevens of operations I just saw
+linearizable or not I'm so we're going
+
+14
+00:01:10,490 --> 00:01:16,549
+继续练习一点，再加上我会尝试建立
+to continue practicing that a little bit
+now plus I'll try to actually establish
+
+15
+00:01:16,549 --> 00:01:19,789
+一些有趣的事实将对我们的意义有所帮助
+some interesting facts that will be
+helpful for us about what it means about
+
+16
+00:01:19,789 --> 00:01:26,630
+对于我们构建并查看线性化能力的系统的后果是
+the consequences for the systems we
+build and look at linearize ability is
+
+17
+00:01:26,630 --> 00:01:31,429
+来查找特定的操作历史，因此我们一直在谈论的事情
+to find on particular operation history
+so always the thing we're talking about
+
+18
+00:01:31,429 --> 00:01:36,859
+是哦，我们观察到您知道客户的一系列要求，然后他们得到了
+is oh we observed you know a sequence of
+requests by clients and then they got
+
+19
+00:01:36,859 --> 00:01:41,240
+在不同时间的一些回应，他们要求不同的你
+some responses at different times and
+they asked for different different you
+
+20
+00:01:41,240 --> 00:01:46,549
+知道要读取不同的数据并得到各种答案，你知道的是
+know to read different data and got
+various answers back you know is that
+
+21
+00:01:46,549 --> 00:01:53,299
+我们看到线性化的历史，所以这是一个历史例子
+history that we saw linearizable ok so
+here's an example of a history that
+
+22
+00:01:53,299 --> 00:01:57,770
+可能线性化或可能不线性化，所以让我们假设在某个时间点上
+might or might not be linearized able so
+let's suppose at some point in time some
+
+23
+00:01:57,770 --> 00:02:02,060
+客户时间段将移到右侧，此竖线表示时间
+client groups of times gonna move to the
+right this vertical bar marks the time
+
+24
+00:02:02,060 --> 00:02:08,780
+客户端发送请求时，我将使用此表示法表示
+at which a client sent a request I'm
+gonna use this notation to mean that the
+
+25
+00:02:08,780 --> 00:02:17,980
+ request是一个写操作，要求设置变量或键或任何x2值0 
+request is a write and asks to set
+variable or key or whatever x2 value 0
+
+26
+00:02:17,980 --> 00:02:23,689
+所以排序一个键和一个值，它对应于一个键X的位置，且为零
+so sort of a key and a value this would
+correspond to a put of key X and by zero
+
+27
+00:02:23,689 --> 00:02:29,780
+在实验3中，这就是我们正在观察客户端向客户端发送的内容
+in lab 3 and then this is sort of we're
+watching what the client send the client
+
+28
+00:02:29,780 --> 00:02:34,670
+已将此请求发送到我们的服务，并且在某个时候服务已回复， 
+sent this request to our service and at
+some point the service responded and
+
+29
+00:02:34,670 --> 00:02:38,510
+说是的，您说得对，已经完成，所以我们假设服务是自然的
+said yes you're right is completed so
+we're assuming the services of a nature
+
+30
+00:02:38,510 --> 00:02:43,879
+它实际上告诉您写入何时完成，否则定义不是
+that actually tells you when the write
+completes otherwise the definition isn't
+
+31
+00:02:43,879 --> 00:02:49,939
+非常有用，所以有人要我们写这个请求，然后我
+very useful ok so we have this request
+by somebody to write and then I'm
+
+32
+00:02:49,939 --> 00:02:54,769
+想象在这个例子中，还有另一个要求，因为我把
+imagining in this example there's
+another request that because I'm putting
+
+33
+00:02:54,769 --> 00:02:59,689
+这个标记在这里意味着第二个请求在第一个请求之后开始
+this mark here this means the second
+request started after the first request
+
+34
+00:02:59,689 --> 00:03:04,760
+完成并且您知道那很重要的原因是因为此规则
+finished and and you know reason why
+that's important is because of this rule
+
+35
+00:03:04,760 --> 00:03:10,129
+可线性化的历史必须与实时匹配，这实际上意味着
+that linearizable history must match
+real time and what that really means is
+
+36
+00:03:10,129 --> 00:03:15,379
+实时已知的请求是在其他请求之后开始的
+that requests that are known in real
+time to have started after some other
+
+37
+00:03:15,379 --> 00:03:20,569
+请求完成后，第二个请求必须在第一个请求之后发生
+request finished the second request has
+to occur after the first request in
+
+38
+00:03:20,569 --> 00:03:24,469
+无论我们计算出什么顺序，这都证明了历史是线性的
+whatever order we work out that's the
+proof that the history was a linearized
+
+39
+00:03:24,469 --> 00:03:29,000
+线性化可用就可以了，所以在这个示例中，我想象还有另一个
+linearize available ok so in this
+example I'm imagining there's another
+
+40
+00:03:29,000 --> 00:03:36,530
+要求写入X的值为1的请求，然后是并发请求
+request that asks to write X to have
+value 1 and then a concurrent request
+
+41
+00:03:36,530 --> 00:03:44,329
+可能稍后再将X设置为2，我说现在我们有两个
+may be started a little bit later as to
+set X to 2 I said now we have two maybe
+
+42
+00:03:44,329 --> 00:03:47,750
+两个不同的客户端大约同时发出了将X设置为两个的请求
+two different clients issued requests at
+about the same time to set X to two
+
+43
+00:03:47,750 --> 00:03:51,890
+不同的值，所以我们当然想知道哪个将是
+different values so of course we're
+wondering which one is going to be the
+
+44
+00:03:51,890 --> 00:04:01,239
+真正的价值，如果您所拥有的一切都写得很好，那么我们也会读一些
+real value and then we also have some
+reads if all you have is writes well
+
+45
+00:04:01,450 --> 00:04:05,659
+好吧，您说的对，所以关于线性化很难说太多
+well you have us right so it's it's hard
+to say too much about linearizable
+
+46
+00:04:05,659 --> 00:04:10,849
+线性化能力，因为您不知道您没有任何证明该系统
+linearize ability because you don't know
+you don't have any proof that the system
+
+47
+00:04:10,849 --> 00:04:17,839
+实际上没有做任何事情或揭示了任何值，所以我们真的需要阅读，所以让我们
+actually did anything or revealed any
+values so we really need reads so let's
+
+48
+00:04:17,839 --> 00:04:23,290
+想象我们读过一些东西，除非您在历史上看到我们
+imagine we have some read unless you'll
+be seeing our in the history
+
+49
+00:04:23,290 --> 00:04:30,010
+一位客户说这一次和第二次读到了答案
+that a client said to read at this time
+and the second time it got an answer for
+
+50
+00:04:30,010 --> 00:04:37,450
+红色按键重音获得了价值，因此大概看到了这个价值， 
+red key accent got value to so
+presumably actually saw this value and
+
+51
+00:04:37,450 --> 00:04:40,390
+然后可能是同一客户或其他客户的另一个请求
+then there was another request by maybe
+the same client or a different client
+
+52
+00:04:40,390 --> 00:04:46,270
+但已知已在此请求完成并且读取X之后及时开始
+but known to have started in time after
+this request finished and this read of X
+
+53
+00:04:46,270 --> 00:04:52,900
+在获得价值的同时，我们面前的问题是这段历史
+got value while and so the question in
+front of us is is this history
+
+54
+00:04:52,900 --> 00:04:58,450
+线性化，我们可以采取两种策略，要么
+linearizable and there's sort of two
+strategies we can take we can either
+
+55
+00:04:58,450 --> 00:05:03,700
+整理一个顺序，因为如果我们能得出这五个顺序的总和
+cook up a sequence because if we can
+come up with a total order of these five
+
+56
+00:05:03,700 --> 00:05:09,400
+服从实时的操作，每次读取都看到写入的值
+operations that obeys real time and in
+which each read sees the value written
+
+57
+00:05:09,400 --> 00:05:13,690
+如果我们能来的话，由牧师按顺序进行
+by the priest most recently proceeding
+right in the order if we can come up
+
+58
+00:05:13,690 --> 00:05:17,770
+以此顺序，那就证明了历史可以线性化的另一种策略
+with that order then that's a proof the
+history is linearizable another strategy
+
+59
+00:05:17,770 --> 00:05:26,730
+是要观察这些规则，每个人可能暗示着这要早于
+is to observe that these rules each one
+may imply certain this comes before that
+
+60
+00:05:26,730 --> 00:05:32,140
+图中的边，如果我们可以找到此操作中的一个循环，则必须先出现
+edges in a graph and if we can find a
+cycle in this operation must come before
+
+61
+00:05:32,140 --> 00:05:35,980
+该操作，我们可以在该图上找到心理，这证明了
+that operation we can find a psych on
+that graph and that's proof that the
+
+62
+00:05:35,980 --> 00:05:40,240
+历史不是线性化的，对于小的历史，我们实际上可能能够
+history isn't linearizable and for small
+histories we may actually be able to
+
+63
+00:05:40,240 --> 00:05:45,550
+枚举每个订单并使用表明该历史记录不是
+enumerate every single order and use
+that show this history isn't
+
+64
+00:05:45,550 --> 00:05:53,980
+线性化任何关于是否可能的任何想法
+linearizable anyway any any any thoughts
+about whether this might be or might not
+
+65
+00:05:53,980 --> 00:05:56,730
+可线性化
+be linearizable
+
+66
+00:06:00,410 --> 00:06:03,130
+是
+yes
+
+67
+00:06:08,330 --> 00:06:15,560
+是的，所以观察到，嗯，我们看到的有点麻烦
+yes okay so the observation is that um
+it's a little bit troubling that we saw
+
+68
+00:06:15,560 --> 00:06:21,099
+使用IU进行读取-然后读取具有值的值，并且可能与之矛盾
+read with IU - and then the read with
+value want and maybe that contradicts
+
+69
+00:06:21,099 --> 00:06:25,490
+您知道有两种权利，一种价值一对一，因此我们
+you know there were two rights one with
+value one on one value - so that so we
+
+70
+00:06:25,490 --> 00:06:28,970
+当然，如果我们必须读三本，那显然是
+certainly if we had to read with value
+three that would obviously be something
+
+71
+00:06:28,970 --> 00:06:32,720
+我知道我错得很厉害，但是我们得到了二分之一的权利和一个
+I got terribly wrong you know but we got
+there were a right of one in two and a
+
+72
+00:06:32,720 --> 00:06:36,470
+读一和二，所以问题是这种读顺序是否可以
+read of one and two so the question is
+whether this order of reads could
+
+73
+00:06:36,470 --> 00:06:43,030
+可能与这两项权利在历史上出现的方式保持一致
+possibly be reconciled with the way
+these two rights show up in the history
+
+74
+00:06:59,289 --> 00:07:07,520
+好吧，所以我就是我正在玩的游戏，因为我们有一个大概两个
+okay so what I'm what I'm the game we're
+playing is that we have a like maybe two
+
+75
+00:07:07,520 --> 00:07:10,789
+个客户或三个客户，他们正在谈论某些服务，您可能知道
+clients or three clients and they're
+talking some service you know maybe a
+
+76
+00:07:10,789 --> 00:07:15,529
+去年筏，我们看到的是正确的请求和响应
+raft last year something and what we are
+seeing is requests and responses right
+
+77
+00:07:15,529 --> 00:07:21,680
+所以这意味着我们看到了来自客户端的将X写入请求的请求
+so what this means is that we saw
+requests from a client to write X to the
+
+78
+00:07:21,680 --> 00:07:25,219
+你知道发出X和一个的请求，我们在这里看到了响应，所以我们知道
+you know put requests for X and one and
+we saw the response here so what we know
+
+79
+00:07:25,219 --> 00:07:29,319
+是在这段时间间隔内某处实际上是服务
+is that somewhere during this interval
+of time presumably the service actually
+
+80
+00:07:29,319 --> 00:07:34,610
+内部更改x-1的值，这意味着在
+internally change the value of x - 1 and
+what this means is that somewhere in
+
+81
+00:07:34,610 --> 00:07:42,590
+在此时间间隔内，服务可能会更改其内部观念
+this interval of time the service
+presumably changed its internal idea of
+
+82
+00:07:42,590 --> 00:07:47,029
+ x-2的值在这个时候某处，但是你知道它只是在某处
+the value of x - 2 somewhere in this
+time but you know it's just somewhere in
+
+83
+00:07:47,029 --> 00:07:52,250
+这次并不意味着它发生在这里或这里回答了您
+this time it doesn't mean it happened
+here or here does that answer your
+
+84
+00:07:52,250 --> 00:07:56,590
+问题是
+question
+yes
+
+85
+00:08:07,889 --> 00:08:13,500
+是的，所以观察是线性的，并且伴随着
+yes okay so the observation is that is
+linearizable and it's been accompanied
+
+86
+00:08:13,500 --> 00:08:17,490
+通过线性化能力的实际证明，即
+by an actual proof of the linearize
+ability namely a demonstration of the
+
+87
+00:08:17,490 --> 00:08:25,259
+显示它是线性化的订单，是，是线性化的订单
+order that shows that it is linearizable
+and the order is yes it's linearizable
+
+88
+00:08:25,259 --> 00:08:36,929
+并且订单是X的第一个右首字母，值为0，服务器得到了这两个
+and the order is first right of X with
+value 0 and the server got both of these
+
+89
+00:08:36,929 --> 00:08:40,528
+权利，同时仍然必须选择订单本身
+
+90
+00:08:40,529 --> 00:08:45,890
+对，所以我们只说它可以先执行x2值2的右边
+right so let's just say it could have
+executed the right of x2 value 2 first
+
+91
+00:08:45,890 --> 00:08:58,589
+然后读取X，然后执行读取X，这将是第一次读取
+and then the read of X then executed the
+read of X which would the first read of
+
+92
+00:08:58,589 --> 00:09:03,450
+ X，此时将产生2，然后我们要说下一个操作
+X which at that point would yield 2 and
+then we're gonna say the next operation
+
+93
+00:09:03,450 --> 00:09:08,430
+执行它是X的权利为1，然后是
+had executed it was the right of X to 1
+and then the last operation in the
+
+94
+00:09:08,430 --> 00:09:17,670
+历史记录是X到1的读数，因此可以证明历史记录是
+history is the read of X to 1 and so
+this is proof that the history is
+
+95
+00:09:17,670 --> 00:09:22,350
+可线性化，因为这是订单，是操作的总订单， 
+linearizable because here's an order
+it's a total order of the operations and
+
+96
+00:09:22,350 --> 00:09:29,310
+这是它与实时匹配的顺序，所以意味着一切就好了
+this is the order it matches real time
+so what that means is well just go
+
+97
+00:09:29,310 --> 00:09:32,339
+通过它，X到0的权利首先出现，那就是完全
+through it the the right of X to 0 comes
+first and that's that's totally
+
+98
+00:09:32,339 --> 00:09:37,560
+直观，因为它实际上是在其他任何操作开始之前完成的
+intuitive since it's actually finished
+before any other operations started the
+
+99
+00:09:37,560 --> 00:09:42,060
+ X比1的权利对不起X比2的比率排名第二，所以我们要说
+right of X to 1 comes sorry the rate of
+X to 2 comes second so we're gonna say
+
+100
+00:09:42,060 --> 00:09:48,839
+也许我要在这里标记出我们想象这些的实时时间
+maybe that I'm gonna mark here that sort
+of real time at which we imagine these
+
+101
+00:09:48,839 --> 00:09:52,800
+操作恰好证明这里的订单与实时匹配
+operations happen to demonstrate that
+the order here does match real time so
+
+102
+00:09:52,800 --> 00:09:56,220
+它会说我会在这里写一个大X来标记我们想象的时间
+it'll say I'll just write a big X here
+to mark the time when we imagine this
+
+103
+00:09:56,220 --> 00:10:01,949
+手术发生了，所以这是第二个手术，然后我们
+operation happened all right so that's
+the second operation then we're
+
+104
+00:10:01,949 --> 00:10:07,380
+想象下一个操作是读取X的2，我们知道没有
+imagining that the next operation is the
+read of X of 2 we you know there's no
+
+105
+00:10:07,380 --> 00:10:11,070
+实时问题，因为X的2的读数实际上同时是这个u 
+real time problem because the read of X
+of 2 actually was this u concurrently
+
+106
+00:10:11,070 --> 00:10:14,640
+ X的右边为2，您知道它与X的右边不一样， 
+with the right of X of 2 you know it's
+not like the right of X the read of X of
+
+107
+00:10:14,640 --> 00:10:18,660
+ 2完成，然后X的X的右边才开始
+2 finished and only then did the right
+of X right of X with to start there
+
+108
+00:10:18,660 --> 00:10:21,240
+确实是并发的，我们会想象
+really are concurrent we'll just imagine
+that that
+
+109
+00:10:21,240 --> 00:10:25,230
+这样的操作发生的时间点就在那里
+sort of point in time at which this
+operation happened is right there so
+
+110
+00:10:25,230 --> 00:10:28,589
+这是你知道我们不在乎这件事发生的时间，我们只是说
+this is the you know we don't care when
+this one happened let's just say there's
+
+111
+00:10:28,589 --> 00:10:36,660
+第一个操作第二个第三个现在我们有一个X的权利，我们可以说
+the first operation second third now we
+have a right of X of one let's just say
+
+112
+00:10:36,660 --> 00:10:42,779
+它是实时发生的，只在发生操作后才发生
+it happens here in real time just has to
+happen after the operations that occur
+
+113
+00:10:42,779 --> 00:10:45,600
+在此之前，以便说有第四次操作，现在我们
+before it in the order so that will say
+there's the fourth operation and now we
+
+114
+00:10:45,600 --> 00:10:48,929
+读取了x1，它几乎可以随时发生，但可以说
+have the read of x1 and it can pretty
+much happen at any time but let's say it
+
+115
+00:10:48,929 --> 00:10:52,889
+发生在这里好吧，这就是钻石
+happens here okay so this is the
+Diamonds
+
+116
+00:10:52,889 --> 00:10:56,369
+所以我们有订单，这是订单的示范
+so we have the order this is the
+demonstration that the order is
+
+117
+00:10:56,369 --> 00:11:00,089
+与实时保持一致，即我们可以为每个操作选择时间
+consistent with real time that is we can
+pick a time for each of the operations
+
+118
+00:11:00,089 --> 00:11:06,600
+在开始和结束时间之内，这将导致总订单
+that's within its start and end time
+that would cause this total order to
+
+119
+00:11:06,600 --> 00:11:12,269
+匹配我们的实时订单，因此最后一个问题是每次阅读都看到
+match our real time order and so the
+final question is did each read see the
+
+120
+00:11:12,269 --> 00:11:16,939
+由同一变量的最接近的最前面的权利写的值，因此
+value written by the most closely
+preceding right of the same variable so
+
+121
+00:11:16,939 --> 00:11:21,899
+在此读取中有两个V，其前面是具有正确值的右侧，因此
+there's two V's this read preceded by a
+right with that correct value so that's
+
+122
+00:11:21,899 --> 00:11:26,549
+良好，且此读取之前是最接近权利的权利
+good and this read is preceded by a
+right most closely preceded by a right
+
+123
+00:11:26,549 --> 00:11:34,649
+具有相同的值也可以，所以这证明了这个历史是
+of the same value also okay so this this
+is a demonstration that this history was
+
+124
+00:11:34,649 --> 00:11:40,769
+线性化，您知道您所知道的取决于您当时的想法
+linearizable and you know the you know
+depends on what you thought when you
+
+125
+00:11:40,769 --> 00:11:44,819
+第一次看到历史，但并不一定总是马上就知道
+first saw the history but it's not
+always immediately clear that set up
+
+126
+00:11:44,819 --> 00:11:50,429
+这很复杂，您知道在查看这些内容时很容易被欺骗
+this complicated is you know it's easy
+to be tricked when looking at these
+
+127
+00:11:50,429 --> 00:11:53,699
+您认为哦x1的权利的历史最早开始于
+histories which do you think oh the
+right of x1 started first so we just
+
+128
+00:11:53,699 --> 00:11:57,689
+假设写入的第一个值必须是一个，但实际上
+sort of assumed that the first value
+written must be one but that's actually
+
+129
+00:11:57,689 --> 00:12:05,779
+这里不需要对此有任何疑问
+not required here any questions about
+this
+
+130
+00:12:15,089 --> 00:12:23,219
+如果您的意思是如果这两个对象都这样移动了，那么
+if the you mean if these two were moved
+like this the okay so if if if this if
+
+131
+00:12:23,219 --> 00:12:30,329
+具有重读权的权利仅在重读口音后由客户发布
+the right with value to was only issued
+by the client after the read of accent
+
+132
+00:12:30,329 --> 00:12:37,319
+返回的值将无法线性化，因为以任何顺序
+value to returned that wouldn't be
+linearizable because in whatever order
+
+133
+00:12:37,319 --> 00:12:41,129
+您知道我们提出的任何订单都必须遵守实时订购，因此任何
+you know any order we come up with has
+to obey the real-time ordering so any
+
+134
+00:12:41,129 --> 00:12:46,289
+我们想出的顺序将不得不先读取X并加上
+order we come up with would have had to
+have the read of X with to precede the
+
+135
+00:12:46,289 --> 00:12:52,799
+ X为2的权利，并且因为这里没有X of 2的其他权利
+right of X with 2 and since there's no
+other right of X of 2 insight here that
+
+136
+00:12:52,799 --> 00:12:57,029
+表示此时的读取只能看到0或1，因为这些是
+means that a read at this point could
+only see 0 or 1 because those are the
+
+137
+00:12:57,029 --> 00:13:03,329
+在此阅读之前可能只有其他2种权利，所以您知道
+only other 2 rights that could possibly
+come before this read so moving you know
+
+138
+00:13:03,329 --> 00:13:10,459
+大量移动这些将使示例无法线性化
+shifting these that much makes the would
+make the example not linearizable
+
+139
+00:13:19,090 --> 00:13:22,090
+是
+yes
+
+140
+00:13:24,670 --> 00:13:29,690
+我是说第一条垂直线是客户发送
+I'm saying that the first vertical line
+is the moment the client sends the
+
+141
+00:13:29,690 --> 00:13:34,130
+请求，第二条垂直线是客户收到
+request and the second vertical line is
+the moment the client receives the
+
+142
+00:13:34,130 --> 00:13:42,890
+请求是的是的，所以这是一种非常以客户为中心的定义， 
+request yes yeah yeah so this is a very
+client centric kind of definition it
+
+143
+00:13:42,890 --> 00:13:46,580
+说您知道客户应该看到以下行为以及会发生什么
+says you know clients should see the
+following behavior and what happens
+
+144
+00:13:46,580 --> 00:13:49,970
+在我们发送请求后，也许会有很多副本，可能很复杂
+after us send a request in maybe there's
+a lot of replicas maybe a complicated
+
+145
+00:13:49,970 --> 00:13:53,570
+谁知道这几乎与我们的业务无关，我们只是
+network who knows what it's almost none
+of our business we're only the
+
+146
+00:13:53,570 --> 00:13:59,240
+定义仅与客户看到的内容有关，我们将在某些灰色区域
+definition is only about what clients
+see there's some gray areas which we'll
+
+147
+00:13:59,240 --> 00:14:03,920
+出现在某个时刻，例如客户端是否需要重新发送请求，然后
+come to in a moment like if the client
+should need to retransmit a request then
+
+148
+00:14:03,920 --> 00:14:12,680
+我们还必须知道这是我们必须考虑的事情，所以
+we also have to you know that's
+something we have to think about okay so
+
+149
+00:14:12,680 --> 00:14:19,700
+这是线性化的，这是我要开始的另一个示例
+this one is linearizable here's another
+example I'm actually going to start out
+
+150
+00:14:19,700 --> 00:14:23,450
+它几乎是相同的，我将从你的相同开始
+with it being almost identical I'm gonna
+start out with you being identical for
+
+151
+00:14:23,450 --> 00:14:28,460
+第一个例子，所以我们有X的右为0，我们有这两个
+the first example so again we have a
+right of X with 0 we have these two
+
+152
+00:14:28,460 --> 00:14:52,820
+并发权利，并且我们具有相同的两个读取，这些读取到目前为止与
+concurrent rights and we have the same
+two reads those are so far identical to
+
+153
+00:14:52,820 --> 00:14:56,090
+前面的示例，因此我们知道这必须是这个，必须是
+the previous example so therefore we
+know this must be this alone must be
+
+154
+00:14:56,090 --> 00:15:02,420
+最小，但我要添加，让我们假设客户端1发出了这两个
+minimal but I'm going to add let's let's
+imagine that client 1 issued these two
+
+155
+00:15:02,420 --> 00:15:06,230
+要求定义不是真的在乎客户，而是她自己的理智
+requests the definition doesn't really
+care about clients but her own sanity
+
+156
+00:15:06,230 --> 00:15:11,450
+将假定客户端1红色X并看到两个，然后后来红色X并看到一个，但是
+will assume client 1 red X and saw two
+and then later red X and saw one but
+
+157
+00:15:11,450 --> 00:15:17,630
+到目前为止还可以，我说有另一个客户端，另一个客户端进行了读取
+that's okay so far I say there's another
+client and the other client does a read
+
+158
+00:15:17,630 --> 00:15:25,700
+ X，它看到一个1，然后另一个客户端是X的第二次读取，它看到
+of X and it sees a 1 and then the other
+client is a second read of X and it sees
+
+159
+00:15:25,700 --> 00:15:33,260
+ -因此这是线性的，我们要么必须提出一个订单
+- so this is linearizable and we either
+have to come up with an order
+
+160
+00:15:33,260 --> 00:15:42,460
+或它在其中具有循环的图之前
+or this comes before that graph that has
+a cycle in it
+
+161
+00:15:50,210 --> 00:15:57,110
+所以您知道，困扰的是如果一个客户看到了
+so you know that thing this is getting
+at the puzzle is if one client saw
+
+162
+00:15:57,110 --> 00:16:01,700
+这里只有两项权利，所以您可以按任何顺序知道他们，或者其中一项权利
+there's only two rights here so they you
+know in any order or one of the rights
+
+163
+00:16:01,700 --> 00:16:08,089
+客户率先或其他率第一
+comes first or the other rate comes
+first and intuitively client one
+
+164
+00:16:08,089 --> 00:16:14,870
+观察到具有价值的权利首先出现，然后是价值的权利
+observed that the right with value to
+came first and then the right of value
+
+165
+00:16:14,870 --> 00:16:21,560
+这两项的一项权利意味着必须以任何法律顺序
+one right these two reads mean that has
+to be the case that in any legal order
+
+166
+00:16:21,560 --> 00:16:25,190
+为了攀登，两个人的权利必须先于一个人的权利
+of the right of two has to come before
+the right of one in order for the climb
+
+167
+00:16:25,190 --> 00:16:31,100
+什么时候看到的，这与我们在这里看到的顺序相同，但对称
+when to have seen this and it's the same
+order we saw over here but symmetrically
+
+168
+00:16:31,100 --> 00:16:39,070
+客户的经历清楚地表明了相反的权利，对不起
+client one's experience clearly shows
+the opposite right sorry huh fine to
+
+169
+00:16:39,070 --> 00:16:44,209
+经验丰富的客户是相反的客户，他们首先看到了权利
+client who's experience was the opposite
+clients to saw the right of one first
+
+170
+00:16:44,209 --> 00:16:52,040
+然后还有价值的权利，这里的规则之一就是
+and then the right with value too and
+one of the rules here is that there's
+
+171
+00:16:52,040 --> 00:16:58,130
+只有一个总的操作顺序，不允许不同的客户看到
+just one total order of operations not
+allowed to have different clients see
+
+172
+00:16:58,130 --> 00:17:03,680
+不同的历史或不同的发展历程
+different histories or different
+different progressions evolutions of the
+
+173
+00:17:03,680 --> 00:17:07,069
+存储在系统中的值只能有一个总数
+values that are stored in the system
+there can only be one total of order
+
+174
+00:17:07,069 --> 00:17:11,809
+所有客户必须经历与
+that all clients have to experience
+operations that are consistent with the
+
+175
+00:17:11,809 --> 00:17:18,319
+一份订单，如果一位客户明确表示该订单是正确的
+one order and if one this one client
+clearly implies that the order is right
+
+176
+00:17:18,319 --> 00:17:23,720
+ -然后是对的，因此我们应该不能再有其他客户
+- and then right one and so we should
+not be able to have any other client who
+
+177
+00:17:23,720 --> 00:17:29,559
+观察到证明订单是其他任何东西，这就是我们在这里所拥有的
+observes proof that the order was
+anything else which is what we have here
+
+178
+00:17:29,559 --> 00:17:37,370
+所以这是对这里发生问题的直观解释
+and so that's a bit of a intuitive
+explanation for what's going wrong here
+
+179
+00:17:37,370 --> 00:17:41,300
+顺便说一下，为什么这可能会出现在我们
+and and by the way the reason why this
+could come up in the systems that we
+
+180
+00:17:41,300 --> 00:17:46,070
+构建并查看的是，我们正在构建复制系统，或者您知道筏
+build and look at is that we're building
+replicated systems either you know raft
+
+181
+00:17:46,070 --> 00:17:50,300
+复制品或可能具有缓存的系统，但我们正在构建的系统
+replicas or maybe systems with caching
+in them but we're building systems that
+
+182
+00:17:50,300 --> 00:17:54,950
+有很多数据副本，因此可能有很多服务器都有
+have many copies of the data and so
+there may be many servers with copies of
+
+183
+00:17:54,950 --> 00:17:59,210
+如果它们中的X在不同的时间可能具有不同的值
+X in them possibly with different values
+at different times right if they haven't
+
+184
+00:17:59,210 --> 00:18:03,470
+得到了提交，或者某些副本可能具有一个值，某些可能
+gotten the commits yet or something some
+replicas may have one value some may of
+
+185
+00:18:03,470 --> 00:18:07,070
+另一个，尽管如此，如果我们的系统是
+the other
+but in spite of that if our system is
+
+186
+00:18:07,070 --> 00:18:13,130
+可线性化或高度一致，它必须表现得好像只有一个
+linearizable or strongly consistent it
+must behave as if there was only one
+
+187
+00:18:13,130 --> 00:18:18,740
+数据的副本和应用于该数据的一个线性操作序列
+copy of the data and one linear sequence
+of operations applied to the data that's
+
+188
+00:18:18,740 --> 00:18:22,660
+为什么这是一个有趣的示例，因为这可能以某种方式出现
+why this is an interesting example
+because this could come up in a sort of
+
+189
+00:18:22,660 --> 00:18:27,260
+具有两个数据副本和一个副本的越野车系统执行了这些权限
+buggy system that had two copies of the
+data and one copy executed these rights
+
+190
+00:18:27,260 --> 00:18:30,320
+以一个顺序执行，其他副本以另一顺序执行权限
+in one order and the other replicas
+executed the rights in the other order
+
+191
+00:18:30,320 --> 00:18:34,880
+然后我们可以看到并线性化能力说不，我们看不到我们在
+and then we could see this and linearize
+ability says no we can't see that we're
+
+192
+00:18:34,880 --> 00:18:39,679
+不允许在正确的系统中看到它，因此图中的周期
+not allowed to see that in the correct
+system so the the cycle in the graph in
+
+193
+00:18:39,679 --> 00:18:45,799
+这是在该图之前，它会更证明e 
+the this comes before that graph that
+would be a sort of slightly more proof e
+
+194
+00:18:45,799 --> 00:18:51,260
+证明这不是线性化的证明是必须先有两个
+proof that this is not linearizable is
+that the right of two has to come before
+
+195
+00:18:51,260 --> 00:18:59,210
+客户读了两个，所以有一个这样的箭头，所以这个权利
+client ones read of two so there's one
+arrow like this so this right has to
+
+196
+00:18:59,210 --> 00:19:09,380
+在读取客户端之前，必须先在X的右边加上
+come before that read client ones read
+has to come before the right of X with
+
+197
+00:19:09,380 --> 00:19:15,830
+值一，否则，如果您可以，此读取将无法看到一个权利
+value one otherwise this read wouldn't
+be able to see one right if this you can
+
+198
+00:19:15,830 --> 00:19:20,000
+想象一下这项权利可能会在订单的早期发生，但在这种情况下， 
+imagine this right might happen very
+early in the order but in that case this
+
+199
+00:19:20,000 --> 00:19:25,090
+读X不会看到一个，就会看到两个，因为我们知道这个人看到了两个，所以
+read of X wouldn't see one it would see
+two since we know this guy saw two so
+
+200
+00:19:25,090 --> 00:19:32,809
+ X的读数必须在X的右边，X的读数必须在X的一个右边
+the read of X with two must come before
+the right of X with one the right of X
+
+201
+00:19:32,809 --> 00:19:37,190
+之一必须在任何读取值为1的X之前出现，因为包括客户端
+of one must come before any read of X
+with value 1 because including client
+
+202
+00:19:37,190 --> 00:19:44,600
+谁读取了值为1的X，但为了在此获得值1 
+who's read of X with value 1 but in
+order to get value 1 here and for this
+
+203
+00:19:44,600 --> 00:19:50,169
+请阅读，也要按顺序在X的右边看
+read to see to the right of X with I too
+must come between in in the order
+
+204
+00:19:50,169 --> 00:19:55,840
+在这两个操作之间，因此我们知道X 1的读取必须先于
+between these two operations so we know
+that the read of X 1 must come before
+
+205
+00:19:55,840 --> 00:20:03,049
+ X 2的右边，这是一个循环，所以没有Vinnie 
+the right of X 2 and that's a cycle
+alright so there's no there's no Vinnie
+
+206
+00:20:03,049 --> 00:20:10,130
+或顺序，但没有线性顺序可以服从所有这些时间
+or order or that but there's no linear
+order that can obey all of these time
+
+207
+00:20:10,130 --> 00:20:16,530
+和价值规则，并不是因为
+and value rules and there isn't because
+there's a cycle in the
+
+208
+00:20:16,530 --> 00:20:24,480
+在图中是
+in the graph yes
+
+209
+00:20:32,870 --> 00:20:37,410
+这是一个很好的问题，这定义了关于
+that's a good question this this
+definitions the definition about
+
+210
+00:20:37,410 --> 00:20:43,650
+历史并不一定是关于系统的，所以它不是在说一个系统
+history's not about necessarily systems
+so what it's not saying is that a system
+
+211
+00:20:43,650 --> 00:20:50,460
+设计是线性化的，如果关于设计的某些事情实际上只是
+design is linearizable if something
+about the design it's really only
+
+212
+00:20:50,460 --> 00:20:55,710
+逐个历史记录，因此如果我们不了解系统内部运行方式
+history by history so if we don't get to
+know how the system operates internally
+
+213
+00:20:55,710 --> 00:20:59,520
+我们唯一知道的是，我们可以在执行之前观看它
+and the only thing we know is we get to
+watch it while it executes then before
+
+214
+00:20:59,520 --> 00:21:02,790
+我们已经看到了我们所不知道的任何内容，这意味着我们假设它是
+we've seen anything we just don't know
+right we mean we'll assume it's
+
+215
+00:21:02,790 --> 00:21:06,810
+线性化，然后我们会看到越来越多的Akash操作序列
+linearizable and then we see more and
+more sequences of operations this Akash
+
+216
+00:21:06,810 --> 00:21:10,560
+它们都符合线性化能力，它们都遵循这些规则，因此
+they're all consistent with linearize
+ability they all follow these rules so
+
+217
+00:21:10,560 --> 00:21:14,340
+你知道我们相信这可能不是全部线性化，如果我们曾经
+you know we believe it's probably this
+isn't linearize of all and if we ever
+
+218
+00:21:14,340 --> 00:21:20,460
+看到一个不是，那么我们意识到它不是线性的，所以是的
+seen one that isn't then we realize it's
+not linearizable so this is yeah it's
+
+219
+00:21:20,460 --> 00:21:23,880
+不是系统设计的定义，而是我们所定义的
+not a definition on the system design
+it's a definition on what the what we
+
+220
+00:21:23,880 --> 00:21:27,020
+在某种意义上观察系统是否这样做
+observe the system to do so in that
+sense it's maybe a little bit
+
+221
+00:21:27,020 --> 00:21:30,420
+如果您要设计的东西不满意，那就没有办法了
+unsatisfying if you're trying to design
+something right there's not a recipe for
+
+222
+00:21:30,420 --> 00:21:33,960
+您如何设计，除了琐碎的意义上，您知道如果您只有一个
+how you design you know except in a
+trivial sense that if you had a single
+
+223
+00:21:33,960 --> 00:21:40,020
+在非常简单的系统中的一台服务器一台服务器一个没有线程的数据副本或
+server in very simple systems one server
+one copy of the data not threaded or
+
+224
+00:21:40,020 --> 00:21:43,770
+多核或其他任何东西都很难建立一个违反
+multi-core or anything it's a little bit
+hard to build a system that violates
+
+225
+00:21:43,770 --> 00:21:50,280
+这是非常简单的设置，但在任何情况下都极易违反
+this in a very simple set up but super
+easy to violate it in any kind of
+
+226
+00:21:50,280 --> 00:21:59,550
+分布式系统还可以，所以从中得到的教训是，只有
+distributed system okay so the lesson
+from this is that there's only can only
+
+227
+00:21:59,550 --> 00:22:07,260
+是观察系统执行所有写入的一个顺序
+be one order in which the system is
+observed to execute the writes all
+
+228
+00:22:07,260 --> 00:22:13,350
+客户必须看到价值与执行写入操作的系统一致
+clients have to see value is consistent
+with the system executing the writes in
+
+229
+00:22:13,350 --> 00:22:16,460
+相同的顺序
+the same order
+
+230
+00:22:18,020 --> 00:22:24,380
+这是一个非常简单的历史，另一个假设我们写行为的例子
+here's a very simple history
+another example supposing we write acts
+
+231
+00:22:24,380 --> 00:22:29,330
+值1，然后肯定会及时与另一个
+with value 1 and then definitely
+subsequently in time maybe with another
+
+232
+00:22:29,330 --> 00:22:34,670
+客户另一个客户启动值为2的X的权利并看到响应
+client another client launches a right
+of X with value 2 and sees a response
+
+233
+00:22:34,670 --> 00:22:38,540
+从服务返回说是我做对了，然后第三个客户做了
+back from the service saying yes I did
+the right and then a third client does a
+
+234
+00:22:38,540 --> 00:22:47,630
+读X并得到一个，所以这是一个非常简单的示例，显然不是
+read of X and gets got you one so this
+is a very easy example it's clearly not
+
+235
+00:22:47,630 --> 00:22:54,230
+可线性化，因为时间规则意味着唯一可能的顺序是
+linearizable because the time rule means
+that the only possible order is the
+
+236
+00:22:54,230 --> 00:22:57,860
+ X的右边为1 X的右边为2 X的读数为1，因此必须为
+right of X with 1 the right of X is 2
+the read of X with 1 so that has to be
+
+237
+00:22:57,860 --> 00:23:01,850
+订单，该订单明显违反了这是唯一的订单
+the order and that order clearly
+violates this is the only one order that
+
+238
+00:23:01,850 --> 00:23:06,620
+订单显然违反了您最了解的关于价值的第二条规则
+order clearly violates the second rule
+about values that is you know the most
+
+239
+00:23:06,620 --> 00:23:10,910
+可能拥有的一个订单中的最新权利所写的价值
+value written by the most recent right
+in the owned one order that's possible
+
+240
+00:23:10,910 --> 00:23:18,320
+不是1，而是2，因此这显然无法线性化，也是我带来的原因
+is not 1 it's 2 so this is clearly not
+linearizable and the reason I'm bringing
+
+241
+00:23:18,320 --> 00:23:23,150
+之所以这样，是因为这是线性化系统
+it up is because this is the argument
+that a linearizable system a strongly
+
+242
+00:23:23,150 --> 00:23:29,780
+一致的系统无法正确处理过时的数据，您知道为什么
+consistent system cannot serve up stale
+data right and you know the reason why
+
+243
+00:23:29,780 --> 00:23:34,340
+这可能会再次出现，您知道也许您每个人都有很多副本
+this might come up is again you know
+maybe you have lots of replicas each you
+
+244
+00:23:34,340 --> 00:23:37,520
+知道也许没有看到所有权利或所有承诺的权利或某些东西
+know maybe haven't seen all the rights
+or all the committed rights or something
+
+245
+00:23:37,520 --> 00:23:42,230
+所以也许有一些复制品都看到了这个权利，但只有
+so maybe there's some maybe all the
+replicas have seen this right but only
+
+246
+00:23:42,230 --> 00:23:45,920
+一些副本已看到此权限，因此，如果您问一个滞后的副本
+some replicas have seen this right and
+so if you ask a replica that's lagging
+
+247
+00:23:45,920 --> 00:23:50,590
+稍微落后一点，它的X值仍为1，但是
+behind a little bit it's still gonna
+have value 1 for X but nevertheless
+
+248
+00:23:50,590 --> 00:23:57,980
+客户应该永远无法在线性化系统中看到这个旧值
+clients should never be able to see this
+old value in a linearizable system are
+
+249
+00:23:57,980 --> 00:24:02,530
+没有过时的数据，不允许仍然读取
+there no stale data allowed no still
+reads
+
+250
+00:24:21,510 --> 00:24:26,140
+是的，如果间隔有重叠，那么就会知道
+yeah if there's overlap in the interval
+then there's then you know that you
+
+251
+00:24:26,140 --> 00:24:31,150
+系统能否实时合法地执行其中任何一个，而我
+could the system could legally execute
+either of them in a real-time and I in
+
+252
+00:24:31,150 --> 00:24:35,950
+间隔，这就是他们可以系统执行的意义
+the interval so that's the sense in
+which they could system gonna execute
+
+253
+00:24:35,950 --> 00:24:40,180
+他们以两种顺序排列，现在您知道其他，如果不是这两种
+them in either order now you know other
+you know if it weren't for these two
+
+254
+00:24:40,180 --> 00:24:45,490
+读取系统会让您知道完全自由地执行写入
+reads the system would have you know
+total freedom execute that writes in
+
+255
+00:24:45,490 --> 00:24:52,690
+任一个顺序，但因为我们看到了两个读音，所以我们知道您知道唯一
+either order but because we saw the two
+reads we know that you know the only
+
+256
+00:24:52,690 --> 00:25:03,310
+法律命令是两个，然后是一个，是的，所以如果两个储藏室都在笑，然后
+legal order is two and then one yeah so
+if the two reserva laughing then and
+
+257
+00:25:03,310 --> 00:25:07,150
+那么实际上读到的任何顺序都可以看到，或者您知道Toby看到了
+then any order then the reads could have
+seen either in fact you know Toby saw
+
+258
+00:25:07,150 --> 00:25:11,250
+从阅读这些笨蛋的两个和一个词都可以让你知道
+the two and the one words all from the
+reads these doobies could have you know
+
+259
+00:25:11,250 --> 00:25:15,430
+系统，直到它致力于读取的值，它仍然有自由
+the system until it committed to the
+values for the read it still had freedom
+
+260
+00:25:15,430 --> 00:25:18,450
+以两种顺序退还它们
+to return them in either order
+
+261
+00:25:23,669 --> 00:25:31,480
+我将它们用作同义词，是的，虽然可能，但大多数人都知道
+I'm using them as synonyms yeah yeah you
+know for most people although possibly
+
+262
+00:25:31,480 --> 00:25:37,900
+今天的纸张线性化能力不是很好定义的，而人们的
+not today's paper linearize ability is
+is well defined and and people's
+
+263
+00:25:37,900 --> 00:25:43,750
+定义确实与这种强一致性大相径庭，尽管
+definitions really deviate very much
+from this strong consistency though is
+
+264
+00:25:43,750 --> 00:25:47,890
+更少，我认为关于
+less I think there's less sort of
+consensus about exactly what the
+
+265
+00:25:47,890 --> 00:25:53,200
+定义可能是，如果您要表示高度的一致性，通常是男人，通常是
+definition might be if you meant strong
+consistency it's often men it's usually
+
+266
+00:25:53,200 --> 00:25:55,780
+男人也是如此
+men too in ways that are quite close to
+this
+
+267
+00:25:55,780 --> 00:26:00,640
+例如，哦，系统的行为方式与
+like for example that oh the system
+behaves the same way that a system with
+
+268
+00:26:00,640 --> 00:26:05,169
+只有一个数据副本会表现良好，这与
+only one copy of the data would behave
+all right which is quite close to what
+
+269
+00:26:05,169 --> 00:26:10,150
+我们正在定义这个定义，但是对，您知道
+we're getting at with this definition
+but yeah for you know it's reasonable to
+
+270
+00:26:10,150 --> 00:26:18,450
+假设强强一致性与可序列化相同，所以这是
+assume that strong strong consistency is
+the same as serializable okay so this is
+
+271
+00:26:18,450 --> 00:26:26,350
+无法线性化，您知道的教训是杂草不被允许
+not linearizable and the you know the
+the lesson is weeds are not allowed to
+
+272
+00:26:26,350 --> 00:26:33,100
+仅返回陈旧数据，或者仅返回以下结果： 
+return stale data only only fresh data
+or you can only return the results of
+
+273
+00:26:33,100 --> 00:26:37,110
+最近完成的权利
+the most recently completed right
+
+274
+00:26:44,700 --> 00:26:54,660
+好吧，我有最后一个最终的小例子，所以我们有两个客户，其中一个
+okay I have a final final little example
+so we have two clients one of them
+
+275
+00:26:54,660 --> 00:27:04,450
+向X提交值3的写操作，然后对值4和2的两个操作进行写操作
+submits a write to X with value three
+and then write two acts with value 4 and
+
+276
+00:27:04,450 --> 00:27:10,630
+我们还有另一个客户，您知道此时客户发出了
+we have another client and you know at
+this point in time the client issues a
+
+277
+00:27:10,630 --> 00:27:18,520
+读过X，但这是一个问题，您问客户没有收到
+read of X but and this is a question you
+asked the the client doesn't get a
+
+278
+00:27:18,520 --> 00:27:23,680
+您知道谁知道在实际实施中喜欢它
+response right you know who knows like
+it in the sort of actual implementation
+
+279
+00:27:23,680 --> 00:27:27,790
+可能是领导者在某个时候坠毁，也许是他的客户发送了阅读
+may be the leader crashed at some point
+maybe the his client to sent in the read
+
+280
+00:27:27,790 --> 00:27:31,840
+请求，因此领导者可能由于请求被放弃而未收到请求，或者
+request so the leader maybe didn't get
+it because the request was dropped or
+
+281
+00:27:31,840 --> 00:27:36,700
+也许领导者得到了请求并执行了，但是响应网络
+maybe the leader got the request and
+executed it but the response the network
+
+282
+00:27:36,700 --> 00:27:40,870
+放弃答复，或者领导者得到答复并开始处理， 
+dropped the response or maybe the leader
+got it and started to process up and
+
+283
+00:27:40,870 --> 00:27:44,680
+然后在完成处理之前崩溃，或者也许已经处理并崩溃
+then crash before finished processing
+and or maybe did process it and crash
+
+284
+00:27:44,680 --> 00:27:48,160
+在说出答复时，谁知道客户的观点，例如发送
+before saying the response who knows
+when the clients point of view like sent
+
+285
+00:27:48,160 --> 00:27:52,300
+一个请求，但从未得到回应，因此在客户的内部机械中
+a request and never got a response so in
+the interior machinery of the client for
+
+286
+00:27:52,300 --> 00:27:55,030
+我们正在谈论的大多数系统客户端将重新发送
+most of the systems we're talking about
+the client is going to resend the
+
+287
+00:27:55,030 --> 00:27:59,800
+请求也许做一个不同的领导者，也许是知道这件事的那个领导者
+request maybe do a different leader
+maybe the same leader who knows what so
+
+288
+00:27:59,800 --> 00:28:05,470
+它在这里发送了第一个问题任务，也许在
+it sent the first question quest here
+and maybe it sends the second request at
+
+289
+00:28:05,470 --> 00:28:10,450
+此时间点超时，您知道没有响应在发送第二个请求
+this point in time it times out you know
+no response sends the second request at
+
+290
+00:28:10,450 --> 00:28:19,390
+至此，最后得到回应，事实证明， 
+this point and then finally gets a
+response it turns out that and you're
+
+291
+00:28:19,390 --> 00:28:26,830
+打算在实验3中实现这种合理的服务器处理方式
+going to implement this in lab 3 that a
+reasonable way of servers dealing with
+
+292
+00:28:26,830 --> 00:28:31,540
+重复的请求是让他们的服务器保持表被某些人索引
+repeated requests is for their servers
+to keep tables sort of indexed by some
+
+293
+00:28:31,540 --> 00:28:35,080
+一种唯一的请求号，或者来自客户的某些请求
+kind of unique request number or
+something from the clients in which the
+
+294
+00:28:35,080 --> 00:28:38,890
+服务器记得哦，我已经看到了该请求并执行了该请求，这就是
+servers remember oh I already saw that
+request and executed it and this was the
+
+295
+00:28:38,890 --> 00:28:42,690
+由于您不想两次执行请求而发送回的回复
+response that I sent back because you
+don't want to execute a request twice
+
+296
+00:28:42,690 --> 00:28:47,410
+您知道这是否是例如您是否不想执行的写请求
+you know if it's a for example if it's a
+write request you don't want to execute
+
+297
+00:28:47,410 --> 00:28:51,000
+请求正确，因此服务器必须能够过滤出重复的请求
+requests right so the server's have to
+be able to filter out duplicate requests
+
+298
+00:28:51,000 --> 00:28:56,020
+并且他们必须能够返回答复以重复答复
+and they have to be able to return the
+reply to repeat the reply that the
+
+299
+00:28:56,020 --> 00:28:59,049
+最初发送到该请求，也许有
+originally
+sent to that request which perhaps has
+
+300
+00:28:59,049 --> 00:29:04,559
+被网络丢弃，以便服务器记住原始撬动并重复进行
+dropped by the network so that servers
+remember the original pry and repeat it
+
+301
+00:29:04,559 --> 00:29:12,580
+响应重发，如果您执行了实验3中的操作，那么如果您
+in response to the resend and if you do
+that which you will in lab 3 then if you
+
+302
+00:29:12,580 --> 00:29:18,400
+知道由于服务器领导者执行该命令时可能已经看到了值3 
+know since the server the leader could
+have seen value 3 when it executed the
+
+303
+00:29:18,400 --> 00:29:23,860
+客户端对其的原始读取请求可能将值3返回到重复
+original read request from client to it
+could return value 3 to the repeated
+
+304
+00:29:23,860 --> 00:29:30,460
+此时发送并在此时完成的请求，因此我们必须
+requests that was sent at this time and
+completed at this time and so we have to
+
+305
+00:29:30,460 --> 00:29:38,020
+打电话问这是否合法，你可以说哦，天哪
+make a call on whether that is legal
+right you could argue that oh gosh you
+
+306
+00:29:38,020 --> 00:29:41,169
+知道我们在这里向客户发送了请求，这是X 2 4的权利之后
+know the client we sent the request here
+this was after the right of X 2 4
+
+307
+00:29:41,169 --> 00:29:44,679
+完成，所以耶稣此时您真正应该返回的是
+completed so Jesus what you really
+should return for at this point instead
+
+308
+00:29:44,679 --> 00:29:55,150
+之三，这有点像一个问题，有点像
+of 3 and this is like a little bit a
+question of it's like a little bit up
+
+309
+00:29:55,150 --> 00:30:00,460
+设计者，但是如果您认为正在进行的是重新传输
+the designer but if what you view is
+going on is that the retransmissions are
+
+310
+00:30:00,460 --> 00:30:07,120
+您知道RPC机制的一部分或隐藏在某些低级别的问题中
+a low-level concern that's you know part
+of the RPC machinery or hidden in some
+
+311
+00:30:07,120 --> 00:30:10,750
+库或从客户端应用程序角度来看的所有内容
+library or something and that from the
+client applications point of view all
+
+312
+00:30:10,750 --> 00:30:15,039
+发生的事情是它此时已发送请求并得到了响应
+that happened was that it's sent a
+request at this time and got a response
+
+313
+00:30:15,039 --> 00:30:18,520
+从客户的角度来看，这就是全部
+at this time and that's all that
+happened from the clients point of view
+
+314
+00:30:18,520 --> 00:30:24,150
+那么这里的值3完全合法，因为此请求花费了很长时间
+then a value of 3 is totally legal here
+because this request took a long time
+
+315
+00:30:24,150 --> 00:30:28,780
+这与未实时订购的权利完全并存
+it's completely concurrent with the
+right not ordered in real time with the
+
+316
+00:30:28,780 --> 00:30:34,330
+对，因此三个或四个都是有效的，您知道
+right and therefore either the three or
+the four is valid you know as if the
+
+317
+00:30:34,330 --> 00:30:39,309
+读取在此处实时执行或在此处实时执行的请求，因此
+read requests that really executed here
+in real time or or here in real time so
+
+318
+00:30:39,309 --> 00:30:47,320
+更大的教训是，如果您从应用程序中重新传输了客户端
+the larger lesson is if you have client
+retransmissions the from the application
+
+319
+00:30:47,320 --> 00:30:50,470
+的观点，如果您要从应用程序定义线性化能力
+point of view if you're defining
+linearize ability from the applications
+
+320
+00:30:50,470 --> 00:30:56,200
+观点-即使重新传输，实时范围
+point of view - even with
+retransmissions the real time extent of
+
+321
+00:30:56,200 --> 00:31:01,240
+这样的请求是从请求的第一次传输到
+the requests like this is from the very
+first transmission of the requests to
+
+322
+00:31:01,240 --> 00:31:05,710
+应用程序最终获得响应的最终时间可能是在
+the final time at which the application
+actually got the response maybe after
+
+323
+00:31:05,710 --> 00:31:10,110
+有很多原因
+many reasons yes
+
+324
+00:31:24,790 --> 00:31:30,560
+您可能宁愿获得新数据，也不愿获得过时的数据，如果我知道的话
+you might rather you got fresh data than
+stale data you know if I'm you know
+
+325
+00:31:30,560 --> 00:31:34,520
+假设请求是几点，那是时间服务器
+supposing the request is what time it
+what time is it that's a time server I
+
+326
+00:31:34,520 --> 00:31:38,570
+发送了一个请求，说哦，现在几点了，它给我回复了，你知道吗
+sent a request saying Oh what time is it
+and it sends me a response you know yeah
+
+327
+00:31:38,570 --> 00:31:42,980
+如果我现在发送请求，但直到现在2分钟后才收到答复
+if I send a request now and I don't get
+the response until 2 minutes from now
+
+328
+00:31:42,980 --> 00:31:48,920
+花花公子一些网络问题，可能是该应用程序希望看到
+dude some Network issue it may be that
+the application would like prefer to see
+
+329
+00:31:48,920 --> 00:31:53,510
+我们将得到答复，希望看到一个接近
+we're gonna get the response it would
+prefer to see a time that was close to
+
+330
+00:31:53,510 --> 00:31:56,750
+实际得到响应的时间，而不是深层的时间
+the time at which had actually got the
+response rather than a time deep in the
+
+331
+00:31:56,750 --> 00:32:02,720
+过去它最初发送请求时现在是事实，如果您知道
+past when it originally sent the request
+now the fact is that if you you know if
+
+332
+00:32:02,720 --> 00:32:05,300
+您正在使用这样的系统，您必须编写可容忍的应用程序
+you're using a system like this you have
+to write applications that are tolerant
+
+333
+00:32:05,300 --> 00:32:11,240
+在这些规则中，您使用的是线性系统，例如
+of these rules you're using a
+linearizable system like these are the
+
+334
+00:32:11,240 --> 00:32:15,880
+规则，因此您必须写明您知道正确的应用程序必须能够容忍
+rules and so you must write you know
+correct applications must be tolerant of
+
+335
+00:32:15,880 --> 00:32:19,340
+你知道他们是否发送了请求，不久后他们得到了答复
+you know if they send a request and they
+get a response a while later they just
+
+336
+00:32:19,340 --> 00:32:25,190
+你知道你不能写我的应用程序，好像哦，天哪，如果我
+you know you can't are not allowed to
+write the application as if oh gosh if I
+
+337
+00:32:25,190 --> 00:32:30,080
+得到一个响应，这意味着我得到响应时的值是相等的
+get a response that means that the value
+at the time I got the response was equal
+
+338
+00:32:30,080 --> 00:32:34,280
+到3，应用程序认为您知道我所拥有的那是不正确的
+to 3 that is not OK for applications to
+think you know what that I have that
+
+339
+00:32:34,280 --> 00:32:40,390
+播放给定应用程序取决于应用程序正在做什么
+plays out for a given application
+depends on what the application is doing
+
+340
+00:32:40,600 --> 00:32:45,530
+我提出这个问题的原因是因为这是6 6 8至4 
+the reason I bring this up is because
+it's a common question in 6 6 8 to 4 you
+
+341
+00:32:45,530 --> 00:32:51,080
+伙计们将实施服务器检测重复数据的机制，并
+guys will implement the machinery by
+which servers detect duplicates and
+
+342
+00:32:51,080 --> 00:32:57,500
+重新发送服务器最初发送的上一个答案和问题
+resend the previous answer that the
+server originally sent and the question
+
+343
+00:32:57,500 --> 00:33:02,810
+如果您最初看到此处的返回请求，可以吗？ 
+will come up is it ok if you originally
+saw the request here to return at this
+
+344
+00:33:02,810 --> 00:33:08,060
+时间点，如果有网络，您将发送回这里的响应
+point in time the response that you
+would have sent back here if the network
+
+345
+00:33:08,060 --> 00:33:13,910
+并没有放弃它，这是一种方便的推理方式，我的意思是
+hadn't dropped it and it's it's handy to
+have a kind of way of reasoning I mean
+
+346
+00:33:13,910 --> 00:33:16,400
+拥有诸如线性化能力之类的定义以进行推理的原因之一
+one reason to have definitions like
+linearize abilities to be able to reason
+
+347
+00:33:16,400 --> 00:33:21,920
+关于这样的问题，我正在使用这种方案，我们可以说得很好
+about questions like that right i'm
+using using this scheme we can say well
+
+348
+00:33:21,920 --> 00:33:25,480
+这些规则实际上还可以
+it actually is okay by those rules
+
+349
+00:33:26,210 --> 00:33:32,010
+好吧，这就是我想说的关于任何挥之不去的线性化能力的全部内容
+all right that's all i want to say about
+linearize ability of any any lingering
+
+350
+00:33:32,010 --> 00:33:35,810
+是的
+questions yeah
+
+351
+00:33:45,230 --> 00:33:55,460
+好吧，你知道也许我在这里享有自由，但实际上
+well you know maybe I'm taking liberties
+here but what's going on is that in real
+
+352
+00:33:55,460 --> 00:33:59,899
+时间，我们读到了-读了一个，读到了一个
+time we have a read of - and a read of
+one and the read of one really came
+
+353
+00:33:59,899 --> 00:34:04,519
+在实时读取两个之后，必须要按此顺序依次读取
+after in real time the read of two and
+so must come must be in this order in
+
+354
+00:34:04,519 --> 00:34:11,449
+最终命令意味着必须拥有-此处的某处的权利
+the final order that means there must
+have been a right of - somewhere in here
+
+355
+00:34:11,449 --> 00:34:15,769
+读完-in后，此处的某处具有值是我们的权利
+
+356
+00:34:15,770 --> 00:34:20,449
+在读完-之后且在读完其中一个之前的最终顺序
+the final order right after the read of
+- and before the read of one in that
+
+357
+00:34:20,449 --> 00:34:23,868
+订单中必须有一项价值为1的权利只有一项价值为
+
+358
+00:34:23,869 --> 00:34:27,079
+无法获得，您知道我们是否可以玩多个游戏，但是
+unavailable you know if there were more
+than one we maybe could play games but
+
+359
+00:34:27,079 --> 00:34:31,790
+只有一个可用，因此此权利必须以最终顺序插入此处，或
+there's only one available so this right
+must slip in here in the final order or
+
+360
+00:34:31,790 --> 00:34:42,139
+因此我觉得能够画出这个箭头，而这些箭头只是捕捉到了那种
+therefore I felt able to draw this arrow
+and these arrows just capture the sort
+
+361
+00:34:42,139 --> 00:34:50,290
+规则必须看起来像规则的一对一含义
+of one by one implication of the rules
+on what the order must look like yeah
+
+362
+00:35:02,490 --> 00:35:16,560
+好吧，是的，我的意思是任何一个小时或X，哪个抱歉，哪个是他自己的rx1 
+all right yeah I mean any hour or X so
+which sorry which which yeah his own rx1
+
+363
+00:35:16,560 --> 00:35:32,790
+他会在自己的rx1之前看到它，好吧，是的，是的，我们不是，我们不是
+he sees it before his own rx1 okay so
+the via yep well we're not we're not
+
+364
+00:35:32,790 --> 00:35:39,580
+我们真的不能说这两种小麦中的哪一种先出现，所以我们不能
+we're not really able to say which of
+these two wheats came first so we can't
+
+365
+00:35:39,580 --> 00:35:43,810
+如果我们要用这个箭头来约束最终顺序，那么对于所有这些错误都相当
+quite for all this error if we mean this
+arrow to constrain the ultimate order
+
+366
+00:35:43,810 --> 00:35:48,220
+我们不是不是您知道这两种杂草可能以任何一种顺序出现，所以我们不是
+we're not you know the these two weeds
+could come in either order so we're not
+
+367
+00:35:48,220 --> 00:35:52,420
+可以说这是在那之前，可能是一个更简单的周期
+allowed to say this one came before that
+one it could be there's a simpler cycle
+
+368
+00:35:52,420 --> 00:35:58,360
+实际上我已经画好了，所以我的意思是可能是因为
+actually then I've drawn so I mean it
+may be because certainly the that the
+
+369
+00:35:58,360 --> 00:36:05,380
+损坏是在这四个项目中我同意这两个这四个项目
+damage is in these four items I agree
+with that these two these four items
+
+370
+00:36:05,380 --> 00:36:09,700
+某种主要证据表明某事不对
+kind of are the main evidence that
+something is wrong
+
+371
+00:36:09,700 --> 00:36:13,240
+现在是否有一个周期我不确定是否有一个周期涉及到
+now whether a cycle I'm not sure whether
+there's a cycle that just involves that
+
+372
+00:36:13,240 --> 00:36:19,540
+可能还可以，这是值得考虑的问题，因为我知道
+there could be okay this is worth
+thinking about cuz you know if I can't
+
+373
+00:36:19,540 --> 00:36:21,460
+想出更好的办法，否则我一定会问你一个问题
+think of anything better or I'll
+certainly ask you a question about
+
+374
+00:36:21,460 --> 00:36:27,240
+中期的线性化历史
+linearizable histories on midterm
+
+375
+00:36:31,010 --> 00:36:43,670
+好吧，今天的报纸今天的动物园管理员，我的意思是部分原因
+okay so today's paper today's paper
+zookeeper and I mean part of the reason
+
+376
+00:36:43,670 --> 00:36:46,790
+我们甚至是Zookeeper论文，这是一个成功的现实世界系统， 
+we're even zookeeper paper is that it's
+a successful real world system it's an
+
+377
+00:36:46,790 --> 00:36:51,920
+开源，您知道实际上有很多人罗恩
+open source you know service that
+actually a lot of people ron has been
+
+378
+00:36:51,920 --> 00:36:55,460
+集成到许多现实世界的软件中，所以有某种
+incorporated into a lot of real world
+software so there's a certain kind of
+
+379
+00:36:55,460 --> 00:37:00,890
+现实和成功，但从这点来看，这很有吸引力
+reality and success to it but you know
+that makes attractive from the point of
+
+380
+00:37:00,890 --> 00:37:05,660
+这种观点支持了动物园管理员的设计可能实际上是
+view of kind of supporting the idea that
+the zookeepers design might actually be
+
+381
+00:37:05,660 --> 00:37:10,220
+合理的设计，但我们对此感兴趣的原因我对此感兴趣
+a reasonable design but the reason we're
+interested in in it I'm interested in it
+
+382
+00:37:10,220 --> 00:37:18,320
+是为了更精确的技术要点，所以我们为什么要寻找
+is for to somewhat more precise
+technical points so why are we looking
+
+383
+00:37:18,320 --> 00:37:25,520
+在本文中，其中之一就是与您所使用的筏子相比
+at this paper so one of them is that in
+contrast to raft like the raft you've
+
+384
+00:37:25,520 --> 00:37:29,180
+按照定义，它是书面的和筏式的，实际上是一个图书馆，您知道您可以使用
+written and raft as that's defined it's
+really a library you know you can use a
+
+385
+00:37:29,180 --> 00:37:34,400
+筏库是一些较大的复制系统的一部分，但筏并不像
+raft library as a part of some larger
+replicated system but raft isn't like a
+
+386
+00:37:34,400 --> 00:37:38,330
+独立服务或您可以与之交谈的内容
+standalone service or something that you
+can talk to it's you really have to
+
+387
+00:37:38,330 --> 00:37:45,170
+设计您的应用程序以在筏库中进行显式交互，因此您可以
+design your application to interact at
+the raft library explicitly so you might
+
+388
+00:37:45,170 --> 00:37:52,060
+想知道是否有一些有用的系统是一个有趣的问题
+wonder it's an interesting question
+whether some useful system sort of
+
+389
+00:37:52,060 --> 00:37:56,600
+可以定义独立的通用系统，这将有助于
+standalone general-purpose system could
+be defined that would be helpful for
+
+390
+00:37:56,600 --> 00:38:00,920
+人们建立独立的分布式系统，例如是否有一些服务
+people building separate distributed
+systems like is there serve some service
+
+391
+00:38:00,920 --> 00:38:04,520
+可以消除构建分布式数据库之苦的很大一部分
+that can bite off a significant portion
+of why it's painful to build distributed
+
+392
+00:38:04,520 --> 00:38:09,140
+系统，并将其打包在您认识的任何人的独立服务中
+systems and sort of package it up in a
+standalone service that you know anybody
+
+393
+00:38:09,140 --> 00:38:16,730
+可以使用，所以这实际上是一个API的外观问题
+can use so this is really the question
+of what would an API look like for a
+
+394
+00:38:16,730 --> 00:38:25,670
+一般用途，我将其称为“不确定名称” 
+general purpose I'll call it I'm not
+sure what the right name for things like
+
+395
+00:38:25,670 --> 00:38:32,200
+ zookeeper是，但是您有通用协调服务
+zookeeper is but you've got a general
+purpose coordination service
+
+396
+00:38:33,930 --> 00:38:41,760
+另一个问题是Zookeeper另一个有趣的方面是
+and the other question the other
+interesting aspect of zookeeper is that
+
+397
+00:38:41,760 --> 00:38:45,460
+当我们建立复制系统而让动物园管理员复制系统时，因为
+when we build replicated systems and
+zookeepers a replicated system because
+
+398
+00:38:45,460 --> 00:38:48,630
+除其他外，这就像容错
+among other things it's it's like a
+fault-tolerant
+
+399
+00:38:48,630 --> 00:38:53,500
+通用协调服务，它像大多数一样具有容错能力
+general-purpose coordination service and
+it gets fault tolerance like most
+
+400
+00:38:53,500 --> 00:38:57,579
+通过复制的系统，有很多人可能知道三五个或
+systems by replication that is there's a
+bunch of you know maybe three or five or
+
+401
+00:38:57,579 --> 00:39:03,039
+七个或谁知道什么动物园管理员服务器需要花钱购买
+seven or who knows what
+zookeeper servers it takes money to buy
+
+402
+00:39:03,039 --> 00:39:09,160
+像7台Zookeeper安装程序一样，这些服务器的价格是7倍， 
+those servers right like a 7 server
+zookeeper setup is 7 times expensive as
+
+403
+00:39:09,160 --> 00:39:16,240
+一种简单的单一服务器，因此很想知道您是否购买7 
+a sort of simple single server so it's
+very tempting to ask if you buy 7
+
+404
+00:39:16,240 --> 00:39:20,319
+运行复制服务的服务器，您可以获得7倍的性能
+servers to run your replicated service
+can you get 7 times the performance out
+
+405
+00:39:20,319 --> 00:39:29,109
+正确的7台服务器中，您知道我们怎么可能这样做，所以
+of your 7 servers right and you know how
+could we possibly do that so the
+
+406
+00:39:29,109 --> 00:39:35,530
+问题是您知道我们拥有的服务器数量是n的两倍吗
+question is you know we have n times as
+many servers can that yield us n times
+
+407
+00:39:35,530 --> 00:39:46,450
+性能，所以我首先要谈第二个问题
+the performance so I'm gonna talk about
+the second question first so from the
+
+408
+00:39:46,450 --> 00:39:50,799
+观点关于性能的讨论，我只想看一下
+point of view this discussion about
+performance I'm just going to view
+
+409
+00:39:50,799 --> 00:39:54,609
+动物园管理员只是一项服务，我们并不真正在乎服务是什么，但
+zookeeper as just some service we don't
+really care what the service is but
+
+410
+00:39:54,609 --> 00:39:59,470
+用筏子​​（如复制系统）复制的Zookeeper实际上在
+replicated with a raft like replication
+system zookeeper actually runs on top of
+
+411
+00:39:59,470 --> 00:40:05,220
+这个叫做Zab的东西
+this thing called Zab which for our
+purposes
+
+412
+00:40:06,320 --> 00:40:14,849
+我们将其视为与筏几乎相同，而我只是
+we'll just treat as being almost
+identical to the raft and I'm just
+
+413
+00:40:14,849 --> 00:40:17,640
+担心复制的性能我不是很担心
+worried about the performance of the
+replication I'm not really worried about
+
+414
+00:40:17,640 --> 00:40:22,140
+动物园管理员到底要做什么，所以总体情况是，您知道我们
+what zookeepers specifically is up to so
+the general picture is that you know we
+
+415
+00:40:22,140 --> 00:40:27,840
+有很多客户，也许有几百个，有数百个客户，我们有
+have a bunch of clients maybe hundreds
+maybe hundreds of clients and we have
+
+416
+00:40:27,840 --> 00:40:37,740
+就像小伙子们中有一个领导者一样，领导者也有一个动物园管理员层， 
+just as in the lads we have a leader the
+leader has a zookeeper layer that
+
+417
+00:40:37,740 --> 00:40:42,510
+客户与之交谈，然后在zookeeper层下的是xab系统
+clients talk to and then under the
+zookeeper layer is the xab system that
+
+418
+00:40:42,510 --> 00:40:47,190
+管理复制，然后像木筏一样，做了很多事情
+manages replication then just like rafts
+what was a a lot of what's that is doing
+
+419
+00:40:47,190 --> 00:40:51,510
+正在维护一个包含客户端执行的操作序列的日志
+is maintaining a log that contains the
+sequence of operations that clients have
+
+420
+00:40:51,510 --> 00:41:01,500
+寄来的东西与筏非常相似，可能会有很多，而且每一个
+sent in really very similar to raft may
+have a bunch of these and each of them
+
+421
+00:41:01,500 --> 00:41:09,380
+有日志，但这是一个待处理的新请求
+has a log but it's a pending new request
+
+422
+00:41:10,369 --> 00:41:18,119
+这是一个熟悉的设置，因此克林顿位于请求中，Zab层
+that's a familiar set up so the
+Clinton's in a request and the Zab layer
+
+423
+00:41:18,119 --> 00:41:24,210
+您知道将该请求的副本发送到每个副本和副本
+you know sends a copy of that request to
+each of the replicas and the replicas
+
+424
+00:41:24,210 --> 00:41:28,440
+附加到他们的内存法则中，我可能会坚持到磁盘上，所以他们
+append this to their in-memory law I'd
+probably persisted onto a disk so they
+
+425
+00:41:28,440 --> 00:41:35,190
+如果它们崩溃并重新启动，可以将其取回，所以问题就在我们添加
+can get it back if they crash and
+restart so the question is as we add
+
+426
+00:41:35,190 --> 00:41:38,490
+您知道更多的服务器，我们可以有四台服务器，也可以有五台或七台， 
+more servers you know we could have four
+servers or five or seven or whatever
+
+427
+00:41:38,490 --> 00:41:48,960
+当我们增加更多的CPU和更多的功能时，系统会变得更快吗
+does the system get faster as we add
+more more CPUs more horsepower to it do
+
+428
+00:41:48,960 --> 00:41:53,820
+您认为您的实验室会随着您拥有更多副本而变得更快
+you think your labs will get faster as
+you have more replicas assuming they're
+
+429
+00:41:53,820 --> 00:41:58,020
+每个副本都复制自己的计算机，这样您实际上可以获得更多的CPU周期
+each replicas its own computer right so
+that you really do get more CPU cycles
+
+430
+00:41:58,020 --> 00:42:00,980
+随着您增加收入
+as you add more revenues
+
+431
+00:42:09,440 --> 00:42:12,829
+在所有之间
+between all the
+
+432
+00:42:17,280 --> 00:42:20,530
+是的是的，没有什么比添加更多内容更快的了
+yeah yeah there's nothing about this
+that makes it faster as you add more
+
+433
+00:42:20,530 --> 00:42:25,780
+服务器是正确的，就像我们拥有更多服务器一样
+servers right it's absolutely true like
+as we have more servers you know the
+
+434
+00:42:25,780 --> 00:42:28,330
+领导者几乎可以肯定是瓶颈，因为领导者必须处理每个
+leader is almost certainly a bottleneck
+cuz the leader has to process every
+
+435
+00:42:28,330 --> 00:42:31,630
+请求，并在添加时将每个请求的副本发送到其他所有服务器
+request and it sends a copy of every
+request to every other server as you add
+
+436
+00:42:31,630 --> 00:42:36,220
+更多的服务器只会为这个瓶颈节点增加更多的工作，而您不是
+more servers it just adds more work to
+this bottleneck node right you're not
+
+437
+00:42:36,220 --> 00:42:39,070
+从添加的服务器中获得任何收益，从而获得任何性能收益，因为
+getting any benefit any performance
+benefit out of the added servers because
+
+438
+00:42:39,070 --> 00:42:42,910
+他们并没有真正做任何事情他们只是幸福地做任何事情
+they're not really doing anything
+they're just all happily doing whatever
+
+439
+00:42:42,910 --> 00:42:48,160
+领导者告诉他们要做的是，你不知道从领导者中减去
+the leader tells them to do they're not
+you know subtracting from the leaders
+
+440
+00:42:48,160 --> 00:42:54,220
+工作，每一项操作都交给领导者，因此在这里您知道
+work and every single operation goes to
+the leader so for here you know the
+
+441
+00:42:54,220 --> 00:42:58,300
+您知道性能与服务器数量成反比
+performance is you know inversely
+proportional to the number of servers
+
+442
+00:42:58,300 --> 00:43:02,350
+您添加的服务器数量增加了，这几乎肯定会降低，因为
+that you add you add more servers this
+almost certainly gets lower because the
+
+443
+00:43:02,350 --> 00:43:06,790
+领导者只是有更多的工作，所以在这个系统中，我们面临的问题是
+leader just has more work so in this
+system we have the problem that more
+
+444
+00:43:06,790 --> 00:43:16,720
+服务器会使系统变慢，这很糟糕，您知道这些服务器的成本是
+servers makes the system slower that's
+too bad you know these servers cost a
+
+445
+00:43:16,720 --> 00:43:20,320
+两千美元，你希望你可以用它们来得到
+couple thousand bucks each and you would
+hope that you could use them to get
+
+446
+00:43:20,320 --> 00:43:25,650
+性能更好耶
+better performance yeah
+
+447
+00:43:33,040 --> 00:43:38,080
+好吧，问题是如果请求可能来自不同的客户端怎么办
+okay so the question is what if the
+requests may be from different clients
+
+448
+00:43:38,080 --> 00:43:41,500
+或连续的请求，同一个客户，或者如果请求适用的话
+or successive requests and same client
+or something what if the requests apply
+
+449
+00:43:41,500 --> 00:43:45,340
+状态的两个完全不同的部分，所以您可能知道在键值存储中
+two totally different parts of the state
+so you know in a key value store maybe
+
+450
+00:43:45,340 --> 00:43:48,730
+其中一个是放在X上的看跌期权，另一个是放在Y上的看跌期权，就像与之无关
+one of them is a put on X and the other
+was a put on Y like nothing to do with
+
+451
+00:43:48,730 --> 00:43:55,000
+彼此知道，我们可以利用这一点，而答案是
+each other you know can we take
+advantage of that and the answer that is
+
+452
+00:43:55,000 --> 00:44:00,790
+现在绝对不在这个框架中，或者这是我们可以做到的中心
+absolutely now not in this framework
+though or it's the center which we can
+
+453
+00:44:00,790 --> 00:44:06,370
+充分利用它的优势在此框架中它可能非常适合
+take advantage of it it's very limited
+in this framework it could be well at a
+
+454
+00:44:06,370 --> 00:44:11,920
+高层领导者的要求仍然通过领导者和
+high level the leader the requests all
+still go through the leader and the
+
+455
+00:44:11,920 --> 00:44:15,160
+领导者仍然必须将其发送到所有副本以及那里的更多副本
+leader still has to send it out to all
+the replicas and the more replicas there
+
+456
+00:44:15,160 --> 00:44:19,990
+领导者必须发送更多的消息，因此在高水平上不太可能
+are the more messages the leader has to
+send so at a high level it's not likely
+
+457
+00:44:19,990 --> 00:44:25,420
+这种可交换的或共同体的请求不太可能对此有所帮助
+to this sort of commutative or community
+of requests is not likely to help this
+
+458
+00:44:25,420 --> 00:44:29,500
+记住这种情况是一个奇妙的想法，因为它将绝对
+situation is a fantastic thought to keep
+in mind though because it'll absolutely
+
+459
+00:44:29,500 --> 00:44:34,270
+在其他系统中出现，人们将能够在其他系统中利用它
+come up in other systems and people will
+be able to take advantage of it in other
+
+460
+00:44:34,270 --> 00:44:41,560
+系统还可以，因此服务器硬件有些令人失望的事实
+systems okay so so there's a little bit
+disappointing facts with server hardware
+
+461
+00:44:41,560 --> 00:44:52,300
+对性能没有帮助，所以很明显的也许是最简单的方法
+wasn't helping performance so a very
+sort of obvious maybe the simplest way
+
+462
+00:44:52,300 --> 00:44:57,430
+您可能能够利用这些其他服务器的系统是在其中建立的
+that you might be able to harness these
+other servers is build a system in which
+
+463
+00:44:57,430 --> 00:45:03,220
+雅写请求都必须经过领导者，但在现实世界中
+ya write requests all have to go through
+the leader but in the real world a huge
+
+464
+00:45:03,220 --> 00:45:06,700
+大量的工作负载读取很繁重，例如当您读取更多
+number of workloads are read heavy that
+is there's many more reads like when you
+
+465
+00:45:06,700 --> 00:45:09,970
+看一下您知道的网页，这些都是关于读取数据以生成网络的
+look at web pages you know it's all
+about reading data to produce the web
+
+466
+00:45:09,970 --> 00:45:13,660
+页面，并且通常只有很少的权限，这是正确的
+page and generally there are very
+relatively few rights and that's true of
+
+467
+00:45:13,660 --> 00:45:18,310
+很多系统，所以也许我们可以将权利发送给领导者，但只发送杂草
+a lot of systems so maybe we'll send
+rights to the leader but send weeds just
+
+468
+00:45:18,310 --> 00:45:22,840
+到其中一个副本，只需选择其中一个副本，如果您有一个
+to one of the replicas right just pick
+one of the replicas and if you have a
+
+469
+00:45:22,840 --> 00:45:26,200
+像get in lab 3这样的只读请求只是将其发送到副本之一，然后
+read-only request like a get in lab 3
+just send it to one of the replicas and
+
+470
+00:45:26,200 --> 00:45:30,520
+如果我们这样做，现在不向领导者提供帮助，尽管
+not to the leader now if we do that we
+haven't helped rights much although
+
+471
+00:45:30,520 --> 00:45:33,700
+我们已经减少了领导者的阅读工作量，所以也许有帮助，但是我们
+we've gotten a lot of read workload off
+the leader so maybe that helps but we
+
+472
+00:45:33,700 --> 00:45:38,560
+绝对在读取方面取得了巨大进步，因为现在有更多的服务器
+absolutely have made tremendous progress
+with reads because now the more servers
+
+473
+00:45:38,560 --> 00:45:44,080
+我们添加了我们可以支持的更多客户，因为我们只是将
+we add the more clients we can support
+right because we're just splitting the
+
+474
+00:45:44,080 --> 00:45:48,180
+客户负责跨不同副本的工作，因此
+client lead work
+across the different replicas so the
+
+475
+00:45:48,180 --> 00:45:55,710
+问题是我们是否让客户直接发送到副本，我们将
+question is if we have clients send
+directly to the replicas are we going to
+
+476
+00:45:55,710 --> 00:45:58,100
+要开心
+be happy
+
+477
+00:46:07,270 --> 00:46:13,119
+是的，所以最新的权利在筏式系统中是正确的词， 
+yeah so up-to-date does the right is the
+right word in a raft like system which
+
+478
+00:46:13,119 --> 00:46:20,800
+ zookeeper是，如果客户端向随机副本发送了请求，您可以确定
+zookeeper is if a client sends a request
+to a random replica you know sure the
+
+479
+00:46:20,800 --> 00:46:24,940
+您知道的副本中有一个副本，您知道它一直在执行
+replica you know has a copy the log in
+it you know it's been executing along
+
+480
+00:46:24,940 --> 00:46:29,530
+与领导者一起，您知道在实验3中有此关键值表，您
+with the leader and you know for lab 3
+it's got this key value table and you
+
+481
+00:46:29,530 --> 00:46:34,510
+知道你为钥匙X取了一个钥匙，它将有四个钥匙外逃表
+know you do a get for key X and it's
+gonna have some four key exodus table
+
+482
+00:46:34,510 --> 00:46:38,980
+它可以回复您，所以从功能上讲，副本得到了所有
+and it can reply to you so sort of
+functionally the replicas got all the
+
+483
+00:46:38,980 --> 00:46:44,260
+它需要响应客户端以读取来自客户端的请求的片段
+pieces it needs to respond to client to
+read requests from clients the
+
+484
+00:46:44,260 --> 00:46:49,300
+困难在于没有理由相信除了
+difficulty is that there's no reason to
+believe that anyone replicas other than
+
+485
+00:46:49,300 --> 00:46:56,080
+领导者是最新的，因为有很多原因
+the leader is up to date because well
+there's a bunch of reasons why why
+
+486
+00:46:56,080 --> 00:46:59,650
+副本可能不是最新的副本之一，因为它们可能不在
+replicas may not be up to date one of
+them is that they may not be in the
+
+487
+00:46:59,650 --> 00:47:04,089
+领导者在等你的大多数人都在思考筏在做什么
+majority that the leader was waiting for
+you think about what raft is doing the
+
+488
+00:47:04,089 --> 00:47:07,599
+领导者仅有义务等待来自
+leader is only obliged to wait for
+responses to its append entries from a
+
+489
+00:47:07,599 --> 00:47:11,950
+大多数关注者，然后它可以提交操作并继续
+majority of the followers and then it
+can commit the operation and go on to
+
+490
+00:47:11,950 --> 00:47:16,330
+接下来的操作，因此如果此副本不是大多数，则可能永远不会
+the next operation so if this replica
+wasn't in the majority it may never have
+
+491
+00:47:16,330 --> 00:47:20,950
+看到骚乱了，可能是网络丢了它，却没收到它，所以是的
+seen a riot it may be the network
+dropped it and never got it and so yeah
+
+492
+00:47:20,950 --> 00:47:27,820
+您知道领导者，并且您知道大多数服务器已经看到了
+you know the leader and you know a
+majority of the servers have seen the
+
+493
+00:47:27,820 --> 00:47:31,990
+前三个请求，但您知道此服务器仅看到前两个请求
+first three requests but you know this
+server only saw the first two it's
+
+494
+00:47:31,990 --> 00:47:37,300
+缺少B，所以请读一读，您会知道我应该在那里
+missing B so read to be a read of you
+know what should be there I'll just be
+
+495
+00:47:37,300 --> 00:47:45,490
+完全可以从这个副本中获得陈旧的值，即使这个副本实际上看到了这个
+totally get a stale value from this one
+even if this replica actually saw this
+
+496
+00:47:45,490 --> 00:47:50,260
+新的日志条目，可能缺少您知道的该动物园管理员的提交命令
+new log entry it might be missing the
+commit command you know this zookeepers
+
+497
+00:47:50,260 --> 00:47:54,339
+与筏相同的应用，它首先发送日志条目，然后在
+app as much the same as raft it first
+sends out a log entry and then when the
+
+498
+00:47:54,339 --> 00:47:57,220
+领导者会收到大多数正面答复，领导者会发出
+leader gets a majority of positive
+replies the leader sends out a
+
+499
+00:47:57,220 --> 00:48:01,150
+通知说是的，我要提交我可能没有的日志条目
+notification saying yeah I'm gonna
+committing that log entry I may not have
+
+500
+00:48:01,150 --> 00:48:04,540
+得到了提交和这种情况的最坏情况版本
+gotten the commit and the sort of worst
+case version of this although its
+
+501
+00:48:04,540 --> 00:48:08,650
+等同于我已经说过的，对于所有此客户端，对于所有客户端
+equivalent to what I already said is
+that for all this client for all client
+
+502
+00:48:08,650 --> 00:48:16,000
+知道此副本可能是与领导者分开的，或者可能只是绝对的
+to knows this replica may be partitioned
+from the leader or may just absolutely
+
+503
+00:48:16,000 --> 00:48:19,690
+根本不与领导者联系，并且您知道跟随者并不是
+not be in contact with leader at all and
+you know the follower doesn't really
+
+504
+00:48:19,690 --> 00:48:23,500
+有办法知道实际上它只是被切断了
+have a way of knowing
+that actually it's just been cut off a
+
+505
+00:48:23,500 --> 00:48:29,230
+不久前从领导那里得到的东西，只是没有得到任何东西，所以你知道
+moment ago from the leader and just not
+getting anything so you know without
+
+506
+00:48:29,230 --> 00:48:35,020
+如果我们想构建一个线性化系统，还需要一些其他的技巧
+some further cleverness if we want to
+build a linearizable system we can't
+
+507
+00:48:35,020 --> 00:48:38,829
+玩这种吸引人的游戏，因为它是我们无法提供的表现
+play this game of sending the attractive
+it as it is for performance we can't
+
+508
+00:48:38,829 --> 00:48:43,570
+向副本发送读取请求的副本玩此游戏，您
+play this game at replicas sending a
+read request to the replicas and you
+
+509
+00:48:43,570 --> 00:48:47,020
+对于实验3也不应这样做，因为那3也应该是
+shouldn't do it for lab 3 either because
+that 3 is also supposed to be
+
+510
+00:48:47,020 --> 00:48:57,579
+关于线性化能力为何禁止我们的任何问题
+linearizable it's any any questions
+about why linearize ability forbids us
+
+511
+00:48:57,579 --> 00:49:07,690
+让副本为客户服务好吧，您知道证明就是我丢失了
+from having replicas serve clients ok
+you know that the proof is the I lost it
+
+512
+00:49:07,690 --> 00:49:11,250
+现在，但证明就这么简单
+now but the proof was that simple
+
+513
+00:49:11,400 --> 00:49:16,980
+阅读您知道的权利一种阅读我之前放在板上的示例的权利
+reading you know right one right to read
+one example I put on the board earlier
+
+514
+00:49:16,980 --> 00:49:21,070
+您不多，只是您知道这不允许在服务器中提供过时的数据
+you not a lot just you know this is not
+allowed to serve stale data in the
+
+515
+00:49:21,070 --> 00:49:29,619
+线性线性化系统好，那么如何与我们保持联系
+linear linearizable system ok so how
+does how does ooh keep our deal with
+
+516
+00:49:29,619 --> 00:49:33,040
+这个动物园管理员实际上可以从表2告诉您您在表中看到的情况
+this zookeeper actually does you can
+tell from table two you look in Table
+
+517
+00:49:33,040 --> 00:49:38,020
+当您添加更多服务器时，两个动物园管理员的读取性能将大大提高，因此
+two zookeepers read performance goes up
+dramatically as you add more servers so
+
+518
+00:49:38,020 --> 00:49:41,650
+显然，动物园管理员在这里玩了一些游戏，必须允许
+clearly zookeepers playing some game
+here which allows must be allowing it to
+
+519
+00:49:41,650 --> 00:49:46,869
+返回只读以服务来自其他服务器的只读请求
+return read only to serve read only
+requests from the additional servers the
+
+520
+00:49:46,869 --> 00:49:52,410
+复制品，那么ooh keeper如何做到这一点的安全
+replicas so how does ooh keeper make
+this safe
+
+521
+00:49:59,010 --> 00:50:02,200
+没错，我的意思是实际上几乎不允许说它确实需要
+that's right I mean in fact it's almost
+not allowed to say it does need the
+
+522
+00:50:02,200 --> 00:50:06,580
+是的，最新写的是，动物园管理员给这只猫剥皮的方式是，这不是
+written latest yeah the way zookeeper
+skins this cat is that it's not
+
+523
+00:50:06,580 --> 00:50:10,690
+他们只是想找出这个问题并说好而已
+linearizable right they just like to
+find away this problem and say well
+
+524
+00:50:10,690 --> 00:50:14,500
+我们不会是我们不会提供线性化的读取，所以
+we're not gonna be we're not going to
+provide linearizable reads and so
+
+525
+00:50:14,500 --> 00:50:20,230
+因此，您没有义务，您知道动物园管理员没有义务
+therefore you don't are not obliged
+you know zookeepers not obliged to
+
+526
+00:50:20,230 --> 00:50:25,690
+提供新数据以读取其一致性规则允许的
+provide fresh data to reads it's allowed
+by its rules of consistency which are
+
+527
+00:50:25,690 --> 00:50:31,720
+无法线性化以生成Wheaton的过时数据，因此可以解决
+not linearizable to produce stale data
+for Wheaton's so it's sort of solved
+
+528
+00:50:31,720 --> 00:50:37,300
+这种技术问题与魔杖的定义波
+this technical problem with a kind of
+definitional wave of the wand by saying
+
+529
+00:50:37,300 --> 00:50:41,170
+好吧，我们从未欠您线性化过的东西，所以它不会放在第一位
+well we never owed you them linearizable
+it'll be in the first place so it's not
+
+530
+00:50:41,170 --> 00:50:46,870
+一个错误（如果您不提供的话），这实际上是一种非常经典的方式
+a bug if you don't provide it and that's
+actually a pretty classic way to
+
+531
+00:50:46,870 --> 00:50:53,620
+以此来应对绩效与严格之间的紧张关系
+approach this to approach the sort of
+tension between performance and strict
+
+532
+00:50:53,620 --> 00:50:58,180
+而强一致性就是不提供强一致性
+and strong consistency is to just not
+provide strong consistency nevertheless
+
+533
+00:50:58,180 --> 00:51:03,760
+我们必须牢记系统是否不存在的问题
+we have to keep in the back of our minds
+question of if the system doesn't
+
+534
+00:51:03,760 --> 00:51:09,520
+提供线性化功能，它仍然会有用吗？ 
+provide linearize ability is it still
+going to be useful right and you do a
+
+535
+00:51:09,520 --> 00:51:12,700
+阅读，您只是没有得到当前答案或当前正确答案
+read and you just don't get the current
+answer or current correct answer the
+
+536
+00:51:12,700 --> 00:51:16,270
+最新数据，例如我们为什么认为这会产生有用的信息
+most latest data like why do we believe
+that that's gonna produce a useful
+
+537
+00:51:16,270 --> 00:51:26,440
+系统，所以让我来讨论一下，首先是关于
+system and so let me talk about that so
+first of all any questions about about
+
+538
+00:51:26,440 --> 00:51:30,460
+ Zookeeper的基本问题确实确实允许客户端发送只读请求
+the basic problem zookeeper really does
+allow client to send read-only requests
+
+539
+00:51:30,460 --> 00:51:35,380
+到任何副本，副本就会响应其当前状态，并且
+to any replica and the replica responds
+out of its current state and that
+
+540
+00:51:35,380 --> 00:51:39,220
+复制可能会滞后，其日志可能没有最新的日志条目，并且
+replicate may be lagging it's log may
+not have the very latest log entries and
+
+541
+00:51:39,220 --> 00:51:46,200
+因此即使有更近期的承诺值，它也可能会返回过时的数据
+so it may return stale data even though
+there's a more recent committed value
+
+542
+00:51:46,650 --> 00:51:55,990
+好吧，我们剩下的还有动物园管理员的确有一些东西
+okay so what are we left with
+zookeeper does actually have some it
+
+543
+00:51:55,990 --> 00:52:01,180
+确实有一套一致性保证，所以可以帮助写作的人
+does have a set of consistency
+guarantees so to help people who write
+
+544
+00:52:01,180 --> 00:52:04,540
+基于Zookeeper的应用程序会说明其应用程序是什么
+zookeeper based applications reason
+about what their applications what's
+
+545
+00:52:04,540 --> 00:52:07,770
+当他们运行它们时实际上会发生
+actually going to happen when they run
+them so
+
+546
+00:52:07,770 --> 00:52:10,980
+这些保证与订购有关，因为确实具有线性化能力
+and these guarantees have to do with
+ordering as indeed linearise ability
+
+547
+00:52:10,980 --> 00:52:17,990
+这样做是为了让动物园管理员确实有两个主要保证，即
+does so zookeeper does have two main
+guarantees that they state and this is
+
+548
+00:52:17,990 --> 00:52:33,839
+第2.3节其中之一是说权利权利或现在可以线性化
+section 2.3 one of them is it says that
+rights rights or linearizable now you
+
+549
+00:52:33,839 --> 00:52:37,650
+知道线性化的概念可能与我的不太一样
+know there are notion of linearizable
+isn't not quite the same in mine maybe
+
+550
+00:52:37,650 --> 00:52:43,589
+因为他们在谈论权利，没有珠子他们真正的意思是
+because they're talking about rights no
+beads what they really mean here is that
+
+551
+00:52:43,589 --> 00:52:50,390
+即使客户端可能同时提交权限，系统的行为也好像
+the system behaves as if even though
+clients might submit rights concurrently
+
+552
+00:52:50,390 --> 00:52:55,230
+但是，系统的行为就像是一次执行一项权利
+nevertheless the system behaves as if it
+executes the rights one at a time in
+
+553
+00:52:55,230 --> 00:53:01,020
+某些订单，并且确实服从权利的实时排序，因此，如果一项权利具有
+some order and indeed obeys real-time
+ordering of right so if one right has
+
+554
+00:53:01,020 --> 00:53:05,310
+被视为在另一项权利发布之前已经完成，那么管理者将
+seen to have completed before another
+right has issued then do keeper will
+
+555
+00:53:05,310 --> 00:53:09,990
+的确像是在执行了第一条权利之后执行了第二条权利， 
+indeed act as if it executed the second
+right after the first right so it's
+
+556
+00:53:09,990 --> 00:53:17,220
+权限而不是读取是线性的，并且Zookeeper不是严格的读写
+rights but not reads are linearizable
+and zookeeper isn't a strict readwrite
+
+557
+00:53:17,220 --> 00:53:23,220
+在系统中，实际上有一些权利也暗示着阅读，对于这些
+system there are actually rights that
+imply reads also and for those sort of
+
+558
+00:53:23,220 --> 00:53:29,490
+混合权限那些您知道的修改状态的任何操作是
+mixed rights those those you know any
+any operation that modifies the state is
+
+559
+00:53:29,490 --> 00:53:37,320
+关于修改状态的所有其他操作的线性化
+linearizable with respect to all other
+operations that modify the state the
+
+560
+00:53:37,320 --> 00:53:47,250
+ Give的其他保证是，任何给定的客户端在其操作中执行
+other guarantee of gives is that any
+given client its operations executes in
+
+561
+00:53:47,250 --> 00:53:54,800
+客户端指定的顺序，他们称该FIFO客户端顺序
+the order specified by the client
+they call that FIFO client order
+
+562
+00:53:56,119 --> 00:54:00,450
+这意味着如果特定客户发出了权利， 
+and what this means is that if a
+particular client issues a right and
+
+563
+00:54:00,450 --> 00:54:05,880
+然后是阅读，然后是阅读，然后是权利，或者首先是其他任何权利
+then a read and then a read and a right
+or whatever that first of all the rights
+
+564
+00:54:05,880 --> 00:54:13,110
+从该顺序开始，按照客户指定的顺序，以
+from that sequence fit in in the client
+specified order in the overall order of
+
+565
+00:54:13,110 --> 00:54:18,150
+所有客户的权利，因此，如果客户说做到这一点，那么该权利和
+all clients rights so if a client says
+do this right then that right and the
+
+566
+00:54:18,150 --> 00:54:24,210
+权利的最终顺序中的第三项权利将看到客户费率发生在
+third right in the final order of rights
+will see the clients rates occur in the
+
+567
+00:54:24,210 --> 00:54:32,340
+指定客户的顺序，因此对于权利，这是我们指定的客户
+order of the client specified so for
+rights this is our client specified
+
+568
+00:54:32,340 --> 00:54:40,920
+订单，尤其是您知道这是系统问题，因为
+order and this is particularly you know
+this is a issue with the system because
+
+569
+00:54:40,920 --> 00:54:44,610
+允许客户端启动异步权限请求，该请求是
+clients are allowed to launch
+asynchronous right requests that is a
+
+570
+00:54:44,610 --> 00:54:49,140
+客户可以解除对动物园管理员的领导者的全部权利
+client can fire off a whole sequence of
+rights to the leader to the zookeeper
+
+571
+00:54:49,140 --> 00:54:53,970
+领导者，而无需等待他们中的任何一个人完成，以便恢复
+leader without waiting for any of them
+to complete and in order resume the
+
+572
+00:54:53,970 --> 00:54:57,480
+论文并没有确切地说出这句话，但大概是为了让领导
+paper doesn't exactly say this but
+presumably in order for the leader to
+
+573
+00:54:57,480 --> 00:55:00,930
+实际上能够按照客户指定的顺序执行客户权限
+actually be able to execute the clients
+rights in the client specified order
+
+574
+00:55:00,930 --> 00:55:04,920
+我们在想像我在想客户实际上是在盖章
+we're imagining I'm imagining that the
+client actually stamps its write
+
+575
+00:55:04,920 --> 00:55:08,910
+请求数字，说你知道我会先做这个
+requests with numbers and saying you
+know I'll do this one first this one
+
+576
+00:55:08,910 --> 00:55:14,310
+三分之一，而动物园管理员则服从该命令，所以这
+second this one third and the zookeeper
+leader obeys that ordering right so this
+
+577
+00:55:14,310 --> 00:55:19,170
+由于这些异步写入请求，并且对于
+is particularly interesting due to these
+asynchronous write requests and for
+
+578
+00:55:19,170 --> 00:55:27,990
+读到这有点复杂，我之前说的原因不要去
+reads this is a little more complicated
+the reasons I said before don't go
+
+579
+00:55:27,990 --> 00:55:31,470
+通过写所有通过领导者，读只是去一些
+through the writes all go through the
+leader the reads just go to some
+
+580
+00:55:31,470 --> 00:55:35,220
+复制品，所以他们所看到的只是碰巧使它成为
+replicas and so all they see is the
+stuff that happens to have made it to
+
+581
+00:55:35,220 --> 00:55:41,520
+该副本记录了我们应该考虑的FIFO客户端顺序的方式
+that replicas log the way we're supposed
+to think about the FIFO client order for
+
+582
+00:55:41,520 --> 00:55:45,690
+读取是如果客户端以某种顺序再次发出读取序列
+reads is that if the client issues a
+sequence of reads again in some order
+
+583
+00:55:45,690 --> 00:55:48,359
+客户先读一件事，然后再读另一件事，再读第三件事
+the client reads one thing and then
+another thing and then a third thing
+
+584
+00:55:48,359 --> 00:55:59,130
+相对于与这些客户端交谈的副本上的日志，每个读取
+that relative to the log on the replicas
+talking to those clients reads each have
+
+585
+00:55:59,130 --> 00:56:05,220
+发生在日志中的某个特定点，或者他们需要观察一下
+to occur at some particular point in the
+log or they need to sort of observe the
+
+586
+00:56:05,220 --> 00:56:08,549
+状态，因为它存在于特定点
+state as it as the state existed at a
+particular point
+
+587
+00:56:08,549 --> 00:56:14,699
+日志，此外，连续读取必须观察点
+the log and furthermore that the
+successive reads have to observe points
+
+588
+00:56:14,699 --> 00:56:18,749
+不会倒退的是，如果客户端发出一个读然后另一个
+that don't go backwards that is if a
+client issues one read and then another
+
+589
+00:56:18,749 --> 00:56:21,929
+读取，并且第一次读取在日志中的这一点执行，第二次读取是
+read and the first read executes at this
+point in the log the second read is that
+
+590
+00:56:21,929 --> 00:56:26,519
+您知道允许执行日志中相同或更高的点，但不允许
+you know allowed to execute it the same
+or later points in the log but not
+
+591
+00:56:26,519 --> 00:56:30,959
+通过发出一次读取然后再一次读取的方式允许查看先前的状态
+allowed to see a previous state by issue
+one read and then another read the
+
+592
+00:56:30,959 --> 00:56:34,859
+二读必须看到至少与第一状态一样最新的状态
+second read has to see a state that's at
+least as up-to-date as the first state
+
+593
+00:56:34,859 --> 00:56:43,019
+这是一个重要的事实，因为我们在推理时会驾驭
+and that's a significant fact in that
+we're gonna harness when we're reasoning
+
+594
+00:56:43,019 --> 00:56:47,729
+关于如何编写正确的Zookeeper应用程序以及这在哪里
+about how to write correct zookeeper
+applications and where this is
+
+595
+00:56:47,729 --> 00:56:52,109
+尤其令人兴奋的是，如果客户端正在与一个副本进行对话， 
+especially exciting is that if the
+client is talking to one replica for a
+
+596
+00:56:52,109 --> 00:56:56,729
+一会儿，它发出一些阅读问题，要在这里阅读，然后我在这里阅读
+while and it issues some reads issue to
+read here and then I read there if this
+
+597
+00:56:56,729 --> 00:57:00,269
+副本失败，客户端需要开始将其读取发送到另一个
+replica fails and the client needs to
+start sending its read to another
+
+598
+00:57:00,269 --> 00:57:07,140
+保证此FIFO客户端的副本，或者如果该客户端仍然存在保证的副本
+replica that guaranteed this FIFO client
+or a guarantee still holds if the client
+
+599
+00:57:07,140 --> 00:57:10,679
+切换到新副本，这意味着如果您知道崩溃之前
+switches to a new replica and so that
+means that if you know before a crash
+
+600
+00:57:10,679 --> 00:57:16,769
+到目前为止，客户端已在日志中读取了这种锯切状态
+the client did a read that sort of saw
+state as of this point in the log that
+
+601
+00:57:16,769 --> 00:57:20,910
+表示当客户希望发送新副本时，如果新副本您希望
+means when the clients wishes to the new
+replicas if it issues another read you
+
+602
+00:57:20,910 --> 00:57:23,189
+知道这是它先前执行的读取
+know it's its previous read executed
+here
+
+603
+00:57:23,189 --> 00:57:27,089
+如果客户端发出另一个读取，则该读取必须在此时执行，或者
+if a client issues another read that
+read has to execute at this point or
+
+604
+00:57:27,089 --> 00:57:32,519
+以后，即使它是切换副本，您也知道它的工作方式是
+later even though it's switched replicas
+and you know the way this works is that
+
+605
+00:57:32,519 --> 00:57:39,719
+这些日志条目中的每一个都由Leader标记，并带有ZX ID， 
+each of these log entries is tagged by
+the leader tags it with a Z X ID which
+
+606
+00:57:39,719 --> 00:57:45,390
+基本上，每当副本响应客户端时，它只是一个条目号
+is basically just a entry number
+whenever a replica responds to a client
+
+607
+00:57:45,390 --> 00:57:49,349
+您知道在特定点执行了请求，然后读取请求
+read request it you know executed the
+request at a particular point and the
+
+608
+00:57:49,349 --> 00:57:54,599
+副本以前一个日志条目的ZX ID响应，返回给
+replica responds with the Z X ID of the
+immediately preceding log entry back to
+
+609
+00:57:54,599 --> 00:58:00,420
+客户端客户端记住这是您最新数据的出处
+the client the client remembers this was
+the exid of the most recent data you
+
+610
+00:58:00,420 --> 00:58:04,829
+知道是我见过的最高的zx想法，以及客户端发送请求时的想法
+know is the highest z x idea i've ever
+seen and when the client sends a request
+
+611
+00:58:04,829 --> 00:58:09,779
+到相同或不同的副本，它伴随着他们的要求
+to the same or a different replica it
+accompanies their request with that
+
+612
+00:58:09,779 --> 00:58:14,160
+最高的CX ID曾经见过，并且告诉其他副本aha你知道我
+highest CX ID has ever seen and that
+tells this other replica aha you know i
+
+613
+00:58:14,160 --> 00:58:19,679
+需要使用至少与此相关的数据来响应该请求
+need to respond to that request with
+data that's at least relative to this
+
+614
+00:58:19,679 --> 00:58:22,839
+指向日志，这很有趣，如果您知道
+point in a log
+and that's interesting if this you know
+
+615
+00:58:22,839 --> 00:58:28,000
+这个副本不是第二个副本是最新的，是那时
+this replicas not up this second replica
+is even less up to date yes was then
+
+616
+00:58:28,000 --> 00:58:31,270
+收到了其中任何一个，但它收到了客户的请求，客户说哦
+received any of these but it receives a
+request from a client the client says oh
+
+617
+00:58:31,270 --> 00:58:36,339
+天哪，我在日志和其他副本中执行了该命令的最后一次读取
+gosh the last read I did executed this
+spot in the log and some other replica
+
+618
+00:58:36,339 --> 00:58:41,289
+该副本需要等到完成整个日志为止
+this replica needs to wait until it's
+gotten the entire log up to this point
+
+619
+00:58:41,289 --> 00:58:46,539
+在允许它回应客户之前，我不确定到底如何
+before it's allowed to respond to the
+client and I'm not sure exactly how that
+
+620
+00:58:46,539 --> 00:58:51,069
+可以，但是副本只是延迟了对读取的响应，或者
+works but either the replicas just
+delays responding to the read or maybe
+
+621
+00:58:51,069 --> 00:58:53,770
+它拒绝阅读并说看，我只是不知道与之交谈的信息
+it rejects the read and says look I just
+don't know the information talk to
+
+622
+00:58:53,770 --> 00:58:57,280
+别人，或者以后再跟我说话，你到底知道了
+somebody else or talk to me later
+where's eventually the you know this
+
+623
+00:58:57,280 --> 00:59:01,210
+如果副本连接到领导者，副本将赶上来，那么您将无法
+replica will catch up if it's connected
+to the leader and then you won't be able
+
+624
+00:59:01,210 --> 00:59:03,630
+回复
+to respond
+
+625
+00:59:04,119 --> 00:59:08,950
+好的，所以命令读取的内容只能按时间前进或仅按时间前进
+okay so reads are ordered they only go
+forward in time or only go forward in
+
+626
+00:59:08,950 --> 00:59:14,140
+某种日志顺序以及我认为关于原因的另一件事
+sort of log order and a further thing
+which I believe is true about reason
+
+627
+00:59:14,140 --> 00:59:20,380
+权利是读取和写入FIFO客户端命令适用于所有客户端
+rights is that reads and writes the FIFO
+client order applies to all of a clients
+
+628
+00:59:20,380 --> 00:59:25,359
+所有单个客户端都请求，因此，如果我从客户端进行写操作并发送一个
+all of a single clients requests so if I
+do a write from a client and I send a
+
+629
+00:59:25,359 --> 00:59:29,829
+向领导者写信需要花费一些时间，然后才能发出写信。 
+write to the leader it takes time before
+that write is sent out committed
+
+630
+00:59:29,829 --> 00:59:33,099
+无论如何，我可以将其发送给领导者，而领导者尚未处理，或者
+whatever so I may send it right to the
+leader the leader hasn't processed it or
+
+631
+00:59:33,099 --> 00:59:39,789
+提交它，然后我将读取发送到副本，读取可能必须停止
+committed it yet and then I send a read
+to a replica the read may have to stall
+
+632
+00:59:39,789 --> 00:59:43,779
+您知道为了保证FIFO客户端订购读取的内容，他们必须
+you know in order to guarantee FIFO
+client order the read and they have to
+
+633
+00:59:43,779 --> 00:59:48,730
+停顿，直到此客户端实际看到并执行了之前的
+stall until this client has actually
+seen and executed the previous the
+
+634
+00:59:48,730 --> 00:59:53,980
+客户以前的写操作，这是这种类型的结果
+client's previous write operation so
+that's a consequence of this type of
+
+635
+00:59:53,980 --> 00:59:58,119
+客户订单是原因权利的顺序相同，您知道方式
+client order is that a reason rights are
+in the same order and you know the way
+
+636
+00:59:58,119 --> 01:00:03,400
+看到这种情况的最明显的方法是客户端是否写入了特定的数据
+the most obvious way to see this is if a
+client writes a particular piece of data
+
+637
+01:00:03,400 --> 01:00:07,690
+您知道会向领导发送一封信，然后立即读取同一封信
+you know sends a write to the leader and
+then immediately does a read of the same
+
+638
+01:00:07,690 --> 01:00:11,680
+并将读取的数据发送给副本男孩更好地了解自己的数据
+piece of data and sends that read to a
+replica boy it better see its own
+
+639
+01:00:11,680 --> 01:00:16,359
+如果我写某件东西具有价值17，然后我进行读取，则写入价值正确
+written value right if I write something
+to have value 17 and then I do a read
+
+640
+01:00:16,359 --> 01:00:21,670
+它没有值17那么那只是离奇的证据，这证明了
+and it doesn't have value 17 then that's
+just bizarre and it's evidence that gosh
+
+641
+01:00:21,670 --> 01:00:25,299
+系统没有按顺序执行我的请求，因为那样
+the system was not executing my requests
+in order because then it would have
+
+642
+01:00:25,299 --> 01:00:29,319
+执行写操作，然后执行读操作，因此必须有一些有趣的地方
+executed the write and then before the
+read so there must be some funny
+
+643
+01:00:29,319 --> 01:00:33,670
+副本必须停顿的业务，客户端必须在发送读和
+business with the replicas stalling
+the client must when it sends a read and
+
+644
+01:00:33,670 --> 01:00:37,269
+说看，您知道我上次向我发送带有ZX ID的领导者的写入请求
+say look you know I the last write
+request I sent a leader with ZX ID
+
+645
+01:00:37,269 --> 01:00:44,640
+此副本中的某些内容必须等到看到我是领导者，是的
+something in this replica has to wait
+till it sees that I'm the leader yes
+
+646
+01:00:53,660 --> 01:00:58,250
+哦，绝对如此，我想您正在观察的是从副本中读取的内容
+oh absolutely so I think what you're
+observing is that a read from a replica
+
+647
+01:00:58,250 --> 01:01:03,650
+可能看不到最新数据，所以领导者可能已将C发送给大多数
+may not see the latest data so the
+leader may have sent out C to a majority
+
+648
+01:01:03,650 --> 01:01:08,930
+副本并提交了它，大多数人可能已经执行了，但是如果我们
+of replicas and committed it and the
+majority may have executed it but if our
+
+649
+01:01:08,930 --> 01:01:12,710
+我们正在谈论的副本不是大多数，也许这个副本没有
+replica that we're talking wasn't in
+that majority maybe this replica doesn't
+
+650
+01:01:12,710 --> 01:01:17,900
+拥有最新数据，这就是动物园管理员的工作方式，因此
+have the latest data and that just is
+the way zoo keeper works and so it does
+
+651
+01:01:17,900 --> 01:01:23,900
+不保证我们会看到最新数据，所以如果有保证
+not guarantee that we'd see the latest
+data so if there there is a guarantee
+
+652
+01:01:23,900 --> 01:01:28,849
+关于读写顺序，但这仅针对每个客户端，因此如果我发送写入信息，并且
+about readwrite ordering but it's only
+per client so if I send a write in and
+
+653
+01:01:28,849 --> 01:01:34,069
+然后我读取数据，系统保证我的珠子观察到我的
+then I read that data the system
+guarantees that my bead observes my
+
+654
+01:01:34,069 --> 01:01:39,920
+正确，如果您发送了权利，然后我读取了您写入的数据，这不是
+right if you send a right in and then I
+read the data that you wrote this isn't
+
+655
+01:01:39,920 --> 01:01:46,069
+不保证我看到您的权利，那是您知道那就像
+does not guarantee that I see your right
+and that's and you know that's like the
+
+656
+01:01:46,069 --> 01:01:51,470
+它们如何加快读取速度的基础，该读取速度与
+foundation of how they get speed up for
+reads proportional to the number of
+
+657
+01:01:51,470 --> 01:01:53,890
+复制品
+replicas
+
+658
+01:01:58,560 --> 01:02:04,560
+但我会说系统不是线性化的，但这不是那样
+but I would say the system isn't
+linearizable and and but it is not that
+
+659
+01:02:04,560 --> 01:02:09,120
+它没有属性，那么权利肯定是很多。 
+it has no properties then the rights are
+certainly many all right all rights from
+
+660
+01:02:09,120 --> 01:02:13,950
+所有客户按时间顺序形成一个人，因此从某种意义上说
+all clients form some one at a time
+sequence so that's a sense in which the
+
+661
+01:02:13,950 --> 01:02:21,260
+权利所有权利都必须屈指可数，并且每个客户的操作
+rights all rights are the knee risible
+and each individual clients operations
+
+662
+01:02:21,260 --> 01:02:29,340
+也许这意味着线性化，也许你知道这可能意味着
+may be this means linearizable also it
+may you know this this probably means
+
+663
+01:02:29,340 --> 01:02:32,280
+虽然我不太清楚每个客户的操作都线性良好
+that each individual clients operations
+are linearize well though I'm not quite
+
+664
+01:02:32,280 --> 01:02:50,820
+确定您知道我实际上不确定其运作方式，但这是合理的
+sure you know I'm actually not sure how
+it works but that's a reasonable
+
+665
+01:02:50,820 --> 01:02:54,660
+假设，那么当我发送异步权限时，系统不会
+supposition then when I send in an
+asynchronous right the system doesn't
+
+666
+01:02:54,660 --> 01:02:57,270
+执行它，但是它确实回答了我，是的，你知道我有你的权利
+execute it yet but it does reply to me
+saying yeah you know I got your right
+
+667
+01:02:57,270 --> 01:03:03,090
+这是if牛ID（如果已提交）将具有的ID，就像开始一样
+and here's this yaks ID that it will
+have if it's committed I just like start
+
+668
+01:03:03,090 --> 01:03:06,360
+返回，这是一个合理的理论，我实际上不知道它是如何做到的， 
+return so that's a reasonable theory I
+don't actually know how it does it and
+
+669
+01:03:06,360 --> 01:03:12,330
+然后，如果客户端未读，则需要告诉您您知道副本的外观
+then the client if it doesn't read needs
+to tell the replicas look you know
+
+670
+01:03:12,330 --> 01:03:42,030
+是的，我知道您是否要读取数据是否与操作有关
+that's right I did you know if I do a
+read of the data is of the operation
+
+671
+01:03:42,030 --> 01:03:45,600
+好的，所以如果您向副本发送读取，则副本会返回您知道的信息
+okay so if you send a read to a replica
+the replicas in return you that you know
+
+672
+01:03:45,600 --> 01:03:49,590
+确实是从这张表中读取的内容
+really it's a read from this table is
+what your no way notionally what the
+
+673
+01:03:49,590 --> 01:03:52,290
+客户认为这样做，所以您的客户说所有我想从中读取的行
+client thinks it's doing so you client
+says all I want to read this row from
+
+674
+01:03:52,290 --> 01:03:56,310
+此表此副本的服务器发回该表的当前值
+this table the server this replica sends
+back its current value for that table
+
+675
+01:03:56,310 --> 01:04:03,500
+加上更新该表的最后操作的GX ID 
+plus the GX ID of the last operation
+that updated that table
+
+676
+01:04:06,570 --> 01:04:13,560
+是的，所以实际上我真的不准备那么两件事
+yeah so there's so actually I'm I'm not
+prepared to so the the two things that
+
+677
+01:04:13,560 --> 01:04:17,340
+会很有道理，我认为它们中的任何一个都可以，服务器可以
+would make sense and I think either of
+them would be okay is the server could
+
+678
+01:04:17,340 --> 01:04:22,380
+跟踪每个表行的最后一个正确操作的ZX ID 
+track this yet for every table row the
+ZX ID of the last right operation that
+
+679
+01:04:22,380 --> 01:04:27,870
+触摸它，或者它可能仅对所有读取请求返回最后一个ZX ID 
+touched it or it could just to all read
+requests returned the ZX ID as a last
+
+680
+01:04:27,870 --> 01:04:31,590
+不管它是否是最后一个在其日志中提交的操作
+committed operation in its log
+regardless of whether that was the last
+
+681
+01:04:31,590 --> 01:04:36,000
+触摸该行的操作，因为我们需要做的就是确保客户端
+operation of touch that row because all
+we need to do is make sure that client
+
+682
+01:04:36,000 --> 01:04:40,170
+请求按顺序前进，所以我们只需要一些东西就可以返回一些东西
+requests move forward in the order so we
+just need something to return something
+
+683
+01:04:40,170 --> 01:04:45,720
+大于或等于最后触摸数据的权利
+that's greater than or equal to the
+right that last touched the data that
+
+684
+01:04:45,720 --> 01:05:01,440
+客户没问题，所以这些都是保证，所以您知道我们仍然离开了
+the client read all right so these are
+the guarantees so you know we still left
+
+685
+01:05:01,440 --> 01:05:04,980
+询问是否有可能对此进行合理的编程
+with a question of whether it's possible
+to do reasonable programming with this
+
+686
+01:05:04,980 --> 01:05:08,400
+一套保证，答案很好，您知道这是一个高水平
+set of guarantees and the answer is well
+this you know at a high level this is
+
+687
+01:05:08,400 --> 01:05:12,330
+不如线性化好，因此很难推理和
+not quite as good as linearizable it's a
+little bit harder to reason about and
+
+688
+01:05:12,330 --> 01:05:15,690
+还有更多的陷阱，例如读取可以返回过时的数据，只是不可能发生
+there's sort of more gotchas like reads
+can return stale data just can't happen
+
+689
+01:05:15,690 --> 01:05:21,090
+在线性化系统中，但它足以做
+in a linearizable system but it's
+nevertheless good enough to do to make
+
+690
+01:05:21,090 --> 01:05:27,900
+您可能想对很多事情进行推理就很简单了
+it pretty straightforward to reason
+about a lot of things you might want to
+
+691
+01:05:27,900 --> 01:05:35,520
+与动物园管理员一起做，所以有一个，所以我要尝试建立一个论点，也许
+do with zookeeper so there's a so I'm
+gonna try to construct an argument maybe
+
+692
+01:05:35,520 --> 01:05:41,130
+举例说明为什么这不是一个糟糕的编程模型
+by example of why this is not such a bad
+programming model one reason by the way
+
+693
+01:05:41,130 --> 01:05:44,160
+是有一个叫作接收器的操作，它是
+is that there's an out there's this
+operation called sink which is
+
+694
+01:05:44,160 --> 01:05:49,410
+本质上是写操作，如果您认识一个客户端，我知道
+essentially a write operation and if a
+client you know supposing I know that
+
+695
+01:05:49,410 --> 01:05:53,100
+您最近写过一些东西，您是另一位客户，我想阅读一下
+you recently wrote something you being a
+different client and I want to read what
+
+696
+01:05:53,100 --> 01:05:57,780
+你写的，所以我实际上想要可以在这些接收器之一中发送的新数据
+you wrote so I actually want fresh data
+I can send in one of these sink
+
+697
+01:05:57,780 --> 01:06:04,560
+同步操作有效地通过了
+operations which is effectively well the
+sync operation makes its way through the
+
+698
+01:06:04,560 --> 01:06:09,930
+系统就好像是一次写操作，您知道最终会出现在
+system as if it were a write and you
+know finally showing up in the logs of
+
+699
+01:06:09,930 --> 01:06:14,670
+至少真的是我正在与之交谈的副本，然后我
+the replicas that really at least the
+replicas that I'm talking to and then I
+
+700
+01:06:14,670 --> 01:06:20,920
+可以回来阅读，你知道我可以基本上告诉副本
+can come back and do a read and you know
+I can I can tell the replica basically
+
+701
+01:06:20,920 --> 01:06:26,079
+在您看到我的最后一个水槽并且实际上掉下来之前，请不要阅读此书
+don't serve this read until you've seen
+my last sink and that actually falls out
+
+702
+01:06:26,079 --> 01:06:33,039
+如果我们将s钻视为正确权利，则自然而然地从外国客户订单中
+naturally from fifl client order if we
+if we countersink as a right then five-o
+
+703
+01:06:33,039 --> 01:06:37,509
+客户订单说需要读取以了解您知道至少有
+client order says reads are required to
+see state you know there's as least as
+
+704
+01:06:37,509 --> 01:06:41,410
+最新是该客户的最后权利，因此，如果我发送接收器并
+up to date is the last right from that
+client and so if I send in a sink and
+
+705
+01:06:41,410 --> 01:06:47,410
+然后我确实读到我是系统有义务向我提供签证数据
+then I do read I'm the the system is
+obliged to give me data that's visas up
+
+706
+01:06:47,410 --> 01:06:52,269
+到目前为止，如果我需要阅读，我的接收器无论如何都按日志顺序下降
+to date as where my sink fell in the log
+order anyway if I need to read
+
+707
+01:06:52,269 --> 01:06:57,630
+将最新数据发送到接收器中，然后进行读取，并确保读取结果可以看到
+up-to-date data send in a sink then do a
+read and the read is guaranteed to see
+
+708
+01:06:57,630 --> 01:07:05,140
+截至同一时间将数据输入日志的时间如此合理，因此
+data as of the time the same was entered
+into the log so reasonably fresh so
+
+709
+01:07:05,140 --> 01:07:08,559
+那是一出，但那是一个昂贵的，因为你现在我们转换了一个便宜的
+that's one out but it's an expensive one
+because you now we converted a cheap
+
+710
+01:07:08,559 --> 01:07:14,109
+读入接收器操作，这消耗了领导者的时间，所以这是一个
+read into the sink operation which
+burned up time on the leader so it's a
+
+711
+01:07:14,109 --> 01:07:19,450
+不，如果不需要的话，这是一些场景示例
+no-no if you don't have to do but here's
+a couple of examples of scenarios that
+
+712
+01:07:19,450 --> 01:07:25,660
+该论文讨论了关于它们的推理是简化的还是合理的
+the paper talks about that the reasoning
+about them is simplified or reasonably
+
+713
+01:07:25,660 --> 01:07:29,349
+鉴于这里的规则很简单，所以首先我想谈一谈技巧
+simple given the rules that are here so
+first I want to talk about the trick in
+
+714
+01:07:29,349 --> 01:07:34,809
+准备好的文件的第2.3节中，我们假设有一些主文件和
+section 2.3 of with the ready file where
+we assume there's some master and the
+
+715
+01:07:34,809 --> 01:07:39,190
+主人在zookeeper中维护一个配置，该配置是一堆文件， 
+Masters maintaining a configuration in
+zookeeper which is a bunch of files and
+
+716
+01:07:39,190 --> 01:07:43,150
+描述您的动物园管理员了解我们的分布式系统
+zookeeper that describe you know
+something about our distributed system
+
+717
+01:07:43,150 --> 01:07:48,910
+例如所有工人的IP地址或主人的身份等等
+like the IP addresses of all the workers
+or who the master is or something so we
+
+718
+01:07:48,910 --> 01:07:52,630
+正在更新此配置的主服务器，也许是一堆
+the master who's updating this
+configuration and maybe a bunch of
+
+719
+01:07:52,630 --> 01:07:55,960
+需要阅读当前配置并需要每次查看的读者
+readers that need to read the current
+configuration and need to see it every
+
+720
+01:07:55,960 --> 01:07:59,529
+时间改变了，所以问题是你知道我们可以构造一些东西吗
+time it changes and so the question is
+you know can we construct something that
+
+721
+01:07:59,529 --> 01:08:03,460
+即使对配置进行了拆分，即使更新了配置
+even though updating the configure even
+though the configuration is split across
+
+722
+01:08:03,460 --> 01:08:09,460
+ Zookeeper中的许多文件，我们可以进行原子更新，以便
+many files in zookeeper we can have the
+effect of an atomic update so that
+
+723
+01:08:09,460 --> 01:08:13,119
+工作人员看不到查看配置的工作人员看不到某种
+workers don't see workers that look at
+the configuration don't see a sort of
+
+724
+01:08:13,119 --> 01:08:19,839
+部分更新配置，但只有完全更新才是经典
+partially updated configuration but only
+a completely updated that's a classic
+
+725
+01:08:19,839 --> 01:08:25,920
+动物园管理员使用的这种配置管理的东西
+kind of thing that this configuration
+management that zookeeper people using
+
+726
+01:08:25,920 --> 01:08:31,929
+ zookeeper，所以您知道在看什么，因此我们将复制第2.3节
+zookeeper for so you know looking at the
+so we're copying what section 2.3
+
+727
+01:08:31,929 --> 01:08:36,460
+描述这将说主人正在做一堆仪式来更新
+describes this will say the master is
+doing a bunch of rites to update the
+
+728
+01:08:36,460 --> 01:08:41,469
+配置，这是我们的分布式系统的主服务器的顺序
+configuration and here's the order that
+the master for our distributed system
+
+729
+01:08:41,469 --> 01:08:44,948
+首先，我们假设仪式已经准备好了
+does the rites
+first we're assuming there's some ready
+
+730
+01:08:44,948 --> 01:08:49,389
+归档一个名为ready的文件，如果它们已经准备就绪，则存在配置
+
+731
+01:08:49,390 --> 01:08:52,270
+如果他们已经准备好文件，则允许我们读取配置
+is we're allowed to read the
+configuration if they're ready files
+
+732
+01:08:52,270 --> 01:08:55,270
+缺少表示配置正在更新，我们不应该关注
+missing that means the configuration is
+being updated and we shouldn't look at
+
+733
+01:08:55,270 --> 01:08:59,350
+因此，如果主服务器要首先更新配置文件
+it so if the master is gonna update the
+configuration file the very first thing
+
+734
+01:08:59,350 --> 01:09:10,569
+它所做的是删除准备好的文件，然后将各种文件写入非常动物园管理员
+it does is delete the ready file then it
+writes the various files very zookeeper
+
+735
+01:09:10,569 --> 01:09:15,520
+保存配置数据的文件可能是很多文件
+files that hold the data for the
+configuration might be a lot of files
+
+736
+01:09:15,520 --> 01:09:19,540
+鼻子，然后当它完全更新组成该文件的所有文件
+nose and then when it's completely
+updated all the files that make up the
+
+737
+01:09:19,540 --> 01:09:27,540
+配置，然后再次创建就绪文件
+
+738
+01:09:28,380 --> 01:09:33,670
+到目前为止，语义非常简单，这仅仅是
+alright so so far the semantics are
+extremely straightforward this is just
+
+739
+01:09:33,670 --> 01:09:37,000
+权限，这里只有权限，没有读取权限可以保证在其中执行
+rights there's only rights here no reads
+rights are guaranteed to execute in
+
+740
+01:09:37,000 --> 01:09:44,408
+线性订单，我想现在我们必须对fifl客户订单提出上诉，如果
+linear order and I guess now we have to
+appeal the fifl client order if the
+
+741
+01:09:44,408 --> 01:09:48,399
+掌握这些标签的种类，哦，您知道我希望我的权利按此顺序发生
+master sort of tags these as oh you know
+I want my rights to occur in this order
+
+742
+01:09:48,399 --> 01:09:53,858
+则读者必须按该顺序将它们输入到复制的日志中
+
+743
+01:09:53,859 --> 01:09:57,520
+因此，尽管您知道所有副本都尽职尽责地执行了这些副本
+and so though you know the replicas were
+all dutifully execute these one at a
+
+744
+01:09:57,520 --> 01:10:01,480
+他们将全部删除就绪文件，然后在该权限中应用此权限， 
+time they'll all delete the ready file
+then apply this right in that right and
+
+745
+01:10:01,480 --> 01:10:05,590
+然后再次创建就绪文件，以使这些命令正确
+then create the ready file again so
+these are rights the orders
+
+746
+01:10:05,590 --> 01:10:13,420
+对于阅读来说很简单，虽然可能有点
+straightforward for the reads though
+it's it's maybe a little bit maybe a
+
+747
+01:10:13,420 --> 01:10:16,150
+假设我们有些工人需要
+little more thinking as required
+supposing we have some worker that needs
+
+748
+01:10:16,150 --> 01:10:25,239
+要阅读当前配置，我们将假定该工作人员为第一
+to read the current configuration we're
+going to assume that this worker first
+
+749
+01:10:25,239 --> 01:10:31,750
+检查准备好的文件是否存在，不存在，它会
+checks to see whether the ready file
+exists it doesn't exist it's gonna you
+
+750
+01:10:31,750 --> 01:10:35,679
+知道睡眠，然后重试，所以让我们假设它确实存在，让我们假设我们假设
+know sleep and try again so let's assume
+it does exist let's assume we assume
+
+751
+01:10:35,679 --> 01:10:44,060
+工作人员检查准备好的文件后是否存在
+that the worker checks to see
+if the ready file exists after it's
+
+752
+01:10:44,060 --> 01:10:48,050
+重新创建，所以您知道这意味着什么，这些都是正确的请求
+recreated and so you know what this
+means now these are all right requests
+
+753
+01:10:48,050 --> 01:10:52,850
+发送给领导者，这是一个阅读请求，几乎是集中在任何地方
+sent to the leader this is a read
+request that's just centrally whatever
+
+754
+01:10:52,850 --> 01:11:00,290
+复制与客户交谈的副本，然后如果存在，您知道它将读取f1 
+replica the clients talking to and then
+if it exists you know it's gonna read f1
+
+755
+01:11:00,290 --> 01:11:10,429
+和B-此处FIFO客户指令保证的有趣的事情是
+and B that - the interesting thing that
+FIFO client order guarantees here is
+
+756
+01:11:10,429 --> 01:11:18,860
+如果返回true，则表示客户端正在与之通信的副本
+that if this returned true that is if
+the replica the client was talking to
+
+757
+01:11:18,860 --> 01:11:24,760
+说是的，该文件存在，那么您知道那是什么意思
+said yes that file exists then you know
+as were as that what that means is that
+
+758
+01:11:24,760 --> 01:11:32,120
+至少使用此设置是因为该副本实际上具有该副本
+at least with this setup is that as that
+replica that that replica had actually
+
+759
+01:11:32,120 --> 01:11:38,179
+看到重新创建就绪文件的权限，以便对此存在以查看
+seen the recreate of the ready file
+right in order for this exist to see to
+
+760
+01:11:38,179 --> 01:11:44,270
+查看就绪文件存在，并且因为需要连续的读取操作
+see the ready file exists and because
+successive read operations are required
+
+761
+01:11:44,270 --> 01:11:49,790
+只在很长的时间内前进而从不退缩，这意味着你
+to march along only forwards in the long
+and never backwards that means that you
+
+762
+01:11:49,790 --> 01:11:54,739
+知道客户端是否正在与副本交谈，如果它实际上是日志
+know if the replicas the client was
+talking to if it's log actually
+
+763
+01:11:54,739 --> 01:11:58,370
+包含在内，然后执行该广告素材的就绪文件，这意味着
+contained and then it executes this
+creative the ready file that means that
+
+764
+01:11:58,370 --> 01:12:07,340
+随后的客户读取必须仅按照您的权利顺序前进
+subsequent client reads must move only
+forward in the sequence of rights you
+
+765
+01:12:07,340 --> 01:12:11,570
+知道领导者已将其放入日志，因此，如果我们看到已准备就绪，则意味着
+know that the leader put into the log so
+if we saw this ready that means that the
+
+766
+01:12:11,570 --> 01:12:16,159
+读取时，副本借口在右边之后的某处向下读取
+read occurs that the replica excuse to
+read down here somewhere after the right
+
+767
+01:12:16,159 --> 01:12:19,699
+创造了准备就绪，这意味着保证可以阅读
+that created the ready and that means
+that the reads are guaranteed to observe
+
+768
+01:12:19,699 --> 01:12:24,170
+这些权利的影响，因此我们确实在这里获得了一些好处
+the effects of these rights so we do
+actually get some benefit here some
+
+769
+01:12:24,170 --> 01:12:28,159
+推理得益于以下事实：即使无法完全线性化
+reasoning benefit from the fact that
+even though it's not fully linearizable
+
+770
+01:12:28,159 --> 01:12:32,719
+权利是可线性化的，读取必须单调阅读
+the rights are linearizable and the
+reads have to read sort of monotonically
+
+771
+01:12:32,719 --> 01:12:37,840
+及时移至日志是
+move forward in time to the log yes
+
+772
+01:12:38,120 --> 01:12:41,279
+ [音乐] 
+[Music]
+
+773
+01:12:49,400 --> 01:12:54,750
+是的，这是一个很好的问题，因此您在所有客户中的问题都很好
+yeah so that's a great question so your
+question is well in all this client
+
+774
+01:12:54,750 --> 01:12:58,470
+知道您知道这是否是创建者输入的真实场景
+knows you know if this is the real
+scenario that the creators entered in
+
+775
+01:12:58,470 --> 01:13:03,510
+日志，然后在副本执行此操作后读取到达副本
+the log and then the read arrives at the
+replica after that replica executed this
+
+776
+01:13:03,510 --> 01:13:06,030
+令人毛骨悚然的准备，那么一切都很简单，但还有其他
+creepy ready then everything's
+straightforward but there's other
+
+777
+01:13:06,030 --> 01:13:08,070
+这种东西如何交错的可能性
+possibilities for how this stuff was
+interleaved
+
+778
+01:13:08,070 --> 01:13:21,570
+所以让我们看一个更麻烦的场景，这样您提出的场景
+so let's look at a much more troubling
+scenario so the scenario you brought up
+
+779
+01:13:21,570 --> 01:13:28,530
+我恰好准备谈论的是，是的，您知道
+which I happen to be prepared to talk
+about is that yeah you know the the
+
+780
+01:13:28,530 --> 01:13:36,840
+在某些时候执行母版以删除就绪或您知道返回的方式
+master at some point executed to a
+delete of ready or you know way back in
+
+781
+01:13:36,840 --> 01:13:41,990
+时间以前的主人，这个主人创建了准备好的文件
+time some previous master this master
+created the ready file
+
+782
+01:13:41,990 --> 01:13:46,680
+你知道完成状态更新后，我说我已经准备好了
+you know after it finished updating the
+state I say ready for I existed for a
+
+783
+01:13:46,680 --> 01:13:48,870
+然后一些新的主人或这个主人需要改变
+while then some new master or this
+master needs to change the
+
+784
+01:13:48,870 --> 01:13:56,270
+配置释放您知道不正确的就绪文件，然后
+configurations release the ready file
+you know it doesn't right right and
+
+785
+01:13:56,270 --> 01:14:00,630
+真正令人困扰的是需要阅读此内容的客户端
+what's really troubling is that the
+client that needs to read this
+
+786
+01:14:00,630 --> 01:14:06,630
+配置可能已经存在，以查看就绪文件是否存在于
+configuration might have called exists
+to see whether the ready file exists at
+
+787
+01:14:06,630 --> 01:14:14,100
+这次好了，您知道在这个时间点，是的，请确保已准备好文件
+this time all right and you know at this
+point in time yeah sure the ready file
+
+788
+01:14:14,100 --> 01:14:18,900
+存在，然后时间流逝，客户端发出可能的读取
+exists then time passes and the client
+issues the reads for the maybe the
+
+789
+01:14:18,900 --> 01:14:25,500
+客户端读取构成配置的第一个文件，但也许您
+client reads the first file that makes
+up the configuration but maybe it you
+
+790
+01:14:25,500 --> 01:14:29,610
+知道然后读取第二个文件，也许这个文件完全读取了
+know and then it reads the second file
+maybe this file this read comes totally
+
+791
+01:14:29,610 --> 01:14:35,220
+在主服务器更改了配置之后，现在该阅读器具有
+after the master has been changing the
+configurations so now this reader has
+
+792
+01:14:35,220 --> 01:14:40,800
+从旧配置中读取f1的损坏组合，从新配置中读取f2 
+read this damaged mix of f1 from the old
+configuration and f2 from the new
+
+793
+01:14:40,800 --> 01:14:44,210
+配置没有理由相信这将包含
+configuration there's no reason to
+believe that that's going to contain
+
+794
+01:14:44,210 --> 01:14:49,320
+除了破损的信息以外，其他任何东西都很好，所以第一种情况很好
+anything other than broken information
+so so this first scenario was great the
+
+795
+01:14:49,320 --> 01:14:54,379
+情况是一场灾难，所以现在我们开始进入
+scenario is a disaster and so now we're
+starting to get into
+
+796
+01:14:54,379 --> 01:15:01,869
+像严峻的挑战一样，精心设计的API用于协调
+of like serious challenges which a
+carefully designed API for coordination
+
+797
+01:15:01,869 --> 01:15:07,669
+分布式系统中的机器之间可能实际上可以帮助我们正确解决
+between machines in a distributed system
+might actually help us solve right
+
+798
+01:15:07,669 --> 01:15:11,599
+因为像实验室3一样，您知道您将构建一个put get系统和一个
+because like for lab 3 you know you're
+gonna build a put get system and a
+
+799
+01:15:11,599 --> 01:15:15,739
+简单的实验室3风格的猜测系统，您知道它将遇到此问题
+simple lab 3 style put guessed system
+you know it would run into this problem
+
+800
+01:15:15,739 --> 01:15:18,320
+也没有任何工具可以处理
+too and just does not have any tools to
+deal with it
+
+801
+01:15:18,320 --> 01:15:23,929
+但是zookeeper API实际上比这更聪明，可以应付
+but the zookeeper API actually is more
+clever than this and it can cope with it
+
+802
+01:15:23,929 --> 01:15:29,780
+所以实际使用ooh keeper的方式是
+and so what actually happens the way you
+would actually use ooh keeper is that
+
+803
+01:15:29,780 --> 01:15:35,719
+当客户端发送此请求时，询问该文件是否存在并且
+when the client sent in this exists
+request to ask does this file exist and
+
+804
+01:15:35,719 --> 01:15:41,570
+会说这个文件不仅存在，还会说你知道告诉我是否
+would say not only does this file exist
+but it would say you know tell me if it
+
+805
+01:15:41,570 --> 01:15:47,179
+存在甚至对该文件设置监视，这意味着文件是否曾经被删除或
+exists even set a watch on that file
+which means if the files ever deleted or
+
+806
+01:15:47,179 --> 01:15:51,439
+如果它曾经创建过，则不存在，但如果曾经创建过，则在这种情况下
+if it doesn't exist if it's ever created
+but in this case if it if it is ever
+
+807
+01:15:51,439 --> 01:15:55,599
+删除，请给我通知
+deleted please send me a notification
+
+808
+01:15:56,499 --> 01:16:04,579
+而且，动物园管理员发送给您的通知也知道
+and furthermore the notifications that
+zookeeper sends you know it's a the
+
+809
+01:16:04,579 --> 01:16:08,209
+此处的读者只在与某些副本交谈，这是所有副本所做的
+reader here it's only talking to some
+replicas this is all the replicas doing
+
+810
+01:16:08,209 --> 01:16:13,849
+副本保证为这些事情发送通知
+these things for it the replica
+guarantees to send a notification for
+
+811
+01:16:13,849 --> 01:16:20,439
+在相对于响应的正确点对此准备好的文件进行一些更改
+some change to this ready file at the
+correct point relative to the responses
+
+812
+01:16:20,439 --> 01:16:32,389
+给客户阅读，这意味着什么，所以您知道，因为
+to the clients reads and so what that
+means so you know because that the the
+
+813
+01:16:32,389 --> 01:16:38,449
+暗示是在这种情况下，您知道这些
+implication of that is that in this
+scenario in which you know these these
+
+814
+01:16:38,449 --> 01:16:44,030
+权利适合您实时地保证，如果您要求
+rights sort of fit in here in real time
+the guarantee is that if you ask for a
+
+815
+01:16:44,030 --> 01:16:49,369
+监视某些东西，然后如果您正在复制该副本，则发出一些读取
+watch on something and then you issue
+some reads if that replica you're
+
+816
+01:16:49,369 --> 01:16:53,629
+谈论执行一些应该触发您手表的过程
+talking to execute something that should
+trigger the watch in during your
+
+817
+01:16:53,629 --> 01:16:59,449
+读取顺序，然后副本保证传递通知
+sequence of reads then the replica
+guarantees to deliver the notification
+
+818
+01:16:59,449 --> 01:17:05,300
+关于手表的回应，然后再回应您所知道的任何读物
+about the watch before it responds to
+any read that came that you know saw the
+
+819
+01:17:05,300 --> 01:17:10,540
+在操作点之后记录日志
+log after the point
+of the OP where the operation that
+
+820
+01:17:10,540 --> 01:17:15,320
+触发了执行监视通知，因此这是
+triggered the watch notification
+executed and so this is the log on the
+
+821
+01:17:15,320 --> 01:17:21,650
+复制品，所以您知道是否可以知道FIFO客户端排序
+replica and so you know if the so that
+you know the FIFO client ordering will
+
+822
+01:17:21,650 --> 01:17:25,280
+说您知道每个客户端请求显然都必须适合日志中的某个位置
+say you know each client requests must
+fit somewhere into the log apparently
+
+823
+01:17:25,280 --> 01:17:29,930
+这些适合日志中的内容我们担心的是，这种读取会发生
+these fit in here in the log what we're
+worried about is that this read occurs
+
+824
+01:17:29,930 --> 01:17:34,400
+在日志中，但我们设置了此手表，并且保证会收到
+here in the log but we set up this watch
+and the guarantee is that will receive
+
+825
+01:17:34,400 --> 01:17:39,200
+如果有人删除了该文件并且我们可以通知的话
+the note if if somebody deletes this
+file and we can notified then that
+
+826
+01:17:39,200 --> 01:17:43,610
+通知将在读取之前在客户端出现
+notification will will appear at the
+client before a read that yields
+
+827
+01:17:43,610 --> 01:17:49,940
+日志中随后的所有内容都会在我们获得
+anything subsequently in the log will
+get the notification before we get the
+
+828
+01:17:49,940 --> 01:17:54,890
+操作后在日志中看到任何内容的任何读取结果
+results of any read that's that saw
+something in log after the operation
+
+829
+01:17:54,890 --> 01:17:58,820
+产生了通知，所以这意味着已准备好删除
+that produced the notification so what
+this means that the delete ready is
+
+830
+01:17:58,820 --> 01:18:02,330
+因为我们在准备好的文件上有一块手表，所以精英准备好了
+gonna since we have a watch on the ready
+file that elite ready is going to
+
+831
+01:18:02,330 --> 01:18:07,130
+生成通知，并确保该通知是
+generate a notification and that
+notification is guaranteed to be
+
+832
+01:18:07,130 --> 01:18:13,340
+如果f2会在第二个读取结果之前在f2的读取结果之前传送
+delivered before the read result of f2
+if f2 was gonna see this second right
+
+833
+01:18:13,340 --> 01:18:17,510
+这意味着在阅读客户端完成序列之前
+and that means that before the reading
+client has finished the sequence in
+
+834
+01:18:17,510 --> 01:18:23,230
+它查看配置，保证可以看到监视通知
+which it looks at the configuration it's
+guaranteed to see the watch notification
+
+835
+01:18:23,230 --> 01:18:29,840
+在看到删除后发生的任何写入的结果之前
+before it sees the results of any write
+that happened after this delete that
+
+836
+01:18:29,840 --> 01:18:32,770
+触发通知
+triggered the notification
+
+837
+01:18:39,320 --> 01:18:43,770
+谁也产生手表呢？复制品，假设客户在说话
+who generates the watch as well the
+replica let's say the client is talking
+
+838
+01:18:43,770 --> 01:18:48,150
+到此副本，并在存在请求中发送存在房间已读取的信息
+to this replica and it sends in the
+exists request the exist room has a read
+
+839
+01:18:48,150 --> 01:18:51,659
+仅请求将其副本与副本一起发送到副本上
+only request it sends with his replica
+the replica is being painting on the
+
+840
+01:18:51,659 --> 01:18:55,440
+在桌子旁，说哦，你知道某某某客户要
+side a table of watches saying oh you
+know such-and-such a client asked for a
+
+841
+01:18:55,440 --> 01:19:01,590
+在此文件上观看，并且该观看建立在特定的Z 
+watch on this file and furthermore the
+watch was established at a particular Z
+
+842
+01:19:01,590 --> 01:19:05,969
+客户端执行读取操作并执行副本的X ID 
+X ID that is did a read that client did
+a read with the replica executed the
+
+843
+01:19:05,969 --> 01:19:09,630
+在日志中的这一点读取，返回结果相对于该点
+read at this point in the log and return
+results are relative to this point in
+
+844
+01:19:09,630 --> 01:19:14,070
+日志成员所欠的观察是相对于日志中的该点，并且
+the log members owe that watch is
+relative to that point in the log and
+
+845
+01:19:14,070 --> 01:19:20,280
+那么如果有删除操作，您就会知道每个操作都有Q，所以它
+then if a delete comes in you know for
+every operation that there s Q so it
+
+846
+01:19:20,280 --> 01:19:24,540
+看着这张小桌子，上面说“啊哈，你知道那个” 
+looks in this little table it says aha
+you know the a there was a watch on that
+
+847
+01:19:24,540 --> 01:19:29,810
+文件，可能是通过文件名或其他内容的哈希索引的
+file and maybe it's indexed by hash of
+filename or something
+
+848
+01:19:37,440 --> 01:19:41,889
+好吧，问题是哦，是的，这个副本必须有一个观察表
+okay so the question is oh yeah this
+this replica has to have a watch table
+
+849
+01:19:41,889 --> 01:19:48,579
+您知道副本是否崩溃并且客户端是正式的不同副本
+you know if the replica crashes and the
+client is officially different replica
+
+850
+01:19:48,579 --> 01:19:51,159
+你知道手表表吗，已经建立了这些
+you know what about the watch table
+right it's already established these
+
+851
+01:19:51,159 --> 01:19:56,739
+观看，答案是没有副本的代表崩溃新的
+watch and the answer to that is that no
+the rep your replica crashes the new
+
+852
+01:19:56,739 --> 01:20:01,360
+您切换到的副本将没有监视表，但是客户端会收到
+replica you switch to won't have the
+watch table and but the client gets a
+
+853
+01:20:01,360 --> 01:20:06,429
+通知在响应流中的适当点返回
+notification at the appropriate point in
+in the stream of responses it gets back
+
+854
+01:20:06,429 --> 01:20:11,710
+说哎呀你正在和你说话的副本崩溃了，所以客户端
+saying oops your replica you were
+talking to you crashed and so the client
+
+855
+01:20:11,710 --> 01:20:16,750
+然后知道它必须完全重置所有内容，因此隐藏在
+then knows it has to completely reset up
+everything and so tucked away in in the
+
+856
+01:20:16,750 --> 01:20:21,940
+示例缺少事件处理程序来说，哦，天哪，您知道我们需要回去
+examples are missing event handlers to
+say oh gosh you know we need to go back
+
+857
+01:20:21,940 --> 01:20:26,500
+如果收到复制副本崩溃的通知，我们将建立所有内容
+and we establish everything if we get a
+notification that our replicas crashed
+
+858
+01:20:26,500 --> 01:20:30,090
+好吧，我会继续
+all right I'll continuous
+

@@ -1,0 +1,5295 @@
+1
+00:00:00,540 --> 00:00:04,850
+好的，大家开始吧
+all right everybody let's get started
+
+2
+00:00:05,359 --> 00:00:12,450
+今天的报纸，我四天是Aurora姑姑，这是关于如何
+today the paper four days I'm is aunt
+Aurora paper which is all about how to
+
+3
+00:00:12,450 --> 00:00:19,650
+获得高性能可靠的数据库作为云基础架构的一部分
+get a high-performance reliable database
+going as a piece of cloud infrastructure
+
+4
+00:00:19,650 --> 00:00:29,100
+并且本身是建立在Amazon本身提供的基础架构之上
+and itself built out of infrastructure
+that Amazon itself makes available so
+
+5
+00:00:29,100 --> 00:00:32,098
+之所以要阅读本文，是因为首先
+the reason why we're reading this paper
+is that first of all it's a very
+
+6
+00:00:32,098 --> 00:00:38,480
+亚马逊最近成功的云服务成功，许多客户都在使用它
+successful recent cloud service from
+Amazon a lot of their customers use it
+
+7
+00:00:38,480 --> 00:00:44,820
+它以自己的方式展示了一个从聪明中获得巨大回报的例子
+it shows sort of in its own way an
+example of a very big payoff from clever
+
+8
+00:00:44,820 --> 00:00:48,380
+设计表对性能进行了总结，表明： 
+design table one which sort of
+summarizes the performance shows that
+
+9
+00:00:48,380 --> 00:00:53,430
+相对于其他系统，该系统并没有很好地解释
+relative to some other system which is
+not very well explained the paper claims
+
+10
+00:00:53,430 --> 00:00:57,480
+使交易吞吐量提高三十五倍，这是
+to get a thirty five times speed up in
+transaction throughput which is
+
+11
+00:00:57,480 --> 00:01:03,149
+非常令人印象深刻的这篇论文还探讨了
+extremely impressive this paper also
+kind of explores the limits of how well
+
+12
+00:01:03,149 --> 00:01:06,750
+您可以使用通用存储来提高性能和容错能力
+you can do for performance and fault
+tolerance using general-purpose storage
+
+13
+00:01:06,750 --> 00:01:10,470
+因为他们基本上是论文的主题之一，却放弃了通用
+because one of the themes of the papers
+they basically abandoned general-purpose
+
+14
+00:01:10,470 --> 00:01:14,250
+他们从原来使用亚马逊自己设计的设计切换到存储
+storage they switch from a design in
+which they were using their Amazon's own
+
+15
+00:01:14,250 --> 00:01:17,970
+通用存储基础架构认为它还不够好， 
+general-purpose storage infrastructure
+decided it was not good enough and
+
+16
+00:01:17,970 --> 00:01:22,320
+基本建立了完全基于应用程序的存储
+basically built totally
+application-specific storage
+
+17
+00:01:22,320 --> 00:01:25,590
+此外，该论文对结果产生了一些小窍门
+furthermore the paper has a lot of
+little tidbits about what turned out to
+
+18
+00:01:25,590 --> 00:01:32,490
+在这个云基础架构世界中非常重要
+be important in this and the kind of
+cloud infrastructure world so before
+
+19
+00:01:32,490 --> 00:01:36,510
+谈论极光，我想花些时间回头
+talking about aurora i want to spend a
+bit of time kind of going over the back
+
+20
+00:01:36,510 --> 00:01:41,270
+历史或我对导致设计的故事的印象是什么
+history or what my impression is about
+the story that led up to the design of
+
+21
+00:01:41,270 --> 00:01:47,310
+极光，因为这是您所知道的mf--亚马逊想到的方式
+aurora because it's you know the sort of
+m f-- way that amazon has in mind that
+
+22
+00:01:47,310 --> 00:01:51,810
+您应该建立自己的云客户应该在
+you ought to build that their cloud
+customers ought to build databases on
+
+23
+00:01:51,810 --> 00:02:02,850
+亚马逊的基础设施，所以一开始亚马逊基本上
+amazon's infrastructure so in the
+beginning amazon had basically their
+
+24
+00:02:02,850 --> 00:02:06,659
+第一个提供云产品以支持想要构建的人
+very first offering cloud offering to
+support people who wanted to build
+
+25
+00:02:06,659 --> 00:02:11,459
+网站，但首先使用亚马逊的硬件，并在亚马逊的机房中
+websites but using Amazon's hardware and
+in Amazon's machine room their first
+
+26
+00:02:11,459 --> 00:02:20,099
+显然，弹性云也提供了称为ec2的产品，并且
+offering was something called ec2
+for elastic cloud apparently too and the
+
+27
+00:02:20,099 --> 00:02:23,520
+这里的想法是，亚马逊拥有装满服务器的大型机房， 
+idea here is that Amazon had big machine
+rooms full of servers and they ran
+
+28
+00:02:23,520 --> 00:02:26,730
+服务器上的虚拟机监视器，他们会将虚拟机出租
+virtual machine monitors on their
+servers and they'd rent out virtual
+
+29
+00:02:26,730 --> 00:02:32,190
+机器给他们的顾客和他们的顾客，那么你会知道租一个
+machines to their customers and their
+customers would then you know rent a
+
+30
+00:02:32,190 --> 00:02:36,030
+一堆虚拟机并运行Web服务器和数据库以及其他任何东西
+bunch of virtual machines and run web
+servers and databases and whatever ever
+
+31
+00:02:36,030 --> 00:02:42,500
+他们需要在这些ec2实例中运行的所有其他内容，因此其中一个的图片
+all else they needed to run inside these
+ec2 instances so the picture of one
+
+32
+00:02:42,500 --> 00:02:50,519
+物理服务器看起来像这样的亚马逊我们控制虚拟机监视器
+physical server looked like this Amazon
+we control the virtual machine monitor
+
+33
+00:02:50,519 --> 00:02:54,810
+在这个硬件服务器上，然后会有一堆客人，一堆ec2 
+on this hardware server and then there'd
+be a bunch of guests a bunch of ec2
+
+34
+00:02:54,810 --> 00:02:59,730
+实例，每个实例都租给了不同的云客户
+instances each one rented out to a
+different cloud customer each of these
+
+35
+00:02:59,730 --> 00:03:06,989
+只会运行像Linux这样的标准操作系统，然后您就会知道
+would just run a standard operating
+system like Linux and then you know a
+
+36
+00:03:06,989 --> 00:03:14,069
+ Web服务器或数据库服务器，它们相对便宜
+web server or maybe a database server
+and these were relatively cheap
+
+37
+00:03:14,069 --> 00:03:22,290
+相对容易设置，并且作为一项非常成功的服务，因此只需一点细节
+relatively easy to set up and as a very
+successful service so one little detail
+
+38
+00:03:22,290 --> 00:03:28,500
+对我们来说最重要的是，一开始您获得存储的方式
+that's extremely important for us is
+that initially the way you get storage
+
+39
+00:03:28,500 --> 00:03:33,269
+如果您租用ec2实例，则您拥有存储空间的方式是： 
+the way you've got storage if you rented
+an ec2 instance was that every one of
+
+40
+00:03:33,269 --> 00:03:38,430
+他们的服务器有一个磁盘连接，一个物理磁盘连接，每个
+their servers had a disk attached a
+physical disk attached and each one of
+
+41
+00:03:38,430 --> 00:03:43,470
+他们租给客户的这些实例会让我们知道
+these instances that they rented to
+their customers will get us you know a
+
+42
+00:03:43,470 --> 00:03:48,959
+磁盘的一部分，所以他们说是本地连接的存储，您得到了一些
+slice of the disk so they said locally
+attached storage and you got a bit of
+
+43
+00:03:48,959 --> 00:03:52,109
+本地连接的存储，其本身就像是模拟的硬盘
+locally attached storage which itself
+just look like a hard drive an emulated
+
+44
+00:03:52,109 --> 00:03:56,810
+硬盘驱动器到虚拟机
+hard drive to the virtual machine guests
+
+45
+00:03:56,870 --> 00:04:02,220
+ ec2非常适合用于无状态Web服务器的Web服务器
+ec2 is like perfect for web servers for
+stateless web servers you know your
+
+46
+00:04:02,220 --> 00:04:07,230
+客户使用其网络浏览器将连接到一堆租用的ec2 
+customers with their web browsers would
+connect to a bunch of rented ec2
+
+47
+00:04:07,230 --> 00:04:12,299
+运行Web服务器的实例，如果突然添加了更多客户
+instances that ran a web server and if
+you added all of a sudden more customers
+
+48
+00:04:12,299 --> 00:04:15,540
+您可以立即从中租用更多ec2实例
+you could just instantly rent more ec2
+instances from
+
+49
+00:04:15,540 --> 00:04:20,039
+亚马逊并在其上启动Web服务器，这是一种扩展您的规模的简单方法
+Amazon and fire up web servers on them
+and sort of an easy way to scale up your
+
+50
+00:04:20,039 --> 00:04:26,040
+能够处理Web负载，因此对Web服务器非常有用
+ability to handle web load so it was
+good for web servers
+
+51
+00:04:26,040 --> 00:04:30,510
+但是人们在ec2实例中运行的另一件事是数据库
+but the other main thing that people ran
+in ec2 instance this was databases
+
+52
+00:04:30,510 --> 00:04:34,800
+因为通常网站是由一组无状态的网络服务器构成的， 
+because usually a website is constructed
+of a set of stateless web servers that
+
+53
+00:04:34,800 --> 00:04:40,590
+每当他们需要获取永久数据时，请与后端数据库进行对话，以便
+anytime they need to get out permanent
+data go talk to a back-end database so
+
+54
+00:04:40,590 --> 00:04:48,060
+您将获得的可能是外部世界中的一堆客户端浏览器
+what you would get is is maybe a bunch
+of client browsers in the outside world
+
+55
+00:04:48,060 --> 00:04:56,670
+在亚马逊网络基础设施之外，然后是许多ec2网络服务器
+outside of Amazon's web infrastructure
+and then a number of ec2 web server
+
+56
+00:04:56,670 --> 00:05:00,630
+您所需的实例数，以运行网站逻辑
+instances as many as you need it to run
+the sort of logic of the website this
+
+57
+00:05:00,630 --> 00:05:10,880
+现在位于Amazon内部，然后还有一些通常也是一个ec2实例
+this is now inside Amazon and then also
+some also typically one ec2 instance
+
+58
+00:05:10,880 --> 00:05:15,510
+运行数据库，您的Web服务器将与您的数据库实例通信，并且
+running a database your web servers
+would talk to your database instance and
+
+59
+00:05:15,510 --> 00:05:19,890
+不幸的是，它要求它读写数据库中的记录
+ask it to read and write records in the
+database unfortunately ec2 wasn't
+
+60
+00:05:19,890 --> 00:05:24,270
+完美的是，它与运行数据库几乎一样适合运行数据库
+perfect was it nearly as well-suited to
+running a database as it was to running
+
+61
+00:05:24,270 --> 00:05:29,820
+ Web服务器，最直接的原因是存储或排序
+web servers and the most immediate
+reason is that the storage or the sort
+
+62
+00:05:29,820 --> 00:05:35,100
+ ec2数据库实例获取存储的主要简单方法是在本地
+of main easy way to get storage for your
+ec2 database instance was on the locally
+
+63
+00:05:35,100 --> 00:05:41,670
+附加磁盘连接到数据库实例的任何硬件
+attached disk attached to whatever a
+piece of hardware your database instance
+
+64
+00:05:41,670 --> 00:05:46,740
+当前正在运行，实际上硬件崩溃了，然后您也丢失了
+was currently running on in fact
+hardware crashed then you also lost
+
+65
+00:05:46,740 --> 00:05:51,750
+可以访问硬盘驱动器上的任何内容，因此如果它是硬件
+access to whatever what is on its hard
+drive so if it's a hardware that it was
+
+66
+00:05:51,750 --> 00:05:55,590
+实际实现Web服务器完全不会崩溃，因为
+actually implementing a web server
+crashed no problem at all because
+
+67
+00:05:55,590 --> 00:05:59,280
+真正没有状态本身，您只是在新服务器上启动了新的Web服务器
+there's really keeps no state itself you
+just fire up a new web server on a new
+
+68
+00:05:59,280 --> 00:06:04,740
+ ec2实例（如果它是运行硬件的ec2实例）崩溃了
+ec2 instance if the ec2 instance it's a
+hardware running it crashes have become
+
+69
+00:06:04,740 --> 00:06:08,940
+如果数据存储在本地，则不可用
+unavailable you have a serious problem
+if the data is stored on the locally
+
+70
+00:06:08,940 --> 00:06:15,030
+附加磁盘，因此至少在最初没有太多帮助
+attached disk so initially at least
+there wasn't sort of a lot of help for
+
+71
+00:06:15,030 --> 00:06:19,050
+做到这一点效果很好的一件事是，亚马逊确实提供了这一点
+doing this one thing that did work out
+well is that Amazon did provide this
+
+72
+00:06:19,050 --> 00:06:24,420
+一种用于存储称为s3的大数据块的大型方案，您可以
+sort of large scheme for storing large
+chunks of data called s3 and you could
+
+73
+00:06:24,420 --> 00:06:27,720
+拍摄快照如果需要，可以拍摄Prius定期快照
+take snapshots you could take Prius
+periodic snapshots if you need a basis
+
+74
+00:06:27,720 --> 00:06:34,860
+状态并存储在s3中，并将其用于备份灾难恢复，但是您
+state and stored in s3 and use that for
+sort of backup disaster recovery but you
+
+75
+00:06:34,860 --> 00:06:38,460
+知道定期快照的样式意味着您将丢失更新
+know that style of periodic snapshots
+means you're gonna lose updates that
+
+76
+00:06:38,460 --> 00:06:43,080
+定期备份之间可以发生
+happen
+between the periodic backups all right
+
+77
+00:06:43,080 --> 00:06:47,640
+所以接下来发生的事情与Aurora的种类有关
+so the next thing that came along that's
+that's relevant to the sort of Aurora
+
+78
+00:06:47,640 --> 00:06:55,170
+数据库的故事是为了向客户提供磁盘
+database story is that in order to
+provide their customers with disks for
+
+79
+00:06:55,170 --> 00:06:59,370
+他们的ec2实例，如果出现更多故障，则不会消失
+their ec2 instances that didn't go away
+if there was a failure that is more sort
+
+80
+00:06:59,370 --> 00:07:04,470
+引入了容错的长期存储
+of fault tolerant long-term storage was
+guaranteed to be there Amazon introduced
+
+81
+00:07:04,470 --> 00:07:09,840
+称为EBS的服务，它代表弹性块存储
+the service called EBS and this stands
+for elastic block store
+
+82
+00:07:09,840 --> 00:07:16,530
+因此，使用EBS是一种服务，它查找的是ec2实例， 
+so with EBS is is a service that looks
+to an ec2 instances it looks to one of
+
+83
+00:07:16,530 --> 00:07:19,710
+这些来宾虚拟机之一的实例就像是
+these instances one of these guest
+virtual machines just as if it were a
+
+84
+00:07:19,710 --> 00:07:24,150
+普通方式将硬盘格式化为硬盘但文件格式
+hard drive an ordinary way you could
+format it as a hard drive but a file
+
+85
+00:07:24,150 --> 00:07:28,890
+像ext3之类的系统，或者您喜欢在这个东西上使用的任何Linux文件系统
+system like ext3 or whatever Linux file
+system you like on this on this thing
+
+86
+00:07:28,890 --> 00:07:31,920
+看起来就像是一个硬盘驱动器，但实际上它是客人
+that looks to be guest just like a hard
+drive but the way it's actually
+
+87
+00:07:31,920 --> 00:07:40,890
+实现是作为存储服务器的复制对，因此这是本地
+implemented is as a replicated pair of
+storage servers so this is the local
+
+88
+00:07:40,890 --> 00:07:47,550
+这是Mike的本地存储之一，如果当EBS出现时，您可以
+this is one of local storage with Mike
+if when EBS came out then you could you
+
+89
+00:07:47,550 --> 00:07:50,670
+可以租一个e BS卷，这东西看起来像普通的
+could rent an e BS volume which this
+thing that looks just like an ordinary
+
+90
+00:07:50,670 --> 00:07:59,090
+硬盘驱动器，但实际上是成对实现的，所以这些是EBS服务器
+hard drive but it's actually implemented
+as a pair so these are EBS servers a
+
+91
+00:07:59,090 --> 00:08:09,360
+一对EBS服务器，每个服务器都附带一个硬盘驱动器，因此如果您的软件是
+pair of EBS servers each with an
+attached hard drive so if your software
+
+92
+00:08:09,360 --> 00:08:13,080
+在这里，也许您正在运行数据库，而数据库挂载是其中之一
+here maybe you're running a database now
+and your databases mount's one of these
+
+93
+00:08:13,080 --> 00:08:16,350
+当数据库服务器未写入时，EBS卷作为其存储
+EBS volumes as its storage when the
+database server doesn't write what that
+
+94
+00:08:16,350 --> 00:08:19,830
+实际上意味着通过网络发送和使用链的权利
+actually means is that the right to send
+out over the network and using chain
+
+95
+00:08:19,830 --> 00:08:24,030
+我们上周谈到的复制是正确的，您首先知道
+replication which we talked about last
+week you're right is you know first
+
+96
+00:08:24,030 --> 00:08:28,970
+写入到支持您的第一台CBS服务器上的EBS服务器
+written to the EBS server one on the
+first CBS server that's backing your
+
+97
+00:08:28,970 --> 00:08:33,330
+卷，然后第二个，最后您得到答复，类似
+volume and then the second one and
+finally you get the reply and similarly
+
+98
+00:08:33,330 --> 00:08:37,380
+当您进行读取时，我想您会进行一些链式复制， 
+when you do a read I guess some chain
+replication you'll be the last of the
+
+99
+00:08:37,380 --> 00:08:44,250
+链，因此现在在ec2实例上运行的数据库有可用的存储系统
+chain so now database is running on ec2
+instances had available a storage system
+
+100
+00:08:44,250 --> 00:08:48,660
+实际上可以幸免于崩溃或您知道硬件已死
+that actually would survive the crash of
+or the you know death of the hardware
+
+101
+00:08:48,660 --> 00:08:53,430
+如果这台物理服务器死了，他们将继续运行
+that they were running on if this
+physical server died you could just get
+
+102
+00:08:53,430 --> 00:08:58,110
+另一个ec2实例启动您的数据库并将其附加到
+another ec2 instance fire up your
+database and have it attached to the
+
+103
+00:08:58,110 --> 00:09:03,540
+与旧数据库版本相同的旧EBS卷
+same old EBS volume that the sort of
+previous version of your database was
+
+104
+00:09:03,540 --> 00:09:07,110
+附加到它，它将看到所有旧数据，就像被
+attached to and it would see all the old
+data just as it had been left off by the
+
+105
+00:09:07,110 --> 00:09:11,760
+以前的数据库，就像您将硬盘驱动器从一台计算机移动到另一台计算机一样
+previous database just like you moved a
+hard drive from one machine to another
+
+106
+00:09:11,760 --> 00:09:16,230
+因此，对于需要永久保存的人来说，EBS确实是一笔不错的交易
+so EBS was like really a good deal for
+people who need it to keep permanent
+
+107
+00:09:16,230 --> 00:09:29,520
+像运行数据库的人这样说，这对
+state like people running databases one
+thing to that is sort of important for
+
+108
+00:09:29,520 --> 00:09:36,260
+关于EBS的事实是，它不是一个随时共享的系统
+us about EBS is that it's really it's
+not a system for sharing at any one time
+
+109
+00:09:36,260 --> 00:09:43,770
+只有一个ec2实例，只有一个虚拟机可以装载给定的EBS卷，因此
+only one ec2 instance only one virtual
+machine can mount a given EBS volume so
+
+110
+00:09:43,770 --> 00:09:47,730
+ EBS卷是在庞大的机队中实施的，您可能知道数百或
+the EBS volumes are implemented on a
+huge fleet of you know hundreds or
+
+111
+00:09:47,730 --> 00:09:52,410
+亚马逊上有磁盘的任何存储服务器，它们都是您所知道的
+whatever storage servers with disks at
+Amazon and they're all you know
+
+112
+00:09:52,410 --> 00:09:58,740
+每个人的EBS卷都存储在这个庞大的服务器池中，但是每个
+everybody's EBS volumes are stored on
+this big pool of servers but each one of
+
+113
+00:09:58,740 --> 00:10:08,270
+每个PPS卷只能由一个ec2实例使用仅一个客户
+each PPS volume can only be used by only
+one ec2 instance only one customer all
+
+114
+00:10:08,510 --> 00:10:18,180
+ EBS仍然是一大进步，但仍然存在一些问题，因此
+right still EBS was a big step up but it
+had still has some problems so there's
+
+115
+00:10:18,180 --> 00:10:22,830
+还有一些不尽如人意的事情是，如果
+still some things that are not quite as
+perfect as it could be one is that if
+
+116
+00:10:22,830 --> 00:10:27,750
+您在EBS上运行数据库，最终会跨服务器发送大量数据
+you run a database on EBS it ends up
+sending large volumes of data across the
+
+117
+00:10:27,750 --> 00:10:33,450
+网络，这是呃，我们现在开始偷偷摸摸地看图
+network and this is uh we're now
+starting to sort of sneak up on figure
+
+118
+00:10:33,450 --> 00:10:38,670
+他们开始抱怨论文中的两个
+two in the the paper where they start
+complaining about how many just how many
+
+119
+00:10:38,670 --> 00:10:45,660
+如果在网络存储系统上运行数据库，则需要写
+writes it takes if you run a database on
+top of a network storage system so
+
+120
+00:10:45,660 --> 00:10:50,459
+ EBS上的数据库最终产生了大量的网络流量，并且
+there's the database on EBS ended up
+generating a lot of network traffic and
+
+121
+00:10:50,459 --> 00:10:55,890
+该论文所暗示的论文中的一种是
+one of the kind of things in the paper
+that the paper implies is that they're
+
+122
+00:10:55,890 --> 00:11:01,770
+受CPU或存储空间限制的网络数量所限
+as much network limited as they are CPU
+or storage limited that is they pay a
+
+123
+00:11:01,770 --> 00:11:05,430
+大量关注减少Aurora纸张发送了大量
+huge amount of attention to reducing the
+Aurora paper sends a huge amount of
+
+124
+00:11:05,430 --> 00:11:09,720
+注意减少数据库生成的网络，并且似乎
+attention for reducing the network
+that the database generates and seems to
+
+125
+00:11:09,720 --> 00:11:15,860
+不必担心要消耗多少CPU时间或磁盘空间
+be worrying less about how much CPU time
+or disk space is being consumed that's a
+
+126
+00:11:15,860 --> 00:11:20,640
+暗示他们认为重要的是EBS的另一个问题是
+sort of a hint at what they think is
+important the other problem with EBS is
+
+127
+00:11:20,640 --> 00:11:25,320
+不太容错，事实证明，出于性能原因，我
+not very fault tolerant it turns out
+that for performance reasons they I'm
+
+128
+00:11:25,320 --> 00:11:29,490
+完成将始终将两个EBS和您的EBS卷的两个副本
+done would always put both of the EBS
+both of the replicas of your EBS volume
+
+129
+00:11:29,490 --> 00:11:34,650
+在同一个数据中心中，因此，如果您知道其中一台服务器，则会使单个服务器崩溃
+in the same data center and so we have a
+single server crashed if you know one of
+
+130
+00:11:34,650 --> 00:11:37,440
+您正在使用的两个EBS服务器崩溃了，因为您切换到了
+the two EBS servers that you're using
+crashed it's okay because you switch to
+
+131
+00:11:37,440 --> 00:11:40,650
+另一个，但根本没有任何故事，如果
+the other one but there was just no
+story at all for what happens if an
+
+132
+00:11:40,650 --> 00:11:53,580
+整个数据中心都关闭了，显然有很多客户
+entire data center went down and and
+apparently a lot of customers really
+
+133
+00:11:53,580 --> 00:11:57,840
+想要一个故事，使他们的数据能够在整个系统故障后幸存下来
+wanted a story that would allow their
+data to survive an outage of an entire
+
+134
+00:11:57,840 --> 00:12:01,920
+数据中心可能失去了网络连接，这是建筑物中的火灾
+data center maybe it lost his network
+connection it was a fire in the building
+
+135
+00:12:01,920 --> 00:12:05,730
+或整个建筑物的电源故障或人们真正想要的东西
+or a power failure to the whole building
+or something people really wanted to
+
+136
+00:12:05,730 --> 00:12:09,330
+如果他们愿意为自己的数据付出更多，至少可以选择
+have at least the option if they're
+willing to pay more of having their data
+
+137
+00:12:09,330 --> 00:12:13,860
+以一种隐藏的方式存储，即使有一个数据，我仍然可以做到这一点
+stored in a way they hid they could
+still get at it I'm even if one data
+
+138
+00:12:13,860 --> 00:12:25,470
+中心下降，亚马逊描述此问题的方式是
+center goes down and the way that Amazon
+described this there is that both an
+
+139
+00:12:25,470 --> 00:12:32,360
+实例及其EBS到EBS副本位于同一能力面纱能力区域
+instance and its EBS to EBS replicas are
+in the same ability veil ability zone
+
+140
+00:12:32,360 --> 00:12:36,900
+和亚马逊行话，可用区是一个特定的数据中心， 
+and an Amazon jargon an availability
+zone is a particular data center and the
+
+141
+00:12:36,900 --> 00:12:42,170
+他们构建数据中心的方式通常是多个
+way they structure their data centers is
+that there's usually multiple
+
+142
+00:12:42,170 --> 00:12:46,680
+或多或少位于同一城市或相对接近的独立数据中心
+independent data centers in more or less
+the same city or relatively close to
+
+143
+00:12:46,680 --> 00:12:52,560
+彼此，所有多个可用区可能是两个或三个
+each other and all the multiple
+availability zones maybe two or three
+
+144
+00:12:52,560 --> 00:12:56,340
+彼此靠近的地方都通过冗余高速连接
+that are near by each other are all
+connected by redundant high speed
+
+145
+00:12:56,340 --> 00:13:00,360
+网络，因此总是有付款者或附近可用性的三倍
+networks so there's always payers or
+triples of nearby availability
+
+146
+00:13:00,360 --> 00:13:03,360
+可用性中心，我们会看到购买很重要，但
+availability centers and we'll see the
+buy that's important in a little bit but
+
+147
+00:13:03,360 --> 00:13:08,040
+至少对于EBS来说，是为了保持使用链复制的成本
+at least for EBS in order to keep the
+sort of costs of using chain replication
+
+148
+00:13:08,040 --> 00:13:15,740
+下来，他们要求两个副本位于同一可用区中
+down they required the two replicas to
+be in the same availability zone
+
+149
+00:13:16,730 --> 00:13:27,630
+好吧，在我进一步了解Aurora的实际工作方式之前
+all right um before I dive into more
+into how Aurora actually works it turns
+
+150
+00:13:27,630 --> 00:13:32,580
+为了了解它们，我们首先要了解设计的细节
+out that the details of the design in
+order to understand them we first have
+
+151
+00:13:32,580 --> 00:13:36,450
+对典型数据库的设计种类有相当多的了解，因为
+to know a fair amount about the sort of
+design of typical databases because what
+
+152
+00:13:36,450 --> 00:13:42,360
+他们采取的是某种数据库的主要机制，这是我的续集
+they taken is sort of the main machinery
+of a database my sequel as it happens
+
+153
+00:13:42,360 --> 00:13:46,650
+并以一种有趣的方式将其拆分，因此我们需要了解某种形式，但它
+and split it up in an interesting way so
+we need to know sort of what it but it
+
+154
+00:13:46,650 --> 00:13:50,880
+是一个数据库，所以我们可以理解他们是如何将其拆分的，所以这确实是一个
+is a database does so we can understand
+how they split it up so this is really a
+
+155
+00:13:50,880 --> 00:14:01,760
+一种数据库教程，实际上着重于实现所需的内容
+kind of database tutorial really
+focusing on what it takes to implement
+
+156
+00:14:01,760 --> 00:14:06,210
+交易使可恢复交易崩溃，所以我真正关心的是
+transactions crashed recoverable
+transactions so what I really care about
+
+157
+00:14:06,210 --> 00:14:17,070
+是事务和崩溃恢复，数据库中还有很多其他事情
+is transactions and crash recovery and
+there's a lot else going on in databases
+
+158
+00:14:17,070 --> 00:14:22,320
+但这确实是本文重要的部分，所以首先是什么
+but this is really the part that matters
+for this paper so first what's a
+
+159
+00:14:22,320 --> 00:14:27,000
+您知道的事务事务只是包装多个操作的一种方式
+transaction you know transaction is just
+a way of wrapping multiple operations on
+
+160
+00:14:27,000 --> 00:14:31,380
+也许是不同的数据，并声明那是全部
+maybe different pieces of data and
+declare in that that that's entire
+
+161
+00:14:31,380 --> 00:14:35,970
+操作顺序应向正在阅读或阅读的其他人显示为Tomic 
+sequence of operations should appear a
+Tomic to anyone else who's reading or
+
+162
+00:14:35,970 --> 00:14:40,800
+编写数据，以便您可能会看到转置我们正在经营一家银行，而我们
+writing the data so you might see
+transposing we're running a bank and we
+
+163
+00:14:40,800 --> 00:14:46,410
+想要在不同帐户之间进行转帐，也许您会说我们
+want to do transfers between different
+accounts maybe you would say well we
+
+164
+00:14:46,410 --> 00:14:50,220
+会看到代码，或者您知道看到交易看起来像这样
+would see code or you know see a
+transaction looks like this is you have
+
+165
+00:14:50,220 --> 00:14:53,880
+清除您要成为的指令序列的开头
+to clear the beginning of the sequence
+of instructions that you want to be
+
+166
+00:14:53,880 --> 00:14:59,250
+交易中的原子交易，也许我们要从帐户Y转移资金
+atomic in the in transaction maybe we're
+going to transfer money from account Y
+
+167
+00:14:59,250 --> 00:15:05,190
+账户X，所以我们可能会看到我会假装X是约旦的银行结余
+to account X so we might see where I'll
+just pretend X is a bank balance Jordan
+
+168
+00:15:05,190 --> 00:15:08,610
+您可能会看到交易的数据库看起来像哦，我可以加10美元
+the database you might see the
+transaction looks like oh can I add $10
+
+169
+00:15:08,610 --> 00:15:14,029
+到X的帐户并从我的帐户中扣除相同的十美元
+to X's account and
+deduct the same ten dollars from my
+
+170
+00:15:14,029 --> 00:15:17,209
+帐户，交易到此结束
+account and that's the end of the
+transaction
+
+171
+00:15:17,209 --> 00:15:21,949
+我希望数据库只做它们两者，而不允许其他人偷偷摸摸
+I want the database to just do them both
+without allowing anybody else to sneak
+
+172
+00:15:21,949 --> 00:15:27,230
+并查看这两个语句之间的状态以及
+in and see the state between these two
+statements and also with respect to
+
+173
+00:15:27,230 --> 00:15:31,070
+如果在此处某处发生崩溃，则会崩溃
+crashes if there's a crash at this point
+somewhere in here we're going to make
+
+174
+00:15:31,070 --> 00:15:34,850
+确保崩溃和恢复后，整个交易要么
+sure that after the crash and recovery
+that either the entire transactions
+
+175
+00:15:34,850 --> 00:15:40,100
+值得的修改是可见的，或者没有一个是可见的，这就是我们的效果
+worth the modifications are visible or
+none of them are so that's the effect we
+
+176
+00:15:40,100 --> 00:15:44,360
+希望从交易中获得额外的人期望数据库
+want from transactions there's
+additionally people expect database
+
+177
+00:15:44,360 --> 00:15:48,829
+用户希望数据库会告诉他们告诉客户提交了
+users expect that the database will tell
+them tell the client that submitted the
+
+178
+00:15:48,829 --> 00:15:52,880
+交易，无论交易是否真正完成和完成，以及
+transaction whether the transaction
+really finished and committed or not and
+
+179
+00:15:52,880 --> 00:15:58,040
+如果交易已提交，我们希望客户期望该交易将
+if a transaction is committed we expect
+clients expect that the transaction will
+
+180
+00:15:58,040 --> 00:16:02,000
+即使数据库应该崩溃，永久性的持久性仍然存在。 
+be permanent will be durable still there
+even if the database should crash and
+
+181
+00:16:02,000 --> 00:16:08,120
+重新启动一件事，这很重要，那就是这些
+reboot um one thing it's a bit important
+is that the usual way these are
+
+182
+00:16:08,120 --> 00:16:12,800
+实现的是，事务在使用前锁定每个数据
+implemented is that the transaction
+locks each piece of data before it uses
+
+183
+00:16:12,800 --> 00:16:20,839
+这样您就可以查看它们在锁定期间被锁定的x和y 
+it so you can view the they're being
+locks x and y for the duration of the
+
+184
+00:16:20,839 --> 00:16:24,560
+交易，并且仅在交易最终提交后才释放
+transaction and these are only released
+after the transaction finally commits
+
+185
+00:16:24,560 --> 00:16:31,850
+众所周知，这是永久的，如果您在某些事情上很重要
+that is known to be permanent this is
+important if you for some of the things
+
+186
+00:16:31,850 --> 00:16:35,060
+如果您要了解本文中的某些详细信息，实际上只能
+that you have to if you some of the
+details in the paper really only makes
+
+187
+00:16:35,060 --> 00:16:38,720
+如果您意识到数据库实际上正在锁定其他对
+sense if you realize that the database
+is actually locking out other access to
+
+188
+00:16:38,720 --> 00:16:43,339
+交易期间的数据，实际如何
+the data during the life of a
+transaction so how this actually
+
+189
+00:16:43,339 --> 00:16:47,620
+实现了原来的数据库
+implemented it turns out the database
+
+190
+00:16:48,699 --> 00:16:55,250
+至少由简单数据库模型组成，其中数据库是
+consists of at least for the simple
+database model where the databases are
+
+191
+00:16:55,250 --> 00:16:58,190
+通常编写为在单个服务器上运行并且知道一些存储
+typically written to run on a single
+server with you know some storage
+
+192
+00:16:58,190 --> 00:17:01,550
+直接连接，而Aurora纸正在玩的游戏
+directly attached and a game that the
+Aurora paper is playing is sort of
+
+193
+00:17:01,550 --> 00:17:07,339
+仅对该软件进行了适度的修订，以便在更多软件上运行
+moving that software only modestly
+revised in order to run on a much more
+
+194
+00:17:07,339 --> 00:17:11,390
+复杂的网络系统，但出发点是我们只是假设我们拥有一个
+complex network system but the starting
+point is we just assume we have a
+
+195
+00:17:11,390 --> 00:17:18,819
+附加到磁盘的数据库存储这些数据的磁盘结构
+database with a attached to a disk the
+on disk structure that stores these
+
+196
+00:17:18,819 --> 00:17:24,190
+记录是某种类似于b树的索引结构
+records is some kind of indexing
+structure like a b-tree maybe so
+
+197
+00:17:24,190 --> 00:17:27,819
+有一些纸质数据页面，这些页面使我们知道
+there's a sort of pages with the paper
+calls data pages that holds us you know
+
+198
+00:17:27,819 --> 00:17:34,630
+数据库的真实数据，您知道这可能是多余的余额， 
+real data of the of the database you
+know maybe this is excess balances and
+
+199
+00:17:34,630 --> 00:17:40,260
+这是明智的平衡，这些数据页通常包含很多记录
+this is wise balance these data pages
+typically hold lots and lots of records
+
+200
+00:17:40,260 --> 00:17:44,320
+而X和y通常只是
+whereas X and y are typically just a
+couple bites on some page in the
+
+201
+00:17:44,320 --> 00:17:49,990
+数据库，因此磁盘上有实际数据，磁盘上还有
+database so on the disk there's the
+actual data plus on the disk there's
+
+202
+00:17:49,990 --> 00:17:57,400
+正确的日志还是沃尔玛，正确的日志是
+also a right ahead log or wal and the
+right ahead logs are a critical part of
+
+203
+00:17:57,400 --> 00:18:03,010
+为什么系统要在数据库服务器内部容错
+why the system is gonna be fault
+tolerant inside the database server
+
+204
+00:18:03,010 --> 00:18:08,230
+有数据库软件，数据库通常具有页面缓存
+there's the database software the
+database typically has a cache of pages
+
+205
+00:18:08,230 --> 00:18:13,210
+它是从您最近执行的磁盘读取的
+that it's read from the disk that it's
+recently used when you execute a
+
+206
+00:18:13,210 --> 00:18:16,990
+事务实际上执行这些语句的含义
+transaction what that actually executes
+these statements what that really means
+
+207
+00:18:16,990 --> 00:18:21,880
+您是否知道x等于x加10变成运行时间的原因是
+is you know what x equals x plus 10
+turns into the runtime is that the
+
+208
+00:18:21,880 --> 00:18:27,520
+数据库从磁盘读取保存X的当前页面，并向其添加10，但是
+database reads the current page holding
+X from the disk and adds 10 to it but so
+
+209
+00:18:27,520 --> 00:18:31,480
+直到事务提交，它才在
+far until the transaction commits it
+only makes the modifications in the
+
+210
+00:18:31,480 --> 00:18:35,080
+本地缓存不在磁盘上，因为我们不想公开我们不想
+local cache not on the disk because we
+don't want to expose we don't want to
+
+211
+00:18:35,080 --> 00:18:42,720
+写在磁盘上，并且该部分可能会暴露部分事务，因此
+write on the disk yet and the part
+possibly expose a partial transaction so
+
+212
+00:18:42,990 --> 00:18:47,980
+而当数据库时，但是之前，因为数据库想要排序
+while then when the database but before
+because the database wants to sort of
+
+213
+00:18:47,980 --> 00:18:53,140
+预先清除完整的交易，以便在交易完成后可供软件使用
+pre to clear the complete transaction so
+it's available to the software after a
+
+214
+00:18:53,140 --> 00:18:57,910
+崩溃并在恢复过程中允许数据库修改实数
+crash and during recovery before the
+database is allowed to modify the real
+
+215
+00:18:57,910 --> 00:19:03,960
+磁盘上的数据页首先需要添加描述
+data pages on disk its first required to
+add log entries that describe the
+
+216
+00:19:03,960 --> 00:19:07,870
+事务，因此必须先进行排序，然后才能提交所需的事务
+transaction so it has to in order before
+it can commit the transaction it needs
+
+217
+00:19:07,870 --> 00:19:11,710
+将一整套完整的预先登录项放入磁盘上的正确预先登录
+to put a complete set of log ahead
+entries in the right ahead log on disk
+
+218
+00:19:11,710 --> 00:19:15,940
+我正在描述所有数据库修改，所以在这里假设
+I'm describing all the data bases
+modification so let's suppose here that
+
+219
+00:19:15,940 --> 00:19:24,040
+ x和y开始为500，y开始为750，我们要执行
+x and y start out as say 500 and y
+starts out as 750 and we want to execute
+
+220
+00:19:24,040 --> 00:19:29,170
+提交之前和写入数据库页面之前的此事务
+this transaction before committing and
+before writing the pages the database is
+
+221
+00:19:29,170 --> 00:19:34,480
+通常至少要添加3个日志记录1这可以说是
+going to add at least typically 3 log
+records 1 this that says well as part of
+
+222
+00:19:34,480 --> 00:19:43,530
+这笔交易我正在修改X，它的旧值为500，请留出更多空间
+this transaction I'm modifying X
+and it's old value is 500 make more room
+
+223
+00:19:43,530 --> 00:19:52,350
+这是在日志上的记录，因此每个日志条目可能会说这是我的值
+here this is the on dis log so each log
+entry might say here's the value I'm
+
+224
+00:19:52,350 --> 00:19:58,680
+修改这里是旧值，我们要添加，这里是新值，说五
+modifying here's the old value and we're
+adding and here's the new value say five
+
+225
+00:19:58,680 --> 00:20:04,800
+十，所以这是一个日志记录，另外一个4y可能是旧值，我们是750 
+ten so that's one log record another 4y
+may be old value is 750 we're
+
+226
+00:20:04,800 --> 00:20:11,310
+减去10，所以新值是740，然后在数据库中
+subtracting 10 so the new value is 740
+and then when the database if it
+
+227
+00:20:11,310 --> 00:20:14,400
+实际上设法在交易崩溃之前到达交易结束
+actually manages to get to the end of
+the transaction before crashing its
+
+228
+00:20:14,400 --> 00:20:20,310
+要写一个提交记录说，通常这些都用一些标签标记
+gonna write a commit record saying and
+typically these are all tagged with some
+
+229
+00:20:20,310 --> 00:20:24,930
+使用交易ID进行排序，以便恢复软件最终将知道
+sort with a transaction ID so that the
+recovery software eventually will know
+
+230
+00:20:24,930 --> 00:20:32,420
+此提交记录如何引用这些日志记录是
+how this commit record refers to these
+log records yes
+
+231
+00:20:36,590 --> 00:20:41,610
+在一个简单的数据库中就足以存储新值并说得好
+in a simple database will be enough to
+just store the new values and say well
+
+232
+00:20:41,610 --> 00:20:47,240
+这是一场崩溃，我们将重新应用所有新值是最重要的原因
+it is a crash we're gonna just reapply
+all the new values the reason most
+
+233
+00:20:47,240 --> 00:20:52,380
+严肃的数据库存储着旧的和新的价值，就是赋予它们自由
+serious databases store the old as well
+as a new value is to give them freedom
+
+234
+00:20:52,380 --> 00:20:57,840
+甚至对于长期交易而言甚至是长期牵引
+to even for a long-running traction for
+a long-running transaction even before
+
+235
+00:20:57,840 --> 00:21:00,900
+事务完成后，数据库可以自由编写
+the transaction is finished it gives the
+database the freedom to write the
+
+236
+00:21:00,900 --> 00:21:07,350
+用新值740将更新后的页面更新到磁盘，例如从
+updated page to disk with the new value
+740 let's say from the from an
+
+237
+00:21:07,350 --> 00:21:11,970
+未完成的事务，只要将日志记录写入磁盘，然后
+uncompleted transaction as long as it's
+written the log record to disk and then
+
+238
+00:21:11,970 --> 00:21:15,420
+如果在提交之前发生崩溃，恢复软件总是说得很好
+if there's a crash before the commit the
+recovery software always say aha well
+
+239
+00:21:15,420 --> 00:21:19,050
+该交易从未完成，因此我们必须撤消所有交易
+this transaction never finished
+therefore we have to undo all of its
+
+240
+00:21:19,050 --> 00:21:22,680
+更改和这些值这些旧值是您需要订购的值
+changes and these values these old
+values are the values you need in order
+
+241
+00:21:22,680 --> 00:21:26,610
+撤消已部分写入数据页的事务，因此
+to undo a transaction that's been
+partially written to the data pages so
+
+242
+00:21:26,610 --> 00:21:35,870
+ Aurora实际上使用撤消重做日志记录来撤消部分应用
+the aurora indeed uses undo redo logging
+to be able to undo partially applied
+
+243
+00:21:35,870 --> 00:21:42,240
+事务还可以，所以如果数据库设法做到了
+transactions okay so if the database
+manages to get as far as getting the
+
+244
+00:21:42,240 --> 00:21:46,430
+磁盘上的事务日志记录，并且提交记录标记已完成
+transactions log records on the disk and
+the commit record marking is finished
+
+245
+00:21:46,430 --> 00:21:50,160
+那么它有权向我们所说的交易客户申请
+then it is entitled to apply to the
+client we said the transactions
+
+246
+00:21:50,160 --> 00:21:53,850
+提交数据库可以回复客户端，并且可以保证客户端
+committed the database can reply to the
+client and the client can be assured
+
+247
+00:21:53,850 --> 00:21:59,970
+它的交易将永远可见，现在是两个交易之一
+that its transaction will be sort of
+visible forever and now one of two
+
+248
+00:21:59,970 --> 00:22:04,500
+事情发生了，数据库服务器并没有崩溃，然后最终崩溃了
+things happens the database server
+doesn't crash then eventually so it's
+
+249
+00:22:04,500 --> 00:22:13,020
+这些X＆Y记录在其缓存中修改为510和740，最终
+modified in its cache these these X&Y
+records to be 510 and 740 eventually the
+
+250
+00:22:13,020 --> 00:22:18,180
+数据库会将其缓存的更新块写入磁盘上的实际位置
+database will write it's cached updated
+blocks to their real places on the disk
+
+251
+00:22:18,180 --> 00:22:22,380
+通过重写，您知道这些是树节点或其他东西，然后是数据库
+over writing you know these be tree
+nodes or something and then the database
+
+252
+00:22:22,380 --> 00:22:27,990
+可以重用日志的这一部分，因此数据库倾向于对此有所延迟
+can reuse this part of the log so
+databases tend to be lazy about that
+
+253
+00:22:27,990 --> 00:22:32,430
+因为他们喜欢积累您知道的东西，也许会有很多更新
+because they like to accumulate you know
+maybe there'll be many updates to these
+
+254
+00:22:32,430 --> 00:22:37,050
+缓存中的页面最好在被更新之前积累很多更新
+pages in the cache it's nice to
+accumulate a lot of updates before being
+
+255
+00:22:37,050 --> 00:22:41,520
+如果在写日期之前数据库服务器崩溃，则被迫写入磁盘
+forced to write the disk if the database
+server crashes before writing the day
+
+256
+00:22:41,520 --> 00:22:47,160
+将这些页面写入磁盘，以便它们仍然具有旧值，然后
+writing these pages to the disk so they
+still have their old values then it's
+
+257
+00:22:47,160 --> 00:22:49,880
+保证当您重新启动恢复软件
+guaranteed that the recovery software
+when you restart that
+
+258
+00:22:49,880 --> 00:22:54,950
+降级扫描日志，查看这些记录以了解交易， 
+debase scan the log see these records
+for the transaction see that that
+
+259
+00:22:54,950 --> 00:23:03,970
+事务已提交，并将新值应用于存储数据和
+transaction was committed and apply the
+new values to the to the stored data and
+
+260
+00:23:03,970 --> 00:23:11,870
+这称为重做，它基本上具有事务中的所有权限，因此
+that's called a redo it basically does
+all the rights in the transaction so
+
+261
+00:23:11,870 --> 00:23:18,440
+简而言之，这就是事务数据库的工作方式，所以这是一种
+that's how transactional databases work
+in a nutshell and so this is a sort of
+
+262
+00:23:18,440 --> 00:23:25,340
+例如我的续集数据库的非常简短的版本
+very extremely abbreviated version of
+how for example the my sequel database
+
+263
+00:23:25,340 --> 00:23:30,170
+ Aurora就是基于这种称为开源软件的东西
+works that an Aurora is based on this
+open source software thing called
+
+264
+00:23:30,170 --> 00:23:34,610
+称为我的续集的数据库，它确实进行崩溃恢复事务和崩溃
+database called my sequel which does
+crash recovery transaction and crash
+
+265
+00:23:34,610 --> 00:23:44,690
+以这种方式恢复就可以了，所以亚马逊发展的下一步更好
+recovery in much this way ok so the next
+step in Amazon's development a better
+
+266
+00:23:44,690 --> 00:23:50,260
+为其云客户提供更好的数据库基础架构称为
+and better database infrastructure for
+its cloud customers is something called
+
+267
+00:23:50,260 --> 00:23:55,640
+ RDS和我只是在谈论RDS，因为事实证明，即使
+RDS and I'm only talking about RDS
+because it turns out that even though
+
+268
+00:23:55,640 --> 00:23:58,880
+该论文没有完全提及它，该论文中的图2基本上是一个
+the paper doesn't quite mention it
+figure 2 in the paper is basically a
+
+269
+00:23:58,880 --> 00:24:04,280
+ RDS的描述，所以RDS正在进行的事情是这是第一次尝试
+description of RDS so what's going on
+and RDS is that it was a first attempt
+
+270
+00:24:04,280 --> 00:24:09,440
+获取在多个可用区中复制的数据库，以便
+to get a database that was replicated in
+multiple availability zones so that if
+
+271
+00:24:09,440 --> 00:24:14,360
+整个数据中心发生故障，您可以取回数据库内容
+an entire data center went down you
+could get back your database contents
+
+272
+00:24:14,360 --> 00:24:20,330
+不会失去任何权利，因此与RDS的交易就是您拥有
+without missing any rights so that deal
+with RDS is that there's one you have
+
+273
+00:24:20,330 --> 00:24:23,570
+一个ec2实例即数据库服务器
+one ec2 instance that's the database
+server
+
+274
+00:24:23,570 --> 00:24:28,490
+您只有一个，而您只想运行一个数据库，它将存储其数据
+you just have one you just want to
+running one database it stores its data
+
+275
+00:24:28,490 --> 00:24:34,460
+页面并基本上仅以此记录日志，而不是在其存储的本地磁盘上
+pages and log just basically with this
+instead of on the local disk its stores
+
+276
+00:24:34,460 --> 00:24:38,090
+它们在EBS中，因此无论何时数据库执行日志写或页面写或
+them in EBS so whenever the database
+does a log write or page write or
+
+277
+00:24:38,090 --> 00:24:47,960
+不论这些权利实际上属于这两个EBS卷，还是
+whatever those rights actually go to
+these two EBS volumes EBS replicas in
+
+278
+00:24:47,960 --> 00:24:54,230
+如此等等，这是在每个可用区域之外的一个可用区域中
+addition so and so this is in one
+availability zone in addition for every
+
+279
+00:24:54,230 --> 00:24:58,100
+写道数据库软件可以做到亚马逊将透明地没有
+write that the database software does
+Amazon would transparently without the
+
+280
+00:24:58,100 --> 00:25:03,890
+数据库甚至意识到必然发生这种情况，也将这些权利发送给
+database even realizing necessarily this
+was happened also send those rights to
+
+281
+00:25:03,890 --> 00:25:07,760
+在第二台计算机的第二个可用性区域中进行的特殊设置
+a special set up in a second
+availability zone in a second machine
+
+282
+00:25:07,760 --> 00:25:14,960
+房间-从图2转到显然是一台单独的计算机或ec2 
+room - just going from figure 2 to
+apparently a separate computer or ec2
+
+283
+00:25:14,960 --> 00:25:20,240
+实例或仅是镜像的工作便会写入主数据库
+instance or something whose job was just
+a mirror writes that the main database
+
+284
+00:25:20,240 --> 00:25:25,100
+这样做，那么另一种镜像服务器将只复制这些权限
+did so this other sort of mirroring
+server would then just copy these rights
+
+285
+00:25:25,100 --> 00:25:33,170
+到第二对EBS服务器，因此通过此RDS设置进行此设置
+to a second pair of EBS servers and so
+with this set up with this RDS set up
+
+286
+00:25:33,170 --> 00:25:38,690
+这就是数字-每次数据库追加到日志或写入日志时
+and that's what figure - every time the
+database appends to the log or writes to
+
+287
+00:25:38,690 --> 00:25:44,750
+它必须将其页面之一的数据发送到这两个副本中
+one of its pages it has to the data has
+to be sent to these two replicas has to
+
+288
+00:25:44,750 --> 00:25:49,490
+通过网络连接在另一个可用区域上发送
+be sent on the network connection across
+the other availability zone on the other
+
+289
+00:25:49,490 --> 00:25:53,000
+城镇的一侧发送到此镜像服务器，然后将其发送到
+side of town sent to this mirroring
+server which would then send it to it's
+
+290
+00:25:53,000 --> 00:25:59,210
+两个单独的EBS副本，然后最终此答复将返回， 
+two separate EBS replicas and then
+finally this reply would come back and
+
+291
+00:25:59,210 --> 00:26:03,590
+然后只有这样才能正确完成DAT bc AHA我的写信
+then only then with the right be
+finished with a DAT bc AHA my writes
+
+292
+00:26:03,590 --> 00:26:08,270
+完成了，我知道这个日志记录真的是附属的吗
+finished I can you know count this log
+record it was really being appendage of
+
+293
+00:26:08,270 --> 00:26:13,550
+日志或其他什么使RDS安排使您更容易
+the log or whatever
+so this RDS arrangement gets you betcha
+
+294
+00:26:13,550 --> 00:26:17,060
+更好的容错能力，因为现在您拥有完整的最新副本
+better fault tolerance because now you
+have a complete up-to-date copy of the
+
+295
+00:26:17,060 --> 00:26:21,140
+数据库就像在单独的可用性中查看它们所有的最新写入
+database like seeing them all the very
+latest writes in a separate availability
+
+296
+00:26:21,140 --> 00:26:26,150
+即使您知道大火烧毁了整个数据中心的繁荣，您也可以
+zone even if you know fire burns down
+this entire data center boom you can
+
+297
+00:26:26,150 --> 00:26:30,860
+削弱了您可以在新实例中运行数据库和第二个可用性
+weaken you can run the database in a new
+instance and the second availability
+
+298
+00:26:30,860 --> 00:26:36,640
+区域并完全不丢失数据是
+zone and lose no data at all yes
+
+299
+00:26:45,350 --> 00:26:51,059
+嗯，我不知道该怎么回答，我的意思是那不是他们所做的， 
+um I don't know how to answer that I
+mean that is just not what they do and
+
+300
+00:26:51,059 --> 00:26:56,279
+我的猜测是，对于大多数电动汽车客户来说
+my guess is that it would be that for
+most EVs customers it would be too
+
+301
+00:26:56,279 --> 00:27:02,399
+缓慢地在两个独立的数据中心之间转发所有权限，我不是
+painfully slow to forward every right
+across two separate data center I'm not
+
+302
+00:27:02,399 --> 00:27:06,539
+真的确定发生了什么，但我认为主要的回答是他们没有这样做， 
+really sure what's going on but I think
+the main answers they don't do that and
+
+303
+00:27:06,539 --> 00:27:11,879
+对于EBS的工作方式来说，这也是一种解决方法
+this is sort of a a little bit of a
+workaround for the way EBS works too
+
+304
+00:27:11,879 --> 00:27:17,009
+一种棘手的BS，实际上是生产和使用现有的EBS 
+kind of tricky BS and actually producing
+and sort of using the existing EBS
+
+305
+00:27:17,009 --> 00:27:24,269
+基础设施没有变化，我稳定的人选择这是非常极端的
+infrastructure unchanged I stableman
+chose this turns out to be extremely
+
+306
+00:27:24,269 --> 00:27:29,429
+昂贵，或者您可能认为昂贵
+expensive or anyway it's expensive as
+you might think
+
+307
+00:27:29,429 --> 00:27:33,559
+您知道我们正在写入大量数据，因为您甚至知道
+you know we're writing fairly large
+volumes of data because you know even
+
+308
+00:27:33,559 --> 00:27:38,789
+这笔交易似乎只是修改了两个整数，例如
+this transaction which seems like it
+just modifies two integers like maybe
+
+309
+00:27:38,789 --> 00:27:43,019
+八个字节，或者我不知道那十六个谁只知道几个字节的数据
+eight bytes or I don't know what sixteen
+who knows only a few bytes of data are
+
+310
+00:27:43,019 --> 00:27:46,889
+在这里进行了修改，直到数据库读取和
+being modified here what that translates
+to as far as the database reading and
+
+311
+00:27:46,889 --> 00:27:51,720
+写磁盘是我实际上这些日志记录也很小
+writing the disk is I actually these log
+records are that also quite small so
+
+312
+00:27:51,720 --> 00:27:55,049
+这两个日志记录本身可能只有几十个字节，所以
+this these two log records might
+themself only be dozens of bytes long so
+
+313
+00:27:55,049 --> 00:27:58,950
+很好，但是实际数据页的读取和写入很可能是
+that's nice but the reads and writes of
+the actual data pages are likely to be
+
+314
+00:27:58,950 --> 00:28:03,359
+比每个十几个字节要大得多，因为每个页面
+much much larger than just a couple of
+dozen bytes because each of these pages
+
+315
+00:28:03,359 --> 00:28:08,129
+将会是您知道8 KB或16 KB或一些相对较大的
+is going to be you know eight kilobytes
+or 16 kilobytes or some relatively large
+
+316
+00:28:08,129 --> 00:28:14,879
+编号文件系统或磁盘块的大小，这意味着仅读取和
+number the file system or disk block
+size and it means that just to read and
+
+317
+00:28:14,879 --> 00:28:19,559
+当需要更新数据页面时，请写下这两个数字
+write these two numbers when it comes
+time to update the data pages there's a
+
+318
+00:28:19,559 --> 00:28:23,340
+现在将大量数据推送到本地连接的磁盘上
+lot of data being pushed around on to
+the disk a locally attached disk now
+
+319
+00:28:23,340 --> 00:28:27,960
+速度相当快，但我想他们开始发送时发现的是
+it's reasonably fast but I guess what
+they found is when they start sending
+
+320
+00:28:27,960 --> 00:28:34,409
+整个网络上8千字节的大量写操作已经用完了
+those big 8 kilobyte writes across the
+network that that used up too much
+
+321
+00:28:34,409 --> 00:28:40,080
+要支持的网络容量，因此此配置此图2 
+network capacity to be supported and so
+this arrangement this figure 2
+
+322
+00:28:40,080 --> 00:28:47,330
+安排显然太慢了
+arrangement evidently was too slow yes
+
+323
+00:28:51,209 --> 00:28:58,929
+因此，在此图中此图设置了数据库服务器未知的信息
+so in this in this figure to set up the
+you know unknown to the database server
+
+324
+00:28:58,929 --> 00:29:05,379
+每次调用写入侵蚀其EBS磁盘时，每次写入的副本都会被复制
+every time it called write erode its EBS
+disk a copy of every write went over
+
+325
+00:29:05,379 --> 00:29:10,359
+跨可用区，并且必须写入到写入
+across availabilities zones and had to
+be written to the was written to the
+
+326
+00:29:10,359 --> 00:29:15,269
+这两个EBS服务器，然后进行确认，然后才进行写入
+both of these EBS servers and then
+acknowledged and only then did the write
+
+327
+00:29:15,269 --> 00:29:19,839
+似乎已完成数据库，所以我真的不得不等待所有秋天
+appear to complete to the database so I
+really had to wait for all the fall for
+
+328
+00:29:19,839 --> 00:29:24,239
+副本进行更新，并将数据通过链接发送到另一个
+copies to be updated and for the data to
+be sent on the link across to the other
+
+329
+00:29:24,239 --> 00:29:33,149
+可用区，就表一而言，您首先要关注
+availability zone and you know as far as
+table one it's concerned that first
+
+330
+00:29:33,149 --> 00:29:37,979
+性能表之所以
+performance table the reason why the
+
+331
+00:29:39,089 --> 00:29:45,579
+镜像的续集之所以慢的原因要比
+reason why the slow the mirrored my
+sequel line is much much slower than the
+
+332
+00:29:45,579 --> 00:29:50,499
+ Aurora产品线基本上是通过这些设备发送大量数据
+Aurora line is basically that it sends
+huge amounts of data over these
+
+333
+00:29:50,499 --> 00:29:54,099
+相对较慢的网络链接，这就是性能问题
+relatively slow Network links and that
+was the problem that was the performance
+
+334
+00:29:54,099 --> 00:29:57,759
+他们确实试图解决的问题，所以这对于容错很有用，因为
+problem they're really trying to fix so
+this is good for fault tolerance because
+
+335
+00:29:57,759 --> 00:30:02,049
+现在我们有第二个副本和另一个可用区，但这是一个坏消息
+now we have a second copy and another
+availability zone but it was bad news
+
+336
+00:30:02,049 --> 00:30:07,859
+像Aurora一样提高性能，这之后的下一步是Aurora 
+for performance all right the way Aurora
+and the next step after this is Aurora
+
+337
+00:30:07,859 --> 00:30:15,809
+并在那里设置高级视图，就是我们仍然有一个数据库服务器
+and to set up there the high level view
+is we still have a database server
+
+338
+00:30:15,809 --> 00:30:21,579
+尽管现在它正在运行亚马逊提供的自定义软件，所以我可以
+although now it's running custom
+software that Amazon supplies so I can
+
+339
+00:30:21,579 --> 00:30:26,320
+从亚马逊租用Aurora服务器，但不是我没有在以下位置运行我的软件
+rent an Aurora server from Amazon but
+it's not I'm not running my software on
+
+340
+00:30:26,320 --> 00:30:32,259
+我正在租用一台运行Amazon Aurora数据库软件的服务器， 
+it I'm renting a server running Amazon's
+Aurora database software on it rent an
+
+341
+00:30:32,259 --> 00:30:38,499
+来自他们的Aurora数据库服务器，它只是其中的一个实例
+Aurora database server from them and
+it's it's just one instance it sits in
+
+342
+00:30:38,499 --> 00:30:46,779
+一些可用性区域，关于它的方式有两个有趣的事情
+some availability zone and there's two
+interesting things about the way it's
+
+343
+00:30:46,779 --> 00:30:54,690
+首先要设置的是，您知道的数据基本上可以代替EBS 
+set up first of all is that the data you
+know it's replacement basically for EBS
+
+344
+00:30:54,690 --> 00:31:05,390
+现在涉及六个副本-在三个可用区中的每个可用区中
+involves six replicas now
+- in each of three availability zones
+
+345
+00:31:09,680 --> 00:31:14,460
+具有超强的容错能力，因此每次数据库复杂时，我们都会讨论
+for super fault tolerance and so every
+time the database complicated we'll talk
+
+346
+00:31:14,460 --> 00:31:19,580
+但基本上是在数据库写入时或在数据库写入时读取时
+but basically when the database writes
+or reads when the database writes it's
+
+347
+00:31:19,580 --> 00:31:24,900
+我们不确定它的管理方式，但它或多或少需要发送
+we're not sure exactly how its managed
+but it more or less needs to send a
+
+348
+00:31:24,900 --> 00:31:31,280
+必须以一种或另一种方式写入所有六个副本
+write one way or another writes have to
+get sent to all six of these replicas
+
+349
+00:31:31,280 --> 00:31:35,370
+制作的关键，所以这看起来像更多的副本，你知道为什么不这样做
+the key to making and so this looks like
+more replicas gosh you know why isn't it
+
+350
+00:31:35,370 --> 00:31:38,970
+慢一点，为什么不比以前只有四个的计划慢
+slower why isn't it slower than this
+previous scheme which only had four
+
+351
+00:31:38,970 --> 00:31:43,110
+复制品，答案是唯一的是
+replicas and the answer to that is that
+what's being the only thing being
+
+352
+00:31:43,110 --> 00:31:47,190
+通过网络写入的是日志记录，因此这实际上是
+written over the network is the log
+records so that's really the key to
+
+353
+00:31:47,190 --> 00:31:51,480
+成功之处在于从副本的意义上讲遍历这些链接的数据
+success is that the data that goes over
+these links in the sense of the replicas
+
+354
+00:31:51,480 --> 00:32:02,460
+这只是日志记录日志条目的日志，如您所见，您知道一个日志条目
+it's just the log records log entries
+and as you can see you know a log entry
+
+355
+00:32:02,460 --> 00:32:06,060
+在这里你至少知道，这是一个简单的例子，现在不是
+here you know at least and this is a
+simple example now it's not quite this
+
+356
+00:32:06,060 --> 00:32:10,350
+很小，但实际上并不需要超过几十个字节
+small but it's really not vastly more
+than a couple of dozen bytes needed to
+
+357
+00:32:10,350 --> 00:32:14,520
+存储我们正在编写的数据的旧值和新值，以便
+store the old value and the new value
+for the piece of data we're writing so
+
+358
+00:32:14,520 --> 00:32:20,250
+日志条目往往很小，而当您知道数据库时， 
+the log entries tend to be quite small
+whereas when the database you know we
+
+359
+00:32:20,250 --> 00:32:23,100
+有一个数据库，它认为它正在写入本地磁盘并且正在更新
+had a database that thought it was
+writing a local disk and it was updating
+
+360
+00:32:23,100 --> 00:32:26,940
+它的数据页通常非常庞大，就像在
+its data pages these tended to be
+enormous like doesn't really say in the
+
+361
+00:32:26,940 --> 00:32:31,500
+纸张，我认为不超过8 KB，所以在这里进行设置
+paper I don't think that eight kilobytes
+or more so this set up here was sending
+
+362
+00:32:31,500 --> 00:32:36,570
+每笔交易都将多个8 KB页面发送到
+for each transaction was sending
+multiple 8 kilobyte pages across to the
+
+363
+00:32:36,570 --> 00:32:41,040
+副本，而此设置只是将这些小日志条目发送给更多
+replicas whereas this set up is just
+sending these small log entries to more
+
+364
+00:32:41,040 --> 00:32:46,380
+副本，但日志条目比8k页小得多，因此
+replicas but the log entries are so very
+much smaller than 8k pages that it's a
+
+365
+00:32:46,380 --> 00:32:56,520
+净表现赢了，所以这就是他们的重要见解之一
+net performance win okay so that's one
+this is like one of their big insights
+
+366
+00:32:56,520 --> 00:33:00,480
+当然只是日志条目中的一个后果是它们的存储
+is just in the log entries of course a
+fallout from this is that their storage
+
+367
+00:33:00,480 --> 00:33:03,210
+系统现在不是很通用，这是一个存储系统， 
+system is now not very general purpose
+this is a storage system that
+
+368
+00:33:03,210 --> 00:33:09,300
+知道如何处理我的续集日志条目，不只是您知道
+understands what to do with my sequel
+log entries right it's not just you know
+
+369
+00:33:09,300 --> 00:33:13,320
+ EBS是一个非常通用的用途，只是模拟到您正确阅读的磁盘上
+EBS was a very general purpose just
+emulated to disk you read them right
+
+370
+00:33:13,320 --> 00:33:17,159
+区块除了区块之外什么都不懂
+block's doesn't understand anything
+about anything except for blocks this is
+
+371
+00:33:17,159 --> 00:33:20,309
+一个真正了解它位于主机下方的存储系统
+a storage system that really understands
+that it's sitting underneath the
+
+372
+00:33:20,309 --> 00:33:25,080
+数据库，所以他们要做的一件事就是放弃通用存储
+database so that's one thing they've
+done is ditched general-purpose storage
+
+373
+00:33:25,080 --> 00:33:31,519
+并切换到特定于应用程序的存储系统
+and switched to a very application
+specific storage system
+
+374
+00:33:31,529 --> 00:33:36,529
+我还要详细介绍的另一件事是，它们不需要
+the other big thing I'll also go into in
+more detail is that they don't require
+
+375
+00:33:36,529 --> 00:33:43,049
+所有六个副本都应确认该权限，以便使用数据库
+that the rights be acknowledged by all
+six replicas in order for the database
+
+376
+00:33:43,049 --> 00:33:49,649
+服务器继续运行，而数据库服务器可以持续到法定人数
+server to continue instead the database
+server can continue as long as a quorum
+
+377
+00:33:49,649 --> 00:33:54,570
+而事实证明，只要这些服务器中的任何四个服务器做出响应， 
+and which turns out to be for as long as
+any four of these servers responds so if
+
+378
+00:33:54,570 --> 00:33:59,970
+这些可用性区域之一处于脱机状态，或者可能是网络连接
+one of these availability zones is
+offline or maybe the network connection
+
+379
+00:33:59,970 --> 00:34:04,350
+速度很慢，甚至可能只是这些服务器的运行速度很慢
+to it is slow or maybe even just these
+servers just happen to be slow doing
+
+380
+00:34:04,350 --> 00:34:08,790
+目前，我们正在尝试编写数据库服务器的其他内容可以
+something else at the moment we're
+trying to write the database server can
+
+381
+00:34:08,790 --> 00:34:14,699
+基本上忽略了服务器中速度最慢或最慢的两个服务器
+basically ignore the two slowest or the
+two most dead of the server's when it's
+
+382
+00:34:14,699 --> 00:34:17,848
+正确地做，所以只需要六分之四的确认即可
+
+383
+00:34:17,849 --> 00:34:25,379
+然后它可以继续，所以这个仲裁方案是另一个大技巧
+and then it can continue and so this
+quorum scheme is the other big trick
+
+384
+00:34:25,379 --> 00:34:33,359
+他们用来帮助​​他们在更多可用区域中拥有更多副本，但没有
+they use to help them have more replicas
+in more availability zones and yet not
+
+385
+00:34:33,359 --> 00:34:36,839
+付出巨大的性能损失，因为他们不必等待所有的人
+pay a huge performance penalty because
+they never have to wait for all of them
+
+386
+00:34:36,839 --> 00:34:45,750
+只是六个副本中最快的四个，所以其余的讲座是
+just the four fastest of the six
+replicas so the rest of the lecture is
+
+387
+00:34:45,750 --> 00:34:49,679
+首先要解释法定人数，然后是日志条目，然后是
+gonna be explaining first quorums and
+then log entries and then this idea of
+
+388
+00:34:49,679 --> 00:34:54,569
+基本上只发送日志条目表一总结了结果
+just sending log entries basically table
+one summarizes the result if you look at
+
+389
+00:34:54,569 --> 00:34:58,800
+通过从他们发送大数据的这种体系结构切换到表一
+table one by switching from this
+architecture in which they send the big
+
+390
+00:34:58,800 --> 00:35:04,800
+数据页面到此Aurora模式的四个位置，仅将日志条目发送到
+data pages to four places to this Aurora
+schema sending just the log entries to
+
+391
+00:35:04,800 --> 00:35:11,670
+六个副本，它们的性能比其他副本高出惊人的35倍
+six replicas they get a amazing 35 times
+performance increase over some other
+
+392
+00:35:11,670 --> 00:35:17,490
+系统，您可以在这里了解该系统，但是通过玩这两个技巧， 
+system you know this system over here
+but by playing these two tricks and
+
+393
+00:35:17,490 --> 00:35:21,300
+纸不是很好地解释了多少性能是由于
+paper is not very good about explaining
+how much of the performance is due to
+
+394
+00:35:21,300 --> 00:35:25,170
+法定人数以及多少是由于仅发送日志条目而导致的
+quorums and how much is due to just
+sending log entries but anyway you slice
+
+395
+00:35:25,170 --> 00:35:31,330
+它的改善性能是35倍
+it 35
+times improvement performance is very
+
+396
+00:35:31,330 --> 00:35:34,660
+对他们的顾客和对他们来说都是值得尊敬的，当然是非常有价值的
+respectable and of course extremely
+valuable to their customers and to them
+
+397
+00:35:34,660 --> 00:35:44,040
+这就像是变革性的，我相信许多亚马逊客户都可以
+and it's like transformative I am sure
+for many of Amazon's customers all right
+
+398
+00:35:44,040 --> 00:35:50,590
+好吧，我首先要详细谈的是他们的法定人数
+okay so the first thing I want to talk
+about in in detail is their quorum
+
+399
+00:35:50,590 --> 00:35:55,180
+安排他们实际上是法定人数的意思，所以首先是法定人数
+arrangement what they actually mean by
+quorums so first of all the quorums is
+
+400
+00:35:55,180 --> 00:35:59,290
+关于这个容错的所有容错的安排
+all about the arrangement of
+fault-tolerant of this fault-tolerant
+
+401
+00:35:59,290 --> 00:36:05,290
+存储，因此值得考虑一下其容错能力
+storage so it's worth thinking a little
+bit about what their fault tolerance
+
+402
+00:36:05,290 --> 00:36:15,820
+目标，所以这就像他们希望能够实现的容错目标
+goals were so this is like fault
+tolerance goals they wanted to be able
+
+403
+00:36:15,820 --> 00:36:21,760
+即使一个可用区是读写的，也可以执行权限
+to do rights even if one reads and
+writes even if one availability zone was
+
+404
+00:36:21,760 --> 00:36:37,990
+完全死了，所以即使他们想成为，他们也会写信给你
+completely dead so they're gonna write
+you know even with they wanted to be
+
+405
+00:36:37,990 --> 00:36:43,600
+即使有一个可用的空闲区域再加上一个其他的可用区域，也能够读取
+able to read even if there was one dead
+availability zone plus one other dead
+
+406
+00:36:43,600 --> 00:36:48,880
+服务器，其原因是可用性区域可能处于脱机状态
+server and the reason for this is that
+an availability zone might be offline
+
+407
+00:36:48,880 --> 00:36:52,780
+很长一段时间，因为也许你知道遭受洪灾或
+for quite a while because maybe it's you
+know was suffered from a flood or
+
+408
+00:36:52,780 --> 00:36:56,560
+几天或一周或几秒钟的故障
+something and while it's down for a
+couple of days or a week or something
+
+409
+00:36:56,560 --> 00:37:00,700
+人们准备好洪水带来的损失我们现在依靠的是
+well people prepare the damage from the
+flood we're now reliant on just you know
+
+410
+00:37:00,700 --> 00:37:03,550
+服务器和其他两个可用区（如果其中一个应该） 
+the servers and the other two
+availability zones if one of them should
+
+411
+00:37:03,550 --> 00:37:09,250
+下去，我们仍然不希望这是一场灾难，所以他们将能够
+go down we still we don't want it to be
+a disaster so they're going to be able
+
+412
+00:37:09,250 --> 00:37:13,090
+即使有一个可用的空闲区域也可以写一个
+to write with one even with one dead
+availability zone they furthermore they
+
+413
+00:37:13,090 --> 00:37:19,540
+希望能够使用一个无效的可用区域和另一个无效的区域进行读取
+wanted to be able to read with one dead
+availability zone plus one other dead
+
+414
+00:37:19,540 --> 00:37:23,560
+服务器，因此他们希望仍然能够阅读您的知识并获得正确的信息
+server so they wanted to be able to
+still read you know and get the correct
+
+415
+00:37:23,560 --> 00:37:28,510
+数据，即使有一个可用的可用区加一台其他服务器
+data even if there was one dead
+availability zone plus one other server
+
+416
+00:37:28,510 --> 00:37:34,510
+实时可用区已经死了，所以您知道我们必须
+and the live availability zones were
+dead so you know they we have to sort of
+
+417
+00:37:34,510 --> 00:37:38,680
+认为他们知道自己的生意是理所当然的
+take take it for granted that they know
+what their they know their own business
+
+418
+00:37:38,680 --> 00:37:43,130
+而且这真的是您知道如何
+and that this is really
+you know kind of a sweet spot for how
+
+419
+00:37:43,130 --> 00:37:47,870
+容错，你想成为嗯，此外我已经提到他们想要
+fault-tolerant you want to be um and in
+addition I already mentioned they want
+
+420
+00:37:47,870 --> 00:37:55,550
+我可以从一个更高的位置上摆脱短暂的复制品
+to be able to taller to sur ride out
+temporarily slow replicas I think from a
+
+421
+00:37:55,550 --> 00:38:01,100
+很多资料很明显，例如，如果您阅读和编写EBS， 
+lot of sources it's clear that the if
+you read and write EBS for example you
+
+422
+00:38:01,100 --> 00:38:04,610
+始终无法始终获得高性能，有时几乎没有
+don't get consistently high performance
+all the time sometimes there's little
+
+423
+00:38:04,610 --> 00:38:08,240
+出现故障是因为网络的某些部分过载或某些
+glitches because maybe some part of the
+network is overloaded or something is
+
+424
+00:38:08,240 --> 00:38:13,520
+进行软件升级或其他操作，而且它暂时变慢，因此他们希望成为
+doing a software upgrade or whatever and
+it's temporarily slow so they want to be
+
+425
+00:38:13,520 --> 00:38:21,350
+能够在瞬态瞬态缓慢或可能的情况下继续前进
+able to just keep going despite
+transient transiently slow or maybe
+
+426
+00:38:21,350 --> 00:38:30,230
+短暂无法使用的存储服务器，最终要求是
+briefly unavailable storage servers and
+a final requirement is that if something
+
+427
+00:38:30,230 --> 00:38:36,230
+如果存储服务器出现故障，则在时间上有点争夺
+if a storage server should fail it's a
+bit of a race against time before the
+
+428
+00:38:36,230 --> 00:38:42,920
+下一个存储服务器总是会失败，这不是统计数据
+next storage server fails sort of always
+the case and it's not the statistics are
+
+429
+00:38:42,920 --> 00:38:47,270
+不如您希望的那样有利，因为通常您基本上会购买
+not as favorable as you might hope
+because typically you buy basically
+
+430
+00:38:47,270 --> 00:38:53,000
+因为服务器故障通常不是独立发生的，例如
+because server failure is often not
+independent like the fact that one
+
+431
+00:38:53,000 --> 00:38:58,340
+服务器停机通常意味着出现以下情况的可能性大大增加
+server is down often means that there's
+a much increased probability that
+
+432
+00:38:58,340 --> 00:39:03,320
+您的另一台服务器很快就会宕机，因为相同的硬件可能
+another one of your servers will soon go
+down because it's identical Hardware may
+
+433
+00:39:03,320 --> 00:39:07,520
+从同一家公司被收购后同一生产线
+be bought from the same company came off
+the same production line one after
+
+434
+00:39:07,520 --> 00:39:11,720
+另一个是一个缺陷，其中一个极有可能反映在
+another and so a flaw and one of them is
+extremely likely to be reflected in a
+
+435
+00:39:11,720 --> 00:39:16,100
+缺陷和另一缺陷，所以人们总是紧张不安，有一个失败的男孩
+flaw and another one so people always
+nervous off there's one failure boy
+
+436
+00:39:16,100 --> 00:39:21,500
+很快就会出现第二次故障，在这样的系统中， 
+there could be a second failure very
+soon and in a system like this well it
+
+437
+00:39:21,500 --> 00:39:26,030
+事实证明，在这些仲裁系统中，您只能恢复一点点
+turns out in these quorum systems you
+know you can only recover it's a little
+
+438
+00:39:26,030 --> 00:39:31,460
+有点像筏，只要没有太多的副本失败，您就可以恢复，所以
+bit like raft you can recover as long as
+not too many of the replicas fail so
+
+439
+00:39:31,460 --> 00:39:37,130
+他们真的需要快速，我们复制它们是一台服务器
+they really needed to have fast we
+replicate them that is of one server
+
+440
+00:39:37,130 --> 00:39:41,180
+似乎永远死了，我们希望能够以最快的速度生成新副本
+seems permanently dead we'd like to be
+able to generate a new replica as fast
+
+441
+00:39:41,180 --> 00:39:46,990
+尽可能从其余复制品中我指的是快餐复制品
+as possible from the remaining replicas
+I mean a fast food replication
+
+442
+00:39:48,039 --> 00:39:56,089
+这些是偷窥者提出的主要容错目标，并且通过这种方式
+these are the main fault tolerance goals
+the peeper lays out and by the way this
+
+443
+00:39:56,089 --> 00:40:00,140
+讨论仅涉及存储服务器，您知道它们的故障
+discussion is only about the storage
+servers and you know what their failure
+
+444
+00:40:00,140 --> 00:40:03,589
+角色太激动了，你知道失败的原因如何恢复，这是一个
+character is too excited you know the
+failures how to recover and it's a
+
+445
+00:40:03,589 --> 00:40:10,039
+完全独立的主题，如果数据库服务器发生故障并且Aurora具有
+completely separate topic what to do if
+the database server fails and Aurora has
+
+446
+00:40:10,039 --> 00:40:19,009
+通知数据库服务器的一套完全不同的机制失败
+a totally different set of machinery for
+noticing a database servers fail
+
+447
+00:40:19,009 --> 00:40:22,400
+创建在新实例上的新数据库服务器中运行的新实例
+creating a new instance running in a new
+database server on the new instance
+
+448
+00:40:22,400 --> 00:40:25,430
+这很激烈，这不是我现在要谈论的
+which is intense it's not what I'm
+talking about right now we'll talk about
+
+449
+00:40:25,430 --> 00:40:29,479
+稍后，它会建立一个存储系统
+it a little bit later on right now it's
+just gonna build a storage system that's
+
+450
+00:40:29,479 --> 00:40:36,589
+很多地方是存储系统可以容错的地方，所以他们使用了
+a lot that's where the storage system is
+fault tolerant okay so they use this
+
+451
+00:40:36,589 --> 00:40:45,890
+这个叫做法定人数的想法，现在我要描述一下
+idea called quorums and for a little
+while now I'm going to describe the sort
+
+452
+00:40:45,890 --> 00:40:52,940
+可以追溯到70年代后期的经典仲裁概念
+of classic quorum idea which is dates
+back to the late 70s so this is quorum
+
+453
+00:40:52,940 --> 00:40:59,089
+复制仲裁复制我将向您介绍此仲裁或抽象仲裁
+replicate quorum replication I'm gonna
+describe to you this or abstract quorum
+
+454
+00:40:59,089 --> 00:41:05,299
+想法他们使用了我要解释的变体以及背后的想法
+idea they use a variant of what I'm
+gonna explain and the idea of behind
+
+455
+00:41:05,299 --> 00:41:10,819
+仲裁仲裁系统应能够构建提供故障的存储系统
+quorum quorum systems is to be able to
+build storage systems that provide fault
+
+456
+00:41:10,819 --> 00:41:15,229
+使用复制进行容错存储，并确保即使某些
+tolerance storage using replications and
+guarantee that even if some of the
+
+457
+00:41:15,229 --> 00:41:22,430
+复制失败，则您的读取仍将看到最新的写入，通常
+replicas fail your that reads will still
+see the most recent writes and typically
+
+458
+00:41:22,430 --> 00:41:28,219
+仲裁系统是将get系统和
+quorum systems are sort of simple
+readwrite systems put get systems and
+
+459
+00:41:28,219 --> 00:41:33,140
+他们通常不直接支持更复杂的操作，而您可以
+they don't typically directly support
+more complex operations just you can
+
+460
+00:41:33,140 --> 00:41:36,349
+读取您可能有对象，可以读取对象，或者可以覆盖整个对象
+read you could have objects you can read
+an object or you can overwrite an entire
+
+461
+00:41:36,349 --> 00:41:48,259
+对象，所以这个想法是如果您要编写或者您有n个副本
+object and so the idea is you have n
+replicas if you want to write or you
+
+462
+00:41:48,259 --> 00:41:51,140
+必须让你必须要写你必须确保你写
+have to get you have to in order to
+write you have to make sure your write
+
+463
+00:41:51,140 --> 00:41:58,700
+被W确认，其中W小于副本的n个，因此W 
+is acknowledged by W where W is less
+than n of the replicas so W
+
+464
+00:41:58,700 --> 00:42:04,520
+权利，您必须将每个权利发送给这些W是副本，如果您要
+right you have to send each right to
+these W are the replicas and if you want
+
+465
+00:42:04,520 --> 00:42:13,570
+要进行读取，您必须至少从我们的副本中获取输入的读取信息
+to do a read you have to get input read
+information from at least our replicas
+
+466
+00:42:14,950 --> 00:42:23,960
+因此，典型的设置非常重要，首先是
+and so a typical setup that's so well
+first of all the key thing here is that
+
+467
+00:42:23,960 --> 00:42:31,070
+必须将W和我们设置为相对于结束，以便您达到W服务器的任何定额
+W and our have to be set relative to end
+so that any quorum of W servers that you
+
+468
+00:42:31,070 --> 00:42:36,260
+设法发送的权利必须与任何法定人数重叠
+manage to send a right to must
+necessarily overlap with any quorum of
+
+469
+00:42:36,260 --> 00:42:42,130
+我们的服务器，任何将来的读者都可以从中读取，所以这意味着
+our servers that any future reader might
+read from and so what that means is that
+
+470
+00:42:42,130 --> 00:42:52,970
+我们的加号W必须大于n，以便任何W服务器必须在处重叠
+our plus W has to be greater than n so
+that any W servers must overlap in at
+
+471
+00:42:52,970 --> 00:43:01,370
+至少一台服务器和我们的任何服务器，所以您可能有三台我们可以
+least one server with any our servers
+and so you might have three we can
+
+472
+00:43:01,370 --> 00:43:08,060
+想象有三个服务器s1 s2 s3每个都拥有我说我们只有
+imagine there's three servers s1 s2 s3
+each of them holds I say we just have
+
+473
+00:43:08,060 --> 00:43:11,600
+我们正在更新的一个对象发送了一个写操作，也许我们想设置
+one object that we're updating we send
+out a write maybe we want to set the
+
+474
+00:43:11,600 --> 00:43:17,360
+我们的对象的值达到23以便进行写入，我们需要获取新的
+value of our object to 23 well in order
+to do a write we need to get our new
+
+475
+00:43:17,360 --> 00:43:24,800
+假设至少有W个副本的价值，对于这个系统， 
+value on to at least W of the of the
+replicas let's say for this system that
+
+476
+00:43:24,800 --> 00:43:32,420
+ R和W都等于2，n等于3，这是进行写操作的设置
+R and W are both equals 2 and n is equal
+to 3 that's the setup to do a write we
+
+477
+00:43:32,420 --> 00:43:38,030
+需要将我们的新价值变成法定人数，然后变成服务器的野兽，所以也许我们
+need to get our new value onto a quorum
+onto a beast to the server so maybe we
+
+478
+00:43:38,030 --> 00:43:43,280
+将我们的权利纳入这两个方面，这样他们俩现在都知道的价值
+get our right onto these two so they
+both now know that the value of the of
+
+479
+00:43:43,280 --> 00:43:51,140
+如果有人来读或读它，我们的数据对象是23 
+our data object is 23 if somebody comes
+along and reads or read it also requires
+
+480
+00:43:51,140 --> 00:43:55,700
+读者至少要检查服务器的法定仲裁数，以便
+that the reader check with at least a
+read quorum of the servers so that's
+
+481
+00:43:55,700 --> 00:44:00,650
+在此设置中也包含2个，因此您知道仲裁可能包含一个服务器， 
+also 2 in this set up so you know that
+quorum could include a server that
+
+482
+00:44:00,650 --> 00:44:03,830
+没有看到正确的权限，但必须至少包含其他权限才能
+didn't see the right but it has to
+include at least one other in order to
+
+483
+00:44:03,830 --> 00:44:09,500
+达到这一点意味着任何将来的阅读都必须例如对此进行咨询
+get to so that means the any future read
+must for example consult both this
+
+484
+00:44:09,500 --> 00:44:12,380
+没有看到写入的服务器，加上至少有写入的服务器
+server that didn't see the write plus at
+least one that did
+
+485
+00:44:12,380 --> 00:44:17,359
+正确形式的要求必须在至少一台服务器中重叠，因此任何
+that is a requirement of right form must
+overlap in at least one server so any
+
+486
+00:44:17,359 --> 00:44:31,519
+ read必须咨询一台看到以前任何信息的服务器，这很酷
+read must consult a server that saw any
+previous right now what's cool about
+
+487
+00:44:31,519 --> 00:44:38,150
+实际上，读者仍然有一个关键的缺失部分
+this well actually there's still one
+critical missing piece here the reader
+
+488
+00:44:38,150 --> 00:44:44,359
+将要回来我们的结果可能是不同的结果，因为和
+is gonna get back our results possibly
+are different results because and the
+
+489
+00:44:44,359 --> 00:44:48,680
+问题是读者如何知道它从
+question is how does a reader know which
+of the our results it got back from the
+
+490
+00:44:48,680 --> 00:44:54,789
+我们在其论坛中的服务器实际上使用了正确的值
+our servers in its forum which one
+actually uses the correct value
+
+491
+00:44:55,029 --> 00:44:59,720
+不起作用的事情是投票，就像只是通过
+something that doesn't work is voting
+like just voting by popularity of the
+
+492
+00:44:59,720 --> 00:45:03,619
+它返回不同的值，结果证明它不起作用，因为我们只是
+different values it gets back it turns
+out not to work because we're only
+
+493
+00:45:03,619 --> 00:45:07,400
+确保我们的读者在最多一台服务器中与作者重叠。 
+guaranteed that our reader overlaps of
+the writer in at most one server so that
+
+494
+00:45:07,400 --> 00:45:11,420
+可能意味着正确的值仅由其中一台服务器表示
+could mean that the correct value is
+only represented by one of the servers
+
+495
+00:45:11,420 --> 00:45:17,509
+读者咨询过，您知道在一个包含六个副本的系统中
+that the reader consulted and you know
+in a system with say six replicas you
+
+496
+00:45:17,509 --> 00:45:23,390
+知道您可能有收割者，可能是四岁，您可能会回来寻求答案，并且只有
+know you might have Reaper might be four
+you might get back for answers and only
+
+497
+00:45:23,390 --> 00:45:29,000
+其中之一是答案，它是来自服务器的正确答案，其中
+one of them is the answer that is the
+correct answer from the server in which
+
+498
+00:45:29,000 --> 00:45:33,079
+您与先前的权利重叠，因此您不能使用投票，而是
+you overlap with the previous right so
+you can't use voting and instead these
+
+499
+00:45:33,079 --> 00:45:38,509
+仲裁系统需要版本号，因此每次执行正确操作时都正确
+quorum systems need version numbers so
+every right every time you do a right
+
+500
+00:45:38,509 --> 00:45:42,859
+您需要伴随着自己的新价值，并且知道版本不断增加
+you need to accompany your new value
+with you know an increasing version
+
+501
+00:45:42,859 --> 00:45:47,029
+数字，然后阅读器从中获取一堆不同的值
+number and then the reader it gets back
+a bunch of different values from the
+
+502
+00:45:47,029 --> 00:45:51,319
+读取仲裁，它只能使用我说的最高版本号
+read quorum and it can just use them
+only the highest version number I'm said
+
+503
+00:45:51,319 --> 00:45:57,789
+这意味着这里的21可能是s2的旧值
+that means that this 21 here
+you know maybe s2 had a old value of 20
+
+504
+00:45:57,789 --> 00:46:01,490
+每个这些都需要标记一个版本号，所以也许这是版本
+each of these needs to be tagged with a
+version number so maybe this is version
+
+505
+00:46:01,490 --> 00:46:04,609
+第三，这也是第三版，因为它来自
+number three this was also version
+number three because it came from the
+
+506
+00:46:04,609 --> 00:46:08,480
+相同的原始权利，我们正在想象这台服务器没有看到
+same original right and we're imagining
+that this server that didn't see the
+
+507
+00:46:08,480 --> 00:46:11,450
+正确的是有第二个版本，那么读者会得到这两个版本
+right is gonna have version number two
+then the reader gets back these two
+
+508
+00:46:11,450 --> 00:46:15,049
+值这两个版本号修复的版本是最高值
+values these two version numbers fix the
+version were the highest the value with
+
+509
+00:46:15,049 --> 00:46:23,480
+最高版本号，而在Aurora中，这基本上是从来没有
+the highest version number and in Aurora
+this was essentially about well never
+
+510
+00:46:23,480 --> 00:46:26,529
+暂时考虑一下Aurora 
+mind about Aurora for a moment
+
+511
+00:46:28,570 --> 00:46:35,720
+还可以，如果您不能与您交谈，或者您实际上无法联系法定人数或
+okay furthermore if you can't talk to if
+you can't actually contact a quorum or a
+
+512
+00:46:35,720 --> 00:46:41,000
+读或写你真的只需要继续尝试这些规则，所以要保持
+read or write you really just have to
+keep trying those are the rules so keep
+
+513
+00:46:41,000 --> 00:46:49,370
+尝试直到服务器的备份或再次连接，所以原因
+trying until the server's are brought
+back up or connected again so the reason
+
+514
+00:46:49,370 --> 00:46:54,530
+为什么这比链复制之类的方法更好，是因为它可以轻松地
+why this is preferable to something like
+chain replication is that it can easily
+
+515
+00:46:54,530 --> 00:47:01,670
+绕开暂时死机，断开连接或运行缓慢的服务器，实际上是这样
+ride out temporary dead or disconnected
+or slow servers so in fact the way it
+
+516
+00:47:01,670 --> 00:47:04,790
+可行的是，如果您想阅读或写作，如果您想写作， 
+would work is that if you want to read
+or write if you want to write you would
+
+517
+00:47:04,790 --> 00:47:08,780
+说您新写的关于您的东西会发送新写的价值加
+saying your newly written about you
+would send the newly written value plus
+
+518
+00:47:08,780 --> 00:47:13,430
+到所有服务器到所有n个服务器的版本号，但仅等待
+its version number to all of the servers
+to all n of the servers but only wait
+
+519
+00:47:13,430 --> 00:47:18,590
+让他们中的W做出回应，如果您想阅读，也可以类似地在
+for W of them to respond and similarly
+if you want to read you would in a
+
+520
+00:47:18,590 --> 00:47:21,320
+仲裁系统，您将读取发送到所有服务器，并且仅等待
+quorum system you would send the read to
+all the servers and only wait for a
+
+521
+00:47:21,320 --> 00:47:26,150
+ R的服务器的法定人数作出响应，这是因为您只需要
+quorum for R of the servers to respond
+and that and because you only have to
+
+522
+00:47:26,150 --> 00:47:31,640
+等待n个，这意味着您可以在最快的速度后继续
+wait for are out of n of them that means
+that you can continue after the fastest
+
+523
+00:47:31,640 --> 00:47:37,040
+已响应或最快的W，而您不必等待服务器运行缓慢
+are have responded or the fastest W and
+you don't have to wait for a slow server
+
+524
+00:47:37,040 --> 00:47:43,240
+或一台已死的服务器，您几乎不知道该忽略的机器
+or a server that's dead and there's not
+any you know the machinery for ignoring
+
+525
+00:47:43,240 --> 00:47:47,780
+缓慢或死机的服务器是完全隐式的，这里或这里什么都没有
+slow or dead servers is completely
+implicit there's nothing here or about
+
+526
+00:47:47,780 --> 00:47:51,860
+哦，我们必须对哪些服务器处于启动或关闭状态做出决策，或者
+oh we have to sort of make decisions
+about which servers are up or down or
+
+527
+00:47:51,860 --> 00:47:57,590
+像领导者之类的东西，只要持续很长时间
+like the leaders or anything it just
+kind of automatically proceeds as long
+
+528
+00:47:57,590 --> 00:48:04,130
+由于有法定人数，因此我们可以非常平稳地处理死角或缓慢
+as the quorum is available so we get
+very smooth handling of dead or slow
+
+529
+00:48:04,130 --> 00:48:09,050
+服务器此外，这里没有太多的回旋余地
+servers in addition there's not much
+leeway for it here well actually you
+
+530
+00:48:09,050 --> 00:48:14,270
+即使在这种简单情况下，您也可以调整R和W来读取
+even in this simple case you can adjust
+the R and W to make either reads to
+
+531
+00:48:14,270 --> 00:48:19,280
+赞成读或写，所以在这里我们实际上可以说正确
+favor either reads or writes so here we
+could actually say that well the right
+
+532
+00:48:19,280 --> 00:48:23,240
+论坛是三个，每个写入都必须转到所有三个服务器，在这种情况下， 
+forum is three every write has to go to
+all three servers and in that case the
+
+533
+00:48:23,240 --> 00:48:28,610
+可能需要阅读仲裁，因此，如果您希望对此阅读有利
+read quorum can be want so you could if
+you wanted to favored reads with this
+
+534
+00:48:28,610 --> 00:48:33,860
+您可能已经读过的设置等于一次写入等于三个内存
+setup you could have read equals one
+write equals three memories are much
+
+535
+00:48:33,860 --> 00:48:37,070
+更快，他们只需要等待一台服务器，然后返回写入
+faster they only have to wait for one
+server but then return the writes are
+
+536
+00:48:37,070 --> 00:48:40,670
+慢，如果您想赞成，您可以说，任何读者都必须
+slow if you wanted to favor right
+you could say that Oh any reader has to
+
+537
+00:48:40,670 --> 00:48:45,380
+来自所有人，但作家只需要写一个，所以我的意思是唯一的一个
+be from all of them but a writer only
+has to write one so I mean the only one
+
+538
+00:48:45,380 --> 00:48:53,990
+服务器可能具有最新价值，但读者必须查阅所有三个信息，但
+server might have the latest value but
+readers have to consult all three but
+
+539
+00:48:53,990 --> 00:48:57,380
+他们保证他们的三个将与此重叠
+they're guaranteed that their three will
+overlap with this of course these
+
+540
+00:48:57,380 --> 00:49:02,660
+特定值使写入不容错，此处读取不容错
+particular values makes writes not fault
+tolerant and here reads not fault
+
+541
+00:49:02,660 --> 00:49:06,410
+可以容忍，因为所有服务器都必须启动，所以您可能不想
+tolerant because all the server's have
+to be up so you probably wouldn't want
+
+542
+00:49:06,410 --> 00:49:10,460
+要在现实生活中做到这一点，就像Knowle Rohrer所做的那样， 
+to do this in real life you might have
+you would have as Knowle Rohrer does a
+
+543
+00:49:10,460 --> 00:49:15,590
+服务器数量更多，中间数量的vinum权利
+larger number of servers and sort of
+intermediate numbers of vinum right
+
+544
+00:49:15,590 --> 00:49:26,990
+ corns Aurora为了能够在这里实现与
+corns Aurora in order to achieve its
+goals here of being able to write with
+
+545
+00:49:26,990 --> 00:49:32,510
+一个债务可用区，并读取一个死区和一个可用区
+one debt availability zone and read with
+one dead availability zone plus one
+
+546
+00:49:32,510 --> 00:49:45,200
+其他服务器使用仲裁系统，其中N等于6 w等于4并且R等于
+other server it uses a quorum system
+with N equals 6 w equals 4 and R equals
+
+547
+00:49:45,200 --> 00:49:51,260
+ 3，因此W等于4表示它可以使用一个无效的可用区进行写操作
+3 so the W equals 4 means that it can do
+a write with one dead availability zone
+
+548
+00:49:51,260 --> 00:49:54,770
+如果不能很好地联系到该可用区域，则其他四台服务器
+if this availability zone can't be
+contacted well these other four servers
+
+549
+00:49:54,770 --> 00:50:01,550
+足以完成3则4加上周7的改革，所以他们
+are enough to complete right the reform
+of 3 so 4 plus week so 7 so they
+
+550
+00:50:01,550 --> 00:50:05,510
+绝对保证重叠，读取定额为3意味着即使一个
+definitely guaranteed overlap a read
+quorum of 3 means that even if one
+
+551
+00:50:05,510 --> 00:50:09,560
+可用性是区域已死，再加上一台服务器，其余三台服务器
+availability is zone is dead plus one
+more server the three remaining servers
+
+552
+00:50:09,560 --> 00:50:15,200
+在这种情况下足以供您读取，现在我们的三台服务器已关闭
+are enough to serve a read now in this
+case we're three servers are now down
+
+553
+00:50:15,200 --> 00:50:20,450
+该系统可以读取数据，并且您知道可以重建当前范围
+the system can do reads and as you know
+can reconstruct the confine the current
+
+554
+00:50:20,450 --> 00:50:24,890
+数据库的状态，但是如果不做进一步的工作就无法写
+state of the database but it can't do
+writes without further work so if they
+
+555
+00:50:24,890 --> 00:50:28,780
+当时的情况是
+were in a situation where there was
+
+556
+00:50:28,840 --> 00:50:33,560
+三个死服务器，那里有足够的法定人数，可以读取
+three dead servers there they have
+enough of a quorum to be able to read
+
+557
+00:50:33,560 --> 00:50:38,870
+数据并重建更多副本，但是直到它们创建了更多副本为止
+the data and reconstruct more cop more
+replicas but until they've created more
+
+558
+00:50:38,870 --> 00:50:45,670
+复制品基本上替代了这些不能用作权利的死者
+replicas to basically replace these dead
+ones they can't serve as rights
+
+559
+00:50:47,790 --> 00:50:52,980
+以及我之前解释的仲裁系统使他们可以参加
+and also the quorum system as I
+explained before allows them to ride out
+
+560
+00:50:52,980 --> 00:51:07,200
+这些短暂的慢速复制品如发生在发生什么之前一样好
+these transient slow replicas all right
+as it happens as explained before what
+
+561
+00:51:07,200 --> 00:51:12,890
+ Aurora中的权利并没有真正像在经典著作中那样写东西
+the rights in Aurora aren't really over
+writing objects as in a sort of classic
+
+562
+00:51:12,890 --> 00:51:20,010
+仲裁系统Aurora实际上其权利永远不会覆盖其任何内容
+quorum system what Aurora in fact its
+rights never overwrite anything its
+
+563
+00:51:20,010 --> 00:51:23,579
+权利只是将日志条目附加到当前法律之后
+rights just append log entries to the
+current law
+
+564
+00:51:23,579 --> 00:51:27,690
+因此，使用仲裁的方式基本上可以说是数据库
+so the way it's using quorums is
+basically to say well when the database
+
+565
+00:51:27,690 --> 00:51:31,770
+发送新的日志记录，因为它正在执行所需的事务
+sends out our new log record because
+it's executing some transaction it needs
+
+566
+00:51:31,770 --> 00:51:38,280
+确保该日志记录至少存在于以下四个存储中
+to make sure that that log record is
+present on at least four of the store of
+
+567
+00:51:38,280 --> 00:51:42,150
+允许其继续交易之前的存储服务器是
+its storage servers before it's allowed
+to proceed with the transaction are
+
+568
+00:51:42,150 --> 00:51:46,170
+承诺，所以这实际上是其他“*权利”*的意思是
+committed so that's really the meaning
+of its other Wars right porins is that
+
+569
+00:51:46,170 --> 00:51:50,609
+每个新的日志记录都必须附加到存储中，至少对于
+each new log record has to be appended
+to the storage and at least for the
+
+570
+00:51:50,609 --> 00:52:01,500
+写入之前的副本可以被视为已完成，何时复制
+replicas before the write can be
+considered to to have completed and when
+
+571
+00:52:01,500 --> 00:52:05,819
+ Aurora在交易结束之前可以回复交易的时间
+a when Aurora gets to the end of a
+transaction before it can reply to the
+
+572
+00:52:05,819 --> 00:52:08,790
+客户直到客户告诉客户您好您知道您的交易是
+client until the client tell the client
+a hi you know your transaction is
+
+573
+00:52:08,790 --> 00:52:14,130
+承诺，成品和持久性Aurora必须等待确认
+committed and finished and durable
+Aurora has to wait for acknowledgments
+
+574
+00:52:14,130 --> 00:52:18,510
+从组成该事务的每个日志记录的仲裁仲裁中
+from a write quorum for each of the log
+records that made up that transaction
+
+575
+00:52:18,510 --> 00:52:25,980
+实际上，因为如果恢复中发生崩溃，您就不会
+and in fact because because if there
+were a crash in a recovery you're not
+
+576
+00:52:25,980 --> 00:52:33,809
+如果之前的交易也不同，则允许恢复一笔交易
+allowed to recover one transaction if
+preceding transactions don't aren't also
+
+577
+00:52:33,809 --> 00:52:38,250
+在Aurora确认交易之前已在实践中恢复
+recovered in practice Aurora has before
+Aurora can acknowledge a transaction it
+
+578
+00:52:38,250 --> 00:52:44,369
+必须等待存储服务器的写入定额以响应所有
+has to wait for a write quorum of
+storage servers to respond for all
+
+579
+00:52:44,369 --> 00:52:48,750
+先前进行的交易和感兴趣的交易，然后可以
+previously committed transaction and the
+transaction of interest and then can
+
+580
+00:52:48,750 --> 00:52:51,799
+回应客户
+respond to the client
+
+581
+00:52:54,740 --> 00:52:59,990
+好的，这些存储服务器正在获取传入的日志记录
+okay so these these storage servers are
+getting incoming log records
+
+582
+00:52:59,990 --> 00:53:04,220
+这就是他们的权利，他们实际上知道什么？ 
+that's what rights look like to them and
+so what do they actually do you know
+
+583
+00:53:04,220 --> 00:53:07,609
+他们没有从数据库服务器获取新的数据页面
+they're not getting new data pages from
+the database server they're just getting
+
+584
+00:53:07,609 --> 00:53:16,010
+仅描述数据页更改的日志记录，因此在内部是
+log records that just describe changes
+to the data pages so internally one of
+
+585
+00:53:16,010 --> 00:53:25,190
+这些存储服务器之一在内部具有所有
+these one of these storage servers it
+has internally it has copies of all that
+
+586
+00:53:25,190 --> 00:53:34,190
+数据库中某个时刻所有数据页的数据都会演化，因此
+data of all the data pages at some point
+in the database data pages evolution so
+
+587
+00:53:34,190 --> 00:53:41,359
+它的磁盘缓存中可能有一大堆这些您知道的页面
+it has maybe in its cache on its disk a
+whole bunch of these pages you know page
+
+588
+00:53:41,359 --> 00:53:52,820
+ 1页2以此类推，当新的写入操作进入存储服务器时，将赢得一个新的
+1 page 2 so forth when a new write comes
+in the storage server would win a new
+
+589
+00:53:52,820 --> 00:53:56,599
+在新的写入中记录的日志记录随它一起携带，只是一个日志记录了什么
+log rec over in a new write arrives
+carrying with it just a log record what
+
+590
+00:53:56,599 --> 00:54:00,560
+必须有一天发生，但不是立即发生的是该日志中的更改
+has to happen some day but not right
+away is that the changes in that log
+
+591
+00:54:00,560 --> 00:54:05,480
+在这里记录新值必须应用于相关页面，但是我们
+record the new value here has to be
+applied to the relevant page but we
+
+592
+00:54:05,480 --> 00:54:09,109
+根本不这样做，直到有人问到
+don't at the source of it doesn't have
+to do that until someone asks just until
+
+593
+00:54:09,109 --> 00:54:13,520
+数据库服务器或恢复软件要求查看该页面，因此
+the database server or the recovery
+software asks to see that page so
+
+594
+00:54:13,520 --> 00:54:17,510
+立即对新日志记录进行的操作是，日志记录只是
+immediately what happens to a new log
+record is that the log records are just
+
+595
+00:54:17,510 --> 00:54:23,180
+附加到影响每个页面的日志记录列表中，因此对于每个页面
+appended to lists of log records that
+effect each page so for every page that
+
+596
+00:54:23,180 --> 00:54:29,270
+存储服务器存储是否最近通过日志记录对其进行了修改
+the storage server stores if it's been
+recently modified by a log record by a
+
+597
+00:54:29,270 --> 00:54:34,099
+存储服务器实际存储的交易是旧版本的
+transaction what the storage server will
+actually store is an old version of the
+
+598
+00:54:34,099 --> 00:54:40,609
+页面以及趋势中出现的日志记录序列的字符串
+page plus the string of the sequence of
+log records that have come in from trend
+
+599
+00:54:40,609 --> 00:54:45,500
+自该页面上次更新以来，从数据库服务器访问
+from the database server since that page
+was last brought up to date so if
+
+600
+00:54:45,500 --> 00:54:49,880
+没有其他任何情况，存储服务器仅存储这些旧页面以及列表
+nothing else happens the storage server
+just stores these old pages plus lists
+
+601
+00:54:49,880 --> 00:54:56,119
+日志记录，如果您以后知道数据库服务器从其修复页面
+of log records if the database server
+later you know fix the page from its
+
+602
+00:54:56,119 --> 00:55:00,440
+缓存，然后需要再次读取该页面以进行将来的交易
+cache and then needs to read the page
+again for a future transaction it'll
+
+603
+00:55:00,440 --> 00:55:04,430
+向其中一台存储服务器发送读取请求，并说您知道我
+send a read request out to one of the
+storage servers and say look you know I
+
+604
+00:55:04,430 --> 00:55:06,789
+需要一份副本，我需要更新副本，一页
+need a copy I need an updated copy a
+page one
+
+605
+00:55:06,789 --> 00:55:12,819
+然后存储服务器将这些日志记录应用于页面
+and at that point the storage server
+will apply these log records to the page
+
+606
+00:55:12,819 --> 00:55:18,039
+您知道要对这些隐含的新数据进行写操作吗？ 
+you know do do these writes of new data
+that are implied that are described in
+
+607
+00:55:18,039 --> 00:55:22,239
+日志记录，然后将该更新的页面发送回数据库服务器
+the log records and then send that
+updated page back to the database server
+
+608
+00:55:22,239 --> 00:55:29,829
+大概就像种族主义者列表一样，只存储新近更新的
+and presumably maybe then like a racist
+list and just store the newly updated
+
+609
+00:55:29,829 --> 00:55:35,549
+页面，虽然不是那么简单
+page although it's not quite that simple
+
+610
+00:55:35,759 --> 00:55:41,289
+好的，所以存储服务器只存储这些日志记录字符串以及
+all right so the storage servers just
+store these strings of log records plus
+
+611
+00:55:41,289 --> 00:55:54,819
+旧的日志页面版本现在我提到的数据库服务器有时需要
+old log page versions now the database
+server as I mentioned sometimes needs to
+
+612
+00:55:54,819 --> 00:55:58,660
+读取页面，因此要观察的一件事是数据库服务器是
+read pages so by the way one thing to
+observe is that the database server is
+
+613
+00:55:58,660 --> 00:56:03,489
+写日志记录，但它正在读取数据页，所以我的也有所不同
+writing log records but it's reading
+data pages so there's also different my
+
+614
+00:56:03,489 --> 00:56:07,119
+玉米poram系统在某种意义上说是正在被阅读和
+corns poram system in the sense that the
+sort of things that are being read and
+
+615
+00:56:07,119 --> 00:56:11,890
+所写的完全不同，此外，事实证明在普通操作中
+written are quite different in addition
+it turns out that in ordinary operation
+
+616
+00:56:11,890 --> 00:56:20,469
+数据库服务器知道不必发送仲裁读取，因为
+the database server knows doesn't have
+to send quorum reads because the
+
+617
+00:56:20,469 --> 00:56:27,309
+数据库服务器为每个存储服务器跟踪多少存储空间
+database server tracks for each one of
+the storage servers how far how much of
+
+618
+00:56:27,309 --> 00:56:32,169
+实际接收到存储服务器的日志的前缀，因此
+the prefix of the log that storage
+server is actually received so the
+
+619
+00:56:32,169 --> 00:56:36,099
+数据库服务器正在跟踪这六个数字，因此首先记录
+database server is keeping track of
+these six numbers so so first of all log
+
+620
+00:56:36,099 --> 00:56:40,419
+条目仅编号为一二三四五，数据库服务器发送该条目
+entries are numbered just one two three
+four five the database server sends that
+
+621
+00:56:40,419 --> 00:56:44,229
+所有存储服务器接收到的所有存储服务器的新日志条目
+new log entries to all the storage
+servers the storage servers that receive
+
+622
+00:56:44,229 --> 00:56:48,579
+他们回答说，是的，我收到了日志条目79，此外，您知道我
+them respond saying oh yeah I got log
+entries 79 and furthermore you know I
+
+623
+00:56:48,579 --> 00:56:52,779
+在79之前有每个日志条目，数据库服务器也会跟踪这些日志
+have every log entry before 79 also the
+database server keeps track of these
+
+624
+00:56:52,779 --> 00:56:59,429
+计算每个服务器已到达的距离或连续的最高状态
+numbers how far each server has gotten
+or what the highest sort of contiguous
+
+625
+00:56:59,429 --> 00:57:04,719
+日志条目号是每个服务器都已获得，这样当
+log entry number is that each of the
+servers has gotten so that way when the
+
+626
+00:57:04,719 --> 00:57:09,880
+数据库服务器需要进行读取，只需选择一个存储服务器即可
+database server needs to do a read it
+just picks a storage server that's up to
+
+627
+00:57:09,880 --> 00:57:14,559
+日期，然后将所需页面的读取请求发送到该存储设备
+date and sends the read request for the
+page it wants just to that storage
+
+628
+00:57:14,559 --> 00:57:19,809
+服务器，因此数据库服务器确实必须执行仲裁写入，但是它
+server so the the database server does
+have to do quorum writes but it
+
+629
+00:57:19,809 --> 00:57:22,120
+基本上不需要做法定人数
+basically
+doesn't ordinarily have to do quorum
+
+630
+00:57:22,120 --> 00:57:25,120
+读取并知道这些存储服务器中的哪些是最新的，并且仅读取
+reads and knows which of these storage
+servers are up to date and just reads
+
+631
+00:57:25,120 --> 00:57:30,430
+从他们之一，所以我留给你的理由比他们在一个读
+from one of them so the reason I keep ur
+than they would be in a that just reads
+
+632
+00:57:30,430 --> 00:57:36,360
+该页面的一个副本，无需花费一定的法定人数
+one copy of the page and doesn't have to
+go through the expense of a quorum read
+
+633
+00:57:36,450 --> 00:57:41,860
+现在它确实有时使用仲裁读取，事实证明在崩溃恢复期间
+now it does sometimes use quorum reads
+it turns out that during crash recovery
+
+634
+00:57:41,860 --> 00:57:46,810
+您知道数据库服务器崩溃恢复期间是否崩溃等等
+you know if the crash during crash
+recovery of the database server and so
+
+635
+00:57:46,810 --> 00:57:50,800
+这与数据库的崩溃恢复不同，如果数据库
+this is different from a crash recovery
+of the storage service if the database
+
+636
+00:57:50,800 --> 00:57:55,840
+服务器本身先生崩溃在我身上，因为它在ec2实例上运行
+server itself sir crash in me because
+the it's running in an ec2 instance on
+
+637
+00:57:55,840 --> 00:57:58,570
+某些硬件某些真正的硬件可能就是
+some piece of hardware some real piece
+of hardware may be that piece of
+
+638
+00:57:58,570 --> 00:58:02,950
+硬件遭受故障数据库服务器崩溃有一些监控
+hardware suffers a failure the database
+server crashes there's some monitoring
+
+639
+00:58:02,950 --> 00:58:06,370
+亚马逊的基础设施说，哦，等等，您知道数据库
+infrastructure at Amazon that says oh
+wait a minute you know the database the
+
+640
+00:58:06,370 --> 00:58:12,900
+为客户运行的Aurora数据库服务器或刚崩溃的任何服务器
+Aurora database server over running for
+a customer or whatever just crashed and
+
+641
+00:58:12,900 --> 00:58:18,010
+ Amazon将自动启动一个新的EC2实例以启动数据库
+Amazon will automatically fire up a new
+ec2 instance start up the database
+
+642
+00:58:18,010 --> 00:58:23,290
+软件和该ec2实例，并告诉您您的数据位于
+software and that ec2 instance and sort
+of tell it look your data is sitting on
+
+643
+00:58:23,290 --> 00:58:29,340
+此特定数量的存储系统集请清理所有
+this particular volume this set of
+storage systems please clean up any
+
+644
+00:58:29,340 --> 00:58:34,840
+存储在这些文件中的日志中明显可见的部分执行的事务
+partially executed transactions that are
+evident in the logs stored in these
+
+645
+00:58:34,840 --> 00:58:44,460
+存储服务器，然后继续，所以我们必须这样做，这就是Aurora的重点
+storage servers and continue so we have
+to and that's the point at which Aurora
+
+646
+00:58:44,460 --> 00:58:52,330
+对杂草使用定额逻辑，因为此数据库服务器当旧时
+uses quorum logic for weeds because this
+database server when the old when the
+
+647
+00:58:52,330 --> 00:58:56,380
+以前的数据库服务器崩溃了，几乎肯定是在途中
+previous database server crashed it was
+almost certainly partway through
+
+648
+00:58:56,380 --> 00:59:00,520
+执行一些交易，以便在交易发生时
+executing some set of transactions so
+the state of play at the time of the
+
+649
+00:59:00,520 --> 00:59:03,550
+崩溃很好，它完成了一些事务并提交了它们， 
+crash was well it's completed some
+transactions and committed them and
+
+650
+00:59:03,550 --> 00:59:09,580
+他们的日志条目已达到法定人数，而且正在执行一些
+their log entries are on a quorum plus
+it's in the middle of executing some
+
+651
+00:59:09,580 --> 00:59:14,830
+其他交易集，也可能在法定人数上有日志条目，但是
+other set of transactions which also may
+have log entries on on a quorum but
+
+652
+00:59:14,830 --> 00:59:18,340
+因为数据库服务器在进行这些事务的过程中崩溃了，所以他们可以
+because a database server crashed midway
+through those transactions they can
+
+653
+00:59:18,340 --> 00:59:24,940
+永远不会完成，对于那些尚未完成的交易
+never be completed and for those
+transactions that haven't completed in
+
+654
+00:59:24,940 --> 00:59:30,880
+此外，也许您知道我们可能遇到一种情况，您可能知道
+addition there may be you know we may
+have a situation in which you know maybe
+
+655
+00:59:30,880 --> 00:59:33,790
+日志条目此服务器已登录三百
+log entry this server has log on three
+hundred
+
+656
+00:59:33,790 --> 00:59:41,320
+萨里（Surrey）登录302，某个地方有一百零四，但没有
+and the Surrey has logon 302 and there's
+a hundred and four somewhere but no you
+
+657
+00:59:41,320 --> 00:59:44,470
+在崩溃让我知道之前我还没有提交交易
+know for I as yet uncommitted
+transaction before the crash made me
+
+658
+00:59:44,470 --> 00:59:52,270
+知道服务器获得了日志条目103的副本，因此在崩溃后记住了新的
+know server got a copy of log entry 103
+so after a crash and remember the new
+
+659
+00:59:52,270 --> 00:59:56,590
+恢复它的数据库服务会进行仲裁读取，以基本找到要点
+database service recovering it does
+quorum reads to basically find the point
+
+660
+00:59:56,590 --> 01:00:02,530
+日志中存在每个先前日志条目的最高日志号
+in the log the highest log number for
+which every preceding log entry exists
+
+661
+01:00:02,530 --> 01:00:07,390
+在存储服务中的某个位置，因此基本上可以找到第一个缺少的
+somewhere in the storage service so
+basically it finds the first missing the
+
+662
+01:00:07,390 --> 01:00:12,430
+第一个丢失的日志条目的编号是103，表示正确，因此我们
+number of the first missing log entry
+which is 103 and says well and so we're
+
+663
+01:00:12,430 --> 01:00:16,540
+缺少日志条目之后，我们将无法对日志执行任何操作，因为
+missing a log entry we can't do anything
+with a log after this point because
+
+664
+01:00:16,540 --> 01:00:21,850
+我们就像错过更新，因此数据库服务器执行这些法定读取
+we're like missing an update so the
+database server does these quorum reads
+
+665
+01:00:21,850 --> 01:00:27,490
+它发现一百零三是MIT的第一个条目，我无法
+it finds a hundred and three is the
+first entry that's MIT that's I can't
+
+666
+01:00:27,490 --> 01:00:31,120
+你知道我看我的仲裁服务器可以达到的，而103不是
+you know I look at my quorum the
+server's I can reach and 103 is not
+
+667
+01:00:31,120 --> 01:00:34,300
+在那里，数据库服务器将向所有服务器发送一条消息，说
+there and the database server will send
+out a message to all the server saying
+
+668
+01:00:34,300 --> 01:00:39,640
+看，请丢弃从103开始的所有日志条目，以及那些贻贝
+look please just discard every log entry
+from 103 onwards and those mussels
+
+669
+01:00:39,640 --> 01:00:45,160
+不一定包含已提交交易的日志条目，因为我们知道
+necessarily not include log entries from
+committed transactions because we know a
+
+670
+01:00:45,160 --> 01:00:49,390
+在所有条目都在右上角之前，事务无法提交
+transaction can't commit until all of
+its entries are on a right corner so we
+
+671
+01:00:49,390 --> 01:00:53,110
+一定会看到它们，因此我们仅丢弃来自
+would be guaranteed to see them so we're
+only discarding log entries from
+
+672
+01:00:53,110 --> 01:00:59,440
+当然是未提交的交易，因此我们有点在这里切断日志
+uncommitted transactions of course so
+we're sort of cutting off the log here
+
+673
+01:00:59,440 --> 01:01:04,930
+在登录302处，我们现在保留的这些日志条目实际上可能
+at login 302 these log entries that
+we're preserving now may actually
+
+674
+01:01:04,930 --> 01:01:08,860
+包括来自未提交事务的日志条目，这些事务来自
+include log entries from uncommitted
+transactions from transactions that were
+
+675
+01:01:08,860 --> 01:01:12,070
+由于崩溃而中断，数据库服务器实际上必须检测
+interrupted by the crash and the
+database server actually has to detect
+
+676
+01:01:12,070 --> 01:01:16,480
+通过看到希望可以知道某笔交易可以做到的
+those which you can by seeing a hope you
+know a certain transaction there's it
+
+677
+01:01:16,480 --> 01:01:20,500
+日志中有更新条目，但没有提交记录，数据库服务器将
+has update entries in the log but no
+commit record the database server will
+
+678
+01:01:20,500 --> 01:01:25,480
+查找未完成交易的全部内容，然后基本上撤消
+find the full set of those uncompleted
+transactions and basically issue undo
+
+679
+01:01:25,480 --> 01:01:32,730
+我了解了一些日志条目，这些操作撤消了所有的更改， 
+operations I sort of knew log entries
+that undo all of the changes that that
+
+680
+01:01:32,730 --> 01:01:38,280
+这些未提交的交易，您知道这就是
+that those uncommitted transactions made
+and you know that's the point at which
+
+681
+01:01:38,280 --> 01:01:44,690
+ Aurora需要在日志条目中使用这些旧值，以便
+Aurora needs this these old values in
+the log entries so that a
+
+682
+01:01:44,690 --> 01:01:49,760
+崩溃后正在恢复的服务器可能会部分退出
+server that's doing recovery after a
+crash can sort of back out of partially
+
+683
+01:01:49,760 --> 01:02:04,000
+我想谈论的另一件事是完成交易
+completed transactions all right one
+another thing I'd like to talk about is
+
+684
+01:02:04,000 --> 01:02:13,099
+到目前为止，Aurora如何处理大型数据库
+how Aurora deals with big databases so
+so far I've explained the storage setup
+
+685
+01:02:13,099 --> 01:02:20,359
+好像数据库只有其存储的这六个副本，如果
+as if the database just has these six
+replicas of its storage and if that was
+
+686
+01:02:20,359 --> 01:02:23,900
+基本上所有的内容都不可能是数据库，您不知道其中的每一个
+all there was to it basically a database
+couldn't be you know each of these just
+
+687
+01:02:23,900 --> 01:02:28,609
+装有一个或两个磁盘的计算机，如果有的话
+a computer with a disk or two or
+something attached to it if this were
+
+688
+01:02:28,609 --> 01:02:32,329
+这样的话，我们就无法拥有更大的数据库
+the way the full situation then we
+couldn't have a database that was bigger
+
+689
+01:02:32,329 --> 01:02:36,230
+比您在一台计算机上可以放置的存储量多
+than the amount of storage that you
+could put on a single machine there's
+
+690
+01:02:36,230 --> 01:02:39,319
+我们拥有六台机器的事实并不能为我们提供六倍的可用率
+the fact that we have six machines
+doesn't give us six times as much usable
+
+691
+01:02:39,319 --> 01:02:43,220
+之所以要存储，是因为我每个人都在再次存储相同旧数据的副本， 
+storage because each one I'm storing a
+replica of the same old data again and
+
+692
+01:02:43,220 --> 01:02:48,319
+再次，你知道，所以我想使用固态驱动器或一些我们可以
+again and you know so I want to use
+solid-state drives or something we can
+
+693
+01:02:48,319 --> 01:02:53,960
+让您知道一台计算机上的TB级存储，但是我们不能让您知道
+put you know terabytes of storage on a
+single machine but we can't put you know
+
+694
+01:02:53,960 --> 01:02:59,510
+一台机器上数百​​TB的数据，以便支持客户
+hundreds of terabytes on a single
+machine so in order to support customers
+
+695
+01:02:59,510 --> 01:03:06,710
+需要超过十亿兆字节的数据，需要拥有庞大的数据库
+who need like more than ten terabytes
+who need to have vast databases Amazon
+
+696
+01:03:06,710 --> 01:03:12,970
+感到高兴的是，亚马逊将把数据库数据分成了六组
+is happy Amazon will split up the
+databases data onto multiple sets of six
+
+697
+01:03:12,970 --> 01:03:21,290
+这样复制和分片的单元的种类
+replicas so and the kind of unit of
+sharding the unit of splitting up the
+
+698
+01:03:21,290 --> 01:03:25,910
+我认为是10 GB的数据，所以需要20 GB数据的数据库
+data I think is 10 gigabytes so a
+database that needs 20 gigabytes of data
+
+699
+01:03:25,910 --> 01:03:32,060
+您将使用两个保护组将这些PG事物用于这些数据， 
+will use two protection groups these
+these PG things to its data you know sit
+
+700
+01:03:32,060 --> 01:03:41,240
+其中一半将位于第一保护组的​​六台服务器上，然后
+on half of it will sit on the six
+servers of protection Group one and then
+
+701
+01:03:41,240 --> 01:03:46,640
+他们将是另外六个服务器，您可能知道一组不同的六个存储
+they'll be another six servers you know
+possibly a different set of six storage
+
+702
+01:03:46,640 --> 01:03:49,819
+服务器，因为亚马逊正在运行，并且像这些存储的庞大团队一样
+servers because Amazon's running and
+like a huge fleet of these storage
+
+703
+01:03:49,819 --> 01:03:54,740
+由其所有Aurora客户共同使用的服务器，第二个十个
+servers that are jointly used by all of
+its Aurora customers the second ten
+
+704
+01:03:54,740 --> 01:03:58,250
+数据库的20 GB数据
+gigabytes of the databases 20 gigabytes
+of data
+
+705
+01:03:58,250 --> 01:04:05,180
+我们将复制到另一组您身上，通常您会有所不同，我会
+we'll be replicated on another set of
+you know typically different I'll you
+
+706
+01:04:05,180 --> 01:04:08,720
+知道这些之间可能有重叠，但通常只是一组不同
+know there could be overlap between
+these but typically just a different set
+
+707
+01:04:08,720 --> 01:04:15,740
+六台服务器，因此现在我们一天可以完成20 GB的存储，而我们还有更多
+of six server so now we get 20 gigabytes
+a day done and we have more of these as
+
+708
+01:04:15,740 --> 01:04:21,050
+数据库变得更大，一个有趣的后果是， 
+a database goes bigger one interesting
+piece of fallout from this is that while
+
+709
+01:04:21,050 --> 01:04:28,910
+显然，您可以获取数据页并将其拆分为多个
+it's clear that you can take the data
+pages and split them up over multiple
+
+710
+01:04:28,910 --> 01:04:32,450
+独立的保护组，也许您知道您的奇数数据页
+independent protection groups maybe you
+know odd numbered data pages from your
+
+711
+01:04:32,450 --> 01:04:38,060
+ b树在PG上运行，甚至页数也在PG上-可以分片是很好的
+b-tree go on PG one and even number
+pages go on PG - it's good you can shard
+
+712
+01:04:38,060 --> 01:04:41,960
+拆分数据页面并不清楚如何处理
+split up the data pages it's not
+immediately obvious what to do with a
+
+713
+01:04:41,960 --> 01:04:46,910
+正确记录日志如果您有两个，如何拆分日志
+log all right how do you split up the
+log if you have two of these two
+
+714
+01:04:46,910 --> 01:04:52,160
+保护小组或更多保护小组以及答案，亚马逊
+protection groups or more in a mantra
+tection group and the answer that amazon
+
+715
+01:04:52,160 --> 01:04:55,250
+的确是Aurora使用的是数据库服务器
+does is that that that Aurora uses is
+that the database server when it's
+
+716
+01:04:55,250 --> 01:04:59,930
+发送日志记录，它查看日志记录修改的数据， 
+sending out a log record it looks at the
+data that the log record modifies and
+
+717
+01:04:59,930 --> 01:05:06,260
+找出哪些保护组存储该数据并发送每个日志
+figures out which protection groups
+store that data and it sends each log
+
+718
+01:05:06,260 --> 01:05:11,360
+仅记录到存储提到的数据的保护组中
+record just to the protection groups
+that store data that's mentioned that's
+
+719
+01:05:11,360 --> 01:05:16,730
+在日志条目中进行了修改，这意味着这些保护中的每一个
+modified in the log entry and so that
+means that each of these protection
+
+720
+01:05:16,730 --> 01:05:22,340
+组存储部分数据页以及所有的日志记录
+groups store some fraction of the data
+pages plus all the log records that
+
+721
+01:05:22,340 --> 01:05:27,140
+适用于这些数据页，请参阅这些保护组存储的一个子集
+apply to those data pages see these
+protection groups stores a subset of a
+
+722
+01:05:27,140 --> 01:05:41,450
+与其页面相关的日志，所以最终我可能会擦除光子
+log that's relevant to its pages so a
+final maybe I erase the photons
+
+723
+01:05:41,450 --> 01:05:48,260
+要求，但最终要求是，如果这些存储之一
+requirements but a final requirement is
+that if a if ass one of these storage
+
+724
+01:05:48,260 --> 01:05:53,060
+服务器崩溃，我们希望能够尽快将其替换对
+servers crashes we want to be able to
+replace it as soon as possible right
+
+725
+01:05:53,060 --> 01:05:57,500
+因为您知道如果我们等待太久，那么我们可能会冒险三个
+because you know if we wait too long
+then we risk maybe three of them are
+
+726
+01:05:57,500 --> 01:06:01,550
+其中四个崩溃了，其中四个崩溃了，那么我们实际上无法恢复
+four of them crashing and a four of them
+crash then we actually can't recover
+
+727
+01:06:01,550 --> 01:06:05,990
+因为那样的话我们就没有改革了，所以我们需要重新获得复制
+because then we don't have a reform
+anymore so we need to regain replication
+
+728
+01:06:05,990 --> 01:06:11,480
+如果您考虑使用任何一台存储服务器，请尽快确保这样做
+as soon as possible if you think about
+any one storage server sure this this do
+
+729
+01:06:11,480 --> 01:06:15,619
+您知道哪个服务器存储10 GB的数据，我的数据库保护组
+which server is storing 10 gigabytes for
+you know my databases protection group
+
+730
+01:06:15,619 --> 01:06:19,430
+但实际上，您知道其中任何一项的物理设置
+but in fact the physical thing you know
+the physical setup of any one of these
+
+731
+01:06:19,430 --> 01:06:23,330
+服务器是它有一个，你可能知道一个或两个
+servers is that it has a you know maybe
+a one or two or something
+
+732
+01:06:23,330 --> 01:06:31,369
+兆兆字节的磁盘，它存储100个或更多的10 GB分段
+terabyte disk on it that's storing 10
+gigabyte segments of a hundred or more
+
+733
+01:06:31,369 --> 01:06:37,460
+不同的Aurora实例，那么您在这台物理计算机上是什么
+different Aurora instances so what's
+what's on this physical machine is you
+
+734
+01:06:37,460 --> 01:06:42,109
+知道10 TB时代字节或10 TB或总计的数据量
+know 10 terabyte era byte or 10
+terabytes or whatever of data in total
+
+735
+01:06:42,109 --> 01:06:47,600
+因此，当这些存储服务器之一发生崩溃时， 
+so when there's a when one of these
+storage servers crashes it's taking with
+
+736
+01:06:47,600 --> 01:06:53,359
+它不仅是我数据库中的10 GB，而且还是我的数据库中的10 GB 
+it not just the 10 gigabytes from my
+database but also 10 gigabytes from a
+
+737
+01:06:53,359 --> 01:06:58,100
+一百个其他人的数据库，必须复制的不是
+hundred other people's databases as well
+and what has to be replicated is not
+
+738
+01:06:58,100 --> 01:07:03,020
+只有我的10 GB，但是整个TB或更多
+just my 10 gigabytes but the entire
+terabyte or whatever or more that's
+
+739
+01:07:03,020 --> 01:07:08,060
+存储在此服务器固态驱动器上，如果您仔细考虑一下数字， 
+stored on this servers solid-state drive
+and if you think through the numbers you
+
+740
+01:07:08,060 --> 01:07:15,080
+知道如果我们需要移动10个，每秒可能有10 GB的网络接口
+know maybe we have 10 gigabit per second
+network interfaces if we need to move 10
+
+741
+01:07:15,080 --> 01:07:19,730
+每秒10 GB的网络接口中的1 TB 
+terabytes across a 10 gigabyte per
+second network interface from one
+
+742
+01:07:19,730 --> 01:07:25,220
+机器到另一个要花的时间我不知道一千秒十
+machine to another it's gonna take I
+don't know a thousand seconds ten
+
+743
+01:07:25,220 --> 01:07:31,100
+一千秒或一万秒，那太长了
+thousand seconds maybe ten thousand
+seconds and that's way too long right we
+
+744
+01:07:31,100 --> 01:07:34,580
+不想坐在那里等着你知道我们不想有一个
+don't want to have to sit there and wait
+you know it we don't want to have a
+
+745
+01:07:34,580 --> 01:07:40,070
+我们可以弱化我们可以重建它的方法的策略是找到
+strategy in which the way we weak we can
+reconstruct this is to find is to have
+
+746
+01:07:40,070 --> 01:07:43,609
+另一台正在复制所有内容并拥有该机器的机器
+another machine that was replicating
+everything on it and had that machine
+
+747
+01:07:43,609 --> 01:07:48,410
+发送10 TB到替换机器，我们将能够
+send 10 terabytes to a replacement
+machine we're gonna be able to
+
+748
+01:07:48,410 --> 01:07:52,850
+重建数据的速度远比重建数据快，因此它们使用的实际设置是
+reconstruct the data far faster than
+that and so the actual setup they use is
+
+749
+01:07:52,850 --> 01:07:57,609
+如果我有一台特定的存储服务器
+that if I have a particular storage
+server
+
+750
+01:07:57,609 --> 01:08:04,430
+它存储了许多段，您知道许多10 GB保护的副本
+it stores many many segments you know
+replicas of many 10 gigabyte protection
+
+751
+01:08:04,430 --> 01:08:09,830
+组，所以也许这个保护组也许是它存储的这个细分市场
+groups so maybe this protection group
+maybe this segment that it's storing
+
+752
+01:08:09,830 --> 01:08:17,479
+另一个羡慕的数据，另一个副本是吗，您知道这五个
+data for the other envy for this one the
+other replicas are you know these five
+
+753
+01:08:17,479 --> 01:08:22,599
+其他机器好了，这些都存储了
+
+754
+01:08:22,738 --> 01:08:26,318
+保护组A的各个部分，所以您知道还有很多其他
+
+755
+01:08:26,319 --> 01:08:29,288
+我们也要存储的那些，所以我的意思是我们也可能是这台特定的机器
+ones that we're also storing so I mean
+we may be this particular machine also
+
+756
+01:08:29,288 --> 01:08:36,129
+存储用于保护组B的副本，但存储B数据的其他副本
+
+757
+01:08:36,130 --> 01:08:41,439
+将被放置在一组不相交的服务器上，所以现在有五个
+are going to be put on a disjoint set of
+servers right so now there's five
+
+758
+01:08:41,439 --> 01:08:48,788
+具有B的其他副本的服务器，以此类推。 
+servers that have the other copies of B
+and so on for all of the segments that
+
+759
+01:08:48,788 --> 01:08:52,419
+您知道此服务器位于此存储服务器的硬盘驱动器上
+
+760
+01:08:52,420 --> 01:08:57,179
+许多很多不同的Aurora实例，这意味着这台机器宕机了
+many many different Aurora instances so
+that means that this machine goes down
+
+761
+01:08:57,179 --> 01:09:01,899
+替换策略是选择是否要存储100个
+the replacement strategy is that we pick
+if we're say we're storing a hundred of
+
+762
+01:09:01,899 --> 01:09:09,459
+这些细分市场上，我们选择了一百个不同的存储服务器，每个
+
+763
+01:09:09,460 --> 01:09:14,948
+将要选择一个新的细分市场，每个细分市场现在都将成为
+is gonna pick up one new segment that is
+each of which is going to now be
+
+764
+01:09:14,948 --> 01:09:20,048
+参加另外一个保护小组，所以我们像一个服务器一样错过了一个
+
+765
+01:09:20,049 --> 01:09:24,639
+可以复制到这十个千兆字节的段中的每一个，现在我们有了
+to be replicate on for each of these ten
+gigabytes segments and now we have you
+
+766
+01:09:24,639 --> 01:09:29,439
+知道大概100种不同的段服务器，您可能知道我在存储
+know maybe 100 sort of different segment
+servers and you know I probably storing
+
+767
+01:09:29,439 --> 01:09:32,558
+其他东西，但它们有一点可用磁盘空间，然后每个
+
+768
+01:09:32,559 --> 01:09:38,139
+这些我们选择一台机器，我们将要复制的副本之一
+these we pick one machine one of the
+replicas that we're going to copy the
+
+769
+01:09:38,139 --> 01:09:41,408
+来自剩余副本之一的数据，所以也许对于
+data from one of the remaining replicas
+so maybe for a we're going to copy from
+
+770
+01:09:41,408 --> 01:09:47,738
+从这里到B，你知道我们是否还有五个C副本，我们选择一个
+there for B from here you know if we
+have five other copies with C we pick a
+
+771
+01:09:47,738 --> 01:09:53,408
+ C的其他服务器，因此我们将a从该服务器复制到该服务器
+different server for C and so we have we
+copy a from this server to that server
+
+772
+01:09:53,408 --> 01:10:01,749
+和B像这样，C像这样，所以现在我们有一百个不同的10 
+and B like this and C like this and so
+now we have a hundred different 10
+
+773
+01:10:01,749 --> 01:10:07,360
+千兆字节副本在网络上并行运行，并且假设您知道
+gigabyte copies going on in parallel
+across the network and assuming you know
+
+774
+01:10:07,360 --> 01:10:11,999
+我们有足够的服务器，这些服务器都可以脱节，并且我们有很多
+we have enough servers that these can
+all be disjoint and we have plenty of
+
+775
+01:10:11,999 --> 01:10:17,849
+连接它们的交换网络的带宽现在我们可以复制我们的
+bandwidth in switching network that
+connects them now we can copy our
+
+776
+01:10:17,849 --> 01:10:23,110
+ TB或10 TB或任何数据，总计与一个并行
+terabyte or 10 terabytes or whatever of
+data and total in parallel with a
+
+777
+01:10:23,110 --> 01:10:27,489
+百倍并行度，整个过程将花费您10秒钟的时间，或者
+hundredfold parallelism and the whole
+thing will take you know 10 seconds or
+
+778
+01:10:27,489 --> 01:10:30,729
+如果只有两台机器，则无需花费一千秒
+something instead of taking a thousand
+seconds if there were just two machines
+
+779
+01:10:30,729 --> 01:10:35,739
+无论如何，所以这就是他们使用的策略， 
+involved anyway so this is
+this is the strategies they use and it
+
+780
+01:10:35,739 --> 01:10:39,699
+意味着他们可以恢复，因为他们知道可以恢复机器死机
+means that they can recover you know for
+machine dies they can recover in
+
+781
+01:10:39,699 --> 01:10:45,340
+如果有很多机器，那么从一台机器的死亡中很快就可以并行
+parallel from one machine's death
+extremely quickly if lots of machines
+
+782
+01:10:45,340 --> 01:10:50,380
+节食效果不好，但可以从单身中恢复
+diets doesn't work as well but they can
+recover from single they can be
+
+783
+01:10:50,380 --> 01:10:58,119
+从单台计算机复制崩溃会很快崩溃，所以最终
+replicate from single machine crashes
+extremely quickly alright so a final
+
+784
+01:10:58,119 --> 01:11:02,949
+如果您看图三，该论文提到的内容将不会
+thing that the paper mentions if you
+look at figure three you'll see that not
+
+785
+01:11:02,949 --> 01:11:09,880
+他们只有这个主数据库，但也有副本数据库，因此
+only do they have this main database but
+they also have replica databases so for
+
+786
+01:11:09,880 --> 01:11:14,829
+许多客户许多客户看到更多的只读查询
+many of their customers many of their
+customers see far more read-only queries
+
+787
+01:11:14,829 --> 01:11:19,209
+比他们看到的读写查询（如果您考虑使用Web服务器） 
+than they see readwrite queries that is
+if you think about a web server if you
+
+788
+01:11:19,209 --> 01:11:24,070
+只需在某些网站上查看网页，那么您的网络服务器就很可能
+just view a web page on some website
+then chances are the web server you
+
+789
+01:11:24,070 --> 01:11:28,150
+连接到必须阅读很多很多东西以生成所有
+connected to has to read lots and lots
+and stuff in order to generate all the
+
+790
+01:11:28,150 --> 01:11:32,019
+页面上显示给您的东西可能有数百种
+things that are shown on the page to you
+maybe hundreds of different items have
+
+791
+01:11:32,019 --> 01:11:35,499
+从数据库中读出或从某个数据库中读出，但是
+to be read out of the database or so out
+of some database but the number of
+
+792
+01:11:35,499 --> 01:11:39,340
+为典型的网页视图编写的内容通常要小得多，也许有些
+writes for a typical web page view is
+usually much much smaller maybe some
+
+793
+01:11:39,340 --> 01:11:42,639
+您必须更新统计信息或一些历史记录
+statistics have to be updated or a
+little bit of history for you or
+
+794
+01:11:42,639 --> 01:11:48,400
+某件事，所以您可能拥有100：1的读写比
+something so you might have a hundred to
+one ratio of reads to writes that is you
+
+795
+01:11:48,400 --> 01:11:54,519
+通常可能具有大量的大量直接只读数据库
+may typically have a large large large
+number of straight read only database
+
+796
+01:11:54,519 --> 01:11:59,889
+现在使用此设置进行查询，写入只能通过一个数据库
+queries now with this set up the writes
+can only go through the one database
+
+797
+01:11:59,889 --> 01:12:03,130
+服务器，因为我们实际上只能为此存储支持一个编写器
+server because we really can only
+support one writer for this storage
+
+798
+01:12:03,130 --> 01:12:07,479
+策略，我想您知道橡胶真正发挥作用的地方
+strategy and I think you know one place
+where the rubber really hits the road
+
+799
+01:12:07,479 --> 01:12:11,769
+日志条目必须按顺序编号，这很容易
+there is that the log entries have to be
+numbered sequentially and that's easy to
+
+800
+01:12:11,769 --> 01:12:15,459
+如果所有写入都通过一台服务器，并且如果我们
+do if all the writes go through a single
+server and extremely difficult if we
+
+801
+01:12:15,459 --> 01:12:19,090
+有很多不同的服务器，它们以不协调的方式编写
+have lots of different servers all sort
+of writing in an uncoordinated way to
+
+802
+01:12:19,090 --> 01:12:24,329
+同一数据库，因此写操作实际上必须通过一个数据库进行，但是
+the same database so the writes really
+have to be go through one database but
+
+803
+01:12:24,329 --> 01:12:29,469
+我们可以设置，实际上亚马逊确实设置了一种情况，我们已经阅读
+we could set up and indeed Amazon does
+set up a situation where we have read
+
+804
+01:12:29,469 --> 01:12:35,469
+仅可以从这些存储服务器读取的数据库副本，因此
+only database replicas that can read
+from these storage servers and so the
+
+805
+01:12:35,469 --> 01:12:40,719
+图三的全部荣耀是，除了主数据库服务器
+full glory of figure three is that in
+addition to the main database server
+
+806
+01:12:40,719 --> 01:12:48,280
+处理写请求，还有一组只读
+that handles the write requests there's
+also a set of read-only
+
+807
+01:12:48,280 --> 01:12:53,030
+数据库，他们说它们最多可以支持15个，因此您实际上可以获得很多
+databases and they say they can support
+up to 15 so you can actually get a lot
+
+808
+01:12:53,030 --> 01:12:58,850
+你们当中的人知道，如果您的上级会给您带来很多工作量， 
+of you know if your senior we'd have you
+workload a lot of it can be you know
+
+809
+01:12:58,850 --> 01:13:02,960
+大部分都可以分解为一大堆这些只读数据库
+most of it can be sort of hived off to a
+whole bunch of these read-only databases
+
+810
+01:13:02,960 --> 01:13:07,160
+当客户端发送读取请求以只读数据库时，会发生什么情况
+and when a client sends a read request
+to read only database what happens is
+
+811
+01:13:07,160 --> 01:13:11,780
+只读数据库表明您知道它需要服务哪些数据页
+the read only database figures out you
+know what data pages it needs to serve
+
+812
+01:13:11,780 --> 01:13:15,920
+该请求并将读取直接发送到存储系统，而无需
+that request and sends reads into the
+directly into the storage system without
+
+813
+01:13:15,920 --> 01:13:23,180
+麻烦主读写数据库，以便只读副本数据库
+bothering the main readwrite database so
+the the read-only replica database
+
+814
+01:13:23,180 --> 01:13:27,560
+升序页面请求直接在存储服务器上读取请求，然后
+ascend page requests read requests
+directly the storage servers and then
+
+815
+01:13:27,560 --> 01:13:33,680
+它们将不会缓存这些页面，以便您可以知道它们对将来的读取做出响应
+they'll be no cache those pages so that
+they can you know respond to future read
+
+816
+01:13:33,680 --> 01:13:36,830
+当然需要从缓存中获取请求，他们需要能够更新
+requests right out of their cache of
+course they need to be able to update
+
+817
+01:13:36,830 --> 01:13:43,280
+这些缓存，因此Aurora也会在主数据库中发送一份副本
+those caches and for that reason Aurora
+also the main database sends a copy of
+
+818
+01:13:43,280 --> 01:13:49,130
+它的日志到每个只读数据库，这就是水平
+its log to each of the read-only
+databases and that's the horizontal
+
+819
+01:13:49,130 --> 01:13:52,970
+您在蓝色框和图三之间看到的线是主数据库
+lines you see between the blue boxes and
+figure three that the main database
+
+820
+01:13:52,970 --> 01:13:57,550
+发送所有日志条目，这意味着仅用于更新的数据库
+sends all the log entries do these mean
+only databases which they use to update
+
+821
+01:13:57,550 --> 01:14:05,420
+它们的缓存副本以反映数据库及其中的最近事务
+their cached copies to reflect recent
+transactions in the database and it
+
+822
+01:14:05,420 --> 01:14:09,530
+意味着它确实意味着只读数据库落后于
+means it does mean that the read only
+database is lag a little bit behind the
+
+823
+01:14:09,530 --> 01:14:13,820
+主数据库，但事实证明，对于许多只读工作负载，如果
+main database but it turns out for a lot
+of read-only workloads that's okay if
+
+824
+01:14:13,820 --> 01:14:17,330
+您看一个网页，就知道过了20毫秒
+you look at a web page and it's you know
+20 milliseconds out of date that's
+
+825
+01:14:17,330 --> 01:14:26,750
+通常不是一个大问题，像这样一个问题会带来一些复杂性
+usually not a big problem there are some
+complexities from this like one problem
+
+826
+01:14:26,750 --> 01:14:31,010
+是我们不希望这些中继数据库看到未提交的数据
+is that we don't want these relay
+databases to see data from uncommitted
+
+827
+01:14:31,010 --> 01:14:36,980
+事务尚未完成，因此在此日志条目流中，数据库可能需要
+transactions yet and so in this stream
+of log entries the database may need to
+
+828
+01:14:36,980 --> 01:14:42,050
+有点表示已提交哪些事务，并且它们是只读的
+be sort of denotes which transactions
+have committed and they're read-only
+
+829
+01:14:42,050 --> 01:14:44,800
+数据库小心不要应用不常见
+databases are careful not to apply
+uncommon
+
+830
+01:14:44,800 --> 01:14:49,670
+未提交的事务到其缓存中，他们等待直到提交事务
+uncommitted transactions to their caches
+they wait till the transactions commit
+
+831
+01:14:49,670 --> 01:14:59,410
+这些只读副本带来的另一个复杂性是
+the other complexity that these
+read-only replicas impose is that
+
+832
+01:14:59,410 --> 01:15:05,380
+这些和这些结构的这些结构非常复杂
+the the the these structures he of these
+andhe structures are quite complex this
+
+833
+01:15:05,380 --> 01:15:09,520
+可能是b树，可能需要定期重新平衡，例如
+might be a b-tree it might need to be
+rebalanced periodically for example I'm
+
+834
+01:15:09,520 --> 01:15:12,430
+重新平衡是一个非常复杂的操作，其中很多树都有
+the rebalancing is quite a complex
+operation in which a lot of the tree has
+
+835
+01:15:12,430 --> 01:15:17,350
+被原子地修改，因此树在被修改时是不正确的
+to be modified in atomically and so the
+tree is incorrect while it's being be
+
+836
+01:15:17,350 --> 01:15:21,520
+平衡，并且只有在重新平衡完成后，如果
+balanced and you only allowed to look at
+it after the rebalancing is done if
+
+837
+01:15:21,520 --> 01:15:25,390
+这些只读副本直接从数据库中读取页面，其中有一个
+these read-only replicas directly read
+the pages out of the database there's a
+
+838
+01:15:25,390 --> 01:15:30,190
+冒着风险，他们可能会看到存储在此处的数据库的树
+risk they might see the be tree that the
+database that's being stored here in
+
+839
+01:15:30,190 --> 01:15:34,030
+这些数据页在重新平衡过程中可能会看到蜂树，或者
+these data pages they may see the bee
+tree in the middle of a rebalancing or
+
+840
+01:15:34,030 --> 01:15:39,070
+其他操作，数据完全是非法的，他们可能
+some other operation and the data is
+just totally illegal and they might
+
+841
+01:15:39,070 --> 01:15:45,640
+崩溃或仅仅是故障，以及当报纸谈论迷你交易和
+crash or just malfunction and when the
+paper talks about mini transactions and
+
+842
+01:15:45,640 --> 01:15:51,760
+ vdl与vcl的区别在于它所指的是机器
+the vdl verses vcl distinction what it's
+talking about is the machinery by which
+
+843
+01:15:51,760 --> 01:15:57,550
+数据库服务器可以告诉存储服务器看这个复杂的序列
+the database server can tell the storage
+servers look this complex sequence of
+
+844
+01:15:57,550 --> 01:16:04,690
+日志条目必须仅对所有只读对象显示全部或不显示
+log entries must only be revealed all or
+nothing' atomically to any read-only
+
+845
+01:16:04,690 --> 01:16:09,250
+迷你交易和VDL所涉及的交易以及
+transactions that's what the mini
+transactions and VDL are about and
+
+846
+01:16:09,250 --> 01:16:13,600
+基本上是只读数据库要求查看数据数据页时的读取
+basically the read when a read only
+database asks to see data a data page
+
+847
+01:16:13,600 --> 01:16:17,800
+来自存储服务器的存储服务器要小心，要么显示来自
+from a storage server the storage server
+is careful to either show it data from
+
+848
+01:16:17,800 --> 01:16:23,740
+在这些序列之一之前，有许多日志条目的事务序列，或者
+just before one of these sequence many
+transaction sequences of log entries or
+
+849
+01:16:23,740 --> 01:16:33,370
+就在中间但不在中间好吧，这就是所有技术
+just after but not in the middle all
+right so that's the all the technical
+
+850
+01:16:33,370 --> 01:16:36,430
+我必须谈论的东西只是总结一些有趣的东西
+stuff I have to talk about just to kind
+of summarize what's interesting about
+
+851
+01:16:36,430 --> 01:16:41,470
+论文以及可以从论文中学到的东西
+the paper and what can be learned from
+the paper one thing to learn which is
+
+852
+01:16:41,470 --> 01:16:45,400
+总体上来说还不错，但不是专门针对本文，而是系统中的每个人
+just good in general not specific to
+this paper but everybody in systems
+
+853
+01:16:45,400 --> 01:16:50,620
+应该知道的是事务处理数据库如何工作的基础
+should know is the basics of how
+transaction processing databases work
+
+854
+01:16:50,620 --> 01:16:55,920
+以及交易之间相互作用的那种影响
+and the sort of impact that the
+interaction between transaction
+
+855
+01:16:55,920 --> 01:17:00,340
+处理数据库和存储系统，因为这很多
+processing databases and the storage
+systems because this comes up a lot it's
+
+856
+01:17:00,340 --> 01:17:05,160
+像无所不在一样，您知道性能和崩溃可恢复性
+like a pervasive you know the
+performance and crash recoverability
+
+857
+01:17:05,160 --> 01:17:10,050
+运行真实数据库的复杂性一遍又一遍地出现
+complexity of running a real database
+just comes up over and over again in
+
+858
+01:17:10,050 --> 01:17:15,820
+系统设计本文要学习的另一件事是定额和
+systems design another thing to learn
+this paper is this idea of quorums and
+
+859
+01:17:15,820 --> 01:17:20,950
+为了始终保持重叠，将重叠的读/写仲裁的技术重叠
+overlap the technique of overlapping
+read/write quorums in order to always be
+
+860
+01:17:20,950 --> 01:17:24,250
+能够查看最新数据，但还能获得容错能力，这当然可以
+able to see the latest data but also get
+fault tolerance and of course this comes
+
+861
+01:17:24,250 --> 01:17:29,070
+在木筏上，木筏也具有很强的法定风味
+up in raft also raft has a strong kind
+of quorum flavor to it
+
+862
+01:17:29,070 --> 01:17:33,760
+本文的另一个有趣的想法是数据库和
+another interesting thought from this
+paper is that the database and the
+
+863
+01:17:33,760 --> 01:17:37,870
+存储系统基本上是Co设计为一种集成的
+storage system are basically Co designed
+as kind of an integrated there's
+
+864
+01:17:37,870 --> 01:17:41,170
+跨数据库层和存储层的集成或几乎
+integration across the database layer
+and the storage layer or nearly
+
+865
+01:17:41,170 --> 01:17:45,370
+重新设计以尝试设计系统，以便它们使您知道良好的分离
+redesigned to try to design systems so
+they have you know good separation
+
+866
+01:17:45,370 --> 01:17:50,770
+服务使用者与诸如
+between consumers of services and the
+sort of infrastructure services like
+
+867
+01:17:50,770 --> 01:17:54,880
+通常，存储是非常通用的，而不是针对
+typically storage is very
+general-purpose not aimed at a
+
+868
+01:17:54,880 --> 01:18:00,010
+您知道特定的应用程序，因为这是一个令人愉快的设计
+particular application just you know
+because that's a pleasant design and it
+
+869
+01:18:00,010 --> 01:18:03,460
+也意味着同一基础架构可以有很多不同的用途
+also means that lots of different uses
+can be made of the same infrastructure
+
+870
+01:18:03,460 --> 01:18:07,360
+但是这里的性能问题是如此极端，以至于您必须知道
+but here the performance issues were so
+extreme you know they would have to get
+
+871
+01:18:07,360 --> 01:18:13,540
+通过模糊此边界将性能提高了35倍，这是
+a 35 times performance improvement by
+sort of blurring this boundary this was
+
+872
+01:18:13,540 --> 01:18:16,900
+通用存储实际上不是这样的情况
+a situation in which general-purpose
+storage was actually really not
+
+873
+01:18:16,900 --> 01:18:22,930
+优势，他们放弃了这个想法，最终获得了巨大的胜利。 
+advantageous and they got a big win by
+abandoning that idea and a final set of
+
+874
+01:18:22,930 --> 01:18:26,770
+事情从论文中脱颖而出所有有趣的有时是隐含的
+things to get out of the papers all the
+interesting sometimes kind of implicit
+
+875
+01:18:26,770 --> 01:18:32,560
+有关对您认识的这些亚马逊工程师有价值的信息
+information about what was valuable to
+these Amazon engineers who you know
+
+876
+01:18:32,560 --> 01:18:37,300
+真的知道他们在做什么，他们对云有什么担忧
+really know what they're doing about
+what concerns they had about cloud
+
+877
+01:18:37,300 --> 01:18:42,970
+基础设施，例如他们担心的可能性
+infrastructure like the amount of worry
+that they put into the possibility of an
+
+878
+01:18:42,970 --> 01:18:48,250
+整个可用区可能会失败，这是一个重要的提示， 
+entire availability zone might fail it's
+an important tidbit the fact that
+
+879
+01:18:48,250 --> 01:18:53,980
+各个存储服务器的暂时缓慢很重要是另一回事
+transient slowness of individual storage
+servers was important is another thing
+
+880
+01:18:53,980 --> 01:19:00,490
+实际上也出现了很多，最后暗示了网络
+that actually also comes up a lot and
+finally the implication that the network
+
+881
+01:19:00,490 --> 01:19:04,660
+是主要瓶颈，因为毕竟他们付出了极大的努力
+is the main bottleneck because after all
+they were it went to extreme lengths to
+
+882
+01:19:04,660 --> 01:19:08,050
+通过网络发送较少的数据，但作为回报，存储服务器具有
+send less data over the network
+but in return the storage servers have
+
+883
+01:19:08,050 --> 01:19:12,610
+做更多的工作，他们说，他们愿意知道6份数据
+to do more work and they put it they're
+willing to you know 6 copies the data
+
+884
+01:19:12,610 --> 01:19:19,480
+并有6个CPU都复制了应用这些重做日志的执行
+and have 6 CPUs all replicating the
+execution of applying these redo log
+
+885
+01:19:19,480 --> 01:19:24,460
+条目显然对他们来说CPU相对便宜，而网络
+entries apparently CPU is relatively
+cheap for them whereas the network
+
+886
+01:19:24,460 --> 01:19:31,630
+能力是非常重要的，好吧，我必须说的是
+capacity was extremely important
+all right that's all I have to say and
+
+887
+01:19:31,900 --> 01:19:35,290
+下周见
+see you next week
+

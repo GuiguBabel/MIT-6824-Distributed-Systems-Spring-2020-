@@ -1,0 +1,5077 @@
+1
+00:00:00,900 --> 00:00:16,359
+今天的论文，我要讨论这个鸡蛋花，这是一个相当老的
+today the paper I'm going to discuss
+this frangipani this is a fairly old
+
+2
+00:00:16,359 --> 00:00:21,099
+分布式文件系统文件之所以读取它的原因是因为它
+distributed file system paper the reason
+why were reading it though is because it
+
+3
+00:00:21,099 --> 00:00:25,829
+与缓存一致性和
+has a lot of interesting and good design
+having to do with cache coherence and
+
+4
+00:00:25,829 --> 00:00:31,029
+分布式事务和分布式崩溃恢复以及
+distributed transactions and distributed
+crash recovery as well as the
+
+5
+00:00:31,029 --> 00:00:35,500
+他们之间的互动，那才是真正的想法
+interactions between them so those are
+those are the really the ideas behind
+
+6
+00:00:35,500 --> 00:00:42,699
+这是我们要尝试挑出来的，所以这真的是我们很多
+this that we're gonna try to tease out
+so these are it's really a lot of our
+
+7
+00:00:42,699 --> 00:00:50,679
+缓存一致性是我是否有缓存的想法
+caching coherence is really the idea of
+if I have something cached that
+
+8
+00:00:50,679 --> 00:00:54,370
+但是，即使我有缓存，如果您修改它，您也会知道
+nevertheless if you modify it despite me
+having a cache you know something will
+
+9
+00:00:54,370 --> 00:00:58,809
+发生，以便我可以看到您的修改，我们也有
+happen so I can see your your
+modifications and we also have
+
+10
+00:00:58,809 --> 00:01:06,910
+将其内部需要的操作分发给文件系统，以便能够
+distributed its actions which are needed
+internally to file systems to be able to
+
+11
+00:01:06,910 --> 00:01:14,560
+对文件系统的数据结构进行复杂的更新，因为文件
+make complex updates to the file system
+data structures and because the file
+
+12
+00:01:14,560 --> 00:01:19,270
+系统本质上是由一堆服务器拆分而成的
+system is essentially split up among a
+bunch of servers it's critical to be
+
+13
+00:01:19,270 --> 00:01:30,130
+能够从崩溃中恢复，那些服务器的整体设计成为了朋友
+able to recover from crashes and those
+servers the overall design a friend
+
+14
+00:01:30,130 --> 00:01:37,840
+ pammi这是一个旨在查找现有文件的网络文件系统
+pammi it's a network file system it's
+intended to look to existing
+
+15
+00:01:37,840 --> 00:01:41,050
+旨在与UNIX等现有应用程序一起使用的应用程序
+applications this is intended to work
+with existing applications like UNIX
+
+16
+00:01:41,050 --> 00:01:47,620
+我们在人的工作站上运行的普通UNIX程序
+programs ordinary UNIX programs we're
+running on people's workstations much
+
+17
+00:01:47,620 --> 00:01:53,500
+像Athena的AFS一样，您可以在Athena主目录中找到各种
+like Athena's AFS lets you get at your
+Athena home directory and various
+
+18
+00:01:53,500 --> 00:01:58,690
+任何Athena工作站的项目目录，总的来说
+project directories from any Athena
+workstation so the kind of overall
+
+19
+00:01:58,690 --> 00:02:06,010
+图片是您有一堆用户，论文世界中的每个用户都是
+picture is that you have a bunch of
+users each user in the papers world is
+
+20
+00:02:06,010 --> 00:02:09,369
+坐在工作站前面，你知道那不是笔记本电脑吗
+sitting in front of a workstation which
+is you know real not a laptop in those
+
+21
+00:02:09,369 --> 00:02:12,430
+天，但有点像带键盘和鼠标显示的计算机， 
+days but sort of computer with a
+keyboard and display in a mouse and
+
+22
+00:02:12,430 --> 00:02:14,490
+ Windows系统，所以每个人都坐着
+Windows system at all so each one is
+sitting
+
+23
+00:02:14,490 --> 00:02:19,260
+在计算机工作站的前面，我要称呼您知道的工作站
+front of a computer workstation I'm
+gonna call the workstations you know
+
+24
+00:02:19,260 --> 00:02:27,600
+工作站每个工作站再运行一个工作站
+workstation one more station to each
+workstation runs an instance of the
+
+25
+00:02:27,600 --> 00:02:32,930
+素馨花服务器，我的意思是说，你知道的几乎所有
+frangipani server I meant so a huge
+amount of the you know almost all of the
+
+26
+00:02:32,930 --> 00:02:40,440
+这篇论文中发生的事情在每个鸡蛋夹软件中都有
+stuff that happens in this paper goes on
+in the frangipani software in each
+
+27
+00:02:40,440 --> 00:02:44,490
+工作站，所以也许他们坐在工作站前面， 
+workstation so maybe they're sitting in
+front of a workstation and they might be
+
+28
+00:02:44,490 --> 00:02:48,540
+运行普通程序，例如读取和写入文件的文本编辑器
+running ordinary programs like a text
+editor that's reading and writing files
+
+29
+00:02:48,540 --> 00:02:51,540
+也许当他们完成源文件的编辑后，他们会通过
+and maybe when they finished editing a
+source file they run it through the
+
+30
+00:02:51,540 --> 00:02:57,570
+这些普通程序制作文件时，Reiser源文件的编译器
+compiler that the Reiser source file
+when these ordinary programs make file
+
+31
+00:02:57,570 --> 00:03:08,040
+内核中有一个系统调用，其中有一个素馨花模块，该模块实现了
+system calls inside the kernel there's a
+frangipani module that implements the
+
+32
+00:03:08,040 --> 00:03:15,690
+所有这些工作站内部的文件系统互相复制，然后
+file system inside of all of these
+workstations each other on copy and then
+
+33
+00:03:15,690 --> 00:03:19,980
+文件系统数据结构的真实存储，例如文件
+the real storage of the file system data
+structures things like certainly file
+
+34
+00:03:19,980 --> 00:03:24,120
+内容，还有I节点和目录以及alissa文件，以及每个
+contents but also I nodes and
+directories and alissa file and each
+
+35
+00:03:24,120 --> 00:03:28,710
+目录以及有关我所知道的信息和哪些块是免费的信息
+directory and the information about what
+I knows and what blocks are free all
+
+36
+00:03:28,710 --> 00:03:37,560
+存储在称为花瓣的共享虚拟磁盘表面中，它位于单独的
+that's stored in a shared virtual disk
+surface called petal it's on a separate
+
+37
+00:03:37,560 --> 00:03:40,650
+您知道的一组计算机可能是服务器计算机和一台计算机
+set of machines that are you know
+probably server machines and a machine
+
+38
+00:03:40,650 --> 00:03:45,090
+房间，而不是人们桌子上的工作站
+room rather than workstations on
+people's desks pedal among many other
+
+39
+00:03:45,090 --> 00:03:48,510
+东西会复制数据，因此您可以想到踏板服务器即将问世
+things replicates data so you can sort
+of think of pedal servers is coming in
+
+40
+00:03:48,510 --> 00:03:58,020
+对和一次崩溃，我们仍然可以获取我们的数据，因此当素馨花时
+pairs and one crashes we can still get
+at our data and so when frangipani
+
+41
+00:03:58,020 --> 00:04:02,370
+需要读取或写入一个您知道读取的目录或它发送远程内容的东西
+needs to read or write a you know read a
+directory or something it sends a remote
+
+42
+00:04:02,370 --> 00:04:06,360
+程序调用正确的踏板服务器说得好，这是
+procedure call off to the correct pedal
+server to say well here's the block that
+
+43
+00:04:06,360 --> 00:04:10,650
+我需要您知道，请为我阅读，然后将其退还给
+I need you know please read it for me
+please return that block and for the
+
+44
+00:04:10,650 --> 00:04:16,108
+花瓣的大部分部分就像磁盘驱动器，您可以将其视为一种
+most part petal is acting like a disk
+drive you can think of it as a kind of
+
+45
+00:04:16,108 --> 00:04:25,800
+作为一个共享磁盘驱动器共享，所有这些素馨花素的膝盖都在与之交谈， 
+shared as a shared disk drive that all
+these frangipane knees talk to and it's
+
+46
+00:04:25,800 --> 00:04:28,700
+称为虚拟磁盘
+called a virtual disk
+
+47
+00:04:31,830 --> 00:04:35,440
+从我们的角度来看，对于大多数讨论，我们只是想像
+from our point of view for most of this
+discussion we're just going to imagine
+
+48
+00:04:35,440 --> 00:04:39,580
+踏板只是磁盘驱动器，所有这些都通过网络使用
+pedal is just being a disk ride that's
+used over the network by all these
+
+49
+00:04:39,580 --> 00:04:44,950
+ Handy's的朋友，所以您可以给它一个方块来读写
+friends of Handy's and so it has you
+read and write it by giving it a block
+
+50
+00:04:44,950 --> 00:04:47,919
+磁盘上的数字或地址，似乎我想读取该块
+number or an address on the disk and
+seem like I'd like to read that block
+
+51
+00:04:47,919 --> 00:05:00,730
+就像普通的硬盘一样，所以该文件的预期用途是
+just like an ordinary hard drive okay so
+the intended use for this file so the
+
+52
+00:05:00,730 --> 00:05:05,590
+作者打算使用的用途实际上是
+use that the authors intended is
+actually reasonably important driver in
+
+53
+00:05:05,590 --> 00:05:10,690
+设计他们想要的是支持自己的活动以及
+the design what they wanted was to
+support their own activities and what
+
+54
+00:05:10,690 --> 00:05:16,600
+他们是某个研究实验室的成员，也许有50个人
+they were were were members of a
+research lab of maybe say 50 people in
+
+55
+00:05:16,600 --> 00:05:20,890
+这个研究实验室，他们习惯于共享基础设施，例如时间
+this research lab and they were used to
+shared infrastructure things like time
+
+56
+00:05:20,890 --> 00:05:27,070
+使用以前的网络文件系统共享机器或工作站以共享
+sharing machines or workstations using
+previous network file systems to share
+
+57
+00:05:27,070 --> 00:05:31,000
+合作研究人员之间的文件，所以他们都希望他们
+files among cooperating groups of
+researchers so they both wanted they
+
+58
+00:05:31,000 --> 00:05:33,970
+他们想要一个可以用来存储自己的主目录的文件系统
+they wanted a file system that they
+could use to store their own home
+
+59
+00:05:33,970 --> 00:05:39,550
+目录以及存储共享的项目文件，因此这意味着
+directories in as well as storing shared
+project files and so that meant that if
+
+60
+00:05:39,550 --> 00:05:43,270
+我编辑一个文件，我真的很希望其他人和我的其他人
+I edit a file I'd really like the other
+people my work and the other people I
+
+61
+00:05:43,270 --> 00:05:47,320
+可以读取我刚刚编辑的文件，因此我们希望
+work with to be able to read the file I
+just edited so we want that kind of
+
+62
+00:05:47,320 --> 00:05:52,780
+分享，此外，如果我能坐在我的任何工作站上也很棒
+sharing and in addition it's great if I
+can sit down at any workstation my
+
+63
+00:05:52,780 --> 00:05:57,550
+工作站您的工作站是库中的公共工作站，仍然可以
+workstation your workstation a public
+workstation in the library and still get
+
+64
+00:05:57,550 --> 00:06:01,240
+在我所有主目录的所有文件中
+at all of the files of all my home
+directory everything I need in my
+
+65
+00:06:01,240 --> 00:06:07,000
+环境，因此他们对人类用户的共享文件系统非常感兴趣
+environment so they're really interested
+in a shared file system for human users
+
+66
+00:06:07,000 --> 00:06:12,820
+在一个相对较小的组织中，规模很小，每个人都可以信任所有人
+in a relatively small organization small
+enough that everybody was trusted all
+
+67
+00:06:12,820 --> 00:06:16,810
+人们所有的计算机，所以实际上设计几乎没有什么可做的
+the people all the computers so really
+the design has essentially nothing to
+
+68
+00:06:16,810 --> 00:06:21,820
+说到安全性，实际上可以说在像这样的环境中是行不通的
+say about security and indeed arguably
+would not work in an environment like
+
+69
+00:06:21,820 --> 00:06:26,410
+雅典娜，您无法真正信任用户或工作站，因此
+Athena where you can't really trust the
+users or the workstations so it's really
+
+70
+00:06:26,410 --> 00:06:34,450
+就性能而言，非常适合其环境而设计
+very much designed for their their
+environment now as far as performance
+
+71
+00:06:34,450 --> 00:06:37,630
+他们的环境也很重要，你知道事实证明， 
+their environment was also important you
+know it turns out that the way most
+
+72
+00:06:37,630 --> 00:06:40,569
+人们使用计算机是他们坐在前面的租赁工作站
+people use computers are leased
+workstations they sit in front of is
+
+73
+00:06:40,569 --> 00:06:44,679
+他们主要是读写自己的文件，并且可能会读取一些共享的文件
+that they mostly read and write their
+own files and they may read some shared
+
+74
+00:06:44,679 --> 00:06:50,289
+您知道程序或某些项目文件之类的文件，但大多数情况下
+files you know programs or some project
+files or something but most of the time
+
+75
+00:06:50,289 --> 00:06:53,770
+我正在读写文件，而您正在读写文件
+I'm reading and writing my files and
+you're reading and writing your files on
+
+76
+00:06:53,770 --> 00:06:57,189
+您的工作站，您知道这确实是我们积极参与的例外
+your workstation and you know it's
+really the exception that we're actively
+
+77
+00:06:57,189 --> 00:07:01,629
+共享文件，因此能够以一种方式或
+sharing files so it makes a huge amount
+of sense to be able to one way or
+
+78
+00:07:01,629 --> 00:07:06,099
+即使正式的文件的真实副本存储在此
+another even though officially the real
+copies of files are stored in this
+
+79
+00:07:06,099 --> 00:07:11,499
+共享磁盘，如果我们可以进行某种缓存，那就太棒了，因此
+shared disk it's fantastic if we can
+have some kind of caching so that after
+
+80
+00:07:11,499 --> 00:07:15,610
+我登录后将文件在本地缓存了一段时间，以便可以
+I log in and I use my files for a while
+they're locally cached here so they can
+
+81
+00:07:15,610 --> 00:07:20,169
+被弄到，你知道微秒而不是毫秒，如果
+be gotten gotten that and you know
+microseconds instead of milliseconds if
+
+82
+00:07:20,169 --> 00:07:27,639
+我们必须从文件服务器中获取它们，以便支持法国比利牛斯山脉
+we have to fetch them from the file
+servers ok so French Pyrenees supported
+
+83
+00:07:27,639 --> 00:07:33,849
+这种缓存还不仅支持右向缓存
+this this kind of caching furthermore it
+supported right-back caching not only
+
+84
+00:07:33,849 --> 00:07:40,479
+在每个工作站和每个素馨花服务器中缓存每个缓存
+caching in each in each workstation and
+each frangipani server we also have
+
+85
+00:07:40,479 --> 00:07:49,149
+右后缓存，这意味着如果我要修改某些内容， 
+right back caching which means that if I
+want to modify something if I modify a
+
+86
+00:07:49,149 --> 00:07:53,409
+文件，甚至在目录中创建文件，或者删除文件或基本上
+file or even create a file in a
+directory or delete a file or basically
+
+87
+00:07:53,409 --> 00:07:57,939
+只要没有其他工作站不需要看的其他任何操作
+do any other operation as long as nobody
+else no other workstation needs to see
+
+88
+00:07:57,939 --> 00:08:01,659
+鸡蛋花与回写缓存一起使用
+it
+frangipani acts with a write back cache
+
+89
+00:08:01,659 --> 00:08:07,240
+这意味着如果我在以下位置创建文件，我的写操作将仅保留在缓存中本地
+and that means that my writes stay only
+local in the cache if I create a file at
+
+90
+00:08:07,240 --> 00:08:11,740
+至少最初有关新创建文件的信息表示新
+least initially the information about
+the newly created file said a newly
+
+91
+00:08:11,740 --> 00:08:16,809
+用初始化的内容分配了索引节点，并且您知道添加了新条目
+allocated inode with initialized
+contents and you know a new entry added
+
+92
+00:08:16,809 --> 00:08:21,219
+以新的名字对待我的主目录的所有这些修改
+to a new name attitudes to my home
+directory all those modifications
+
+93
+00:08:21,219 --> 00:08:25,389
+最初只是在缓存中完成，因此创建文件之类的事情
+initially are just done in the cache and
+therefore things like creating a file
+
+94
+00:08:25,389 --> 00:08:30,300
+可以非常快速地完成，他们只需要在此修改本地内存
+can be done extremely rapidly they just
+require modifying local memory in this
+
+95
+00:08:30,300 --> 00:08:34,630
+机器的磁盘缓存，它们通常不会写回去兜售，直到
+machine's disk cache and they're not
+written back in general to peddle until
+
+96
+00:08:34,630 --> 00:08:39,519
+之后，至少在最初，我们可以对文件进行各种修改
+later so at least initially we can do
+all kinds of modifications to the file
+
+97
+00:08:39,519 --> 00:08:44,889
+系统，至少到我自己的目录，我自己的文件完全在本地，这就是
+system at least to my own directories my
+own files completely locally and that's
+
+98
+00:08:44,889 --> 00:08:48,639
+对性能非常有帮助，就像您知道的千分之一
+enormous ly helpful for performance it's
+like a you know factor of a thousand
+
+99
+00:08:48,639 --> 00:08:52,149
+能够修改本地存储器中的内容与具有
+difference being able to modify
+something in local memory versus having
+
+100
+00:08:52,149 --> 00:08:59,470
+发送远程过程调用以立即发送服务器的一个严重后果是
+to send a remote procedure calls to send
+server now one serious consequence of
+
+101
+00:08:59,470 --> 00:09:06,130
+这是这里体系结构的绝对决定因素
+that it's extremely determinative of the
+architecture here is that that meant
+
+102
+00:09:06,130 --> 00:09:11,860
+文件系统的逻辑必须在每个工作站中才能使
+that the logic of the file system has to
+be in each workstation in order for my
+
+103
+00:09:11,860 --> 00:09:15,700
+工作站能够执行诸如创建文件等操作
+workstation to be able to implement
+things like create a file just operating
+
+104
+00:09:15,700 --> 00:09:20,740
+脱离其本地缓存，意味着文件的所有逻辑和所有智能
+out of its local cache it means all the
+logic all the intelligence for the file
+
+105
+00:09:20,740 --> 00:09:24,070
+系统必须坐在我的工作站及其设计中
+system has to be sitting here in my
+workstation and in their design
+
+106
+00:09:24,070 --> 00:09:28,720
+基本上与踏板共享存储系统知道的近似
+basically to a first approximation the
+pedal shared storage system knows
+
+107
+00:09:28,720 --> 00:09:34,450
+绝对没有关于文件系统或文件或目录的所有逻辑
+absolutely nothing about file systems or
+files or directories all that logic this
+
+108
+00:09:34,450 --> 00:09:38,920
+从某种意义上说，这是一个非常简单的简单系统， 
+is a very in a sense very
+straightforward simple system and all
+
+109
+00:09:38,920 --> 00:09:46,089
+每位客户的素馨花都在这里，这是非常复杂的
+the complexity is here in the frangipani
+in each client so it's a very kind of
+
+110
+00:09:46,089 --> 00:09:50,770
+分散计划，原因之一是-因为那就是你
+decentralized scheme and one of the
+reasons is - because that's what you
+
+111
+00:09:50,770 --> 00:09:56,339
+真正需要的或这些是他们可以想到的设计，以允许他们做
+really need or these that was a design
+they could think of to allow them to do
+
+112
+00:09:56,339 --> 00:10:00,610
+纯粹在每个工作站本地进行修改，它确实具有不错的一面
+modifications purely locally in each
+workstation it does have the nice side
+
+113
+00:10:00,610 --> 00:10:05,470
+效果虽然我是因为大多数复杂性和大部分CPU时间
+effect though that I'm since most of the
+complexity and most of the CPU time
+
+114
+00:10:05,470 --> 00:10:09,970
+花费是在这里花费的，这意味着您在添加用户时将工作站添加到
+spent is spent here it means that as you
+add workstations as you add users to the
+
+115
+00:10:09,970 --> 00:10:16,870
+系统会自动获得更多的CPU容量来运行这些新用户文件
+system you automatically get more CPU
+capacity to run those new users file
+
+116
+00:10:16,870 --> 00:10:21,550
+系统操作，因为大多数文件系统操作仅发生在本地
+system operations because most file
+system operations happen just locally in
+
+117
+00:10:21,550 --> 00:10:25,690
+占用CPU时间最多的工作站是在这里，因此系统会
+the workstation that's most of the CPU
+time is spent here so the system does
+
+118
+00:10:25,690 --> 00:10:30,550
+每次添加工作站时，都具有一定程度的自然扩展可伸缩性
+have a certain degree of natural scaling
+scalability as you add workstations each
+
+119
+00:10:30,550 --> 00:10:33,459
+新的工作站给新用户带来了更多负担，但同时也带来了更多负担
+new workstation is a bit more load from
+a new user but it's also a bit more
+
+120
+00:10:33,459 --> 00:10:38,260
+用户运行文件系统的可用CPU时间
+available CPU time to run that users
+file system operations of course at some
+
+121
+00:10:38,260 --> 00:10:44,800
+点，您将在中央存储系统中用完所有气体，然后您
+point you're gonna run out of gas here
+in the central storage system and you
+
+122
+00:10:44,800 --> 00:10:52,980
+知道，那么您可能需要添加更多存储服务器
+know then you may need to add more
+storage servers to all right
+
+123
+00:10:54,830 --> 00:11:01,320
+好吧，所以我们有在这里进行认真缓存的系统，此外
+so okay so we have the system that does
+serious caching here and furthermore
+
+124
+00:11:01,320 --> 00:11:06,750
+在缓存中进行修改，实际上这些修改会立即
+does the modifications in the cache that
+actually these immediately to some
+
+125
+00:11:06,750 --> 00:11:11,670
+设计中的严峻挑战，而设计主要是要解决
+serious challenges in the design and the
+design is mostly about solving the
+
+126
+00:11:11,670 --> 00:11:20,339
+我要提出的挑战在很大程度上是
+challenges I'm about to lay out these
+are largely count challenges of that's
+
+127
+00:11:20,339 --> 00:11:28,380
+来自缓存和这种分散式架构，其中大多数
+come from caching and this sort of
+decentralized architecture where most of
+
+128
+00:11:28,380 --> 00:11:43,220
+情报掌握在客户中，所以第一个挑战是
+the intelligence is sitting in the
+clients so the first challenge is that
+
+129
+00:11:45,500 --> 00:11:55,890
+假设工作站在您创建的文件中知道一个可能是/ aa new的文件
+suppose workstation one creates a file
+in you know maybe a file say /a a new
+
+130
+00:11:55,890 --> 00:12:01,380
+文件/ a，最初它只是在其本地缓存中创建此文件，以便您知道
+file /a and initially it just creates
+this in its local cache so that you know
+
+131
+00:12:01,380 --> 00:12:05,010
+首先，它可能需要从中获取slash目录的当前内容。 
+first it may need to fetch the current
+contents of the slash directory from
+
+132
+00:12:05,010 --> 00:12:10,110
+花瓣标称值，但是当它创建文件时，只需修改其缓存副本并
+petal nom but then when it creates a
+file just modifies its cached copy and
+
+133
+00:12:10,110 --> 00:12:14,459
+不会立即将其发送回兜售，这是一个直接的问题
+doesn't immediately send it back to
+peddle then there's an immediate problem
+
+134
+00:12:14,459 --> 00:12:19,709
+这里假设工作站2上的用户尝试获取目录的目录
+here suppose the user on workstation 2
+tries to get a directory listing of the
+
+135
+00:12:19,709 --> 00:12:24,720
+目录斜杠，我们非常希望能够使该用户看到新的
+directory slash right we'd really like
+to be able to this user see the newly
+
+136
+00:12:24,720 --> 00:12:29,339
+创建文件的权利，这就是用户的期望，用户将非常
+created file right and that's what users
+are gonna expect and users will be very
+
+137
+00:12:29,339 --> 00:12:33,420
+如果您认识我旁边的人感到困惑，创建了一个文件并说哦
+confused if you know person down the
+hall from me created a file and said oh
+
+138
+00:12:33,420 --> 00:12:36,360
+你知道我把所有这些有趣的信息放在这个新文件中/ a为什么
+you know I put all this interesting
+information in this new file /a why
+
+139
+00:12:36,360 --> 00:12:41,040
+你不去读它，然后我试着去读它，它完全不存在，所以我们
+don't you go read it and then I try to
+read it and it's totally not there so we
+
+140
+00:12:41,040 --> 00:12:45,000
+如果大厅里的人说他们已经
+absolutely want very strong consistency
+if the person down the hall says they've
+
+141
+00:12:45,000 --> 00:12:49,200
+在文件系统中完成了某些操作，我应该能够看到它，如果我编辑了
+done something in the file system I
+should be able to see it and if I edit a
+
+142
+00:12:49,200 --> 00:12:54,330
+文件放在一个工作站上，然后在另一台计算机上编译它
+file on one work station and then maybe
+compile it on a computer on another
+
+143
+00:12:54,330 --> 00:12:58,500
+计算机，我希望编译器查看我对文件所做的修改
+computer I want the compiler to see the
+modifications I just made to my file
+
+144
+00:12:58,500 --> 00:13:05,540
+这意味着文件系统必须做一些事情以确保读者能够看到
+which means that the file system has to
+do something to ensure that readers see
+
+145
+00:13:05,540 --> 00:13:11,279
+甚至是最近的版权，所以我们一直在谈论这一点
+even the most recent rights so we've
+been talking about this as we've been
+
+146
+00:13:11,279 --> 00:13:15,740
+称其为强先验性和线性化能力
+calling this you know strong strong
+consistency and linearize ability before
+
+147
+00:13:15,740 --> 00:13:20,850
+这基本上是我们在缓存上下文中想要的，尽管像问题一样
+and that's basically what we want in the
+context of caches though like the issue
+
+148
+00:13:20,850 --> 00:13:24,480
+这与存储服务器无关，实际上与事实有关
+here is not really about the storage
+server necessarily it's about the fact
+
+149
+00:13:24,480 --> 00:13:28,860
+在这里有一个修改，现在需要在其他地方看到
+that there was a modification here that
+needs to be seen somewhere else and now
+
+150
+00:13:28,860 --> 00:13:38,790
+由于历史原因，通常称为缓存一致性
+for historical reasons that's usually
+called cache coherence that is the
+
+151
+00:13:38,790 --> 00:13:43,649
+缓存系统的属性，即使我有旧版本的东西
+property of a caching system that even
+if I have an old version of something
+
+152
+00:13:43,649 --> 00:13:48,269
+如果其他人在其缓存中对其进行了修改，则该缓存将被缓存
+cached if someone else modifies it in
+their cache then my cache will
+
+153
+00:13:48,269 --> 00:13:53,550
+自动反映其修改，因此我们需要此缓存
+automatically reflect their
+modifications so we want this cache
+
+154
+00:13:53,550 --> 00:14:01,889
+一致性属性您遇到的另一个问题是，您了解所有一切
+coherence property another issue you
+have is that the you know everything all
+
+155
+00:14:01,889 --> 00:14:05,879
+文件和目录是共享的，我们很容易遇到两种情况
+the files and directories are shared we
+could easily have a situation where two
+
+156
+00:14:05,879 --> 00:14:11,220
+不同的工作站同时修改同一目录，因此
+different workstations are modifying the
+same directory at the same time so
+
+157
+00:14:11,220 --> 00:14:16,019
+再次假设也许工作站上的用户想要创建一个文件
+suppose again maybe the user one on
+their workstation wants to create a file
+
+158
+00:14:16,019 --> 00:14:20,189
+ / a是根目录中新目录中斜杠的新文件
+/a which is a new file in the directory
+slash in the new in the root directory
+
+159
+00:14:20,189 --> 00:14:27,209
+并且同时用户两个想要创建一个称为斜杠B的新文件，因此在
+and at the same time user two wants to
+create a new file called slash B so at
+
+160
+00:14:27,209 --> 00:14:32,100
+在某种程度上，您知道他们正在创建不同的文件a和B，但是它们
+some level you know they're creating
+different files alright a and B but they
+
+161
+00:14:32,100 --> 00:14:35,399
+两者都需要修改根目录以向根目录添加新名称
+both need to modify the root directory
+to add a new name to the root directory
+
+162
+00:14:35,399 --> 00:14:40,920
+所以问题是，即使他们同时执行此操作，您也知道要归档
+and so the question is even if they do
+this simultaneously you know to file
+
+163
+00:14:40,920 --> 00:14:44,339
+创建不同名称的文件，但位于不同目录的同一目录中
+creations of differently named files but
+in the same directory from different
+
+164
+00:14:44,339 --> 00:14:51,029
+工作站将使系统能够整理出这些并发的修改
+workstations will the system be able to
+sort out these concurrent modifications
+
+165
+00:14:51,029 --> 00:14:54,240
+到同一目录，并得出一些合理的结果，当然
+to the same directory and arrive at some
+sensible result and of course the
+
+166
+00:14:54,240 --> 00:14:58,949
+我们想要的明智结果是，a和B最终都存在，我们不想
+sensible result we want is that both a
+and B end up existing we don't want to
+
+167
+00:14:58,949 --> 00:15:04,230
+最终遇到一些您知道的情况，其中只有一个最终存在
+end up with some you know situation in
+which only one of them ends up existing
+
+168
+00:15:04,230 --> 00:15:10,259
+因为第二个修改覆盖并取代了
+because the second modification
+overwrote and sort of superseded the
+
+169
+00:15:10,259 --> 00:15:13,160
+第一次修改
+first modification
+
+170
+00:15:15,440 --> 00:15:21,150
+所以这又一次使用了许多不同的名称，但我们称其为de 
+and so this is again it goes by a lot of
+different names but we'll call it a de
+
+171
+00:15:21,150 --> 00:15:28,770
+ Missa T我们想要诸如创建文件之类的操作来引导文件充当
+Missa T we want operations such as
+create a file to lead a file to act as
+
+172
+00:15:28,770 --> 00:15:34,620
+如果它们只是瞬时的，瞬时的，并且永远不会
+if they just are instantaneous
+instantaneous and time and don't ever
+
+173
+00:15:34,620 --> 00:15:39,930
+因此永远不要干扰在相似时间发生的操作
+therefore don't ever interfere with
+operations that occur at similar times
+
+174
+00:15:39,930 --> 00:15:43,470
+被其他工作站很好地发生在某个时刻
+by other workstations
+well things to happen just at a point in
+
+175
+00:15:43,470 --> 00:15:47,670
+时间并且不会分散，即使它们是复杂的操作并且涉及
+time and not be spread over even if
+they're complex operations and involve
+
+176
+00:15:47,670 --> 00:15:54,770
+接触到很多状态，我们希望它们像瞬间发生一样出现
+touching a lot of state we want them to
+appear as if they occur instantaneously
+
+177
+00:15:54,770 --> 00:16:04,230
+最后一个问题是，假设您知道我的工作站已被修改
+at a final problem we have is suppose
+you know my workstation is modified a
+
+178
+00:16:04,230 --> 00:16:07,589
+很多东西，也许是它的修改或很多
+lot of stuff and maybe it's
+modifications are or many of its
+
+179
+00:16:07,589 --> 00:16:12,420
+由于此右后缓存，因此只能在本地缓存中进行修改
+modifications are done only in the local
+cache because of this right back caching
+
+180
+00:16:12,420 --> 00:16:18,450
+如果在修改本地缓存中的某些内容后我的was station崩溃了
+if my were station crashes after having
+modified some stuff in its local cache
+
+181
+00:16:18,450 --> 00:16:22,170
+可能会将部分但不是全部修改反映回存储中
+and maybe reflected some but not all
+those modifications back to storage
+
+182
+00:16:22,170 --> 00:16:29,520
+踩其他工作站仍在执行，他们仍然需要能够
+pedal other workstations are still
+executing and they still need to be able
+
+183
+00:16:29,520 --> 00:16:34,290
+可以理解文件系统，因此我在工作站崩溃时
+to make sense of the file system so the
+fact that my workstation crashed while I
+
+184
+00:16:34,290 --> 00:16:38,310
+最好不要破坏整个文件系统
+was in the middle of something had
+better not wreck the entire file system
+
+185
+00:16:38,310 --> 00:16:45,330
+对于其他人甚至其中的任何部分，这意味着我们需要的是崩溃
+for everybody else or even any part of
+it so that means what we need is crash
+
+186
+00:16:45,330 --> 00:16:51,080
+恢复单个服务器，我们将无法使我的工作站崩溃
+recovery of individual servers we won't
+be able to have my workstation crash
+
+187
+00:16:51,080 --> 00:16:55,500
+不会干扰使用同一共享的其他人的活动
+without disturbing the activity of
+anybody else using the same shared
+
+188
+00:16:55,500 --> 00:16:58,650
+系统，即使他们查看我文件中的目录，也应该看到
+system even if they look at my directory
+in my files they should see something
+
+189
+00:16:58,650 --> 00:17:02,839
+明智的做法也许不会包括我所做的最后一件事，但他们应该看到
+sensible maybe it won't include the very
+last things I did but they should see a
+
+190
+00:17:02,839 --> 00:17:08,250
+一致的文件系统，而不是rekt文件系统的数据结构，因此我们需要
+consistent file system and not a rekt
+file system data structure so we want
+
+191
+00:17:08,250 --> 00:17:10,910
+崩溃恢复
+crash recovery
+
+192
+00:17:13,859 --> 00:17:18,759
+与以往一样，分布式系统变得更加复杂，因为我们可以
+
+193
+00:17:18,760 --> 00:17:22,900
+很容易出现只有其中一台服务器崩溃而其他服务器崩溃的情况
+easily have a situation where only one
+of the servers crashes but the others
+
+194
+00:17:22,900 --> 00:17:30,160
+正在为所有这些事情而运行，并针对所有这三个挑战
+are running and again for all of these
+things for all three of these challenges
+
+195
+00:17:30,160 --> 00:17:34,300
+他们真的受到挑战，我们在这次讨论中
+they're really challenged we're in this
+discussion their challenges about how
+
+196
+00:17:34,300 --> 00:17:38,190
+鸡蛋花的工作原理以及这些鸡蛋花的用法
+frangipani works and how these
+frangipani
+
+197
+00:17:38,190 --> 00:17:42,130
+工作站内部的软件可以正常工作，所以当我谈论崩溃时， 
+software inside the workstations work
+and so when I talk about a crash I'm
+
+198
+00:17:42,130 --> 00:17:46,630
+谈论工作站的崩溃和素馨花，你知道踏板
+talking about a crash of a workstation
+and it's frangipani you know the pedal
+
+199
+00:17:46,630 --> 00:17:51,850
+虚拟磁盘有许多与之相关的类似问题，但没有
+virtual disk has many similar questions
+associated with it but there are not
+
+200
+00:17:51,850 --> 00:17:59,230
+今天的焦点实际上是一组完全独立的R'lyeh断层
+really the focus today it has a
+completely separate set of R'lyeh fault
+
+201
+00:17:59,230 --> 00:18:04,720
+内置在踏板中的公差机械，实际上很像链条
+tolerance machinery built into pedal and
+it's actually a lot like the chain
+
+202
+00:18:04,720 --> 00:18:12,460
+复制类型的系统，我们之前讨论过，所以我要谈谈
+replication kind of systems we talked
+about earlier ok so I'm going to talk
+
+203
+00:18:12,460 --> 00:18:20,010
+关于这些挑战，第一个挑战是缓存一致性
+about each of these challenges in turn
+the first challenge is cache coherence
+
+204
+00:18:22,050 --> 00:18:32,680
+而这里的游戏是要同时获得线性化能力和
+and the game here is to get both the
+benefits of both linearize ability that
+
+205
+00:18:32,680 --> 00:18:36,850
+当我阅读文件系统中的任何内容时，总能看到新鲜的东西
+is when I read when I look at anything
+in the filesystem I always see fresh
+
+206
+00:18:36,850 --> 00:18:42,210
+数据我总是看到最新的数据，因此我们既具有线性化能力，又具有
+data I always see the very latest data
+so we got both linearize ability and
+
+207
+00:18:42,210 --> 00:18:48,100
+缓存不是缓存，这是很好的缓存，因为我们可以以某种方式获得性能
+caching not caching that's good caching
+as we can get for performance so somehow
+
+208
+00:18:48,100 --> 00:18:56,470
+我们知道，我们需要获得这些以及这些方面的好处
+we you know we need to get the benefits
+of both of these and the kind of that
+
+209
+00:18:56,470 --> 00:19:01,120
+人们使用所谓的缓存一致性来实现缓存一致性
+people implement cache coherence that is
+using what are called cache coherence
+
+210
+00:19:01,120 --> 00:19:04,510
+协议，事实证明这些协议在很多方面都得到了广泛使用
+protocols and it turns out these
+protocols are used a lot in many
+
+211
+00:19:04,510 --> 00:19:08,770
+不同情况不仅是分布式文件系统，还包括
+different situations not just
+distributed file systems but also things
+
+212
+00:19:08,770 --> 00:19:14,880
+就像多核中的高速缓存一样，多核处理器中的每核高速缓存
+like the caches in multi-core the per
+core caches in multi core processors
+
+213
+00:19:14,880 --> 00:19:20,620
+也使用缓存一致性协议，这些协议将与协议没有什么不同
+also use cache coherence protocols which
+are going to be not unlike the protocols
+
+214
+00:19:20,620 --> 00:19:23,700
+我要描述素馨花
+I'm going to describe for frangipani all
+right
+
+215
+00:19:23,700 --> 00:19:32,130
+因此事实证明，素馨花x的缓存一致性是由其使用锁驱动的
+so it turns out that frangipani x' cache
+coherence is driven by its use of locks
+
+216
+00:19:32,130 --> 00:19:37,169
+稍后我们会看到实际上是原子性和
+and we'll see locks come up later in
+both actually for both atomicity and
+
+217
+00:19:37,169 --> 00:19:41,130
+崩溃恢复，但是我现在要谈论的锁的特殊用法是
+crash recovery but the particular use of
+locks I'm going to talk about for now is
+
+218
+00:19:41,130 --> 00:19:45,149
+使用块来驱动缓存一致性，以帮助工作站确保
+a use of blocks to drive cache coherence
+to help workstations ensure that even
+
+219
+00:19:45,149 --> 00:19:51,029
+尽管他们在缓存数据，但他们也在缓存最新数据，以及
+though they're caching data they're
+caching the latest data so as well as
+
+220
+00:19:51,029 --> 00:19:55,889
+素馨花服务器，工作站和踏板服务器还有第三种
+the frangipani servers and workstations
+and pedal servers there's a third kind
+
+221
+00:19:55,889 --> 00:20:02,730
+在素馨花系统中的服务器上，有锁服务器，所以我们
+of server in the frangipani system
+there's lock servers and so we're I'm
+
+222
+00:20:02,730 --> 00:20:06,870
+只是假装有一个锁服务器，尽管您可以分片
+just gonna pretend there's one lock
+server although you could shard the
+
+223
+00:20:06,870 --> 00:20:16,470
+锁定多个服务器，所以这是一个锁定服务器，它是一个单独的
+locks over multiple servers so here's a
+lock server it's a separate you know
+
+224
+00:20:16,470 --> 00:20:19,500
+从逻辑上讲至少是一台单独的计算机，尽管我认为他们可以运行它们
+it's logically at least a separate
+computer although I think they ran them
+
+225
+00:20:19,500 --> 00:20:24,659
+在与踏板服务器相同的硬件上，但基本上只有一个
+on the same hardware as the pedal
+servers but it basically just has a
+
+226
+00:20:24,659 --> 00:20:32,070
+命名锁表和锁已命名，我们将认为它们以
+table of named locks and locks are named
+we'll consider them to be named after a
+
+227
+00:20:32,070 --> 00:20:37,139
+以文件名命名，尽管实际上它们是以I编号命名的，所以我们
+named as after file names although in
+fact they're named after I numbers so we
+
+228
+00:20:37,139 --> 00:20:48,630
+每个文件都有一个锁，每个锁都有可能
+have for every file we have a lock
+potentially and each lock is possibly
+
+229
+00:20:48,630 --> 00:20:54,240
+在此讨论中归某个所有者所有，我只是假设我要描述
+owned by some owner for this discussion
+I'm just gonna assume I'm gonna describe
+
+230
+00:20:54,240 --> 00:20:58,769
+好像锁是排他锁，尽管事实上鸡蛋花还有更多
+it as if the locks were exclusive locks
+although in fact frangipani has a more
+
+231
+00:20:58,769 --> 00:21:03,899
+复杂的锁方案，允许一个作者或多个读者
+complicated scheme for locks that allow
+either one writer or multiple readers so
+
+232
+00:21:03,899 --> 00:21:10,529
+例如，也许文件X最近已被工作站1使用，并且
+for example maybe file X has recently
+been used by workstation 1 and
+
+233
+00:21:10,529 --> 00:21:17,519
+工作站1上有一个锁，也许工作站2最近使用了文件Y 
+workstation 1 has a lock on it and maybe
+file Y is recently used by workstation 2
+
+234
+00:21:17,519 --> 00:21:21,510
+并且工作站2上有一个锁，锁服务器将记住或
+and workstation 2 has a lock on it and
+the lock server will remember off or
+
+235
+00:21:21,510 --> 00:21:24,299
+每个有锁的文件，如果有人也许没人
+each file
+who has the lock if anyone maybe nobody
+
+236
+00:21:24,299 --> 00:21:29,870
+在该文件上执行，然后在每个工作站上执行
+does on that file and then in each
+workstation
+
+237
+00:21:29,870 --> 00:21:36,090
+每个工作站都跟踪其持有的锁，并将其紧密地绑在一起
+each workstation keeps track of which
+locks it holds and this is tightly tied
+
+238
+00:21:36,090 --> 00:21:38,999
+对此，我也在跟踪缓存数据
+to it
+I'm keeping track of cache data as well
+
+239
+00:21:38,999 --> 00:21:49,549
+因此在每个工作站素馨花模块中，还有一个锁表和一个
+so in each workstations frangipani
+module there's also a lock table and
+
+240
+00:21:52,999 --> 00:21:59,989
+记录更多文件以锁定哪种文件，并记录更多会话，以及
+record what file the more session to
+lock for what kind of lock it has and
+
+241
+00:21:59,989 --> 00:22:04,710
+该文件的缓存内容的内容，因此可能是一大堆
+the contents the cached contents of that
+file so that might be a whole bunch of
+
+242
+00:22:04,710 --> 00:22:10,320
+数据块或目录内容，例如，有很多内容
+data blocks or maybe directory contents
+for example so there's a lot of content
+
+243
+00:22:10,320 --> 00:22:17,100
+在这里，Linda鸡蛋花服务器决定了哦，需要阅读，需要使用
+here so Linda frangipani server decides
+oh it needs to read it needs to use the
+
+244
+00:22:17,100 --> 00:22:22,679
+目录斜杠或查看文件a或查看它首先被询问的索引节点
+directory slash or look at the file a or
+look at an inode it first gets asked the
+
+245
+00:22:22,679 --> 00:22:26,999
+锁定服务器以锁定将要使用的任何内容，然后要求花瓣
+lock server for a lock on whatever it's
+about to use and then it asks petal to
+
+246
+00:22:26,999 --> 00:22:32,369
+获取该文件或目录或其所需要的数据
+get the data for whatever that file or
+directory or whatever it is and it needs
+
+247
+00:22:32,369 --> 00:22:36,539
+阅读，然后工作站会记住哦，你知道我有副本
+to read and then the workstation
+remembers oh ho you know I have a copy
+
+248
+00:22:36,539 --> 00:22:46,590
+的文件X的内容与文件X的内容缓存的内容有关
+of file X its content is whatever the
+content of file X is cached and it turns
+
+249
+00:22:46,590 --> 00:22:51,960
+工作站可以在至少两种不同的模式下锁定
+out that workstations can have a lock in
+at least two different modes what the
+
+250
+00:22:51,960 --> 00:22:56,970
+工作站可以主动读取或写入该文件或目录
+workstation can be actively reading or
+writing whatever that file or directory
+
+251
+00:22:56,970 --> 00:23:01,799
+现在处于文件创建操作或删除操作的中间，或者
+is right now that it's in the middle of
+a file creation operation or deletion or
+
+252
+00:23:01,799 --> 00:23:09,379
+重命名之类的东西，在这种情况下，我会说锁是由
+rename or something so in that case I'll
+say that the lock is held by the
+
+253
+00:23:09,379 --> 00:23:16,049
+工作站并且很忙，也可能是工作站完成了一些操作之后
+workstation and is busy it could also be
+after a workstation has done some
+
+254
+00:23:16,049 --> 00:23:18,779
+创建文件或读取文件之类的操作
+operation like create a file or maybe
+read a file
+
+255
+00:23:18,779 --> 00:23:22,139
+您知道然后在系统调用完成后立即释放锁
+you know then release the lock as soon
+as it's done with that system call
+
+256
+00:23:22,139 --> 00:23:25,859
+任何系统调用，例如重命名，读取或写入或在系统创建后立即创建
+whatever system call like rename or read
+or write or create as soon as the system
+
+257
+00:23:25,859 --> 00:23:31,980
+工作站上的呼叫将至少在内部放弃锁，不是
+calls over the workstation will give up
+the lock at least internally it's not
+
+258
+00:23:31,980 --> 00:23:36,119
+主动使用该文件，但它将一直到锁定服务器为止
+actively using that file anymore but
+it'll as far as the lock server is
+
+259
+00:23:36,119 --> 00:23:39,809
+有关工作站将持有锁，但工作站会对此进行说明
+concerned the workstation will hold the
+lock but the workstation notes for it
+
+260
+00:23:39,809 --> 00:23:45,269
+它自己的用途是不再积极使用该锁，也称
+its own use that it's not actively using
+that lock anymore as well call that the
+
+261
+00:23:45,269 --> 00:23:54,430
+锁仍然是我所拥有的工作站，但工作站却没有
+lock is still held by the workstation
+I'm just but the work station isn't
+
+262
+00:23:54,430 --> 00:24:01,360
+真正地使用它，那一会儿很重要，所以我认为这两个
+really using it and that'll be important
+in a moment okay so I think these two
+
+263
+00:24:01,360 --> 00:24:05,050
+如果我们假设这是工作站之一，则设置一致
+are set up consistently if we assume
+this is workstation one the lock server
+
+264
+00:24:05,050 --> 00:24:08,620
+知道存在x和y的哦锁，并且它们都被工作站一持有
+knows Oh locks for x and y exists and
+they're both held by workstation one
+
+265
+00:24:08,620 --> 00:24:13,090
+工作站一在其表中具有等效信息，它知道
+workstation one has equivalent
+information in its table it knows it's
+
+266
+00:24:13,090 --> 00:24:18,010
+持有这两个街区，而且它具有记住内容的功能
+holding these two blocks and furthermore
+it has the it's remembering the content
+
+267
+00:24:18,010 --> 00:24:26,560
+被缓存为两个锁覆盖的目录的文件管理器
+is cached for the filers of directories
+that the two locks cover there's a
+
+268
+00:24:26,560 --> 00:24:32,680
+鸡蛋花中遵循的一些规则导致其使用
+number of rules here that in that
+frangipani follows that caused it to use
+
+269
+00:24:32,680 --> 00:24:36,850
+以提供高速缓存一致性的方式进行锁定，然后确保没人
+locks in a way that provide cache
+coherence then sure nobody's ever
+
+270
+00:24:36,850 --> 00:24:45,840
+意味着使用缓存中的过时数据，所以这些基本上是规则
+meaning using stale data from their
+cache so so these are basically rules
+
+271
+00:24:46,110 --> 00:24:53,470
+与锁一起使用并缓存数据，所以一个真正的
+that are using conjunction with the
+locks and cache data so one the really
+
+272
+00:24:53,470 --> 00:25:00,610
+这里最重要的是，不允许工作站将数据缓存到
+overriding invariant here is that no
+workstation is allowed to cache data to
+
+273
+00:25:00,610 --> 00:25:05,440
+保存所有缓存的数据，除非它还保存与该数据关联的锁
+hold any cached data unless it also
+holds the lock associated with that data
+
+274
+00:25:05,440 --> 00:25:17,740
+因此，基本上，没有锁就没有缓存数据，而没有锁可以保护
+so basically it's no cache data without
+a lock without the lock that protects
+
+275
+00:25:17,740 --> 00:25:25,150
+该数据及其在使用前的含义是工作站
+that data and operationally what this
+means is a workstation before it uses
+
+276
+00:25:25,150 --> 00:25:29,590
+数据时，它首先从锁定服务器获取对数据的锁定，然后
+data it first acquires the lock on the
+data from the lock server and after the
+
+277
+00:25:29,590 --> 00:25:34,600
+工作站只有锁才可以从花瓣中读取数据
+workstation has the lock only then does
+the workstation read the data from petal
+
+278
+00:25:34,600 --> 00:25:41,830
+并将其放入缓存中，这样顺序就可以获取锁
+and put it and put it in its cache so so
+the sequence is you can acquire a lock
+
+279
+00:25:41,830 --> 00:25:47,160
+然后从花瓣中读取
+and then read from petal
+
+280
+00:25:50,470 --> 00:25:55,220
+我会告诉您，当然您知道您没有传递数据
+I'll tell you at the lock of course you
+know you weren't passing the data you
+
+281
+00:25:55,220 --> 00:25:58,040
+想捕获您首先必须获得锁定的数据，并且仅严格
+want to catch the data you first got to
+get the lock and only strictly
+
+282
+00:25:58,040 --> 00:26:05,960
+然后从花瓣上读取，如果您曾经释放过锁，则规则是
+afterwards read from petal and if you
+ever release a lock then the rule is
+
+283
+00:26:05,960 --> 00:26:10,100
+在释放锁之前，如果修改了锁，则首先必须编写
+that before releasing a lock you first
+have to write if you modified the lock
+
+284
+00:26:10,100 --> 00:26:15,440
+释放锁之前，缓存中的数据必须写回数据
+data in your cache before you release
+the lock you have to write the data back
+
+285
+00:26:15,440 --> 00:26:20,240
+修改数据回到花瓣，然后只有当花瓣是的时候，我得到了数据
+to modify data back to petal and then
+only when petals as yes I got the data
+
+286
+00:26:20,240 --> 00:26:23,840
+只有这样，您才必须释放该锁，该锁将锁返回给
+only then you'll have to release the
+lock that is gives a lock back to the
+
+287
+00:26:23,840 --> 00:26:31,930
+锁定服务器，因此序列始终是第一个，您写入日期为花瓣的缓存
+lock server so the sequence is always
+first you write the cache dated a petal
+
+288
+00:26:31,930 --> 00:26:37,840
+存储系统，然后释放锁
+storage system and then release the lock
+
+289
+00:26:40,690 --> 00:26:45,410
+并删除条目，然后将条目删除，猫和
+and erase the entry whoops
+erase the entry and the cat and the
+
+290
+00:26:45,410 --> 00:26:52,160
+从您的工作站缓存表中缓存数据，这是什么
+cache data from your from that
+workstations lock table what this
+
+291
+00:26:52,160 --> 00:26:57,950
+导致锁定服务器之间和工作站之间的协议
+results in the the protocol between the
+lock server and between the workstations
+
+292
+00:26:57,950 --> 00:27:04,070
+锁服务器包含四种不同类型的消息，这是
+and the lock server consists of four
+different kinds of messages this is the
+
+293
+00:27:04,070 --> 00:27:13,190
+相干协议，这些只是网络，您可以将它们视为
+coherence protocol these are just
+network you can think of them as
+
+294
+00:27:13,190 --> 00:27:20,860
+本质上是一种单向网络消息，其中有一个请求消息
+essentially sort of one-way Network
+messages there's a request message from
+
+295
+00:27:20,860 --> 00:27:27,590
+从工作站到锁服务器的请求消息说，哦，嘿锁服务器
+from workstations to the lock server
+request message says oh hey lock server
+
+296
+00:27:27,590 --> 00:27:34,460
+当锁服务器愿意为您提供锁时，我想获得此锁
+I'd like to get this lock when the lock
+server is willing to give you the lock
+
+297
+00:27:34,460 --> 00:27:37,610
+当然，如果锁服务器不能立即放弃
+and of course if somebody else holds if
+the lock server can't immediately give
+
+298
+00:27:37,610 --> 00:27:41,360
+您的锁，但是如果锁释放后，锁服务器将
+you the lock but if when the lock
+becomes free the lock server will
+
+299
+00:27:41,360 --> 00:27:49,400
+响应我们有一条授权消息，然后将锁定服务器返回到工作站
+respond we have a grant message then the
+lock server back to the workstation in
+
+300
+00:27:49,400 --> 00:27:53,900
+如果您请求锁服务器的锁，则可以很好地响应先前的请求
+response to an earlier request well if
+you request a lock for the lock server
+
+301
+00:27:53,900 --> 00:27:58,010
+现在其他人必须先将锁交给其他人
+and someone else holds the lock right
+now that other workstation has to first
+
+302
+00:27:58,010 --> 00:28:02,180
+放弃锁，我们不能让两个人拥有同一把锁，那怎么办
+give up the lock we can't have two
+people owning the same lock so how are
+
+303
+00:28:02,180 --> 00:28:07,250
+我们要使锁工作得很好，我在这里说的是
+we going to get that works
+the lock well what I said here is that
+
+304
+00:28:07,250 --> 00:28:09,889
+您何时知道锁站何时实际使用锁，并且
+when a lock station is you know when
+it's actually using the lock and
+
+305
+00:28:09,889 --> 00:28:13,519
+积极阅读或写有锁的东西，并标记为忙，但
+actively reading or writing something it
+has the lock and it's marked it busy but
+
+306
+00:28:13,519 --> 00:28:18,289
+工作站在使用完毕后通常不会放弃锁
+the workstations don't give up their
+locks ordinarily when they're done using
+
+307
+00:28:18,289 --> 00:28:24,679
+他们，所以如果我创建文件然后创建系统调用完成，我仍然
+them so if I if I create a file and then
+create system call finishes I'll still
+
+308
+00:28:24,679 --> 00:28:28,370
+将该文件锁定为新文件，并拥有该文件的锁
+have that file that new file locked and
+also own the lock for that my
+
+309
+00:28:28,370 --> 00:28:31,549
+工作站仍将对该文件保持锁定状态
+workstation will still all in the lock
+for that file it'll just be in state
+
+310
+00:28:31,549 --> 00:28:34,730
+空闲而不是忙，但就锁定服务器而言
+idle instead of busy but as far as the
+lock server is concerned
+
+311
+00:28:34,730 --> 00:28:38,269
+好吧，我的工作站仍然有锁，原因是
+well my workstation still has the lock
+and the reason for this the reason to be
+
+312
+00:28:38,269 --> 00:28:42,320
+关于将锁交还给锁服务器的懒惰是，如果我创建一个文件
+lazy about handing locks back to the
+lock server is that if I create a file
+
+313
+00:28:42,320 --> 00:28:46,159
+我的工作站上叫Y，几乎可以肯定
+called Y on my workstation
+I'm almost certainly going to be about
+
+314
+00:28:46,159 --> 00:28:51,110
+将Y用于其他目的，例如向其中写入一些数据或从中读取数据，或者
+to use Y for other purposes like maybe
+write some data to it or read from it or
+
+315
+00:28:51,110 --> 00:28:55,490
+因此，对于工作站而言， 
+something so it's extremely advantageous
+for the workstation to sort of
+
+316
+00:28:55,490 --> 00:29:00,590
+为工作站中所有最近使用的文件积累锁，而不是
+accumulate locks for all of the recently
+used files in the workstation and not
+
+317
+00:29:00,590 --> 00:29:05,179
+除非确实需要，否则将它们还给他人。 
+give them back unless it really has to
+and so in the ordinary in the common
+
+318
+00:29:05,179 --> 00:29:09,950
+在这种情况下，我在主目录中使用了一堆文件，而在其他任何人上都没有其他人
+case in which I use a bunch of files in
+my home directory and nobody else on any
+
+319
+00:29:09,950 --> 00:29:14,000
+其他工作站曾经看着他们我的工作站最终积累了数十个
+other workstation ever looks at them my
+workstation ends up accumulating dozens
+
+320
+00:29:14,000 --> 00:29:18,230
+或成百上千个处于空闲状态的文件锁，但是如果其他人确实找到了
+or hundreds of locks in idle state for
+my files but if somebody else does look
+
+321
+00:29:18,230 --> 00:29:22,340
+在我的一个文件中，他们需要首先获得锁，而我必须放弃
+at one of my files they need to first
+get the lock and I have to give up the
+
+322
+00:29:22,340 --> 00:29:27,350
+锁定，因此有效的方式是，如果锁定服务器收到锁定请求
+lock so the way that works is that if
+the lock server receives a lock request
+
+323
+00:29:27,350 --> 00:29:31,879
+并且它在锁服务器表AHA中看到您知道锁当前由所有者拥有
+and it sees in the lock server table AHA
+you know that lock is currently owned by
+
+324
+00:29:31,879 --> 00:29:38,539
+工作站1，锁定服务器将向任何人发送撤销消息
+workstation 1 the lock server will send
+a revoke message to whoever the
+
+325
+00:29:38,539 --> 00:29:42,889
+当前拥有该锁的工作站，说您知道其他人
+workstation that currently owns that
+lock saying look you know somebody else
+
+326
+00:29:42,889 --> 00:29:49,580
+希望它在工作站收到撤销请求时放弃锁，如果
+wants it please give up the lock when a
+workstation receives a revoke request if
+
+327
+00:29:49,580 --> 00:29:56,419
+锁是空闲的，然后如果缓存数据脏了，工作站将首先
+the lock is idle then if the cache data
+is dirty the workstation will first
+
+328
+00:29:56,419 --> 00:30:01,759
+将修改了缓存中的数据的猫脏数据写回兜售
+write the cat dirty data that modified
+data from his cache back to peddle
+
+329
+00:30:01,759 --> 00:30:06,259
+因为该规则说这样的规则：为了不加锁就永远不缓存数据
+because the rule says the rule that in
+order to never cache data without a lock
+
+330
+00:30:06,259 --> 00:30:11,419
+说我们没错，修改的日期可以追溯到发布之前的价格，所以如果
+says we got our right the modify dated
+back to peddle before releasing so if
+
+331
+00:30:11,419 --> 00:30:16,519
+如果将锁修改为peddle，则空闲的锁将首先写回数据
+the locks idle would first write back
+the data if it's modified back to peddle
+
+332
+00:30:16,519 --> 00:30:22,250
+然后将消息发送回锁
+and
+then send a message back to the lock
+
+333
+00:30:22,250 --> 00:30:35,809
+服务器说没关系，我们放弃了此锁定，因此撤销响应发送到了
+server saying it's okay we give up this
+lock so the response to revoke send to a
+
+334
+00:30:35,809 --> 00:30:39,200
+工作站是最差的工作站，如果最坏的工作站当然会释放它
+workstation is the worst station sends
+it released of course if the worst
+
+335
+00:30:39,200 --> 00:30:42,620
+工作站在处于活动状态时正在使用锁时会被撤销
+station gets a revoke while it's
+actively using a lock while it's in the
+
+336
+00:30:42,620 --> 00:30:49,190
+删除或重命名的中间或影响锁定文件的内容
+middle of a delete or rename or
+something that affects the locked file
+
+337
+00:30:49,190 --> 00:30:53,720
+最糟糕的站点在使用完成之前不会给我们锁定
+the worst station will not give us a
+lock until it's it's done using and
+
+338
+00:30:53,720 --> 00:30:56,809
+直到完成该文件系统操作为止，无论它是什么系统调用
+until it's finished that file system
+operation whatever system call it was
+
+339
+00:30:56,809 --> 00:31:00,830
+使用该文件，然后在最差的站点处于锁定状态时锁定
+that was using this file and then the
+lock in the worst stations lock state
+
+340
+00:31:00,830 --> 00:31:07,190
+将过渡到空闲状态，然后您就可以注意撤销
+will transition to idle and then you'll
+be able to pay attention to the revoke
+
+341
+00:31:07,190 --> 00:31:12,950
+请求并写到小贩后，如果需要的话，释放锁好
+request and after writing to peddle if
+need be released the lock alright so
+
+342
+00:31:12,950 --> 00:31:21,410
+这是边缘协议，这是一个相干协议
+this is the is the coherence protocol
+that fringe that well this is a
+
+343
+00:31:21,410 --> 00:31:24,799
+我提到过的素馨花使用的一致性协议的简化
+simplification of the coherence protocol
+that frangipani uses as I mentioned
+
+344
+00:31:24,799 --> 00:31:28,429
+在这一切缺失之前，锁可以是
+before what's missing from all this is
+the fact that locks can be either
+
+345
+00:31:28,429 --> 00:31:38,990
+专为作家使用，或为只读访问而共享，就像花瓣是
+exclusive for writers or shared for
+read-only access and just like petal is
+
+346
+00:31:38,990 --> 00:31:44,150
+块服务器并且对文件系统一无所知
+a block server and doesn't understand
+anything about file systems the lock
+
+347
+00:31:44,150 --> 00:31:49,429
+服务器也是这些ID，这些ID确实是锁标识符，而锁是
+server also these IDs these are really
+lock identifiers and the locks are
+
+348
+00:31:49,429 --> 00:31:53,809
+对文件，目录或文件系统一无所知
+doesn't know anything about files or
+directories or file system it just has
+
+349
+00:31:53,809 --> 00:31:58,790
+这些只是带有不透明ID的表格，谁拥有您知道
+these it's just has this table with
+opaque IDs and who owns you know that
+
+350
+00:31:58,790 --> 00:32:03,230
+名字锁，谁拥有这些锁，是素馨花，你知道啊
+name locks and who owns those locks and
+it's frangipani that knows ah you know
+
+351
+00:32:03,230 --> 00:32:08,330
+我关联的锁是他给的文件，具有这样的标识符和
+the lock that I associate was he given a
+file has such and such an identifier and
+
+352
+00:32:08,330 --> 00:32:14,270
+碰巧，prin Japan使用unix样式的I编号或与
+as it happens prin Japan uses unix-style
+I numbers or the numbers associated with
+
+353
+00:32:14,270 --> 00:32:25,760
+文件而不是锁的名称，以便使此一致性协议具体化
+files instead of names for locks so just
+to make this coherence protocol concrete
+
+354
+00:32:25,760 --> 00:32:31,100
+并再次说明花瓣操作之间的关系
+and to illustrate again the relationship
+between petal operations
+
+355
+00:32:31,100 --> 00:32:35,390
+和锁定服务器操作让我可以简单地了解一下
+and lock server operations let me just
+run through what happens if one
+
+356
+00:32:35,390 --> 00:32:40,360
+工作站修改一些文件系统数据，然后在另一个工作站中
+workstation modifies some file system
+data and then in another workstation
+
+357
+00:32:40,360 --> 00:32:50,840
+意味着要看一下，所以我们有两个工作站，锁服务器，这样
+means to look at it so we have two
+workstations the lock server so the way
+
+358
+00:32:50,840 --> 00:32:56,299
+如果工作站要自工作站读取该协议，则会播放该协议
+the protocol plays out if workstation
+one wants to read since a workstation
+
+359
+00:32:56,299 --> 00:33:02,120
+一个人想要读取然后修改文件e，以便它甚至可以读取任何内容之前
+one wants to read and then modify files
+e so before it can even read anything
+
+360
+00:33:02,120 --> 00:33:11,510
+大约要从小贩处获得Z，它必须首先获取Z的锁，以便它发送
+about Z from peddle it must first
+acquire the lock for Z so it sends an
+
+361
+00:33:11,510 --> 00:33:15,350
+获取对锁定服务器的请求，也许没有人持有一个或多个锁定服务器
+acquire request to the lock server maybe
+nobody holds the lock or lock servers
+
+362
+00:33:15,350 --> 00:33:19,250
+从来没有听说过它，所以锁是Z的新输入
+never heard anything about it
+so the locks are makes a new entry for Z
+
+363
+00:33:19,250 --> 00:33:24,429
+它稳定返回我们的答复，说是
+and it stable returns our reply saying
+yes
+
+364
+00:33:24,429 --> 00:33:34,789
+您拥有锁C的授予，此时工作站表示它具有
+you own the grant for lock C and at this
+point the workstation says it has the
+
+365
+00:33:34,789 --> 00:33:40,220
+锁定文件Z无权从花瓣读取有关它的信息，因此在
+lock on file Z isn't entitled to read
+information about it from petal so at
+
+366
+00:33:40,220 --> 00:33:47,799
+这一点，我们将从花瓣上读取Z 
+this point we're gonna read Z from petal
+
+367
+00:33:52,030 --> 00:33:57,620
+确实，工作站可以稍后在本地对其缓存中进行修改
+and indeed workstation one can modify it
+locally in their cache at some later
+
+368
+00:33:57,620 --> 00:34:01,880
+也许人类和坐在工作站前的两个人想
+point maybe the human being and sitting
+in front of workstation two wants to
+
+369
+00:34:01,880 --> 00:34:06,110
+也可以在工作站2没有锁的情况下读取文件Z 
+also to read file Z while the
+workstation two doesn't have the lock
+
+370
+00:34:06,110 --> 00:34:09,590
+对于文件ISA，它要做的第一件事就是发送一条消息
+for files the ISA the very first thing
+it needs to do is send a message the
+
+371
+00:34:09,590 --> 00:34:16,609
+锁服务器说哦，是的，我想获取文件Z的锁，锁服务器
+lock server saying oh yeah I'd like to
+get the lock for file Z the lock server
+
+372
+00:34:16,609 --> 00:34:20,629
+知道它不能回答是，因为其他人拥有锁
+knows it can't reply yes yet because
+somebody else has the lock namely
+
+373
+00:34:20,629 --> 00:34:28,419
+我的锁定服务器发送响应的工作站之一吊销
+
+374
+00:34:30,600 --> 00:34:35,710
+一个工作站，一个工作站，直到它放弃之前，都不放弃锁
+the workstation one workstation one not
+allowed to give up the lock until it
+
+375
+00:34:35,710 --> 00:34:42,280
+将所有修改后的数据写回踏板，现在就可以写模型了
+writes any modified data back to the
+pedal so it's now gonna write the model
+
+376
+00:34:42,280 --> 00:34:46,449
+任何修改过的内容，文件的实际内容始终
+anything modified content the actual
+contents of the file with always
+
+377
+00:34:46,449 --> 00:34:54,839
+修改回踏板才允许工作站2发送
+
+378
+00:34:54,840 --> 00:35:04,150
+释放回锁定服务器，锁定服务器必须在其中保存了一条记录
+release back to the lock server the lock
+server with must have kept a record in
+
+379
+00:35:04,150 --> 00:35:07,900
+一张桌子说好，你知道有人在等锁Z 
+some table saying well you know there's
+somebody waiting for lock Z as soon as
+
+380
+00:35:07,900 --> 00:35:14,590
+当前持有人的版本，我们需要回复，因此，此收据
+its current holder releases that we need
+to reply and so this receipt of this
+
+381
+00:35:14,590 --> 00:35:19,800
+释放将导致锁服务器更新其表并最终发送
+release will cause the lock server to
+update its tables and finally send the
+
+382
+00:35:19,800 --> 00:35:28,720
+授予第二站或第二站，此时我们的第二站终于可以
+grant back to or station two and at this
+point now our station two can finally
+
+383
+00:35:28,720 --> 00:35:39,370
+甚至可以读取文件，这就是缓存一致性协议如何发挥作用的原因
+read files even pedal this is how the
+cache coherence protocol plays out to
+
+384
+00:35:39,370 --> 00:35:46,960
+确保进行读取的每个人直到谁
+ensure that everybody who does a read
+doesn't read the data until whoever the
+
+385
+00:35:46,960 --> 00:35:52,570
+直到有人将数据私下修改过
+previous until anybody who might have
+had the data modified privately in their
+
+386
+00:35:52,570 --> 00:36:01,060
+缓存首先将数据写回到踏板上，这样锁定机器
+cache first writes the data back to
+pedal all right so the locking machinery
+
+387
+00:36:01,060 --> 00:36:12,540
+部队阅读以查看最新的权利，所以这是怎么回事
+forces reads to see the latest right so
+what's going on there's a number of the
+
+388
+00:36:12,540 --> 00:36:16,570
+在此类缓存一致性协议中可能进行的优化
+optimizations that are possible in these
+kind of cache coherence protocols
+
+389
+00:36:16,570 --> 00:36:20,260
+我的意思是我实际上已经描述了这种空闲状态， 
+I mean I've actually already described
+one this idle state the fact that
+
+390
+00:36:20,260 --> 00:36:23,830
+工作站持有他们现在不使用的锁，而不是
+workstations hold onto locks that
+they're not using right now instead of
+
+391
+00:36:23,830 --> 00:36:28,120
+立即发布它们，这已经是最简单的优化
+immediately releasing them that's
+already an optimization to the simplest
+
+392
+00:36:28,120 --> 00:36:33,790
+您可以想到的协议，另一个主要的优化是鸡蛋花
+protocol you can think of and the other
+main optimization is that the frangipani
+
+393
+00:36:33,790 --> 00:36:39,220
+它具有共享，共享读锁和共享的概念。 
+has is that it has a notion of shared
+versus shared read locks versus
+
+394
+00:36:39,220 --> 00:36:42,880
+排他性写锁，因此需要很多工作站
+exclusive write locks so have lots and
+lots of workstations need to be
+
+395
+00:36:42,880 --> 00:36:47,710
+相同的文件，但是没有人在写，他们都可以拥有读锁定
+the same file but nobody's writing it
+they can all have a lock a read lock on
+
+396
+00:36:47,710 --> 00:36:51,400
+该文件，如果有人确实来尝试写这个文件
+that file and if somebody does come
+along and try to write this file that's
+
+397
+00:36:51,400 --> 00:36:57,910
+被广泛缓存的他们首先需要先撤销每个人的读取锁，以便
+widely cached they first need to first
+revoke everybody's read lock so that
+
+398
+00:36:57,910 --> 00:37:01,930
+每个人都放弃其缓存的副本，然后才是权利或被允许写
+everybody gives up their cached copy and
+only then is a right or allowed to write
+
+399
+00:37:01,930 --> 00:37:05,500
+该文件，但现在还可以，因为没有人拥有缓存副本，因此
+the file but it's okay now because
+nobody has a cache copy anymore so
+
+400
+00:37:05,500 --> 00:37:13,240
+没有人会在正确写入数据的同时读取过时的数据，因此这是一个
+nobody could be reading stale data while
+it's being written all right so that's a
+
+401
+00:37:13,240 --> 00:37:26,380
+缓存一致性故事由我们接下来的锁定协议驱动
+cache coherence story driven by driven
+by the locking protocol next up in our
+
+402
+00:37:26,380 --> 00:37:42,700
+是的列表，这是一个好问题，实际上，这里存在风险
+list of yes yes that's a good question
+in fact there's a risk here in the
+
+403
+00:37:42,700 --> 00:37:47,170
+我描述的方案是，如果我在工作站上修改了文件而没有其他人
+scheme I described that if I modify a
+file on my workstation and nobody else
+
+404
+00:37:47,170 --> 00:37:53,019
+读给别人读，只有修改的文件的唯一副本
+reads it for nobody else reads it that
+the only copy of the modified file maybe
+
+405
+00:37:53,019 --> 00:37:58,450
+我的RAM中的缓存中有一些宝贵的信息
+have some precious information in it is
+on in in the cache in RAM on my
+
+406
+00:37:58,450 --> 00:38:03,579
+工作站和我的作品，然后它们崩溃了，你知道我们还没有完成
+workstation and my works they were to
+crash then and you know we hadn't done
+
+407
+00:38:03,579 --> 00:38:07,059
+任何特殊的东西，它将与数据的唯一副本崩溃
+anything special then it would have
+crashed with the only copy of the data
+
+408
+00:38:07,059 --> 00:38:12,190
+并且数据将丢失，因此为了防止这种情况发生，无论如何
+and the data would be lost so in order
+to forestall this no matter what all
+
+409
+00:38:12,190 --> 00:38:18,549
+这些工作站会写回其缓存中的所有内容以及任何已修改的内容
+these workstations write back anything
+that's in their cache any modified stuff
+
+410
+00:38:18,549 --> 00:38:23,799
+每30秒在其缓存中保存一次，这样，如果我的工作站意外崩溃
+in their cache every 30 seconds so that
+if my workstation crash is unexpectedly
+
+411
+00:38:23,799 --> 00:38:27,339
+我可能会失去最后30秒的工作时间，但实际上没有更多的模仿了
+I may lose the last 30 seconds at work
+but no more there's actually just mimics
+
+412
+00:38:27,339 --> 00:38:32,279
+普通Linux或UNIX的工作方式
+the way ordinary Linux or UNIX works
+
+413
+00:38:33,150 --> 00:38:40,480
+确实，所有这一切的故事都是关于分布式环境的
+indeed all of this a lot of the story is
+about in the context of a distributed
+
+414
+00:38:40,480 --> 00:38:46,119
+文件系统试图模仿普通unix风格的属性
+file system trying to mimic the
+properties that ordinary unix-style
+
+415
+00:38:46,119 --> 00:38:51,309
+工作站使用户不会对素馨花感到惊讶，只是
+workstations have so that users won't be
+surprised by frangipani it just sort of
+
+416
+00:38:51,309 --> 00:38:55,859
+与他们已经使用的方式大致相同
+works much the same way that they're
+already used
+
+417
+00:38:57,000 --> 00:39:04,390
+好的，所以我们的下一个挑战是如何实现原子性
+all right so our next challenge is how
+do you atomicity that is how to make it
+
+418
+00:39:04,390 --> 00:39:07,750
+所以即使我做一个复杂的操作，例如创建一个文件
+so even though when I do a complex
+operation like creating a file which
+
+419
+00:39:07,750 --> 00:39:14,080
+毕竟涉及标记一个新的我知道分配分配初始化
+after all involves marking a new I
+knowed as allocated initializing the
+
+420
+00:39:14,080 --> 00:39:16,960
+索引节点我知道一些描述每个文件的数据
+inode the I knows a little piece of data
+that describes each file maybe
+
+421
+00:39:16,960 --> 00:39:21,400
+为文件分配空间，在我的新目录中添加新名称
+allocating space for the file adding a
+new name in the directory for my new
+
+422
+00:39:21,400 --> 00:39:25,510
+文件有很多步骤，很多事情我们都不需要更新
+file there's many steps so many things
+that have to be updated we don't want
+
+423
+00:39:25,510 --> 00:39:30,340
+任何人看到任何中间步骤，我们都希望您认识的其他人
+anybody to see any of the intermediate
+steps we want people you know other
+
+424
+00:39:30,340 --> 00:39:34,360
+工作站看到文件不存在或完全存在但不存在
+workstations to either see the file not
+exist or completely exist but not
+
+425
+00:39:34,360 --> 00:39:40,260
+一个原子之间的东西
+something in between one atomic
+
+426
+00:39:41,340 --> 00:39:58,840
+多步操作好吧，以便于执行此操作以使
+multi-step operations alright so in
+order to implement this in order to make
+
+427
+00:39:58,840 --> 00:40:04,030
+文件创建或重命名或删除原子等多步骤操作
+multi-step operations like file create
+or rename or delete atomic as far as
+
+428
+00:40:04,030 --> 00:40:08,380
+其他工作站都关注素馨花有一个工具的概念
+other workstations are concerned
+frangipani has a implement the notion of
+
+429
+00:40:08,380 --> 00:40:15,850
+作为一种完整的数据库样式事务处理系统的事务
+transactions that is as a complete sort
+of database style transaction system
+
+430
+00:40:15,850 --> 00:40:20,040
+再次由锁驱动
+inside it again driven by the locks
+
+431
+00:40:20,250 --> 00:40:26,220
+此外，这实际上是分布式交易系统
+furthermore it it's it's this is
+actually distributed transaction system
+
+432
+00:40:26,220 --> 00:40:31,060
+我们将在以后看到更多有关分布式事务处理系统的信息。 
+and we'll see more we'll hear more about
+distributed transaction systems later in
+
+433
+00:40:31,060 --> 00:40:34,690
+当然有一个非常普遍的要求
+the course
+there are like a very common requirement
+
+434
+00:40:34,690 --> 00:40:43,390
+和分布式系统这里的基本故事是鸡蛋花
+and distributed systems the basic story
+here is that frangipani makes it so that
+
+435
+00:40:43,390 --> 00:40:47,800
+其他工作站在完成以下操作之前看不到我的修改： 
+other workstations can't see my
+modifications until completely done by
+
+436
+00:40:47,800 --> 00:40:52,330
+首先获取我要访问的所有数据的所有锁的操作
+an operation by first acquiring all the
+locks on all the data that I'm going to
+
+437
+00:40:52,330 --> 00:40:57,280
+在操作过程中需要读或写，并且不释放任何一个
+need to read or write during my
+operation and not releasing any of those
+
+438
+00:40:57,280 --> 00:41:02,620
+锁定，直到完成完整的操作为止，当然
+locks until it's finished with the
+complete operation and of course
+
+439
+00:41:02,620 --> 00:41:08,800
+遵循一致性规则，将所有修改后的数据写回到花瓣
+following the coherence rule written all
+of the modified data back to petal
+
+440
+00:41:08,800 --> 00:41:12,340
+所以在我进行重命名之类的操作之前，例如从一个文件中移动文件
+so before I do an operation like
+renaming like moving a file from one
+
+441
+00:41:12,340 --> 00:41:16,000
+目录到另一个毕竟修改了两个目录，我不
+directory to another which after all
+modifies both directories and I don't
+
+442
+00:41:16,000 --> 00:41:20,980
+希望任何人都能看到该文件位于目录中或目录中
+want anybody to see the file being in
+either directory or something in the
+
+443
+00:41:20,980 --> 00:41:25,420
+为了做这个手术中间要先做法国的一分钱
+middle of the operation in order to do
+in order to do this French penny first
+
+444
+00:41:25,420 --> 00:41:39,190
+获取操作需要所有的锁，然后像所有一样做所有事情
+acquires require all the locks for the
+operation then do everything like all
+
+445
+00:41:39,190 --> 00:41:55,900
+素馨花的更新，所以我写到踏板，然后释放和
+the updates right the frangipani so I
+write to pedal and then release and of
+
+446
+00:41:55,900 --> 00:41:59,170
+当然，这是个简单的按钮，您会知道，因为我们已经拥有锁定服务器
+course this is easy button and you know
+since we already had the locking server
+
+447
+00:41:59,170 --> 00:42:04,210
+无论如何，为了驱动缓存一致性协议，我们仅由您购买
+anyway in order to drive the cache
+coherence protocol we buy just by you
+
+448
+00:42:04,210 --> 00:42:07,870
+知道确保在整个操作过程中都持有所有锁
+know making sure we hold all the locks
+for the entire duration of an operation
+
+449
+00:42:07,870 --> 00:42:18,190
+我们几乎免费获得了这些不可分割的原子交易，因此
+we get these indivisible atomic
+transactions almost for free so an
+
+450
+00:42:18,190 --> 00:42:20,860
+有趣的事情，基本上这就是所有要说的
+interesting thing to know and that's
+basically all there is to say about
+
+451
+00:42:20,860 --> 00:42:26,800
+使操作原子化并转移Pandu拥有所有锁
+making operations atomic and transit
+Pandu's hold all the locks an
+
+452
+00:42:26,800 --> 00:42:29,950
+关于锁的使用有趣的是，使用便士的趋势
+interesting thing about this use of
+locks is that trends of pennies using
+
+453
+00:42:29,950 --> 00:42:36,430
+锁定的目的-缓存一致性的几乎相反的目的素馨花使用
+locks for - almost opposite purposes for
+cache coherence frangipani uses the
+
+454
+00:42:36,430 --> 00:42:41,620
+锁定以确保任何想要的人都能立即看到写入内容
+locks to make sure that writes are
+visible immediately to anybody who wants
+
+455
+00:42:41,620 --> 00:42:46,270
+读取它们，因此这基本上就是使用锁来确保
+to read them so this is all about using
+locks essentially to kind of make sure
+
+456
+00:42:46,270 --> 00:42:51,430
+人们可以看到使用此块写的内容就是确保人们
+people can see writes this use the
+blocks is all about making sure people
+
+457
+00:42:51,430 --> 00:42:57,820
+在完成操作之前，看不到写入内容，因为我持有所有
+don't see the writes until I'm finished
+with an operation because I hold all the
+
+458
+00:42:57,820 --> 00:43:01,690
+锁定，直到所有权利都已完成，以便它们在播放
+locks until all the rights have been
+done so they're sort of playing an
+
+459
+00:43:01,690 --> 00:43:06,100
+通过重用他们本来必须拥有的锁在这里有趣的把戏
+interesting trick here by reusing the
+locks they would have had to have anyway
+
+460
+00:43:06,100 --> 00:43:11,700
+事务以提高缓存一致性
+for transactions in order to drive cache
+coherence
+
+461
+00:43:12,590 --> 00:43:24,950
+好的，所以下一个有趣的事情是崩溃恢复，我们需要应对
+all right so the next interesting thing
+is crash recovery we need to cope with
+
+462
+00:43:24,950 --> 00:43:29,270
+最有趣的可能性是工作站
+the possibility the most interesting
+possibility is that a workstation
+
+463
+00:43:29,270 --> 00:43:35,900
+持有锁时以及在某种复杂集合中间时崩溃
+crashes while holding locks and while in
+the middle of some sort of complex set
+
+464
+00:43:35,900 --> 00:43:39,350
+的更新是重新造林获得了一堆锁，它正在编写
+of updates that is a reforestation
+acquired a bunch of locks it's writing a
+
+465
+00:43:39,350 --> 00:43:42,740
+可能用于创建或删除文件的全部数据
+whole lot of data to maybe create or
+delete files or something has possibly
+
+466
+00:43:42,740 --> 00:43:48,620
+将一些修改写回踏板，因为也许很快
+written some of those modifications back
+to pedal because maybe it was gonna soon
+
+467
+00:43:48,620 --> 00:43:52,100
+释放锁或已被锁服务器要求释放锁，因此它是
+release locks or had been asked by the
+lock server to release locks so it's
+
+468
+00:43:52,100 --> 00:43:57,590
+也许因为其复杂的操作而获得了一些权利，但没有
+maybe done some of the rights back to
+pedal for its complex operations but not
+
+469
+00:43:57,590 --> 00:44:02,380
+所有这些，然后在放弃锁之前崩溃，这就是
+all of them and then crashes before
+giving up the locks so that's the
+
+470
+00:44:02,380 --> 00:44:09,830
+崩溃恢复的有趣情况，所以有很多事情
+interesting situation for crash recovery
+so there's a number of things that that
+
+471
+00:44:09,830 --> 00:44:30,440
+对于工作站崩溃崩溃不是很好，我们希望有一件事
+don't work very well for workstation
+crashes crashing we hope one thing that
+
+472
+00:44:30,440 --> 00:44:35,090
+不能很好地工作只是观察工作站崩溃和
+doesn't work very well is to just
+observe the workstations crashed and
+
+473
+00:44:35,090 --> 00:44:41,060
+只需释放其所有锁，因为如果完成了诸如创建一个
+just release all its locks because then
+if it's done something like created a
+
+474
+00:44:41,060 --> 00:44:47,150
+新文件并将其写入文件目录条目，其名称将返回到踏板
+new file and it's written the files
+directory entry its name back to pedal
+
+475
+00:44:47,150 --> 00:44:51,500
+但尚未编写描述
+but it hasn't yet written the
+initialized inode that describes the
+
+476
+00:44:51,500 --> 00:44:56,450
+文件inode可能仍然充满垃圾或先前的文件
+file the inode may still be filled with
+garbage or the previous file some
+
+477
+00:44:56,450 --> 00:45:00,230
+花瓣中的先前文件信息，但我们已经编写了目录
+previous files information in petal and
+yet we've already written the directory
+
+478
+00:45:00,230 --> 00:45:05,060
+条目，所以只释放已崩溃的文件服务器是不可行的
+entry so it's not okay to just release a
+crashed file servers release of crash
+
+479
+00:45:05,060 --> 00:45:13,400
+站锁定了另一件不好的事情是不释放崩溃
+were stations locks another thing that's
+not okay is to not release the crashed
+
+480
+00:45:13,400 --> 00:45:17,690
+工作站锁，您知道那是正确的，因为您知道是否
+workstations locks you know that would
+be correct because you know if it
+
+481
+00:45:17,690 --> 00:45:23,210
+在写出一些修改时崩溃了，事实是
+crashed while in the middle of writing
+out some of this modifications the fact
+
+482
+00:45:23,210 --> 00:45:26,090
+它没有全部写出就意味着无法释放其锁
+that it hadn't written out all of them
+means a can't of release its locks
+
+483
+00:45:26,090 --> 00:45:31,100
+所以简单地不释放它的锁是正确的，因为它会隐藏这个
+so simply not releasing its locks is
+correct because it would hide the this
+
+484
+00:45:31,100 --> 00:45:35,740
+来自任何读者的部分更新，因此不会有人看到
+partial update from any readers and so
+nobody would ever be confused by seeing
+
+485
+00:45:35,740 --> 00:45:41,210
+另一方面，您知道花瓣中的部分更新的数据结构
+partially updated data structures in
+petal on the other hand you know then
+
+486
+00:45:41,210 --> 00:45:44,480
+您需要使用这些文件的任何人都将永远等待锁
+anybody you needed to use those files
+would have to wait forever for the locks
+
+487
+00:45:44,480 --> 00:45:48,950
+如果我们只是不放弃他们，那么我们绝对必须放弃锁
+if we simply didn't give them up so we
+absolutely have to give up the locks in
+
+488
+00:45:48,950 --> 00:45:53,210
+为了使其他工作站可以使用该系统，可以使用这些相同的文件，并且
+order that other workstations can use
+the system can use those same files and
+
+489
+00:45:53,210 --> 00:45:57,590
+目录，但我们必须对工作站进行一些处理
+directories but we have to do something
+about the fact that the workstation
+
+490
+00:45:57,590 --> 00:46:05,360
+可能已经获得了部分权利，但不是全部，因此素馨花
+might have done some of the rights but
+not all for its operations so frangipani
+
+491
+00:46:05,360 --> 00:46:12,050
+与几乎其他所有需要实施崩溃可恢复的系统一样
+has like almost every other system that
+needs to implement crashed recoverable
+
+492
+00:46:12,050 --> 00:46:16,540
+交易用户立即登录
+transactions users right ahead logging
+
+493
+00:46:22,600 --> 00:46:29,990
+这是我们至少在最近一次演讲中看到的一个例子
+this is something we've seen at least
+one instance of the last lecture with
+
+494
+00:46:29,990 --> 00:46:39,950
+与aurora一起使用时，我也使用了提前记录功能，因此，如果
+with aurora i was also using right ahead
+logging so the idea is that if a
+
+495
+00:46:39,950 --> 00:46:43,030
+工作站需要执行涉及触摸的复杂操作
+workstation needs to do a complex
+operation that involves touching
+
+496
+00:46:43,030 --> 00:46:48,500
+很好地更新文件系统中花瓣中的许多数据
+updating many pieces of data in petal in
+the file system the workstation well
+
+497
+00:46:48,500 --> 00:46:57,140
+首先，在授予花瓣任何权利之前，将la log条目附加到他的日志中
+first before it makes any rights to
+petal append a la log entry to his log
+
+498
+00:46:57,140 --> 00:47:03,920
+在花瓣中描述了它将要完成的全部操作，并且仅
+in petal describing the full set of
+operations it's about to do and only
+
+499
+00:47:03,920 --> 00:47:09,980
+当描述整个操作的日志条目安全地放在花瓣中时
+when that log entry describing the full
+set of operations is safely in petal
+
+500
+00:47:09,980 --> 00:47:15,140
+现在只有其他人可以看到它，工作站才能开始发送
+where now anybody else can see it only
+then will the workstation start to send
+
+501
+00:47:15,140 --> 00:47:20,390
+花瓣手术的权利我是，所以我们如果它能站
+the rights for the operation out to
+petal I'm so we if it were station could
+
+502
+00:47:20,390 --> 00:47:26,060
+甚至揭露了一项手术所必须拥有的花瓣权利
+ever reveal even the one of its rights
+for an operation the petal it must have
+
+503
+00:47:26,060 --> 00:47:32,300
+已经放置了描述整个操作的日志条目，所有更新必须
+already put the log entry describing the
+whole operation all of the updates must
+
+504
+00:47:32,300 --> 00:47:37,640
+已经存在于花瓣中，所以这是非常标准的，这只是对
+already exist in petal so this is very
+standard this is just a description of
+
+505
+00:47:37,640 --> 00:47:43,989
+马上进行伐木，但是有几个奇怪的方面
+right ahead logging
+but there's a couple of odd aspects of
+
+506
+00:47:43,989 --> 00:47:48,309
+素馨花如何实现即时伐木
+how frangipani implements right ahead
+logging
+
+507
+00:47:48,309 --> 00:47:54,630
+第一个是，在大多数交易系统中，只有一个日志
+the first one is that in most
+transaction systems there's just one log
+
+508
+00:47:54,630 --> 00:47:59,170
+您知道系统中的所有交易都坐在那里
+and all the transactions in the system
+you know they're all sitting there in
+
+509
+00:47:59,170 --> 00:48:05,499
+一本登录一个地方，所以发生了车祸，还有歌剧，不止一个
+one log in one place so there's a crash
+and there's opera there's more than one
+
+510
+00:48:05,499 --> 00:48:10,359
+影响同一数据的操作，我们拥有所有这些操作
+operation that affects the same piece of
+data we have all of those operations for
+
+511
+00:48:10,359 --> 00:48:14,650
+单个日志序列中的那部分数据和其他所有内容
+that piece of data and everything else
+right there in the single log sequence
+
+512
+00:48:14,650 --> 00:48:20,890
+因此，例如，我们知道哪个是给定片段的最新更新
+and so we know for example which is the
+most recent update to a given piece of
+
+513
+00:48:20,890 --> 00:48:28,150
+大卫，但素馨花不这样做，因为她的工作站日志是一个
+David but frangipani doesn't do that
+this it has her work station logs as one
+
+514
+00:48:28,150 --> 00:48:34,930
+每个工作站的日志，还有单独的日志，另一个非常有趣
+log per work station and there's
+separate logs the other very interesting
+
+515
+00:48:34,930 --> 00:48:39,519
+素馨花缓解日志系统的问题是LA工作站会记录日志
+thing about frangipane ease logging
+system is that the LA workstation logs
+
+516
+00:48:39,519 --> 00:48:44,499
+在几乎每个使用该系统的系统中，它们都存储在花瓣中，而不是存储在本地磁盘中
+are stored in petal and not on local
+disk in almost every system that uses
+
+517
+00:48:44,499 --> 00:48:48,880
+记录日志与正在运行的任何计算机紧密相关
+logging the log is tightly associated
+with whatever computer is running the
+
+518
+00:48:48,880 --> 00:48:54,339
+几乎总是保存在本地磁盘上的事务
+transactions that it's almost always
+kept on a local disk but for extremely
+
+519
+00:48:54,339 --> 00:48:59,229
+鸡蛋花工作站的充分理由
+good reasons
+frangipani workstations
+
+520
+00:48:59,229 --> 00:49:03,460
+将他们的日志存储在共享存储区中的花瓣中，每个工作站都有自己的存储区
+store their logs in petal in the shared
+storage each workstation had its own
+
+521
+00:49:03,460 --> 00:49:09,549
+一种半私人日志，但是它存储在花瓣存储中，如果
+sort of semi-private log but it's stored
+in petal storage where if the
+
+522
+00:49:09,549 --> 00:49:14,769
+工作站崩溃，其他工作站可以获取其日志，因此
+workstation crashes its log can be
+gotten that by other workstations so the
+
+523
+00:49:14,769 --> 00:49:26,940
+日志在花瓣中，这就像工作站的单独日志
+logs are in petal and this is this is
+like separate logs for workstation
+
+524
+00:49:26,940 --> 00:49:31,539
+存储在公共共享存储中的其他地方，就像一个非常
+stored somewhere else in public sort of
+shared storage so like a very
+
+525
+00:49:31,539 --> 00:49:37,719
+有趣且不寻常的安排，所以我们有点需要大致了解
+interesting and unusual arrangement all
+right so we kind of need to know roughly
+
+526
+00:49:37,719 --> 00:49:41,579
+法律上有什么日志条目中有什么
+what's in the law what's in a log entry
+
+527
+00:49:50,579 --> 00:49:56,430
+不幸的是，关于日志条目格式的论文不是很明确
+and unfortunately the papers not super
+explicit about the format of a log entry
+
+528
+00:49:56,430 --> 00:50:00,640
+但是我们可以想象，论文确实说每个工作站
+but we can imagine that the well the
+paper does say that each workstations
+
+529
+00:50:00,640 --> 00:50:06,729
+原木位于一个已知的位置，在花瓣和
+log sits in a known place a known range
+of block numbers in petal and
+
+530
+00:50:06,729 --> 00:50:11,170
+此外，每个工作站都在某种情况下使用其日志空间和花瓣
+furthermore that each workstation uses
+its log space and petal on a kind of in
+
+531
+00:50:11,170 --> 00:50:15,009
+从头到尾都是循环的日志条目
+a circular way that it is all right log
+entries along from the beginning and
+
+532
+00:50:15,009 --> 00:50:21,700
+到达最后时，工作站将返回并重用其日志空间
+when it hits the end the workstation
+will go back and reuse its log space
+
+533
+00:50:21,700 --> 00:50:25,329
+回到其日志区域的开头，这当然意味着
+back at the beginning of its log area
+and of course that means that were
+
+534
+00:50:25,329 --> 00:50:30,940
+工作站需要能够知道清理日志，以确保
+stations need to be able to you know
+clean their logs so that sort of ensure
+
+535
+00:50:30,940 --> 00:50:35,589
+在重复使用该空间之前不需要日志条目，我将讨论
+that a log entry isn't needed before
+that space is reused and I'll talk about
+
+536
+00:50:35,589 --> 00:50:42,719
+一点点，但每个日志都包含一系列日志条目，每个日志条目
+that in a bit but each a log consists of
+a sequence of log entries each log entry
+
+537
+00:50:42,719 --> 00:50:48,999
+有一个日志序列号，每个工作站只是一个递增的数字
+has a log sequence number it's just an
+increasing number each workstation
+
+538
+00:50:48,999 --> 00:50:56,319
+数字是日志条目1 2 3 4 5，其直接原因可能是
+numbers it's log entries 1 2 3 4 5 and
+the immediate reason for this may be the
+
+539
+00:50:56,319 --> 00:51:02,170
+本文提及的唯一原因是，法国人的方式
+only reason for this that the paper
+mentions is that the the way that French
+
+540
+00:51:02,170 --> 00:51:06,940
+如果工作站崩溃，便士只会检测到工作站日志的结尾
+penny just detects the end of a work
+stations log if the work station crashes
+
+541
+00:51:06,940 --> 00:51:14,049
+通过扫描其登录花瓣中的单词，直到看到增加
+is by scanning for words in its log in
+petal until it sees the increasing
+
+542
+00:51:14,049 --> 00:51:18,130
+序列停止增加，然后它知道具有最高的日志条目
+sequence stop increasing and it knows
+then that the log entry with the highest
+
+543
+00:51:18,130 --> 00:51:23,140
+日志序列号必须是最后一个条目，因为它需要
+log sequence number must be the very
+last entry as it needs to be able to
+
+544
+00:51:23,140 --> 00:51:29,170
+检测到日志的结尾，确定，所以我们有了这个日志序列号，然后我
+detect the end of the log ok so we have
+this log sequence number and then I
+
+545
+00:51:29,170 --> 00:51:32,059
+相信每个日志实际上都有一个数组
+believe each log actually has an an
+array
+
+546
+00:51:32,059 --> 00:51:38,059
+模型aughh条目的描述集具有
+of descriptions of model aughh entry has
+an array of the descriptions of the
+
+547
+00:51:38,059 --> 00:51:41,930
+修改涉及到的所有不同修改
+modifications all the different
+modifications that were involved in a
+
+548
+00:51:41,930 --> 00:51:48,410
+特定操作或某些文件系统系统调用的操作，因此每个
+particular operation or an operation of
+some a file system system call so each
+
+549
+00:51:48,410 --> 00:51:53,989
+数组中的条目将具有一个块号，它是
+entry in the array is going to have a
+block number it's a block number in
+
+550
+00:51:53,989 --> 00:52:07,900
+花瓣上有一个版本号，稍后我们将介绍
+petal there's a version number which
+we'll get to in a bit and then there's
+
+551
+00:52:07,900 --> 00:52:18,019
+要写入的数据，因此需要一堆描述
+the data to be written and so there's a
+bunch of these required to describe
+
+552
+00:52:18,019 --> 00:52:23,029
+可能涉及文件系统中多个数据的一种操作
+operations that might touch more than
+one piece of data in the file system one
+
+553
+00:52:23,029 --> 00:52:29,269
+需要注意的是，日志仅包含有关更改的信息
+thing to notice is that the log only
+contains information about changes to
+
+554
+00:52:29,269 --> 00:52:37,069
+目录，索引节点和分配位图中的元数据
+metadata that is to directories and
+inodes and allocation bitmaps in the
+
+555
+00:52:37,069 --> 00:52:41,479
+文件系统中，日志实际上并不包含写入到
+file system the log doesn't actually
+contain the data that is written to the
+
+556
+00:52:41,479 --> 00:52:45,349
+它不包含用户数据的文件内容，仅包含信息
+contents of files it doesn't contain the
+user's data it just contains information
+
+557
+00:52:45,349 --> 00:52:51,019
+足够的信息以使文件系统结构在
+enough information to make the file
+systems structures recoverable after a
+
+558
+00:52:51,019 --> 00:52:58,239
+崩溃，例如，如果我在要创建的目录中创建名为F的文件
+crash so for example if I create a file
+called F in a directory that's gonna
+
+559
+00:52:58,239 --> 00:53:04,339
+会产生一个新的日志条目，其中包含两个关于修改的小描述
+result in a new log entry that has two
+little descriptions of modifications in
+
+560
+00:53:04,339 --> 00:53:08,809
+它描述了如何初始化新文件inode和
+it one a description of how to
+initialize the new files inode and in
+
+561
+00:53:08,809 --> 00:53:16,299
+放置在新文件目录中的新名称的另一种描述
+another description of a new name to be
+placed in the new files directory
+
+562
+00:53:17,140 --> 00:53:22,699
+好吧，我没有提到的一件事，当然，日志实际上是一个序列
+alright so one thing I didn't mention so
+of course the log is really a sequence
+
+563
+00:53:22,699 --> 00:53:25,689
+这些日志条目中的
+of these log entries
+
+564
+00:53:28,630 --> 00:53:34,840
+最初是为了能够尽快进行修改
+initially in order to be able to do
+modifications as fast as possible
+
+565
+00:53:34,840 --> 00:53:40,880
+最初，一个朋友日语工作站日志仅存储在
+initially a friend Japanese workstations
+log is only stored inside the
+
+566
+00:53:40,880 --> 00:53:46,430
+工作站拥有自己的内存，除非必须
+workstations own memory and won't be
+written back to peddle until it has to
+
+567
+00:53:46,430 --> 00:53:51,590
+就是这样，这样您就知道写任何东西，包括将日志条目兜售
+be and that's so that you know writing
+anything including log entries to peddle
+
+568
+00:53:51,590 --> 00:53:55,460
+您知道这需要很长时间，因此我们希望避免甚至回写日志条目
+you know it takes a long time so we want
+to avoid even writing log entries back
+
+569
+00:53:55,460 --> 00:54:00,590
+兜售以及将脏数据或修改后的块写回到兜售
+to peddle as well as writing dirty data
+or modified blocks back to peddle we'd
+
+570
+00:54:00,590 --> 00:54:07,310
+想要避免尽可能长地这样做，所以对于
+like to avoid doing that as long as
+possible so the real full story for what
+
+571
+00:54:07,310 --> 00:54:15,740
+当工作站从锁定服务器收到吊销消息并看到该消息时发生
+happens when a workstation gets a revoke
+message from the lock server seeing that
+
+572
+00:54:15,740 --> 00:54:26,110
+它必须放弃一定的锁定，依此类推
+it has to give up a certain lock so on
+
+573
+00:54:28,720 --> 00:54:33,020
+现在，这是一样的，尽管运动型的
+right now this is the same you know this
+is though compared sporto's
+
+574
+00:54:33,020 --> 00:54:39,710
+如果工作站收到吊销消息，则协议吊销消息
+protocols revoke message if the
+workstation gets a revoke message the
+
+575
+00:54:39,710 --> 00:54:47,300
+它必须采取的一系列步骤是：首先，这是非常重要的事情， 
+series of steps it must take is first
+it's great that's the right any parts of
+
+576
+00:54:47,300 --> 00:54:50,750
+它的日志仅在内存中，尚未写入兜售
+its log that are only in memory and
+haven't yet been written to peddle it's
+
+577
+00:54:50,750 --> 00:54:54,620
+必须确保日志已完成并且第一步是踩踏板，所以它写道
+got to make sure as log is complete and
+pedal as the first step so it writes
+
+578
+00:54:54,620 --> 00:55:16,040
+它很长，只有这样，它才写入由
+it's long and only then does it write
+any updated blocks that are covered by
+
+579
+00:55:16,040 --> 00:55:24,700
+被撤销的锁，所以写修改后的块
+the lock that's being revoked so write
+modified blocks
+
+580
+00:55:28,069 --> 00:55:36,579
+只是为了引起锁定，然后
+just for that provoked to lock and then
+
+581
+00:55:40,420 --> 00:55:50,059
+发送发布消息以及此排序和严格的原因
+send a release message and the reason
+for this sequencing and for this strict
+
+582
+00:55:50,059 --> 00:55:55,819
+禁止的是，如果我们将这些修改写给小贩，您将知道它们
+ban is that these modifications if we
+write them to peddle you know their
+
+583
+00:55:55,819 --> 00:56:00,469
+修改数据结构，文件系统数据结构以及是否
+modifications to the data structure the
+file system data structure and if we
+
+584
+00:56:00,469 --> 00:56:04,940
+像往常一样要通过婴儿新闻盒中途崩溃
+were to crash midway through baby news
+box just as usual we want to make sure
+
+585
+00:56:04,940 --> 00:56:09,199
+那其他工作站别人有足够的信息
+that some other workstation somebody
+else there's enough information to be
+
+586
+00:56:09,199 --> 00:56:14,900
+能够完成作业站的修改集
+able to complete the set of
+modifications that the were station is
+
+587
+00:56:14,900 --> 00:56:17,809
+即使工作站崩溃了也可能没有完成操作
+made even though the workstation has
+crashed and maybe didn't finish doing
+
+588
+00:56:17,809 --> 00:56:22,400
+这些权利并首先写日志，这将使我们能够
+these rights and writing the log first
+it's gonna be what allows us to
+
+589
+00:56:22,400 --> 00:56:26,329
+完成这些日志记录是对这些内容的完整描述
+accomplish it these these log records
+are a complete description of what these
+
+590
+00:56:26,329 --> 00:56:30,769
+修改将是这样，首先我们要知道，虽然
+modifications are going to be so first
+we you know first we write though the
+
+591
+00:56:30,769 --> 00:56:35,719
+完成日志到花瓣，然后我们的工作站可以开始写它了
+complete log to petal and then we
+workstation can start writing its
+
+592
+00:56:35,719 --> 00:56:39,319
+修改过的块，您可能崩溃了，也许不是
+modified blocks you know maybe it
+crashes maybe doesn't hopefully not and
+
+593
+00:56:39,319 --> 00:56:43,069
+如果完成编写为修改后的块，则可以发送发布
+if it finishes writing as modified
+blocks then it could send the release
+
+594
+00:56:43,069 --> 00:56:46,759
+回到锁服务器，这样您就知道我的工作站是否修改了一堆
+back to the lock server so you know if
+my workstation has modified a bunch of
+
+595
+00:56:46,759 --> 00:56:50,420
+文件，然后其他工作站想要读取这些文件之一，这是
+files and then some other workstation
+wants to read one of those files this is
+
+596
+00:56:50,420 --> 00:56:54,949
+发生锁定的顺序，所以曾经向我要锁
+the sequence that happens lock so ever
+asked me for my locks right back my
+
+597
+00:56:54,949 --> 00:56:58,369
+工作站右后说日志然后右后
+workstation right back said log then
+right back
+
+598
+00:56:58,369 --> 00:57:03,229
+将脏的已修改的块写入peddle，然后释放，然后
+writes the dirty modified blocks to
+peddle and only then releases and then
+
+599
+00:57:03,229 --> 00:57:06,559
+另一个工作站可以获取锁并读取这些块，因此
+the other workstation can acquire the
+lock and read these blocks so that's
+
+600
+00:57:06,559 --> 00:57:13,430
+某种非崩溃，您知道是否不会发生崩溃，这就是
+sort of the non crash you know if a
+crash doesn't happen that is the
+
+601
+00:57:13,430 --> 00:57:21,400
+当然，只有当发生崩溃时，这才是有趣的
+sequence of course it's only interesting
+if a crash happens yes
+
+602
+00:57:21,980 --> 00:57:28,390
+ [音乐] 
+[Music]
+
+603
+00:57:35,519 --> 00:57:42,969
+好的，对于您绝对正确的日志，它将写入整个日志，是的
+okay so for the log you're absolutely
+right it writes the entire log and yeah
+
+604
+00:57:42,969 --> 00:57:47,680
+因此，如果我们撤销特定文件，工作站将
+so so if if we get a revoke for a
+particular file the workstation will
+
+605
+00:57:47,680 --> 00:57:54,999
+写下整个日志，然后仅是因为它只是放弃了
+write its entire log and then only it's
+only because it's only giving up the
+
+606
+00:57:54,999 --> 00:58:01,359
+锁定Z，它只需要写回Z覆盖的数据，所以我有
+lock for Z it it only needs to write
+back data that's covered by Z so I have
+
+607
+00:58:01,359 --> 00:58:05,289
+将整个日志仅写入锁所覆盖的数据
+to write the whole log just the data
+that's covered by the lock that we
+
+608
+00:58:05,289 --> 00:58:10,059
+需要放弃，然后我们可以释放该锁，是的，你知道，也许
+needed to give up and then we can
+release that lock so yeah you know maybe
+
+609
+00:58:10,059 --> 00:58:13,930
+如果结果是这样的话，那么写整个日志可能会像你一样矫kill过正
+this writing the whole log might be
+overkill like you if it turned out you
+
+610
+00:58:13,930 --> 00:58:18,849
+知道所以这是一个优化，您可能会或可能不会在乎
+know so here's an optimization that you
+might or might not care about if the
+
+611
+00:58:18,849 --> 00:58:22,989
+锁的配置文件Z的最后修改是放弃这个，但是
+last modification for profile Z for the
+lock were giving up is this one but
+
+612
+00:58:22,989 --> 00:58:27,670
+日志中的后续条目没有修改该文件，那么我可以编写
+subsequent entries in my log didn't
+modify that file then I could just write
+
+613
+00:58:27,670 --> 00:58:33,459
+只是我在内存中的日志的这个前缀回到了花瓣，你知道要懒惰
+just this prefix of my in-memory log
+back to petal and you know be lazy about
+
+614
+00:58:33,459 --> 00:58:37,029
+写剩下的，也许有一天我会看到
+writing the rest and that might see me
+sometime
+
+615
+00:58:37,029 --> 00:58:42,549
+我可能必须写回日志，实际上尚不清楚，我可以为我们节省很多时间
+I might have to write the log back it's
+actually not clear I would save us a lot
+
+616
+00:58:42,549 --> 00:58:47,890
+时间我们无论如何都要写回日志，是的，我认为花瓣
+of time we have to write the log back at
+some point anyway and yeah I think petal
+
+617
+00:58:47,890 --> 00:58:56,289
+只是写整个事情好吧好吧，所以现在我们可以谈谈当
+just writes the whole thing okay okay so
+now we can talk about what happens when
+
+618
+00:58:56,289 --> 00:59:01,410
+保持锁定状态时工作站崩溃，这是您需要
+a workstation crashes while holding
+locks right it's you know needs to
+
+619
+00:59:01,410 --> 00:59:05,380
+修改一些东西重命名一个文件创建一个文件，不管它是什么
+modify something rename a file create a
+file whatever it's acquired all the
+
+620
+00:59:05,380 --> 00:59:13,809
+锁定它需要修改其自身缓存中的某些内容以反映这些
+locks it needs it's modified some stuff
+in its own cache to reflect these
+
+621
+00:59:13,809 --> 00:59:19,630
+操作可能将一些东西写回到花瓣上，然后使人坠毁
+operations maybe written some stuff back
+to petal and then crashed men possibly
+
+622
+00:59:19,630 --> 00:59:24,150
+在写作过程中，所以有很多地方可能会崩溃
+midway through writing so there's a
+number of points at which it could crash
+
+623
+00:59:24,150 --> 00:59:31,779
+对，因为这始终是序列，总是在之前
+right because this is always the
+sequence it always just always before
+
+624
+00:59:31,779 --> 00:59:34,330
+从缓存写回修改后的块
+writing modified blocks from the cache
+back
+
+625
+00:59:34,330 --> 00:59:39,370
+素馨花总是会首先写上它的记录踏板，这意味着
+the frangipani will always have written
+it's logged pedal first that means that
+
+626
+00:59:39,370 --> 00:59:43,690
+如果发生崩溃，则是在最糟糕的站点写信给我们时，登录回
+if a crash happens it's either while the
+worst station is writing us log back to
+
+627
+00:59:43,690 --> 00:59:48,100
+踏板，但在写入之前，任何修改过的文件或目录都将被阻止
+pedal but before it's written any
+modified file or directory' blocks back
+
+628
+00:59:48,100 --> 00:59:53,500
+否则在回写这些修改后的块时会崩溃，因此
+or it crashes while it's writing these
+modified block back but therefore
+
+629
+00:59:53,500 --> 00:59:57,730
+肯定是在将其写入整个日志之后，所以这是一个非常
+definitely after it's written in its
+entire log and so that's a very
+
+630
+00:59:57,730 --> 01:00:01,660
+您知道很重要，但也许崩溃是在完全完成之后发生的
+important you know but or maybe the
+crash happened after it's completely
+
+631
+01:00:01,660 --> 01:00:06,970
+完成了所有这些操作，所以您知道仅是因为排序， 
+finished all of this so you know there's
+only because of the sequencing there's
+
+632
+01:00:06,970 --> 01:00:10,960
+只有少数几种情况让我们担心
+only a limited number of kind of
+scenarios we made me worried about for
+
+633
+01:00:10,960 --> 01:00:18,370
+崩溃好了，所以工作站崩溃了，崩溃了
+the crash okay so the workstations
+crashed its crashed you know for like to
+
+634
+01:00:18,370 --> 01:00:21,670
+令人兴奋的是，当控股公司锁定发生的第一件事时，让我们崩溃
+be exciting let's crash while Holdings
+locks the first thing that happens the
+
+635
+01:00:21,670 --> 01:00:26,620
+锁定服务器向其发送吊销请求，并且锁定服务器未获得任何响应
+lock server sends it a revoke request
+and the lock server gets no response all
+
+636
+01:00:26,620 --> 01:00:29,560
+没错，这就是开始触发任何事情的地方，没人问过
+right that's what starts to trigger
+anything where did nobody ever asked for
+
+637
+01:00:29,560 --> 01:00:31,920
+锁
+the lock
+
+638
+01:00:32,010 --> 01:00:35,890
+基本上没人会注意到工作站崩溃了，所以让我们
+basically nobody's ever going to notice
+that the workstation crashed so let's
+
+639
+01:00:35,890 --> 01:00:40,270
+假设其他人想要工作站在其工作时拥有的一把锁
+assume somebody else wanted one of the
+locks that the workstation had while it
+
+640
+01:00:40,270 --> 01:00:44,710
+崩溃了，锁服务终止了，它永远也不会释放
+was crashed and the lock service ended
+revoke and it will never get a release
+
+641
+01:00:44,710 --> 01:00:49,000
+经过一定时间后从工作站返回
+back from the workstation after a
+certain amount of time has passed and it
+
+642
+01:00:49,000 --> 01:00:53,680
+事实证明，素馨花锁使用租赁的原因有很多，所以您知道
+turns out frangipani locks use leases
+for a number of reasons so you know
+
+643
+01:00:53,680 --> 01:00:58,390
+最少时间过后，锁定服务器将决定
+after the least time has expired the
+lock server will decide that the
+
+644
+01:00:58,390 --> 01:01:02,560
+工作站必须崩溃了，它将启动恢复以及那
+workstation must have crashed and it
+will initiate recovery and what that
+
+645
+01:01:02,560 --> 01:01:06,700
+真正的意思是告诉锁服务器将告诉另一个工作站
+really means is telling a different
+workstation the lock server will tell
+
+646
+01:01:06,700 --> 01:01:10,720
+其他一些实时工作站外观工作站似乎已崩溃
+some other live workstation look
+workstation one seems to have crashed
+
+647
+01:01:10,720 --> 01:01:18,010
+请阅读日志并重播其最近的所有操作，以确保
+please go read it's log and replay all
+of its recent operations to make sure
+
+648
+01:01:18,010 --> 01:01:22,510
+他们完成了，告诉我什么时候完成，只有锁服务器
+they're complete and tell me when you're
+done and only then the lock servers
+
+649
+01:01:22,510 --> 01:01:32,320
+将要释放锁，这样就可以了
+going to release the locks so okay so
+and and this is the point at which it
+
+650
+01:01:32,320 --> 01:01:36,490
+至关重要的是，日志要放在踏板上，因为其他工作站正在运行
+was critical that the logs are in pedal
+because some other workstation is going
+
+651
+01:01:36,490 --> 01:01:41,910
+检查崩溃工作站的登录踏板
+to inspect the crash workstations log in
+pedal
+
+652
+01:01:42,120 --> 01:01:47,700
+好吧，那么可能性是什么，那就是最糟糕的是您可能崩溃
+all right so what are the possibilities
+one is that the worst that you can crash
+
+653
+01:01:47,700 --> 01:01:51,240
+在它写回任何东西之前，所以这意味着另一个工作站
+before it ever wrote anything back and
+so that means this other work station
+
+654
+01:01:51,240 --> 01:01:55,800
+做恢复将查看崩溃工作站的此日志，看看也许
+doing recovery will look at the crash
+workstation this log see that maybe
+
+655
+01:01:55,800 --> 01:02:00,600
+里面什么也没有，什么也不做，然后释放锁
+there's nothing in it at all and do
+nothing and then release the locks the
+
+656
+01:02:00,600 --> 01:02:04,170
+现在举办的工作站最糟糕，您可能已经修改了所有内容
+workstation held now the worst that you
+may have modified all kinds of things in
+
+657
+01:02:04,170 --> 01:02:09,750
+它的缓存，但是如果它没有向他的日志区域写入任何内容，那么它
+its cache but if it didn't write
+anything to his log area then it
+
+658
+01:02:09,750 --> 01:02:12,900
+不可能写出在此期间修改过的任何块
+couldn't possibly have written any of
+the blocks that have modified during
+
+659
+01:02:12,900 --> 01:02:19,230
+这些操作正确，所以很好，我们将丢失最后的几个操作
+these operations right and so well we
+will have lost the last few operations
+
+660
+01:02:19,230 --> 01:02:24,900
+工作站所做的文件系统将与这一点保持一致
+that the workstation did the file system
+is going to be consistent with the point
+
+661
+01:02:24,900 --> 01:02:30,030
+在崩溃的工作站开始修改之前， 
+in time before that crashed workstation
+started to modify anything because
+
+662
+01:02:30,030 --> 01:02:33,030
+显然，工作站甚至无法达到正在编写的位置
+apparently the workstation never even
+got to the point where it was writing
+
+663
+01:02:33,030 --> 01:02:38,180
+日志条目工作站的下一个可能性写了一些日志条目
+log entries the next possibilities of
+the workstation wrote some log entries
+
+664
+01:02:38,180 --> 01:02:43,170
+日志区域，在这种情况下，恢复工作站将向前扫描
+the log area and in that case the
+recovering workstation will scan forward
+
+665
+01:02:43,170 --> 01:02:48,120
+从日志开始到停止查看日志序列号
+from the beginning of log until it's
+stopped seeing the log sequence numbers
+
+666
+01:02:48,120 --> 01:02:53,970
+这就是日志必须在哪里安东和恢复
+increasing that's the point of where's
+the log must Anton and the recovering
+
+667
+01:02:53,970 --> 01:02:58,830
+工作站，我们将逐一介绍这些变更描述， 
+workstation we'll look at each of these
+descriptions of a change and basically
+
+668
+01:02:58,830 --> 01:03:04,230
+播放变回花瓣的声音我会说哦，你知道有一定的障碍
+play that change back into petal I'll
+say oh you know there's certain block
+
+669
+01:03:04,230 --> 01:03:08,400
+数字和花瓣需要写入一些特定数据，这仅仅是
+number and petal needs to have some
+certain data written to it which is just
+
+670
+01:03:08,400 --> 01:03:15,360
+与崩溃的工作站在其自己的本地缓存中所做的相同的修改
+the same modification that the crashed
+workstation did in its own local cache
+
+671
+01:03:15,360 --> 01:03:19,800
+因此，在恢复工作站中，我们将仅考虑其中的每一个并重播每个
+so the recovering workstation we'll just
+consider each of these and replay each
+
+672
+01:03:19,800 --> 01:03:26,910
+崩溃的工作站将日志条目重新记录到花瓣中，完成后
+of the crashed workstations log entries
+back into petal and when it's done that
+
+673
+01:03:26,910 --> 01:03:32,430
+一直到崩溃的工作站日志的结尾，因为它存在于花瓣中
+all the way to the end of a crashed
+workstations log as it exists in petal
+
+674
+01:03:32,430 --> 01:03:37,800
+它会告诉锁服务器，锁服务器将释放崩溃的
+it'll tell the lock server and the lock
+server will release the crashed
+
+675
+01:03:37,800 --> 01:03:46,560
+工作站锁，这将使踏板具有最新的前缀
+workstations locks and that will bring
+the pedal up to date with some prefix of
+
+676
+01:03:46,560 --> 01:03:51,780
+崩溃工作站在崩溃之前完成的操作可能不是全部
+the operations the crash workstation had
+done before crashing maybe not all of
+
+677
+01:03:51,780 --> 01:03:55,560
+他们，因为也许它没有写出所有的日志，但恢复是
+them because maybe it didn't write out
+all of its log but the recovery were
+
+678
+01:03:55,560 --> 01:03:58,440
+季节不会在日志条目中重播任何内容
+season
+won't replay anything in a log entry
+
+679
+01:03:58,440 --> 01:04:05,220
+除非它在花瓣中具有完整的日志条目，所以您隐含地知道
+unless it has the complete log entry in
+petal and so you know implicitly that
+
+680
+01:04:05,220 --> 01:04:08,310
+意味着会有某种校验和安排或其他方式，所以
+means there's gonna be some sort of
+checksum arrangement or something so the
+
+681
+01:04:08,310 --> 01:04:13,110
+恢复工作站将知道啊哈，此日志条目已完成并且不喜欢
+recovery work station will know aha this
+log entry is complete and not like
+
+682
+01:04:13,110 --> 01:04:17,700
+部分编写的内容非常重要，因为这的全部重点是
+partially written that's quite important
+because the whole point of this is to
+
+683
+01:04:17,700 --> 01:04:24,210
+确保只有完整的操作可见，并且花瓣永不消失
+make sure that only complete operations
+are visible and petal and never never
+
+684
+01:04:24,210 --> 01:04:30,570
+永远不会进行部分操作，因此，对于
+never a partial operation so it's also
+important that all the rights for a
+
+685
+01:04:30,570 --> 01:04:34,880
+给定操作或组一起在日志中，以便在恢复时进行恢复
+given operation or a group together in
+the log so that on recovery the recovery
+
+686
+01:04:34,880 --> 01:04:42,720
+工作站可以拥有一项操作的所有权利，或者没有任何权利永远不会一半
+workstation can do all of the rights for
+an operation or none of them never half
+
+687
+01:04:42,720 --> 01:04:50,550
+他们好，所以这就是如果在日志被记录时发生崩溃的情况
+of them ok so that's what happens if the
+crash happens while the log is being
+
+688
+01:04:50,550 --> 01:04:57,990
+写回花瓣另一个有趣的可能性是
+written back to petal a another
+interesting possibility is that the
+
+689
+01:04:57,990 --> 01:05:02,160
+崩溃工作站在写入日志以及写入一些日志后崩溃
+crash workstation crashed after writing
+its log and also after writing some of
+
+690
+01:05:02,160 --> 01:05:08,220
+块本身返回，然后崩溃，然后掠过一些极端
+the blocks back itself and then crashed
+and then skimming over some extremely
+
+691
+01:05:08,220 --> 01:05:11,280
+重要的细节，我稍后会谈到，然后又会发生
+important details which I'll get to in a
+moment then what will happen is again
+
+692
+01:05:11,280 --> 01:05:13,650
+恢复工作站当然是工作站不知道的恢复
+the recovery workstation of course the
+recovery where station doesn't know
+
+693
+01:05:13,650 --> 01:05:19,530
+工作站崩溃的真正点是哦
+really the point at which the
+workstation crashed all it sees is oh
+
+694
+01:05:19,530 --> 01:05:23,220
+这是一些日志条目，恢复工作站将再次重放日志
+here's some log entries and again the
+recovery workstation will replay the log
+
+695
+01:05:23,220 --> 01:05:30,690
+以相同的方式或多或少发生了什么事，是的，即使
+in the same way and more or less what's
+going on is that yeah even if the
+
+696
+01:05:30,690 --> 01:05:35,400
+修改已经在花瓣中完成，我们正在重放相同的修改
+modifications were already done in petal
+we're replaying the same modifications
+
+697
+01:05:35,400 --> 01:05:38,280
+在这里，学生们正在玩同样的修改的恢复
+here the recovery where students were
+playing the same modifications it just
+
+698
+01:05:38,280 --> 01:05:43,860
+再次在同一位置写入相同的数据，大概并没有真正改变
+writes the same data the same place
+again and presumably not really changing
+
+699
+01:05:43,860 --> 01:05:48,060
+已经完成但如果崩溃的写入的值
+the value for the writes that had
+already been completed but if the crash
+
+700
+01:05:48,060 --> 01:05:50,940
+工作站没有行使其某些权利，那么其中一些权利是
+workstation hadn't done some of its
+rights then some of these rights were
+
+701
+01:05:50,940 --> 01:06:00,600
+不确定哪个会实际更改数据以完成所有操作
+not sure which will actually change the
+data to complete the operations all
+
+702
+01:06:00,600 --> 01:06:03,020
+对
+right
+
+703
+01:06:03,740 --> 01:06:12,230
+实际上，事实并非如此，因为今天的问题已经解决
+that's not actually as it turns out the
+full story and today's question sets up
+
+704
+01:06:12,230 --> 01:06:22,160
+在特定情况下，需要增加一点复杂性
+a particular scenario for which a little
+bit of added complexity is necessary in
+
+705
+01:06:22,160 --> 01:06:27,920
+尤其是崩溃的工作站实际上已经获得的可能性
+particular the possibility that the
+crashed workstation had actually gotten
+
+706
+01:06:27,920 --> 01:06:31,700
+在崩溃之前经历了整个过程，实际上释放了一些
+through this entire sequence before
+crashing and in fact released some of
+
+707
+01:06:31,700 --> 01:06:40,609
+它的锁，所以它不是最后一个修改工作站的人
+its locks or so that it wasn't the last
+person the last workstation to modify a
+
+708
+01:06:40,609 --> 01:06:44,720
+特定的数据，所以举一个例子，如果我们有一些
+particular piece of data so an example
+of this is what happens if we have some
+
+709
+01:06:44,720 --> 01:06:57,200
+工作站并执行说一个删除文件，它删除一个文件说文件F，然后
+workstation and it executes say a delete
+file it deletes a file say a file F and
+
+710
+01:06:57,200 --> 01:07:07,400
+目录D，然后有其他工作站在删除之后
+directory D and then there's some other
+workstation which after this delete
+
+711
+01:07:07,400 --> 01:07:12,490
+创建一个具有相同名称的新文件，但是现在它是一个不同的文件
+creates a new file with the same name
+but of course it's a different file now
+
+712
+01:07:12,490 --> 01:07:22,490
+所以工作站1对不起，两个工作站以后创建相同
+so workstation 1 I'm sorry
+workstation two later create create same
+
+713
+01:07:22,490 --> 01:07:32,750
+文件具有相同的文件名，然后在该工作站1崩溃后，我们将
+file same file name and then after that
+workstation 1 crashes so we're going to
+
+714
+01:07:32,750 --> 01:07:38,990
+需要您对工作站的日志进行恢复，因此在这一点上
+need you to do recovery on workstation
+ones log and so at this point in time
+
+715
+01:07:38,990 --> 01:07:43,420
+你知道也许有第三台工作站在做恢复
+you know maybe there's a third
+workstation doing the recovery
+
+716
+01:07:45,250 --> 01:07:50,050
+所以现在工作站3正在恢复
+so now workstation 3 is doing a recover
+
+717
+01:07:52,180 --> 01:07:58,250
+在工作站的日志上，因此顺序显示工作站1删除了文件或
+on workstation ones log so the sequence
+says workstation 1 deleted a file or
+
+718
+01:07:58,250 --> 01:08:04,190
+工作站2创建了一个文件，或者工作站3进行了恢复，您可能知道
+station 2 created a file or station 3
+does recovery well you know could be
+
+719
+01:08:04,190 --> 01:08:09,890
+该删除仍在工作站的日志中，因此您可能知道工作站2 
+that this delete is still in workstation
+ones log so workstation two may you know
+
+720
+01:08:09,890 --> 01:08:13,069
+或站1即将崩溃或站3将查看其日志
+or station 1 crash just going to go or
+station 3 is going to look at its log
+
+721
+01:08:13,069 --> 01:08:19,158
+这将重放工作站日志中的所有更新
+that's going to replay all
+all the updates in workstation ones log
+
+722
+01:08:19,158 --> 01:08:23,488
+此删除可能为此删除的更新
+this delete may the updates for this
+delete the entry for this delete may
+
+723
+01:08:23,488 --> 01:08:27,379
+仍然在工作站的日志中，所以除非我们做一些聪明的事
+
+724
+01:08:27,380 --> 01:08:32,729
+工作站3将删除此文件，您知道，因为这
+workstation 3 is going to delete this
+file you know because this this
+
+725
+01:08:32,729 --> 01:08:35,789
+该操作从目录中删除了相关条目
+
+726
+01:08:35,790 --> 01:08:41,908
+因此实际上是删除删除该文件，因为它是另一个文件
+thus actually erasing deleting this file
+that's it's a different file that
+
+727
+01:08:41,908 --> 01:08:46,919
+工作站2之后创建的，所以这是完全错误的
+
+728
+01:08:46,920 --> 01:08:50,460
+想知道我们要怎么来吗想知道马站一删
+want you know the how come we want is
+you know horse station one deleted a
+
+729
+01:08:50,460 --> 01:08:55,170
+该文件应删除，但如果文件名不应该是一个新文件
+file that file should be deleted but a
+new file that if her name should not be
+
+730
+01:08:55,170 --> 01:08:58,859
+删除只是因为它在重启cuz中崩溃，此创建发生在
+deleted just because it was a crash in a
+restart cuz this create happen after
+
+731
+01:08:58,859 --> 01:09:05,460
+删除所有权限，这样我们就不能在没有日志的情况下重播工作站日志
+delete all right so we cannot just
+replay workstation ones log without
+
+732
+01:09:05,460 --> 01:09:11,130
+进一步考虑，因为它可能实际上可能是工作站中的日志条目
+further thought because it may it may
+essentially a log entry in workstations
+
+733
+01:09:11,130 --> 01:09:16,109
+在恢复过程中播放一本日志时，它可能已过时
+one log may be out of date by the time
+it's we played during recovery some
+
+734
+01:09:16,109 --> 01:09:19,109
+其他工作站可能已经修改了相同的数据和其他方式
+other workstation may have modified the
+same data and some other way
+
+735
+01:09:19,109 --> 01:09:26,880
+随后，因此我们不能盲目地重播日志条目，所以这是
+subsequently so we can't blindly replay
+the log entries and so this is this is
+
+736
+01:09:26,880 --> 01:09:32,939
+这是今天的问题，素馨花解决这个问题的方法是通过联系
+this is today's question and the way
+frangipani solves this is by associating
+
+737
+01:09:32,939 --> 01:09:39,358
+版本号以及存储在踏板中的文件系统中的所有数据
+
+738
+01:09:39,359 --> 01:09:45,868
+并且还将相同的版本号与每个更新相关联
+and also associating the same version
+number with every update that's
+
+739
+01:09:45,868 --> 01:09:53,669
+在日志中进行了说明，因此每个日志条目在刚开始的时候我都没有
+
+740
+01:09:53,670 --> 01:10:02,429
+你会说在踏板上我只会在踏板上说每个元数据
+you know say in pedal I'll just say in
+pedal every piece of metadata every
+
+741
+01:10:02,429 --> 01:10:08,400
+索引每一个类似于目录内容的数据
+inode every every piece of data that's
+like the contents of a directory for
+
+742
+01:10:08,400 --> 01:10:14,580
+示例存储的每个数据元数据块和踏板都有一个版本号
+example every block of data metadata in
+stored and pedal has a version number
+
+743
+01:10:14,580 --> 01:10:21,840
+当工作站需要先修改踏板中的元数据时
+when a workstation needs to modify a
+piece of metadata in pedal it first
+
+744
+01:10:21,840 --> 01:10:27,449
+从踏板读取该元数据到其内存中，然后查看现有的
+reads that metadata from pedal into its
+memory and then looks at the existing
+
+745
+01:10:27,449 --> 01:10:30,320
+的版本，然后在创建日志文件时
+version of
+and then when it's creating the log file
+
+746
+01:10:30,320 --> 01:10:36,289
+描述其修改后，会将现有版本号加一个
+describing its modification it puts the
+existing version number plus one into
+
+747
+01:10:36,289 --> 01:10:43,099
+日志条目，然后将其放入（如果确实有机会将数据写回） 
+the log entry and then when it in if it
+does get a chance to write the data back
+
+748
+01:10:43,099 --> 01:10:48,619
+它将使用新增加的版本号写回数据，因此如果超过
+it'll write the data back with the new
+increased version number so if over
+
+749
+01:10:48,619 --> 01:10:52,969
+工作站尚未崩溃，是否崩溃，或者是否确实能写回一些数据
+station hasn't crashed and it did or if
+it did manage to write some data back
+
+750
+01:10:52,969 --> 01:10:56,960
+在崩溃之前，版本号已存储在花瓣中
+before it crashed then the version
+number has stored in petal for the
+
+751
+01:10:56,960 --> 01:11:02,630
+受影响的元数据将至少与版本号一样高或更高
+effected metadata it will be at least as
+high or higher than the version numbers
+
+752
+01:11:02,630 --> 01:11:05,599
+存储在日志条目中的其他工作站将会更高
+stored in the log entry there will be
+higher some other workstations
+
+753
+01:11:05,599 --> 01:11:13,699
+随后进行了修改，所以这里实际发生的是
+subsequently modified so what will
+actually happen here is that the what
+
+754
+01:11:13,699 --> 01:11:20,690
+我们将看到的工作站3是删除一个工作站的日志条目
+workstation 3 we'll see is that the log
+entry for workstations one delete
+
+755
+01:11:20,690 --> 01:11:26,030
+操作将在日志条目中存储一个特定的版本号， 
+operation will have a particular version
+number stored in the log entry that
+
+756
+01:11:26,030 --> 01:11:31,940
+比方说，与对目录的修改相关联的日志条目
+associated with the modification to the
+directory let's say and the log entry
+
+757
+01:11:31,940 --> 01:11:35,150
+会说好目录的版本号和新的版本号
+will say well the version number for the
+directory and the new version number
+
+758
+01:11:35,150 --> 01:11:40,130
+由此日志条目创建的版本号为3的工作站
+created by this log entry is version
+number three in order for workstation
+
+759
+01:11:40,130 --> 01:11:45,619
+两个随后更改实际上在之前添加文件应用程序的目录
+two to subsequently change the directory
+that is to add a file app in fact before
+
+760
+01:11:45,619 --> 01:11:49,599
+它使工作站崩溃了，必须放弃该目录中的锁定，并且
+it crashed the workstation one must have
+given up the lock in the directory and
+
+761
+01:11:49,599 --> 01:11:55,429
+这可能就是为什么日志条目甚至存在于踏板中的原因，因此工作站1必须
+that's probably why the log entry even
+exists in pedal so workstation 1 must
+
+762
+01:11:55,429 --> 01:11:58,940
+显然已经放弃了锁，工作站两个拿到了锁并读取了
+have given up the lock apparently
+workstation two got the lock and read
+
+763
+01:11:58,940 --> 01:12:04,489
+该目录的当前元数据显示版本号为3 
+the current metadata for the directory
+saw that the version number was three
+
+764
+01:12:04,489 --> 01:12:14,360
+现在，当两个工作站写入此数据时，它将设置版本号或
+now and when workstation two writes this
+data it will set the version number or
+
+765
+01:12:14,360 --> 01:12:22,749
+ peddle中的目录为4 ok，因此这意味着该日志条目
+the directory in peddle to be 4 ok so
+the that means the log entry for this
+
+766
+01:12:22,749 --> 01:12:28,789
+删除操作现在将具有版本号3， 
+delete operation is going to have
+version number 3 in it now when the
+
+767
+01:12:28,789 --> 01:12:34,849
+最差代理3上的恢复软件会重播它查看的工作站日志
+recovery software on worst agent 3
+replays workstation ones log it looks at
+
+768
+01:12:34,849 --> 01:12:37,909
+首先是版本号，所以它将查看日志条目的版本号
+the version numbers first so it'll look
+at the version number the log entry
+
+769
+01:12:37,909 --> 01:12:42,369
+它会通过查看块中的版本号来读取该块
+it'll read the block from
+look at the version number in the block
+
+770
+01:12:42,369 --> 01:12:47,439
+并且如果踏板中的块中的版本号大于或等于
+and if the version number in the block
+in pedal is greater than or equal to the
+
+771
+01:12:47,439 --> 01:12:51,610
+恢复软件将忽略的日志条目中的版本号
+version number in the log entry the
+recovery software will simply ignore
+
+772
+01:12:51,610 --> 01:12:57,729
+在日志条目中进行更新，而不是这样做，因为显然该块已经
+that update in the log entry and not do
+it because clearly the block had already
+
+773
+01:12:57,729 --> 01:13:01,449
+由崩溃工作站写回，然后可能随后
+been written back by the crash
+workstation and then maybe subsequently
+
+774
+01:13:01,449 --> 01:13:06,999
+由其他工作站修改，因此重播实际上是基于
+modified by other workstations so the
+replay is actually selectively based on
+
+775
+01:13:06,999 --> 01:13:14,369
+重放的此版本号仅是恢复
+this version number that replay it's a
+recovery only writes only
+
+776
+01:13:14,369 --> 01:13:20,499
+如果日志中的权限实际上是较新的，则重放在日志中是正确的
+replays are right in the log if that
+right is actually newer right in the log
+
+777
+01:13:20,499 --> 01:13:31,539
+条目比已存储在peddle中的数据更新，因此一种
+entry is newer than the data that's
+already stored in peddle so one sort of
+
+778
+01:13:31,539 --> 01:13:37,150
+这里令人烦恼的问题可能是第三工作站正在运行
+irritating question here maybe is that
+workstation three is running this
+
+779
+01:13:37,150 --> 01:13:41,050
+恢复软件，而其他工作站仍在读取和
+recovery software while other
+workstations are still reading and
+
+780
+01:13:41,050 --> 01:13:46,229
+主动在文件系统中写入内容并具有锁定，并且知道要兜售什么
+writing in the file system actively and
+have locks and knows what to peddle so
+
+781
+01:13:46,229 --> 01:13:52,030
+重播将在我们不知道的位置继续进行
+the replay it's gonna go on while we're
+station to which that doesn't know
+
+782
+01:13:52,030 --> 01:13:57,429
+关于恢复的任何信息仍然处于活动状态，实际上两个工作站可能具有
+anything about the recovery still active
+and indeed workstation two may have the
+
+783
+01:13:57,429 --> 01:14:03,760
+恢复时锁定此目录，以便恢复
+lock for this directory
+while recoveries going on so recovery
+
+784
+01:14:03,760 --> 01:14:08,409
+可能正在扫描日志，您无需读取或写入此目录数据
+may be scanning the log and you no need
+to read or write this directories data
+
+785
+01:14:08,409 --> 01:14:14,499
+在工作站两个仍在锁定此数据时，问题是
+in pedal while workstation two still has
+the lock on this data the question is
+
+786
+01:14:14,499 --> 01:14:19,510
+您怎么知道我们如何像一种可能
+how you know how do we sort this out
+like one possibility which actually
+
+787
+01:14:19,510 --> 01:14:24,760
+原来不起作用的是恢复软件首先获取了
+turns out not to work is for the
+recovery software to first acquire the
+
+788
+01:14:24,760 --> 01:14:30,969
+重放前锁定需要在花瓣上查看的任何内容
+lock on anything that it needs to look
+at in petal before while it's replaying
+
+789
+01:14:30,969 --> 01:14:38,229
+日志，您知道为什么不起作用的一个好原因是它
+the log and the the you know one good
+reason why that doesn't work is that it
+
+790
+01:14:38,229 --> 01:14:41,800
+可能是由于
+could be that we're running recovery
+after a system-wide power failure for
+
+791
+01:14:41,800 --> 01:14:46,689
+例子，所有关于谁拥有什么锁的知识都丢失了，因此我们
+example in which all knowledge of who
+had what locks is lost and therefore we
+
+792
+01:14:46,689 --> 01:14:52,840
+无法编写恢复软件以参与锁定
+cannot write the recovery software to
+sort of participate in the locking
+
+793
+01:14:52,840 --> 01:14:56,030
+协议，因为您了解锁定的所有知识
+protocol because
+you know all knowledge of what's locked
+
+794
+01:14:56,030 --> 01:14:58,459
+我的未锁定插槽可能在电源故障中丢失了
+my slot not locked may have been lost in
+the power failure
+
+795
+01:14:58,459 --> 01:15:03,619
+嗯，但是幸运的是，恢复软件可以继续
+um but luckily it turns out that the
+recovery software can just go ahead and
+
+796
+01:15:03,619 --> 01:15:09,559
+读取或写入踏板中的块，而不必担心抱歉的读取或写入数据
+read or write blocks in pedal without
+worrying about sorry read or write data
+
+797
+01:15:09,559 --> 01:15:15,260
+在踏板上而不用担心锁，原因是如果
+in pedal without worrying at all about
+locks and the reason is that if the
+
+798
+01:15:15,260 --> 01:15:18,110
+您知道的恢复软件恢复软件要重播此日志条目
+recovery software you know the recovery
+software wants to replay this log entry
+
+799
+01:15:18,110 --> 01:15:22,039
+并可能会修改与此目录关联的数据
+and possibly modify the data associated
+with this directory it just goes ahead
+
+800
+01:15:22,039 --> 01:15:26,630
+并立即从踏板上读取目录的所有内容
+and reads whatever's there for the
+directory out of pedal right now and
+
+801
+01:15:26,630 --> 01:15:30,650
+实际上只有两种情况：崩溃工作站放弃了它
+there's really only two cases either the
+crash workstation one had given up its
+
+802
+01:15:30,650 --> 01:15:35,150
+锁或没有锁，如果没有放弃此锁，那么没有其他人可以拥有
+lock or it hadn't if it hadn't given up
+this lock then nobody else can have a
+
+803
+01:15:35,150 --> 01:15:39,909
+目录已锁定，因此如果放弃了锁定就没有问题
+directory locked and so there's no
+problem if it had given up its lock then
+
+804
+01:15:39,909 --> 01:15:46,699
+在我放弃它的锁之前，它必须先写出它的数据
+before I gave it up its lock it must
+have written that it's data for the
+
+805
+01:15:46,699 --> 01:15:52,219
+目录返回到踏板，这意味着版本号存储在踏板中
+directory back to pedal and that means
+that the version number stored in pedal
+
+806
+01:15:52,219 --> 01:15:56,150
+必须至少与崩溃的工作站日志中的版本号一样高
+must be at least as high as the version
+number in the crashed workstations log
+
+807
+01:15:56,150 --> 01:16:00,769
+条目，因此恢复软件比较日志条目的版本
+entry and therefore when recovery
+software compares the log entry version
+
+808
+01:16:00,769 --> 01:16:04,820
+编号以及数据和踏板的版本号，它将看到日志
+number with the version number of the
+data and pedal it'll see that the log
+
+809
+01:16:04,820 --> 01:16:11,479
+条目版本号不高，因此我们不会播放日志条目，因此
+entry version number is not higher and
+therefore won't we play the log entry so
+
+810
+01:16:11,479 --> 01:16:15,139
+是的，恢复软件将无需持有锁即可读取该块
+yeah the recovery software will have
+read the block without holding the lock
+
+811
+01:16:15,139 --> 01:16:19,489
+但它不会修改它，因为如果锁定已释放，则该版本
+but it's not going to modify it because
+if the locked was released the version
+
+812
+01:16:19,489 --> 01:16:26,510
+数字将足够高，以表明日志条目已经属于
+number will be high enough to show that
+the log entry had already been sort of
+
+813
+01:16:26,510 --> 01:16:31,459
+在崩溃的工作站崩溃之前处理踏板没有，所以没有
+processing to pedal before the crashed
+workstation crashed no so there's no
+
+814
+01:16:31,459 --> 01:16:43,849
+锁定问题好吧，这是我已经克服了
+locking issue alright this is the I've
+gone over that kind of main guts of what
+
+815
+01:16:43,849 --> 01:16:49,070
+踏板由Nam决定，它的缓存一致性，分布式事务和
+pedal is up to Nam it's cache coherence
+it's distributed transactions and it's
+
+816
+01:16:49,070 --> 01:16:55,550
+分布式崩溃恢复其他需要考虑的是本文
+distributed crash recovery the other
+things to think about are the the paper
+
+817
+01:16:55,550 --> 01:17:00,949
+谈到性能，20多年后实际上很难
+talks a bit about performance it's
+actually very hard after over 20 years
+
+818
+01:17:00,949 --> 01:17:04,909
+解释绩效数字，因为他们将绩效数字标记在
+to interpret performance numbers because
+they brand their performance numbers on
+
+819
+01:17:04,909 --> 01:17:08,150
+与环境完全不同的硬件
+very different Hardware in a very
+different environment from
+
+820
+01:17:08,150 --> 01:17:12,949
+您今天看到的大概是他们显示的效果数字，或者
+you see today roughly speaking the
+performance numbers they show or that as
+
+821
+01:17:12,949 --> 01:17:19,310
+您基本上会增加越来越多的友谊和工作站
+you add more and more friendship and
+work stations the system basically
+
+822
+01:17:19,310 --> 01:17:24,500
+不会变慢，即使每个新工作站都在积极运行
+doesn't get slower that is each new
+workstation even if it's actively doing
+
+823
+01:17:24,500 --> 01:17:28,429
+文件系统操作不会降低现有工作站的速度
+file system operations doesn't slow down
+the existing workstation so in that
+
+824
+01:17:28,429 --> 01:17:32,600
+至少在应用程序状态下感知您所知道的系统，看看系统
+sense the system you know at least for
+the application state look at the system
+
+825
+01:17:32,600 --> 01:17:36,860
+给他们合理的可扩展性，他们可以添加更多的工作站而无需
+was giving them reasonable scalability
+they could add more workstations without
+
+826
+01:17:36,860 --> 01:17:44,890
+减慢现有用户向后看的速度
+slowing existing users down looking
+backwards
+
+827
+01:17:44,890 --> 01:17:49,130
+尽管素馨花充满了非常有趣的技术，但值得
+although frangipani is full of like very
+interesting techniques that are worth
+
+828
+01:17:49,130 --> 01:17:55,909
+记住它并没有太大影响
+remembering it didn't have too much
+influence in on how on the evolution of
+
+829
+01:17:55,909 --> 01:18:00,560
+存储系统的部分原因是针对的环境
+storage systems part of the reason is
+that the environment for which is aimed
+
+830
+01:18:00,560 --> 01:18:04,040
+那是坐在工作站前的小型工作组
+that is small workgroups
+people sitting in front of workstations
+
+831
+01:18:04,040 --> 01:18:09,620
+在他们的办公桌上并共享文件，使环境很好地存在于某些环境中
+on their desks and sharing files that
+environment well it still exists in some
+
+832
+01:18:09,620 --> 01:18:13,730
+操作实际上不在分布式存储中的位置
+places isn't really where the action is
+in distributed storage the action the
+
+833
+01:18:13,730 --> 01:18:19,400
+实际行动被转移到大数据中心或大网站大数据中
+real action is moved into sort of big
+data center or big websites big data
+
+834
+01:18:19,400 --> 01:18:24,380
+计算，您首先在那个世界知道文件系统
+computations and there you know in that
+world first of all the file system
+
+835
+01:18:24,380 --> 01:18:28,850
+与像人一样的数据库相比，界面只是不是很有用
+interface just isn't very useful
+compared to databases like people really
+
+836
+01:18:28,850 --> 01:18:33,620
+像大型网站世界中的交易一样，但它们只需要很小的交易
+like transactions in the big website
+world but they need them for very small
+
+837
+01:18:33,620 --> 01:18:39,080
+数据项您将存储在数据库而不是数据库中的数据类型
+items of data the kind of data that you
+would store in a database rather than
+
+838
+01:18:39,080 --> 01:18:44,929
+您自然会存储在文件系统中的那种数据，以便您
+the kind of data that would you would
+naturally store in a file system so you
+
+839
+01:18:44,929 --> 01:18:49,370
+知道其中一些技术可能会让您在现代中看到它的回声
+know some of this technology might sort
+of you can see echoes of it in modern
+
+840
+01:18:49,370 --> 01:18:53,030
+系统，但通常采用某种数据库的形式，另一种则是
+systems but it usually takes the form of
+some database the other big kind of
+
+841
+01:18:53,030 --> 01:18:59,030
+将其存储在那里，根据大数据的需要存储大文件
+storage this out there is storing big
+files as needed for big data
+
+842
+01:18:59,030 --> 01:19:04,969
+像MapReduce和GFS这样的计算在某种程度上看起来是
+computations like MapReduce and indeed
+GFS is a you know to some extent looks
+
+843
+01:19:04,969 --> 01:19:08,800
+就像文件系统一样，是您想要MapReduce使用的存储系统
+like a file system and is the kind of
+storage system you want for MapReduce
+
+844
+01:19:08,800 --> 01:19:15,710
+但是对于GFS和大数据计算，素馨
+but for GFS and for big data
+computations frangipane ease you know
+
+845
+01:19:15,710 --> 01:19:22,010
+专注于本地缓存和工作站，并且非常关注
+focus on local caching and workstations
+and very close attention to
+
+846
+01:19:22,010 --> 01:19:27,170
+缓存的一致性和锁定对于您知道
+cache coherence and locking it's just
+not very useful you know for both the
+
+847
+01:19:27,170 --> 01:19:33,530
+数据读写通常缓存根本没有用
+data read and write
+typically caching is not useful at all
+
+848
+01:19:33,530 --> 01:19:38,450
+对，如果您正在读取十亿兆字节的数据， 
+right if you're reading through ten
+terabytes of data it's really
+
+849
+01:19:38,450 --> 01:19:45,470
+几乎适得其反，以至于无法缓存它，所以素馨花的很多重点都在整理中
+counterproductive almost to cache it so
+a lot of the focus in frangipani is sort
+
+850
+01:19:45,470 --> 01:19:50,230
+时间流逝了一点点，它在某些情况下仍然有用，但是
+of time is pass it by a little bit it's
+still useful in some situations but it's
+
+851
+01:19:50,230 --> 01:19:56,390
+不是人们在为所有人设计新系统时真正考虑的问题
+not what people are really thinking
+about in designing new systems for all
+
+852
+01:19:56,390 --> 01:19:59,500
+对的就是这样
+right that is it
+

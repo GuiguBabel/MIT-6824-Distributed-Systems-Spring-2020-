@@ -1,0 +1,5253 @@
+1
+00:00:02,649 --> 00:00:08,510
+好吧，今天我想谈谈更多关于容错和
+all right today I want to talk about bit
+more about fault tolerance and
+
+2
+00:00:08,510 --> 00:00:13,269
+复制，然后查看有关vmware ft的今天论文的详细信息
+replication and then look into the
+details of today's paper about vmware ft
+
+3
+00:00:13,269 --> 00:00:19,040
+主题仍然具有容错能力，可以为您提供高可用性
+the topics still fault tolerance to
+provide high availability that is you
+
+4
+00:00:19,040 --> 00:00:22,820
+想要建立一个即使您知道某些计算机崩溃的硬件的服务器也是
+want to build a server that even if some
+hardware you know computer crashes is
+
+5
+00:00:22,820 --> 00:00:27,860
+参与服务，我们仍然愿意提供服务，并在一定程度上
+involved in the service we still like to
+provide the service and to the extent we
+
+6
+00:00:27,860 --> 00:00:31,250
+如果出现网络问题，并且我们还可以提供服务吗？ 
+can we'd like to provide our service
+also if there's network problems and the
+
+7
+00:00:31,250 --> 00:00:36,620
+我们在课程的这一部分中最少使用它的复制工具，因此
+tool we're using its replication least
+for this part of the course so it's
+
+8
+00:00:36,620 --> 00:00:42,039
+值得一问的是，复制有望解决什么样的故障
+worth asking what kind of failures
+replication can be expected to deal with
+
+9
+00:00:42,039 --> 00:00:46,480
+因为这不是一切
+because it's not everything by any means
+
+10
+00:00:52,510 --> 00:00:57,170
+所以也许是最简单的表征我们正在谈论的失败类型的方法
+so maybe the easiest way to characterize
+the kind of failures we're talking about
+
+11
+00:00:57,170 --> 00:01:11,119
+是单台计算机的故障停止故障，我的意思是故障停止
+is fail stop failures of a single
+computer and what I mean by fail stop
+
+12
+00:01:11,119 --> 00:01:16,759
+这是一个通用术语，容错能力是
+it's a sort of generic term and fault
+tolerance is that if something goes
+
+13
+00:01:16,759 --> 00:01:23,840
+错误会说计算机只是停止执行它而已
+wrong would say the computer the
+computer simply stops executing it just
+
+14
+00:01:23,840 --> 00:01:29,240
+如果出现任何问题（特别是计算错误），则会停止
+stops if anything goes wrong and in
+particular it doesn't compute incorrect
+
+15
+00:01:29,240 --> 00:01:35,240
+结果，因此如果有人将电源线从服务器中踢出，那可能是
+results so if somebody kicks the power
+cable out of your server that's probably
+
+16
+00:01:35,240 --> 00:01:41,090
+如果他们拔下服务器，也会类似地产生故障停止失败
+gonna generate a fail stop failure
+similarly if they unplug your servers
+
+17
+00:01:41,090 --> 00:01:44,390
+网络连接，即使服务器仍在运行，所以这是一个
+network connection even though the
+server is still running so this is a
+
+18
+00:01:44,390 --> 00:01:47,420
+有点可笑，你知道完全被网络切断了，所以看着我
+little bit funny you know be totally cut
+off from the network so it looks at me
+
+19
+00:01:47,420 --> 00:01:51,890
+像外面一样停止了，所以我们可以处理的正是这些失败
+outside like it just stopped so it's
+really these failures we can deal with
+
+20
+00:01:51,890 --> 00:01:59,479
+复制还可以解决一些硬件问题，例如您知道
+with replication this also covers some
+hardware problems like you know maybe if
+
+21
+00:01:59,479 --> 00:02:04,909
+您服务器上的风扇坏了，因为您知道它要花50美分，也许
+the fan on your server breaks because it
+you know it cost 50 cents maybe that'll
+
+22
+00:02:04,909 --> 00:02:10,038
+导致CPU过热，CPU会干净地自行关闭， 
+cause the CPU to overheat and the CPU
+will shut itself down cleanly and just
+
+23
+00:02:10,038 --> 00:02:12,849
+停止执行
+stop executing
+
+24
+00:02:14,079 --> 00:02:20,500
+我们正在讨论的复制系统类型没有涵盖的内容
+what's not covered by the kind of
+replication systems we're talking about
+
+25
+00:02:20,500 --> 00:02:29,359
+是诸如错误，软件或硬件设计缺陷之类的东西
+is things like bugs and software or
+design defects in hardware so basically
+
+26
+00:02:29,359 --> 00:02:35,659
+不是错误，因为如果我们提供一些服务，您就会知道您是MapReduce的主人
+not bugs because if we take some service
+you know say you're a MapReduce master
+
+27
+00:02:35,659 --> 00:02:39,530
+例如，您知道我们复制并在两台计算机上运行它， 
+for example you know we replicated and
+run it on two computers you know if
+
+28
+00:02:39,530 --> 00:02:43,540
+您的MapReduce母版或我的MapReduce母版中有一个错误
+there's a bug in your MapReduce master
+or my MapReduce master let's say
+
+29
+00:02:43,540 --> 00:02:46,760
+复制不会帮助我们，我们将计算出同样的错误
+replications not going to help us we're
+going to compute the same incorrect
+
+30
+00:02:46,760 --> 00:02:53,959
+我们的两个MapReduce主副本的结果
+result on both of our copies of our
+MapReduce master and everything looked
+
+31
+00:02:53,959 --> 00:02:58,370
+好的，他们会同意您恰好是错误的答案，所以我们不能依靠
+fine they'll agree you just happen to be
+the wrong answer so we can't depending
+
+32
+00:02:58,370 --> 00:03:02,780
+防止复制软件中的错误，我们无法针对
+against bugs in the replicated software
+and we can't defend against bugs in the
+
+33
+00:03:02,780 --> 00:03:08,180
+我们用来管理复制的任何方案，与我类似
+whatever scheme we're using to manage
+the replication and similarly as I
+
+34
+00:03:08,180 --> 00:03:14,180
+之前提到过，我们不能期望处理硬件中的错误
+mentioned before we can't expect to deal
+with bugs in the hardware the hardware
+
+35
+00:03:14,180 --> 00:03:18,530
+它计算错误，这至少对我们而言就是这样
+it computes incorrectly that's just
+that's the end for us at least with this
+
+36
+00:03:18,530 --> 00:03:23,930
+一种技术，尽管您知道肯定有硬件和
+kind of technique although you know that
+said there are definitely hardware and
+
+37
+00:03:23,930 --> 00:03:28,699
+如果幸运的话，该复制可能会导致的软件错误
+software bugs that that replication
+might if you're lucky might be able to
+
+38
+00:03:28,699 --> 00:03:32,239
+应对它，以便服务器中运行一些不相关的软件，并且
+cope it so if there's some unrelated
+software running in your server and it
+
+39
+00:03:32,239 --> 00:03:36,620
+导致服务器崩溃，也许是因为您的内核崩溃并重新启动，或者
+causes the server to crash maybe because
+your kernel to panic and reboot or
+
+40
+00:03:36,620 --> 00:03:40,639
+与您无关的事情与您所提供的服务有关
+something it has nothing to do with you
+know with your with the service you're
+
+41
+00:03:40,639 --> 00:03:45,650
+复制我们为您服务的那种失败很可能是
+replicating then that kind of failure
+for us for your service will may well be
+
+42
+00:03:45,650 --> 00:03:50,810
+失败停止，您知道内核将崩溃并且
+fail stop
+you know the kernel will panic and the
+
+43
+00:03:50,810 --> 00:03:59,060
+备份副本将类似地接管某些硬件错误
+backup replicas will take over similarly
+some kinds of hardware errors can be
+
+44
+00:03:59,060 --> 00:04:05,599
+变成了失败停止错误，例如，如果您通过网络发送数据包
+turned into fail stop errors for example
+if you send a packet over the network
+
+45
+00:04:05,599 --> 00:04:10,069
+而网络破坏了它，只是翻转了您的数据包中的一点，几乎
+and the network corrupts it just flips a
+bit in your packet that will almost
+
+46
+00:04:10,069 --> 00:04:13,939
+肯定会被磁盘块的数据包的校验和所捕获
+certainly be caught by the checksum on
+the packet same thing for a disk block
+
+47
+00:04:13,939 --> 00:04:18,199
+如果您将一些数据写入磁盘，并在一个月后将其退回，您可能知道
+if you write some data to disk and weand
+it back a month later you know maybe the
+
+48
+00:04:18,199 --> 00:04:22,010
+磁性表面并不完美，您知道最好的几个钻头之一是
+magnetic surface isn't perfect and you
+know one of the best couple of bits were
+
+49
+00:04:22,010 --> 00:04:24,980
+块中的错误，因为它是正确的，实际上是纠错
+wrong in the block as it's right back
+it's actually error correcting
+
+50
+00:04:24,980 --> 00:04:28,460
+在一定程度上可以修复磁盘块中的错误
+that up to a certain point will fix
+errors in disk blocks that you'll be
+
+51
+00:04:28,460 --> 00:04:35,600
+将您知道的随机硬件错误转化为纠正错误（如果您正在
+turning you know random hardware errors
+into as either correcting them if you're
+
+52
+00:04:35,600 --> 00:04:40,910
+超级幸运或至少检测到它们并将随机损坏转变为
+super lucky or at least detecting them
+and turning random corruption into a
+
+53
+00:04:40,910 --> 00:04:45,470
+检测到您知道该软件的故障，然后知道该故障
+detected fault which you know the
+software then knows that something that
+
+54
+00:04:45,470 --> 00:04:49,910
+错误，可以通过停止执行或采取一些措施将其转变为故障停止错误
+wrong and can turn it into a fail stop
+fault by stopping executing or take some
+
+55
+00:04:49,910 --> 00:04:57,560
+其他补救措施，但总的来说，我们真的只能期望处理失败
+other remedial action but in general we
+really can only expect to handle fail
+
+56
+00:04:57,560 --> 00:05:06,470
+停止故障还有复制的其他限制，您知道故障
+stop faults there's other limits to
+replication to you know the the failures
+
+57
+00:05:06,470 --> 00:05:10,610
+如果我们在两个副本的后面有一个主对象
+in the if we have a primary in the back
+of our two replicas or whatever we're
+
+58
+00:05:10,610 --> 00:05:16,160
+真的假设两者中的失败是独立的权利
+really assuming that failures in the two
+are independent right if there tend to
+
+59
+00:05:16,160 --> 00:05:20,390
+关联了故障，那么复制不会对我们有帮助
+have correlated failures then
+replication is not going to help us so
+
+60
+00:05:20,390 --> 00:05:24,380
+例如，如果我们的服装很大，我们购买了成千上万的计算机批次
+for example if we're a big outfit and we
+buy thousands of computers batches of
+
+61
+00:05:24,380 --> 00:05:28,310
+数以千计的计算机来自同一制造商的相同计算机，以及
+thousands of computers identical
+computers from the same manufacturer and
+
+62
+00:05:28,310 --> 00:05:33,650
+我们运行，您知道我们的副本位于同一购买的所有计算机上
+we run you know our replicas is on all
+on those computers we bought at the same
+
+63
+00:05:33,650 --> 00:05:35,990
+从同一个地方来的时间有点冒险
+time from the same place that's a bit of
+a risk
+
+64
+00:05:35,990 --> 00:05:40,730
+也许是因为，如果其中之一存在制造缺陷， 
+maybe because presumably if one of them
+has a manufacturing defect in it there's
+
+65
+00:05:40,730 --> 00:05:44,390
+其他人也这样做的好机会，你知道其中一个人容易
+a good chance that the other ones do too
+you know one of them's prone to
+
+66
+00:05:44,390 --> 00:05:49,220
+过热，因为您知道的制造商不能提供足够的气流
+overheating because the manufacturer you
+know didn't provide enough airflow well
+
+67
+00:05:49,220 --> 00:05:53,990
+可能都是这个问题，所以其中一个过热而死亡，这是一个
+it probably all had that problem and so
+one of them overheats and dies it's a
+
+68
+00:05:53,990 --> 00:05:59,060
+其他人也很有可能，所以这是一种相关的失败
+good chance that the other ones will too
+so that's one kind of correlated failure
+
+69
+00:05:59,060 --> 00:06:02,570
+您只需要注意另一个是，您知道是否存在
+you just have to be careful of another
+one is that you know if there's an
+
+70
+00:06:02,570 --> 00:06:05,510
+地震和我们数据中心所在的城市
+earthquake and the city where our
+datacenter is probably gonna take out
+
+71
+00:06:05,510 --> 00:06:08,630
+您知道整个数据中心，我们可以在内部进行所有喜欢的复制
+the whole data center you know we can
+have all the replication we like inside
+
+72
+00:06:08,630 --> 00:06:12,080
+该数据中心将无济于事，因为由
+that data center it's not going to help
+us because the failure caused by an
+
+73
+00:06:12,080 --> 00:06:15,950
+地震或全市停电或建筑物烧毁
+earthquake or a citywide power failure
+or something the building burning down
+
+74
+00:06:15,950 --> 00:06:19,490
+就像我们的副本在该建筑物上时的相关故障一样
+is like it's correlated failure between
+our replicas if they're on that building
+
+75
+00:06:19,490 --> 00:06:24,020
+所以如果我们关心地震，那么我们需要把我们的
+so if we care about dealing with
+earthquakes then we need to put our
+
+76
+00:06:24,020 --> 00:06:28,010
+复制品也许在不同的城市中，至少在物理上是分开的
+replicas in maybe in just different
+cities at least physically separate
+
+77
+00:06:28,010 --> 00:06:31,760
+足以使他们拥有独立的权力，不太可能受到相同权力的影响
+enough that they have separate power
+unlikely to be affected by the same
+
+78
+00:06:31,760 --> 00:06:34,750
+自然灾害
+natural disaster
+
+79
+00:06:35,140 --> 00:06:39,170
+好的，但是在本次讨论的背景中，所有这些都是悬停的
+okay but that's all sort of hovering in
+the background for this discussion where
+
+80
+00:06:39,170 --> 00:06:44,660
+我们正在谈论的技术，您可能会使用另一个问题
+we're talking about the technology you
+might use another question about
+
+81
+00:06:44,660 --> 00:06:49,520
+复制是否值得，您可能会问自己，天哪，您知道这一点
+replication is whether it's worthwhile
+you may ask yourself gosh you know this
+
+82
+00:06:49,520 --> 00:06:55,190
+从字面上看，使用这些复制方案时使用的是原来的两倍或三倍
+literally uses these replication schemes
+use twice as much or three times as much
+
+83
+00:06:55,190 --> 00:06:59,480
+正确的计算机资源，我们需要让您知道GFS每个文件都有三个副本
+computer resources right we need to have
+you know GFS had three copies of every
+
+84
+00:06:59,480 --> 00:07:03,590
+盒子，我们今天要买三倍的磁盘空间
+box we have to buy three times as much
+disk space the paper for today
+
+85
+00:07:03,590 --> 00:07:07,760
+您知道复制仅一次，但这意味着我们有两倍的计算机
+you know replicates just once but that
+means we have twice as many computers
+
+86
+00:07:07,760 --> 00:07:11,990
+以及CPU和RAM都是昂贵的，真的值得吗
+and CPUs and RAM it's all for expensive
+like is that really worth it that
+
+87
+00:07:11,990 --> 00:07:17,540
+费用，您知道那不是我们可以从技术上解决的问题
+expense and you know that's not
+something we can answer technically
+
+88
+00:07:17,540 --> 00:07:21,140
+对，这是一个经济问题，取决于拥有
+right it's an economic question it
+depends on the value of having an
+
+89
+00:07:21,140 --> 00:07:26,090
+知道您是否在经营银行以及是否会造成后果的可用服务
+available service you know if you're
+running a bank and if the consequence is
+
+90
+00:07:26,090 --> 00:07:29,300
+计算机故障是您的客户无法为客户服务
+the computer failing is that your
+customer you can't serve your customers
+
+91
+00:07:29,300 --> 00:07:33,440
+而且您无法产生收入，而您的客户都讨厌您，那么这很可能
+and you can't generate revenue and your
+customers all hate you then it may well
+
+92
+00:07:33,440 --> 00:07:37,370
+值得一击，你知道每秒多花一万或两万美元
+be worth it to blow you know an extra
+ten or twenty thousand bucks on a second
+
+93
+00:07:37,370 --> 00:07:41,900
+电脑，因此如果您是我并且您是
+computer so you can have a replica on
+the other hand if you're me and you're
+
+94
+00:07:41,900 --> 00:07:48,680
+运行684 Web服务器，我认为值得一试
+running the 684 web server I don't
+consider it worthwhile to have a hot
+
+95
+00:07:48,680 --> 00:07:55,340
+备份84个Web服务器，因为失败的后果非常低，因此
+backup of the 84 web server because the
+consequences of failure are very low so
+
+96
+00:07:55,340 --> 00:08:00,230
+复制是否值得您复制多少个副本
+the whether the replication is
+worthwhile on how many replicas you
+
+97
+00:08:00,230 --> 00:08:04,220
+应该拥有，您愿意花多少钱，全都关于如何
+ought to have and how much you're
+willing to spend on it is all about how
+
+98
+00:08:04,220 --> 00:08:11,840
+大量的成本和不便导致的故障会导致您一切正常
+much cost and inconvenience failure
+would call it cause you all right this
+
+99
+00:08:11,840 --> 00:08:16,270
+一开始提到的纸张类型，因为有一些不同的
+paper sort of in the beginning mentions
+as there's a couple of different
+
+100
+00:08:16,270 --> 00:08:21,740
+复制方法确实提到了二一二调用状态
+approaches to replication really
+mentions two one two calls state
+
+101
+00:08:21,740 --> 00:08:35,150
+转移和其他调用复制状态机的大多数方案
+transfer and the other calls replicated
+state machine most of the schemes we're
+
+102
+00:08:35,150 --> 00:08:39,280
+在本课程中要讨论的是复制状态机
+going to talk about in this class are
+replicated state machines
+
+103
+00:08:39,789 --> 00:08:44,179
+无论如何，它都会讨论状态转移者背后的想法
+it'll talk about both anyway the idea
+behind state transferor's that if we
+
+104
+00:08:44,179 --> 00:08:51,470
+有两个服务器副本，您可以使它们保持同步
+have two replicas of a server the way
+you cause them to be to stay in sync
+
+105
+00:08:51,470 --> 00:08:57,529
+这将是实际的副本，以便备份可以拥有所需的一切
+that is to be actual replicas so that
+the backup can has everything it needs
+
+106
+00:08:57,529 --> 00:09:02,390
+如果主服务器在状态转移方案中失败，则接管工作方式
+to take over if the primary fails in a
+state transfer scheme the way that works
+
+107
+00:09:02,390 --> 00:09:06,320
+是主服务器发送其整个状态的副本，例如
+is that the primary sends a copy of its
+entire state that is for example the
+
+108
+00:09:06,320 --> 00:09:11,209
+其RAM的内容备份和备份只是存储
+contents of its RAM to the backup and
+the backup just sort of stores the
+
+109
+00:09:11,209 --> 00:09:15,470
+最新状态，因此就可以了，备份中的主要故障都可以
+latest state and so it's all there
+the primary fails in the backup can
+
+110
+00:09:15,470 --> 00:09:20,899
+开始以最后一个状态执行，如果主要失败，则得到了所有状态
+start executing with this last state it
+got if the primary fails so this is all
+
+111
+00:09:20,899 --> 00:09:26,450
+关于发送主要状态的信息，对于今天（如果今天的话） 
+about sending the state of the of the
+primary and for today's if today's paper
+
+112
+00:09:26,450 --> 00:09:29,899
+用作状态传输系统，它不会然后我们将成为的状态
+worked as a state transfer system which
+it doesn't then the state we'd be
+
+113
+00:09:29,899 --> 00:09:33,320
+谈论的是RAM的内容
+talking about would be the contents of
+the RAM the contents of the memory of
+
+114
+00:09:33,320 --> 00:09:38,390
+主要的，所以也许每隔一次，主要的就知道
+the primary so maybe every once while
+the primary would just you know make a
+
+115
+00:09:38,390 --> 00:09:41,600
+内存的大副本，并通过网络发送到备份，您可以
+big copy of its memory and send it
+across the network to the backup you can
+
+116
+00:09:41,600 --> 00:09:44,089
+想像一下，如果您想提高效率，您知道也许您只会发送
+imagine if you wanted to be efficient
+you know maybe you would only send the
+
+117
+00:09:44,089 --> 00:09:48,020
+自您上次发送内存以来更改的内存部分
+parts of the memory that it's changed
+since the last time you sent in memory
+
+118
+00:09:48,020 --> 00:09:52,940
+备份复制的状态机
+to the backup the replicated state
+machine
+
+119
+00:09:52,940 --> 00:09:57,560
+这种方法观察到大多数服务是大多数计算机设备
+this approach observes that most
+services are most computer things we
+
+120
+00:09:57,560 --> 00:10:05,330
+要复制有一些确定性的内部操作，除了
+want to replicate have some internal
+operation that's deterministic except
+
+121
+00:10:05,330 --> 00:10:10,880
+当外部输入正确时，您通常会知道是否没有外部输入
+when external input comes in right you
+know ordinarily if there's no external
+
+122
+00:10:10,880 --> 00:10:14,330
+对计算机的影响它只执行一条指令
+influences on a computer it just
+executes one instruction after another
+
+123
+00:10:14,330 --> 00:10:18,770
+而每条指令所执行的操作是
+and what each instruction does is a
+deterministic function of what's in the
+
+124
+00:10:18,770 --> 00:10:22,400
+内存和计算机的寄存器，仅在外部事件发生时
+memory and the registers of the computer
+and it's only when external events
+
+125
+00:10:22,400 --> 00:10:27,440
+干预，可能会发生意外情况，例如某个数据包到达
+intervene that something unexpected may
+happen like a packet arrives of a some
+
+126
+00:10:27,440 --> 00:10:33,800
+随机的时间，这导致服务器开始做不同的事情我
+random time and that causes the server
+to start doing something differently I'm
+
+127
+00:10:33,800 --> 00:10:39,260
+因此，复制状态机方案不会在
+so replicated state machine schemes
+don't send the state between the
+
+128
+00:10:39,260 --> 00:10:45,500
+相反，他们只是发送那些他们刚刚发送的外部事件
+replicas instead they just send those
+external events they just send maybe
+
+129
+00:10:45,500 --> 00:10:50,420
+从主服务器到备份服务器再发送一些信息，例如从
+from a primary to a backup again just
+send things like arriving input from the
+
+130
+00:10:50,420 --> 00:10:52,910
+备份需要了解的外部世界
+outside world that the backup needs to
+know
+
+131
+00:10:52,910 --> 00:10:57,050
+观察结果是您知道是否必须拥有两台计算机，并且它们会启动
+and the observation is that you know if
+you have to two computers and they start
+
+132
+00:10:57,050 --> 00:11:03,740
+从相同的状态，他们看到相同的输入，以相同的顺序
+from the same state and they see the
+same inputs that that in the same order
+
+133
+00:11:03,740 --> 00:11:08,150
+或同时两台计算机仍将是每台计算机的副本
+or at the same time the two computers
+will continue to be replicas of each
+
+134
+00:11:08,150 --> 00:11:12,020
+其他和某种执行相同，只要它们在
+other and sort of execute identically as
+long as they both see the same inputs at
+
+135
+00:11:12,020 --> 00:11:21,380
+同时，所以这可能转移了内存，并且转移了一些主要的
+the same time so this transfers probably
+memory and this transfer some primary
+
+136
+00:11:21,380 --> 00:11:27,890
+仅备份来自客户端或外部外部输入或外部的操作
+backup just operations from clients or
+external external inputs or external
+
+137
+00:11:27,890 --> 00:11:35,810
+事件，您知道人们倾向于偏爱复制状态的原因
+events and you know the reason why
+people tend to favor a replicated state
+
+138
+00:11:35,810 --> 00:11:41,630
+机器是通常的操作小于状态，但是你知道
+machine is that usually operations are
+smaller than the state but this you know
+
+139
+00:11:41,630 --> 00:11:44,630
+服务器的状态（如果是数据库服务器）可能是整个数据库
+the state of a server if it's a database
+server might be the entire database
+
+140
+00:11:44,630 --> 00:11:48,680
+可能是您知道千兆字节，而操作只是一些客户端发送的
+might be you know gigabytes whereas the
+operations are just some clients sending
+
+141
+00:11:48,680 --> 00:11:53,690
+而且您知道请读或写键27操作通常是小状态
+and you know please read or write key 27
+operations are usually small the states
+
+142
+00:11:53,690 --> 00:11:57,470
+通常很大，因此复制状态机通常看起来很吸引人， 
+usually large so replicate a state
+machine usually looks attractive and
+
+143
+00:11:57,470 --> 00:12:01,490
+轻微的缺点是该方案往往要复杂得多，并且
+slight downside is that the schemes tend
+to be quite a bit more complicated and
+
+144
+00:12:01,490 --> 00:12:08,930
+依靠更多有关计算机如何运行的假设，而这
+rely on sort of more assumptions about
+how the computers operate whereas this
+
+145
+00:12:08,930 --> 00:12:12,380
+我真的很霸道，我会寄给你我的整个状态
+is a really heavy-handed I'm just gonna
+send you my whole state sort of a
+
+146
+00:12:12,380 --> 00:12:22,180
+不用担心有关这些策略的任何问题，是的
+nothing to worry about
+any questions about these strategies yes
+
+147
+00:12:27,649 --> 00:12:32,760
+好吧，还好吧，所以问题是假设我们出了点问题
+well the did ok so the question is
+suppose something went wrong with our
+
+148
+00:12:32,760 --> 00:12:40,579
+方案和备份实际上与主数据库并不相同，所以您知道
+scheme and the backup was not actually
+identical to the primary so you know
+
+149
+00:12:40,579 --> 00:12:47,220
+您以为我们正在运行GFS主站，这是主要的
+you're suppose we were running GFS
+master and it's the primary it just
+
+150
+00:12:47,220 --> 00:12:55,019
+分发了至少两个块服务器之一，但是因为这两个您知道，因为
+handed out at least two chunks server
+one but because the two you know because
+
+151
+00:12:55,019 --> 00:12:59,910
+我们已经允许主节点的状态与备份所做的不同步
+we've allowed the states of the primary
+back to drift out of sync the backup did
+
+152
+00:12:59,910 --> 00:13:02,850
+至少不向任何人都没有发出来的东西，或者有人要过这些东西
+not issue at least to anybody it wasn't
+even away or anybody had asked for these
+
+153
+00:13:02,850 --> 00:13:05,880
+所以现在主要的人以为你知道每个人都租了一些块
+so now the primary thinks you know
+chunks everyone has lease for some chunk
+
+154
+00:13:05,880 --> 00:13:11,250
+备份中的主故障不会立即接管大块
+in the backup doesn't the primary fails
+backup takes over right now chunks over
+
+155
+00:13:11,250 --> 00:13:17,850
+有人认为它有一些租约，但现在的主人没有， 
+one thinks it has a lease for some chunk
+but then the current master doesn't and
+
+156
+00:13:17,850 --> 00:13:20,880
+很高兴将租约分发给其他中继服务器，现在我们必须分块
+is happy to hand out the lease to some
+other trunk server now we have to chunk
+
+157
+00:13:20,880 --> 00:13:25,230
+服务相同的野兽的服务器还可以，所以这只是一个接近家庭的例子，但是
+servers serving the same beasts okay so
+that's just a close to home example but
+
+158
+00:13:25,230 --> 00:13:30,230
+真的，您知道几乎所有坏事，而且我认为您会构造任何坏事
+really you know almost any bad thing and
+kind of I think you construct any bad
+
+159
+00:13:30,230 --> 00:13:35,579
+通过仅想象一些会混淆错误答案的服务来解决这个问题，因为
+scenario by just imagining some service
+that confuse the wrong answer because
+
+160
+00:13:35,579 --> 00:13:38,480
+国家的影响力
+the state's leverage
+
+161
+00:13:42,740 --> 00:13:46,610
+所以你在问随机化
+so you're asking about randomization
+
+162
+00:13:50,600 --> 00:13:55,950
+是的，哦，你们都在谈论这个，我待会儿再说，但这很好
+yeah oh y'all talk about this I'll talk
+about this a bit later on but it is good
+
+163
+00:13:55,950 --> 00:14:02,880
+在以下情况下，复制状态方案绝对是最有意义的： 
+that the replicated state scheme
+definitely makes the most sense when the
+
+164
+00:14:02,880 --> 00:14:06,570
+指令，我们执行的主要对象执行相同的操作
+instructions that the primary in the
+back of our executing do the same thing
+
+165
+00:14:06,570 --> 00:14:10,740
+只要没有外部事件发生，那几乎就是对的， 
+as long as there's no external events
+right and that's almost true right you
+
+166
+00:14:10,740 --> 00:14:14,880
+知道添加指令或其他内容，是的，如果启动， 
+know for an add instruction or something
+yeah you know if the starting if the
+
+167
+00:14:14,880 --> 00:14:17,790
+相同的内存寄存器，它们都执行它们具有的加法指令
+registers of memory of the same and they
+both execute an add instruction they had
+
+168
+00:14:17,790 --> 00:14:20,730
+叛乱分子在相同的产出中具有相同的投入，但在某些地方
+insurgents kind of the same inputs in
+the same outputs but they're in some
+
+169
+00:14:20,730 --> 00:14:23,880
+您指出的说明不喜欢，也许有一条说明
+instructions as you point out that don't
+like maybe there's an instruction that
+
+170
+00:14:23,880 --> 00:14:27,690
+获取当前的当前时间现在可能会稍微执行一次
+gets the current time of day now
+probably be executed at slightly
+
+171
+00:14:27,690 --> 00:14:32,250
+不同的时间或获得当前处理器唯一ID的指令
+different times or an instruction that
+gets the current processors unique ID
+
+172
+00:14:32,250 --> 00:14:38,400
+和序列号，它将产生不同的答案，并且
+and a serial number it's going to yield
+the different answers and the the the
+
+173
+00:14:38,400 --> 00:14:42,360
+制服回答了听起来像是主要的
+uniform answered the questions that
+sound like this is that the primary does
+
+174
+00:14:42,360 --> 00:14:46,830
+它并将答案发送到备份，并且备份不执行该操作
+it and sends the answer to the backup
+and the backup does not execute that
+
+175
+00:14:46,830 --> 00:14:50,120
+指令，但在执行该指令的地方
+instruction but instead at the point
+where it would execute that instruction
+
+176
+00:14:50,120 --> 00:14:54,090
+它会聆听主要参与者的意见，告诉他们正确答案是正确的
+it listens for the primary to tell it
+what the right answer would be and just
+
+177
+00:14:54,090 --> 00:15:00,810
+可以回答我的软件问题的假货
+sort of fakes that answer to the
+software I'll talk about you know how
+
+178
+00:15:00,810 --> 00:15:06,690
+尽管今天的VMware计划足够有趣，但可以做到这一点
+the VMware scheme does that okay
+interestingly enough though today's
+
+179
+00:15:06,690 --> 00:15:12,150
+论文都是关于复制状态机的，您可能已经注意到
+paper is all about a replicated state
+machine you may have noticed that
+
+180
+00:15:12,150 --> 00:15:15,330
+今天的论文只涉及您知道的处理器，目前尚不清楚
+today's paper only deals with you know
+processors and it's not that clear how
+
+181
+00:15:15,330 --> 00:15:21,810
+它可以扩展到多核和多核计算机，其中
+it could be extended to a multi-core and
+a multi-core machine where the
+
+182
+00:15:21,810 --> 00:15:24,750
+来自两个核心器官的指令的交错是
+interleavings of the instructions from
+the two cores organ are
+
+183
+00:15:24,750 --> 00:15:27,720
+非确定性的，所以我们不再在这种情况下出现这种情况
+non-deterministic all right so we no
+longer have this situation on a
+
+184
+00:15:27,720 --> 00:15:31,200
+多核计算机，如果我们只让主计算机和备份计算机执行， 
+multi-core machine where if we just let
+the primary and backup execute they're
+
+185
+00:15:31,200 --> 00:15:34,670
+你知道其他所有条件都是平等的，因为他们不会
+you know all else being equal they're
+going to be the same because they won't
+
+186
+00:15:34,670 --> 00:15:39,600
+在多核上执行VMware自此推出了新的可能
+execute on multiple cores VMware has
+since come out with a new possibly
+
+187
+00:15:39,600 --> 00:15:44,070
+完全不同的复制系统，可以在多核和新
+completely different replication system
+that does work on multi-core and the new
+
+188
+00:15:44,070 --> 00:15:49,530
+在我看来，系统似乎正在使用状态转移而不是复制状态
+system appears to me to be using state
+transfer instead of replicated state
+
+189
+00:15:49,530 --> 00:15:53,190
+之所以使用机器，是因为状态转换在面对时更加强大
+machine because state transferred is
+more robust in the face
+
+190
+00:15:53,190 --> 00:15:58,380
+多核和并行性（如果您使用计算机并通过您发送内存） 
+multi-core and parallelism if you use
+the machine and send the memory over you
+
+191
+00:15:58,380 --> 00:16:02,250
+知道内存映像只是机器的状态而已
+know that the memory image is just that
+just is the state of the machine and
+
+192
+00:16:02,250 --> 00:16:06,600
+有点无关紧要的是并行性，而复制状态
+sort of it doesn't matter that there was
+parallelism whereas the replicated state
+
+193
+00:16:06,600 --> 00:16:12,780
+机器方案确实存在另一个方面的并行性问题
+machine scheme really has a problem with
+the parallelism you know on the other
+
+194
+00:16:12,780 --> 00:16:20,930
+我猜测这种新的多核方案更昂贵，好吗
+hand I'm guessing that this new
+multi-core scheme is more expensive okay
+
+195
+00:16:21,200 --> 00:16:26,250
+好的，所以如果我们要构建一个复制状态机方案，我们会得到一个
+all right so if we want to build a
+replicated state machine scheme we got a
+
+196
+00:16:26,250 --> 00:16:32,430
+要回答的问题数量，因此我们需要确定要达到的级别
+number of questions to answer so we need
+to decide at what level we're gonna
+
+197
+00:16:32,430 --> 00:16:44,430
+正确复制状态，那么什么状态我们要担心的是什么状态
+replicate state right so what state what
+do we mean by state we have to worry
+
+198
+00:16:44,430 --> 00:16:49,710
+关于主同步和备份同步的正确程度
+about how how closely synchronized the
+primary and backup have to be right
+
+199
+00:16:49,710 --> 00:16:53,400
+因为主数据库可能会在备份之前执行一些
+because it's likely the primary will
+execute a little bit ahead of the backup
+
+200
+00:16:53,400 --> 00:16:57,570
+毕竟，看到输入的是主要对象，因此备份几乎
+after all it it's the primary that sees
+the inputs so the backup almost
+
+201
+00:16:57,570 --> 00:17:01,950
+必须滞后于那，这意味着如果有机会
+necessarily must lag over that gives
+that means there's an opportunity if the
+
+202
+00:17:01,950 --> 00:17:08,849
+ primary失败，因为prime无法完全追上备份
+primary fails for the prime for the
+backup not to be fully caught up having
+
+203
+00:17:08,849 --> 00:17:12,958
+备份实际上实际上与
+
+204
+00:17:12,959 --> 00:17:16,319
+昂贵，因为它需要很多技巧，所以很多设计很多
+expensive because it requires a lot of
+chitchat so a lot of designs a lot of
+
+205
+00:17:16,319 --> 00:17:27,809
+人们汗流is背的是，如果主数据库出现故障，同步有多接近
+
+206
+00:17:27,810 --> 00:17:31,590
+或者您实际上知道备份是否失败，但是如果主数据库
+or you know actually if the backup fails
+to but it's more exciting if the primary
+
+207
+00:17:31,590 --> 00:17:34,650
+失败，必须有某种转换方案，客户端必须
+fails there has to be some scheme for
+switching over and the clients have to
+
+208
+00:17:34,650 --> 00:17:39,780
+知道哦，天哪，我现在不应该与服务器一上的旧主服务器说话，我现在应该
+know oh gosh I instead of talking to the
+old primary on server one I should now
+
+209
+00:17:39,780 --> 00:17:47,970
+正在与所有客户端的服务器上的备份对话
+be talking to the
+the backup on server to all the clients
+
+210
+00:17:47,970 --> 00:17:53,340
+必须以某种方式找出这一点，几乎可以肯定是
+have to somehow figure this out the
+switch over almost certainly it's almost
+
+211
+00:17:53,340 --> 00:17:58,560
+不可能设计没有异常的割接系统
+impossible maybe impossible to design a
+cut over system in which no anomalies
+
+212
+00:17:58,560 --> 00:18:03,000
+在理想的世界中，您是否知道每一个
+are every are ever visible you know in
+this sort of ideal world if the primary
+
+213
+00:18:03,000 --> 00:18:07,080
+感到我们希望没人会注意到没有客户注意到
+feels we'd like nobody to ever notice
+none of the clients to notice turns out
+
+214
+00:18:07,080 --> 00:18:15,120
+这基本上是无法达到的，所以在切割过程中会有妈妈的叶子
+that's basically unattainable so there's
+going to be a mama leaves during the cut
+
+215
+00:18:15,120 --> 00:18:19,560
+结束之后，我们必须想办法应对他们，最后，如果其中一个
+over and we've gotta figure out a way to
+cope with them and finally if the one of
+
+216
+00:18:19,560 --> 00:18:23,790
+如果我们的两个副本之一失败，那么我们真的需要拥有一个新的副本权利
+the two if one of our replicas fails we
+really need to have a new replica right
+
+217
+00:18:23,790 --> 00:18:29,010
+如果我们有两个副本而一个失败，那么我们只是靠借来的时间生活
+if we have a two replicas and one fails
+we're just living on borrowed time right
+
+218
+00:18:29,010 --> 00:18:33,990
+因为第二个副本可能在某个时候失败，所以我们绝对需要获取
+because the second replica may fail at
+some point so we absolutely need to get
+
+219
+00:18:33,990 --> 00:18:41,250
+一个新的副本尽快上线，这可能非常
+a new replica back online as fast as
+possible so and that can be very
+
+220
+00:18:41,250 --> 00:18:45,690
+这个国家很大，你知道你知道，但是我们喜欢重复的原因
+expensive the state is big you know you
+know but the reason we like to replicate
+
+221
+00:18:45,690 --> 00:18:49,320
+一个状态机是因为我们认为状态转移会很昂贵，但是
+a state machine was because we thought
+state transfer would be expensive but
+
+222
+00:18:49,320 --> 00:18:53,040
+复制状态机中的两个副本仍需要具有完整状态
+the two replicas in a replicated state
+machine still need to have full state
+
+223
+00:18:53,040 --> 00:18:57,210
+对，如果我们需要创建一个
+right we just had a cheap way of keeping
+them both in sync if we need to create a
+
+224
+00:18:57,210 --> 00:19:01,410
+新副本，我们实际上别无选择，只能进行状态转移以创建新副本
+new replica we actually have no choice
+but state transfer to create the new
+
+225
+00:19:01,410 --> 00:19:06,090
+复制品，新复制品需要具有状态的完整副本，因此
+replicas the new replica needs to have a
+complete copy of the state so it's going
+
+226
+00:19:06,090 --> 00:19:15,300
+创建新副本的成本很高，而且通常人们会花很多钱
+to be expensive to create new replicas
+and this is often people spending well
+
+227
+00:19:15,300 --> 00:19:18,750
+实际上人们花很多时间担心所有这些问题， 
+actually people spend a lot of time
+worrying about all these questions and
+
+228
+00:19:18,750 --> 00:19:22,980
+您知道我们会在查看其他复制状态机时再次看到它们
+you know we'll see them again as we look
+at other replicated state machine
+
+229
+00:19:22,980 --> 00:19:33,720
+计划，所以关于什么状态要复制今天的论文的主题有一个非常
+schemes so on the topic of what state to
+replicate the today's paper has a very
+
+230
+00:19:33,720 --> 00:19:38,160
+这个问题的有趣答案，它复制了机器的完整状态
+interesting answer to this question it
+replicates the full state of the machine
+
+231
+00:19:38,160 --> 00:19:45,030
+那就是所有的内存，所有的机器注册它就像一个非常非常
+that is all of memory and all the
+Machine registers it's like a very very
+
+232
+00:19:45,030 --> 00:19:51,120
+详细的复制方案即使最低，也没有什么区别
+detailed replication scheme just no
+difference at the even of the lowest
+
+233
+00:19:51,120 --> 00:19:55,560
+备份中主数据库之间的级别，这对于复制而言非常罕见
+levels between the primary in the backup
+that's quite rare for replication
+
+234
+00:19:55,560 --> 00:19:58,680
+计划几乎总是你看到的东西是
+schemes
+almost always you see something that's
+
+235
+00:19:58,680 --> 00:20:03,630
+更像是GFS，其中GFS绝对不会复制，您知道他们有
+more like GFS where GFS absolutely did
+not replicate you know they had
+
+236
+00:20:03,630 --> 00:20:08,220
+复制，但并没有复制您知道的每一个内存
+replication but it wasn't replicating
+every single you know bit of memory
+
+237
+00:20:08,220 --> 00:20:12,180
+在主数据库和备份数据库之间，它正在复制更多应用程序
+between the primaries and the backups
+it was replicating much more application
+
+238
+00:20:12,180 --> 00:20:16,950
+块的水平表，我知道这种抽象
+level table of chunks
+I had this abstraction of you know
+
+239
+00:20:16,950 --> 00:20:20,370
+块和块标识符，这就是它所复制的，不是
+chunks and chunk identifiers and that's
+what it was replicating it wasn't
+
+240
+00:20:20,370 --> 00:20:24,570
+复制其他所有东西并不会牺牲
+replicating sort of everything else
+wasn't going to the expense of
+
+241
+00:20:24,570 --> 00:20:28,440
+复制机器正在做的其他所有事情
+replicating every single other thing
+that machines we're doing okay as long
+
+242
+00:20:28,440 --> 00:20:37,410
+因为他们拥有相同类型的应用程序可见的块集，所以大多数
+as they had the same sort of application
+visible set of of chunks so most
+
+243
+00:20:37,410 --> 00:20:42,750
+复制方案在那里走了GFS路线，实际上除了
+replication schemes out there go the GFS
+route in fact almost everything except
+
+244
+00:20:42,750 --> 00:20:48,750
+几乎本文和少数几个类似的系统几乎所有
+pretty much this paper and a few handful
+of similar systems almost everything
+
+245
+00:20:48,750 --> 00:20:53,730
+在某个级别的应用程序复制级别上使用应用程序，因为
+uses application at some level
+application level of replication because
+
+246
+00:20:53,730 --> 00:20:58,560
+它可以更加高效，因为我们不必去做，我们不必去
+it can be much more efficient because we
+don't have to go to the we don't have to
+
+247
+00:20:58,560 --> 00:21:02,790
+麻烦例如确保中断恰好发生
+go to the trouble of for example making
+sure that interrupts occur at exactly
+
+248
+00:21:02,790 --> 00:21:07,260
+在执行主GFS和备份GFS的同一点不会冒汗
+the same point in the execution of the
+primary and backup GFS does not sweat
+
+249
+00:21:07,260 --> 00:21:11,340
+除了这篇文章外，所有其他事情都是必须要做的，因为它的复制量很低
+that at all but this paper has to do
+because it replicates at such a low
+
+250
+00:21:11,340 --> 00:21:16,560
+级别，因此大多数人使用特定于应用程序构建高效的系统
+level so most people build efficient
+systems with applications specific
+
+251
+00:21:16,560 --> 00:21:20,880
+复制的结果是复制必须
+replication the consequence of that
+though is that the replication has to be
+
+252
+00:21:20,880 --> 00:21:23,580
+内置到应用程序权限中，如果您获得
+built into the right into the
+application right if you're getting a
+
+253
+00:21:23,580 --> 00:21:28,950
+例如，应用程序级操作的提要确实需要
+feed of application level operations for
+example you really need to have the
+
+254
+00:21:28,950 --> 00:21:33,720
+应用程序参与其中，因为某些通用复制之类的东西
+application participate in that because
+some generic replication thing like
+
+255
+00:21:33,720 --> 00:21:37,440
+今天的报纸不是真的无法理解
+today's paper
+doesn't really can't understand the
+
+256
+00:21:37,440 --> 00:21:41,120
+需要复制的内容的语义
+semantics of what needs to be replicated
+
+257
+00:21:41,240 --> 00:21:47,340
+所以无论如何，大多数团队都是针对特定应用的，例如GFS和其他论文
+so anyways so most teams are application
+specific like GFS and every other paper
+
+258
+00:21:47,340 --> 00:21:52,320
+我们将在这个主题上阅读今天的论文是独特的
+we're going to read on this topic
+today's paper is unique in that it
+
+259
+00:21:52,320 --> 00:21:55,890
+在计算机级别复制，因此不在乎什么
+replicates at the level of the machine
+and therefore does not care what
+
+260
+00:21:55,890 --> 00:22:00,450
+您在其上运行的软件会复制低级内存，并且
+software you run on it right it
+replicates the low-level memory and
+
+261
+00:22:00,450 --> 00:22:03,600
+机器注册，您可以在上面运行任何喜欢的软件
+machine registers you can run any
+software you like on it as long as it
+
+262
+00:22:03,600 --> 00:22:06,870
+在这种代表的微处理器上运行
+runs on that kind of microprocessor
+that's being represented this
+
+263
+00:22:06,870 --> 00:22:10,399
+复制方案适用于该软件可以是任何东西
+replication scheme applies to the
+software can be anything
+
+264
+00:22:10,399 --> 00:22:16,399
+而且您知道缺点是效率不一定高
+and you know the downside is that it's
+not that efficient necessarily the
+
+265
+00:22:16,399 --> 00:22:20,000
+好处是，您可以使用任何现有软件，甚至可能都不用
+upside is that you can take any existing
+piece of software maybe you don't even
+
+266
+00:22:20,000 --> 00:22:26,029
+有它的源代码或了解它的工作原理，并且您知道在某些情况下
+have source code for it or understand
+how it works and you know do within some
+
+267
+00:22:26,029 --> 00:22:29,299
+限制，您可以在VMware this复制方案下在此环境下运行它，并且
+limits you can just run it under this
+under VMware this replication scheme and
+
+268
+00:22:29,299 --> 00:22:36,889
+它会正常工作，这是任意的魔术容错棒
+it'll just work which is sort of magic
+fault-tolerance wand for arbitrary
+
+269
+00:22:36,889 --> 00:22:51,230
+现在就让我先谈谈这是VMware还是Ft的软件
+software all right now let me talk about
+how this is VMware or Ft first of all
+
+270
+00:22:51,230 --> 00:22:56,960
+ VMware是一家虚拟机公司，他们的业务非常重要
+VMware is a virtual machine company
+they're what their business is a lot of
+
+271
+00:22:56,960 --> 00:23:00,320
+他们的业务是销售虚拟机技术以及
+their business is selling virtual
+machine technology and what virtual
+
+272
+00:23:00,320 --> 00:23:07,269
+机器指的是您知道自己购买一台计算机并
+machines refer to is the idea of you
+know you buy a single computer and
+
+273
+00:23:07,269 --> 00:23:12,289
+而不是在您启动的硬件上启动像Linux这样的操作系统
+instead of booting an operating system
+like Linux on the hardware you boot
+
+274
+00:23:12,289 --> 00:23:18,169
+我们将在硬件和虚拟机上调用虚拟机监视器或虚拟机监控程序
+we'll call a virtual machine monitor or
+hypervisor on the hardware and the
+
+275
+00:23:18,169 --> 00:23:24,429
+管理程序实际上是模拟多台计算机
+hypervisor is job is actually to
+simulate multiple multiple computers
+
+276
+00:23:24,429 --> 00:23:28,820
+该硬件上有多个虚拟机，因此该虚拟机
+multiple virtual computers on this piece
+of hardware so the virtual machine
+
+277
+00:23:28,820 --> 00:23:34,580
+监视器可能会启动，您知道一个Linux实例可能是多个
+monitor may boot up you know one
+instance of Linux may be multiple
+
+278
+00:23:34,580 --> 00:23:40,399
+ Linux实例可以是Windows计算机，也可以是虚拟机
+instances of Linux may be a Windows
+machine you can the virtual machine
+
+279
+00:23:40,399 --> 00:23:45,470
+这台计算机上的显示器可以运行一堆不同的操作系统
+monitor on this one computer can run a
+bunch of different operating systems you
+
+280
+00:23:45,470 --> 00:23:51,549
+知道它们本身就是某种操作系统内核，然后
+know each of these as is itself some
+sort of operating system kernel and then
+
+281
+00:23:51,549 --> 00:23:58,700
+应用程序，所以这是他们开始使用的技术，您知道
+applications so this is the technology
+they're starting with and you know the
+
+282
+00:23:58,700 --> 00:24:03,049
+这样做的原因是，如果您知道自己需要，那就证明有很多
+reason for this is that if you know you
+need to it just turns out there's many
+
+283
+00:24:03,049 --> 00:24:06,320
+设置此级别的界面非常方便的许多原因
+many reasons why it's very convenient to
+kind of interpose this level of
+
+284
+00:24:06,320 --> 00:24:10,039
+硬件和操作系统之间的间接访问，这意味着我们可以
+indirection between the hardware and the
+operating systems and means that we can
+
+285
+00:24:10,039 --> 00:24:14,059
+购买一台计算机并在其上运行许多不同的操作系统，我们可以
+buy one computer and run lots of
+different operating systems on it we can
+
+286
+00:24:14,059 --> 00:24:18,139
+如果我们运行大量和少量的服务，那么不必拥有
+have each if we run lots and lots of
+little services instead of having to
+
+287
+00:24:18,139 --> 00:24:21,679
+有很多计算机每项服务一项，您只需购买一台计算机
+have lots and lots of computers one per
+service you can just buy one computer
+
+288
+00:24:21,679 --> 00:24:25,850
+并在操作系统中运行它需要的每个服务，我正在使用他的
+and run each service in the operate
+system that it needs I'm using his
+
+289
+00:24:25,850 --> 00:24:29,300
+个人计算机，所以这是他们的起点，他们已经有了
+personal machines so this was their
+starting point they already had this
+
+290
+00:24:29,300 --> 00:24:35,000
+东西和围绕它建立的许多复杂的东西
+stuff and a lot of sophisticated things
+built around it at the start of
+
+291
+00:24:35,000 --> 00:24:43,070
+设计vmware ft，所以这只是虚拟机，论文内容
+designing vmware ft so this is just
+virtual machines um what the papers
+
+292
+00:24:43,070 --> 00:24:51,620
+这样做是要设置一台机器，或者他们确实需要两台机器
+doing is that it's gonna set up one
+machine or they did requires two
+
+293
+00:24:51,620 --> 00:24:57,680
+物理机，因为没有必要运行主计算机和备份计算机
+physical machines because there's no
+point in running the primary and backup
+
+294
+00:24:57,680 --> 00:25:01,400
+同一物理机上不同虚拟机中的软件，因为
+software in different virtual machines
+on the same physical machine because
+
+295
+00:25:01,400 --> 00:25:06,710
+我们正在努力防止硬件故障，所以您至少要
+we're trying to guard against hardware
+failures so you're gonna to at least you
+
+296
+00:25:06,710 --> 00:25:15,590
+知道您有两台计算机在运行其虚拟机监视器，而主计算机
+know you have two machines running their
+virtual machine monitors and the primary
+
+297
+00:25:15,590 --> 00:25:18,950
+它将在一个备份和另一个备份上运行，因此我们将在其中一台计算机上运行
+it's going to run on one the backups and
+the other so on one of these machines we
+
+298
+00:25:18,950 --> 00:25:25,040
+有一个客人，您知道我们只有它可能正在运行许多虚拟机
+have a guest you know we only it might
+be running a lot of virtual machines we
+
+299
+00:25:25,040 --> 00:25:28,670
+只关心其中之一，它将运行一些来宾操作系统
+only care about one of them it's gonna
+be running some guest operating system
+
+300
+00:25:28,670 --> 00:25:35,300
+还有某种服务器应用程序，例如数据库服务器MapReduce主服务器
+and some sort of server application
+maybe a database server MapReduce master
+
+301
+00:25:35,300 --> 00:25:40,250
+之类的东西，所以我将其称为主要设备，然后会有第二台计算机
+or something so I'll call this the
+primary and there'll be a second machine
+
+302
+00:25:40,250 --> 00:25:47,600
+您知道运行相同的虚拟机监视器和相同的虚拟机
+that you know runs the same virtual
+machine monitor and an identical virtual
+
+303
+00:25:47,600 --> 00:25:50,960
+拥有备份的计算机，因此无论操作系统如何，我们都具有相同的内容
+machine holding the backup so we have
+the same whatever the operating system
+
+304
+00:25:50,960 --> 00:25:58,250
+完全一样，虚拟机是您知道给这些来宾吗
+is exactly the same and the virtual
+machine is you know giving these guest
+
+305
+00:25:58,250 --> 00:26:02,270
+操作系统的主存储器和备份存储器的每个范围
+operating systems the primary and backup
+a each range of memory and this memory
+
+306
+00:26:02,270 --> 00:26:07,190
+图像将是相同的，或者目标是使它们在主图像中相同
+images will be identical or the goal is
+to make them identical in the primary in
+
+307
+00:26:07,190 --> 00:26:13,070
+在备份中，我们有两台物理机，每台物理机运行一个虚拟机
+the backup we have two physical machines
+each one of them running a virtual
+
+308
+00:26:13,070 --> 00:26:17,630
+机器来宾拥有自己关心的服务副本，我们假设
+machine guest with a its own copy of the
+service we care about we're assuming
+
+309
+00:26:17,630 --> 00:26:25,240
+有一个网络连接这两台机器，此外
+that there's a network connecting these
+two machines and in addition on this
+
+310
+00:26:25,240 --> 00:26:29,480
+除了这个网络之外，还有一些客户端
+local area network in addition on this
+network there's some set of clients
+
+311
+00:26:29,480 --> 00:26:33,160
+真的，他们不必成为客户，他们可能只是其他计算机
+really they don't have to be clients
+they're just maybe other computers that
+
+312
+00:26:33,160 --> 00:26:37,470
+我们的复制服务需要与其中一些我们的客户交谈
+our replicated service needs to talk
+with some of them our clients
+
+313
+00:26:37,470 --> 00:26:44,820
+发送请求结果在本文中有复制服务
+sending requests it turns out in this
+paper there the replicated service
+
+314
+00:26:44,820 --> 00:26:49,530
+实际上不使用本地磁盘，而是假设存在某种
+actually doesn't use a local disk and
+instead assumes that there's some sort
+
+315
+00:26:49,530 --> 00:26:55,309
+与他对话的磁盘服务器，虽然很难
+of disk server that it talks to him
+although it's a little bit hard to
+
+316
+00:26:55,309 --> 00:27:01,710
+从本文中意识到这一点，该方案实际上并没有真正对待
+realize this from the paper the scheme
+actually does not really treat the de
+
+317
+00:27:01,710 --> 00:27:07,289
+尤其是服务器，它只是数据包的另一个外部来源， 
+server particularly especially it's just
+another external source of packets and
+
+318
+00:27:07,289 --> 00:27:12,000
+复制状态机可能不会发送数据包的地方
+place that the replicated state machine
+may send packets do not very much
+
+319
+00:27:12,000 --> 00:27:20,370
+与客户不同，所以基本方案是我们假设这些
+different from clients okay so the basic
+scheme is that the we assume that these
+
+320
+00:27:20,370 --> 00:27:27,870
+我们的确切两个虚拟机的两个副本
+two replicas the two virtual machines
+primary and backup are our exact
+
+321
+00:27:27,870 --> 00:27:31,559
+复制一些您知道的客户端，数据库客户端知道谁拥有一些客户端
+replicas some client you know database
+client who knows who has some client of
+
+322
+00:27:31,559 --> 00:27:37,080
+我们的复制服务器向主服务器发送一个请求，这实际上需要
+our replicated server sends a request to
+the primary and that really takes the
+
+323
+00:27:37,080 --> 00:27:40,590
+我们正在谈论的网络数据包形式会生成一个
+form of a network packet that's what
+we're talking about that generates an
+
+324
+00:27:40,590 --> 00:27:43,140
+中断，此中断实际上进入
+interrupt
+and this interrupts actually goes to the
+
+325
+00:27:43,140 --> 00:27:47,789
+虚拟机至少在第一个实例中监视虚拟机
+virtual machine monitor at least in the
+first instance the virtual machine
+
+326
+00:27:47,789 --> 00:27:54,059
+监视器看到热点，这是此复制服务的输入，因此
+monitor sees a hot here's the input for
+this replicated service and so the
+
+327
+00:27:54,059 --> 00:27:58,429
+虚拟机监视器做两件事，一是模拟网络
+virtual machine monitor does two things
+one is it sort of simulates a network
+
+328
+00:27:58,429 --> 00:28:04,110
+数据包到达中断进入主客户机操作系统以
+packet arrival interrupt into the
+primary guest operating system to
+
+329
+00:28:04,110 --> 00:28:09,600
+将其交付给应用程序的主副本，并附加到虚拟
+deliver it to the primary copy of the
+application and in addition the virtual
+
+330
+00:28:09,600 --> 00:28:13,679
+您知道的计算机监视器知道这是复制的虚拟机的输入
+machine monitor you know knows that this
+is an input to a replicated virtual
+
+331
+00:28:13,679 --> 00:28:19,710
+机器，因此它将网络上的数据包副本发送回
+machine and it's so it sends back out on
+the network a copy of that packet to the
+
+332
+00:28:19,710 --> 00:28:26,280
+备份虚拟机监视器，它也在猜测和备份虚拟机
+backup virtual machine monitor it's also
+guessing and backup virtual machine
+
+333
+00:28:26,280 --> 00:28:30,030
+监视器知道热点是此特定复制状态机的数据包，并且
+monitor knows a hot is a packet for this
+particular replicated state machine and
+
+334
+00:28:30,030 --> 00:28:36,150
+它还在备份时伪造了某种网络数据包到达中断，并且
+it also fakes a sort of network packet
+arrival interrupt at the backup and
+
+335
+00:28:36,150 --> 00:28:40,799
+传递数据包，所以现在主数据包和背面都有此副本
+delivers the packet so now both the
+primary and the back have a copy this
+
+336
+00:28:40,799 --> 00:28:44,059
+数据包，它们看起来像是您知道的相同输入，其中包含很多细节
+packet they looks at the same input you
+know with a lot of details are gonna
+
+337
+00:28:44,059 --> 00:28:50,299
+以相同的方式处理并保持同步
+process it in the same way and stay
+synchronized
+
+338
+00:28:50,750 --> 00:28:55,420
+当然，服务可能会在主服务器上回复客户
+course the service is probably going to
+reply to the client on the primary the
+
+339
+00:28:55,420 --> 00:29:02,330
+服务将生成一个回复数据包，并将其发送到虚拟
+service will generate a reply packet and
+send it on the NIC that the virtual
+
+340
+00:29:02,330 --> 00:29:07,550
+计算机监视器正在仿真，然后虚拟机监视器或
+machine monitor is emulating and then
+the virtual machine monitor or will
+
+341
+00:29:07,550 --> 00:29:11,270
+我们会在主服务器上看到该输出数据包，他们实际上会发送回复
+we'll see that output packet on the
+primary they'll actually send the reply
+
+342
+00:29:11,270 --> 00:29:16,340
+在网络上返回到客户端，因为备份运行正常
+back out on the network to the client
+because the backup is running exactly
+
+343
+00:29:16,340 --> 00:29:20,360
+相同的指令序列也会产生一个回复数据包
+the same sequence of instructions it
+also generates a reply packet back to
+
+344
+00:29:20,360 --> 00:29:27,230
+客户端并在其模拟的NIC上发送该回复数据包，这是虚拟的
+the client and sends that reply packet
+on its emulated NIC it's the virtual
+
+345
+00:29:27,230 --> 00:29:31,010
+模拟该网络接口卡的机器监视器，它说aha 
+machine monitor that's emulating that
+network interface card and it says aha
+
+346
+00:29:31,010 --> 00:29:34,430
+您知道虚拟机监视器说我知道这只是备份
+you know the virtual machine monitor
+says I know this was the backup only the
+
+347
+00:29:34,430 --> 00:29:39,050
+允许primary生成输出，并且虚拟机监视器删除
+primary is allowed to generate output
+and the virtual machine monitor drops
+
+348
+00:29:39,050 --> 00:29:44,240
+回复数据包，所以他们两个都看到输入，只有主生成
+the reply packet so both of them see
+inputs and only the primary generates
+
+349
+00:29:44,240 --> 00:29:59,690
+就术语而言，输出就是本文所说的输入事件流
+outputs as far as terminology goes the
+paper calls this stream of input events
+
+350
+00:29:59,690 --> 00:30:04,310
+其他我们将在信息流中谈论的其他事件称为
+and other things other events we'll talk
+about from the stream is called the
+
+351
+00:30:04,310 --> 00:30:10,550
+日志通道大概都通过相同的网络，但是这些事件
+logging Channel it all goes over the
+same network presumably but these events
+
+352
+00:30:10,550 --> 00:30:16,450
+自从我们在日志通道上调用日志事件后部开始的主要事件
+the primary since the back of our called
+log events on the log Channel
+
+353
+00:30:22,240 --> 00:30:29,030
+容错能力的来源是那些主要的崩溃
+where the fault tolerance comes in is
+that those the primary crashes what the
+
+354
+00:30:29,030 --> 00:30:34,040
+备份将要看到的是，它停止获取日志时停止获取东西
+backup is going to see is that it stops
+getting stuff on the stops getting log
+
+355
+00:30:34,040 --> 00:30:42,110
+日志条目停止在日志记录通道上获取日志条目，我们
+entries a log entry stops getting log
+entries on the logging channel and we
+
+356
+00:30:42,110 --> 00:30:47,210
+知道事实证明，备份可以期望每秒获得很多备份，因为
+know it it turns out that the backup can
+expect to get many per second because
+
+357
+00:30:47,210 --> 00:30:52,370
+生成日志条目的原因之一是周期性的定时器中断
+one of the things that generates log
+entries is periodic timer interrupts in
+
+358
+00:30:52,370 --> 00:30:57,290
+在主节点中，每个中断都会产生一个中断
+the in the primary each one of which
+turns out every interrupt generates a
+
+359
+00:30:57,290 --> 00:31:01,130
+将日志条目记录到备份中，这些计时器中断将发生，如100 
+log entries into the backup these timer
+interrupts are going to happen like 100
+
+360
+00:31:01,130 --> 00:31:04,280
+每秒一次，因此备份当然可以期望看到
+times a second so the backups can
+certainly expect to see
+
+361
+00:31:04,280 --> 00:31:09,110
+如果主要的话，日志通道上的大量选择
+a lot of chitchat on the logging Channel
+if the primaries up if the primary
+
+362
+00:31:09,110 --> 00:31:12,980
+崩溃，然后在此监视的虚拟机会说“天哪” 
+crashes then the virtual machine
+monitored over here will say gosh you
+
+363
+00:31:12,980 --> 00:31:15,890
+知道我已经一秒钟没有收到任何日志记录
+know I haven't received anything on the
+logging channel for like a second or
+
+364
+00:31:15,890 --> 00:31:25,310
+但是，主要对象必须死了多长时间，或者在某种情况下， 
+however long the primary must be dead or
+or something and in that case when the
+
+365
+00:31:25,310 --> 00:31:31,280
+备份停止从主要纸张查看日志条目
+backup stop seeing log entries from the
+primary the paper the way the paper
+
+366
+00:31:31,280 --> 00:31:35,780
+冻结的是后台运行，这意味着它停止了
+freezes it is that the back of goes live
+and what that means is that it stops
+
+367
+00:31:35,780 --> 00:31:46,850
+在主记录和记录记录通道上等待这些输入事件
+waiting for these input events on the
+logging Channel from the primary and
+
+368
+00:31:46,850 --> 00:31:51,790
+相反，此虚拟机监视器仅允许该备份自由执行
+instead this virtual machine monitor
+just lets this backup execute freely
+
+369
+00:31:51,790 --> 00:31:59,000
+无需等待，不受主vmm的输入事件的驱动
+without waiting for without being driven
+by input events from the primary the vmm
+
+370
+00:31:59,000 --> 00:32:02,510
+对网络做某事，以使将来的客户端请求转到
+does something to the network to cause
+future client requests to go to the
+
+371
+00:32:02,510 --> 00:32:09,770
+备份而不是主备份，并且此处的VMM停止丢弃备份
+backup instead of the primary and the
+VMM here stops discarding the backup
+
+372
+00:32:09,770 --> 00:32:13,940
+人员，这是主要的，不是备份停止丢弃此输出
+personnel it's the primary not the
+backup stops discarding output from this
+
+373
+00:32:13,940 --> 00:32:18,170
+虚拟机，所以现在这个或机器直接获取输入，并且有一个
+virtual machine so now this or machine
+directly gets the inputs and there's a
+
+374
+00:32:18,170 --> 00:32:22,520
+大量的产品输出，现在我们的备份已接管，类似地，您知道
+lot of produce output and now our backup
+is taken over and similarly you know
+
+375
+00:32:22,520 --> 00:32:26,330
+这不太有趣，但必须正常工作
+that this is less interesting but has to
+work correctly
+
+376
+00:32:26,330 --> 00:32:31,130
+如果备份失败，则类似的主数据库必须使用类似的过程来放弃
+if the backup fails a similar primary
+has to use a similar process to abandon
+
+377
+00:32:31,130 --> 00:32:37,100
+备份停止向其发送事件，而其行为更像是一次
+the backup stop sending it events and
+just sort of act much more like a single
+
+378
+00:32:37,100 --> 00:32:41,090
+非复制服务器，因此其中一个可以上线，如果另一个
+non replicated server so either one of
+them can go live if the other one
+
+379
+00:32:41,090 --> 00:32:46,390
+似乎已经停止，您知道停止产生网络流量
+appears to be dead stops you know stops
+generating network traffic
+
+380
+00:32:51,220 --> 00:33:01,550
+魔术现在取决于您知道，取决于网络技术是什么
+magic now it depends you know depends on
+what the networking technology is I
+
+381
+00:33:01,550 --> 00:33:07,910
+与本文一起思考的一种可能性是，它每个都坐在以太网上
+think with the paper one possibility is
+that this is sitting on Ethernet every
+
+382
+00:33:07,910 --> 00:33:15,430
+ Internet上的物理计算机或实际上每个网卡都有一个48位唯一ID 
+physical computer on the Internet or
+really every NIC has a 48 bit unique ID
+
+383
+00:33:16,720 --> 00:33:22,910
+我现在正在弥补这个问题，实际上可能不是每个物理
+I'm making this up now the it could be
+that in fact instead of each physical
+
+384
+00:33:22,910 --> 00:33:30,710
+每个虚拟机都有唯一ID的计算机，以及备份何时进行
+computer having a unique ID each virtual
+machine does and when the backup takes
+
+385
+00:33:30,710 --> 00:33:39,320
+基本上，它声称主服务器的以太网ID是自己的，并且启动
+over it essentially claims the primary's
+Ethernet ID as its own and it starts
+
+386
+00:33:39,320 --> 00:33:42,620
+说您知道我是该ID的所有者，然后是以太网上的其他人
+saying you know I'm the owner of that ID
+and then other people on the ethernet
+
+387
+00:33:42,620 --> 00:34:02,690
+将开始向我们发送数据包，这是设计师认为的我的解释
+will start sending us packets that's my
+interpretation the designers believed
+
+388
+00:34:02,690 --> 00:34:07,700
+他们已经确定了所有这些来源，并且对于每个来源， 
+they had identified all such sources and
+for each one of them the primary does
+
+389
+00:34:07,700 --> 00:34:12,139
+无论您知道什么，执行随机数生成器指令或
+whatever it is you know executes the
+random number generator instruction or
+
+390
+00:34:12,139 --> 00:34:17,359
+有时会中断一次备份，而备份和虚拟备份
+
+391
+00:34:17,360 --> 00:34:22,429
+机器监视器会检测到任何此类指令并拦截该指令，并且
+machine monitor sort of detects any such
+instruction and and intercepts that and
+
+392
+00:34:22,429 --> 00:34:26,270
+没有这样做，他说，备份中的事件是备用的
+doesn't do it and he said the backup
+wheats for an event on the logging
+
+393
+00:34:26,270 --> 00:34:30,980
+频道说这个指令号你知道随机数是什么
+Channel saying this instruction number
+you know the random number was whatever
+
+394
+00:34:30,980 --> 00:34:33,700
+它在主要
+it was on the primary
+
+395
+00:34:35,080 --> 00:34:42,130
+埃德维希是是
+Edwige
+yes yes
+
+396
+00:34:42,670 --> 00:34:50,840
+是的，该论文暗示他们让英特尔向微处理器添加了功能，以便
+yeah the paper hints that they got Intel
+to add features to the microprocessor to
+
+397
+00:34:50,840 --> 00:35:03,370
+完全支持这一点，但他们不说还可以
+support exactly this but they don't say
+what it was okay
+
+398
+00:35:04,180 --> 00:35:09,320
+好吧，关于那个话题，到目前为止，你知道这个故事是一种假设
+okay so on that topic the so far that
+you know the story is sort of assumed
+
+399
+00:35:09,320 --> 00:35:17,450
+只要备份从客户端看到软件包，它就会执行
+that as long as the backup to sees the
+package from the clients it'll execute
+
+400
+00:35:17,450 --> 00:35:25,310
+与初级相同，实际上掩盖了一些巨大的
+in identically to the primary and that's
+actually glossing over some huge and
+
+401
+00:35:25,310 --> 00:35:31,190
+重要细节，所以一个问题是，正如几个人提到的那样
+important details so one problem is that
+as a couple of people have mentioned
+
+402
+00:35:31,190 --> 00:35:36,020
+有些事情是不确定的，现在不是这样
+there are some things that are
+non-deterministic now it's not the case
+
+403
+00:35:36,020 --> 00:35:39,440
+计算机中发生的每件事都是确定性功能
+that every single thing that happens in
+the computer is a deterministic function
+
+404
+00:35:39,440 --> 00:35:44,420
+计算机内存的内容是一种直
+of the contents of the memory of the
+computer it is for a sort of straight
+
+405
+00:35:44,420 --> 00:35:49,430
+行代码执行通常但不一定总是那么担心
+line code execution often but certainly
+not always so worried about is things
+
+406
+00:35:49,430 --> 00:35:53,270
+这可能不是当前状态的严格函数
+that may happen that are not a strict
+function of the current state that is
+
+407
+00:35:53,270 --> 00:35:56,960
+如果我们在主数据库和备份数据库上不谨慎，可能会有所不同，因此
+that might be different if we're not
+careful on the primary and backup so
+
+408
+00:35:56,960 --> 00:36:04,040
+这些是可能会发生的不确定事件，因此设计师
+these are sort of non-deterministic
+events that may happen so the designers
+
+409
+00:36:04,040 --> 00:36:10,570
+只好坐下来，想弄清楚他们都在做什么，这里是那些
+had to sit down and like figure out what
+they all work and here are the ones
+
+410
+00:36:10,570 --> 00:36:16,520
+他们谈论的是这种东西，其中之一是来自外部的输入
+here's the kind of stuff they talked
+about so one is inputs from external
+
+411
+00:36:16,520 --> 00:36:20,420
+像客户这样的资源，只要他们正确到达就可以到达
+sources like clients which arrive just
+whenever they arrive right they're not
+
+412
+00:36:20,420 --> 00:36:24,170
+可预见的，没有任何时间客户请求
+predictable there are no sense in which
+the time at which a client request
+
+413
+00:36:24,170 --> 00:36:27,080
+到达或其内容是服务的确定性功能
+arrives or its content is a
+deterministic function of the services
+
+414
+00:36:27,080 --> 00:36:34,550
+状态，因为事实并非如此，因此实际上这些系统实际上专用于
+state because it's not so these actually
+this system is really dedicated to a
+
+415
+00:36:34,550 --> 00:36:39,830
+服务只能通过网络进行通信的世界，因此唯一真正的
+world in which services only talk over
+the network and so the only really
+
+416
+00:36:39,830 --> 00:36:44,060
+基本上，该系统中输入或输出的唯一形式是
+basically the only form of input or
+output in this system is supported by
+
+417
+00:36:44,060 --> 00:36:48,620
+这个系统似乎是网络数据包来来去去，所以我们没有放
+this system seems to be network packets
+coming and going so we didn't put
+
+418
+00:36:48,620 --> 00:36:50,540
+到达真正意味着它是一个小包的地方
+arrives at what that really means it's a
+packet
+
+419
+00:36:50,540 --> 00:36:56,990
+到达，数据包真正为我们组成的是
+arrives and what a packet really
+consists of for us is the data in the
+
+420
+00:36:56,990 --> 00:37:05,570
+数据包加上表明该数据包已发出的中断
+packet plus the interrupt
+that's signaled that the packet had
+
+421
+00:37:05,570 --> 00:37:10,870
+到达，所以这很重要，所以当数据包到达时
+arrived so that's quite important so
+when a packet arrives
+
+422
+00:37:11,050 --> 00:37:20,720
+我通常是将NIC DMA的数据包内容存入内存，然后引发
+I'm ordinarily the NIC DMA is the packet
+contents into memory and then raises an
+
+423
+00:37:20,720 --> 00:37:23,420
+操作系统感觉到的中断，并且中断发生在某些地方
+interrupt which the operating system
+feels and the interrupt happens at some
+
+424
+00:37:23,420 --> 00:37:29,000
+指向指令流，因此两者在外观上必须相同
+point in the instruction stream and so
+both of those have to look identical on
+
+425
+00:37:29,000 --> 00:37:33,050
+主要和备份，否则我们将要执行死刑
+the primary and backup or else we're
+gonna have they're also executions gonna
+
+426
+00:37:33,050 --> 00:37:38,090
+发散，所以您知道真正的问题是何时中断恰好发生在
+diverge and so you know the real issue
+is when the interrupt occurs exactly at
+
+427
+00:37:38,090 --> 00:37:42,500
+哪条指令恰好发生了中断，并且最好在
+which instruction the interrupts happen
+to occur and better be the same on the
+
+428
+00:37:42,500 --> 00:37:46,400
+备份中的主要对象，否则它们的执行方式和状态不同
+primary in the backup otherwise their
+execution is different and their states
+
+429
+00:37:46,400 --> 00:37:50,900
+会发散，所以我们关心数据包的内容和时间
+are gonna diverge and so we care about
+the content of the packet and the timing
+
+430
+00:37:50,900 --> 00:37:56,830
+中断，然后正如几个人提到的那样， 
+of the interrupt and then as a couple of
+people have mentioned there's a few
+
+431
+00:37:56,830 --> 00:38:06,920
+在不同计算机上行为不同的说明，或
+instructions that that behave
+differently on different computers or
+
+432
+00:38:06,920 --> 00:38:11,300
+取决于诸如随机数生成器之类的东西
+differently depending on something like
+there's maybe a random number generator
+
+433
+00:38:11,300 --> 00:38:15,260
+指令，我会得到一天中不同时间的指令
+instruction there's I get time-of-day
+instructions that will yield different
+
+434
+00:38:15,260 --> 00:38:21,410
+答案在不同时间调用，并且唯一的ID指令又一个巨大的优势
+answers have called at different times
+and unique ID instructions another huge
+
+435
+00:38:21,410 --> 00:38:27,440
+本文基本排除的不确定性来源是多核的
+source of non determinism which the
+paper basically rules out is multi-core
+
+436
+00:38:27,440 --> 00:38:34,910
+并行性是一个单元过程或仅是系统，因此没有多核
+parallelism is a unit process or only
+system there's no multi-core in this
+
+437
+00:38:34,910 --> 00:38:40,340
+世界上这样做的原因是，如果它允许多核，那么该服务
+world the reason for this is that if it
+allowed multi-core then then the service
+
+438
+00:38:40,340 --> 00:38:45,050
+将在多个内核上运行，其余的服务说明
+would be running on multiple cores and
+the instructions of the service the rest
+
+439
+00:38:45,050 --> 00:38:48,140
+你们知道不同的核心以某种方式交错
+of you know the different cores are
+interleaved in some way which is not
+
+440
+00:38:48,140 --> 00:38:52,910
+可预测的，因此如果我们在备份的
+predictable and so really if we run the
+same code on the on the backup in the
+
+441
+00:38:52,910 --> 00:38:56,900
+服务器，如果它是在多核上运行的并行代码，那么tubo将
+server if it's parallel code running on
+a multi-core the tubo interleave the
+
+442
+00:38:56,900 --> 00:39:00,790
+硬件将以不同方式在两个内核中执行指令
+instructions in the two cores in
+different ways the hardware will and
+
+443
+00:39:00,790 --> 00:39:05,910
+可能会导致不同的结果，因为您知道
+that can just cause
+different results because you know
+
+444
+00:39:05,910 --> 00:39:10,500
+假设代码和您知道的两个核心都要求锁定某些
+supposing the code and the two cores you
+know they both asked for a lock on some
+
+445
+00:39:10,500 --> 00:39:15,060
+您知道主机上的数据很好，内核一可能在内核2之前获得了锁定
+data well on the master you know
+core one may get the lock before Core 2
+
+446
+00:39:15,060 --> 00:39:19,140
+在奴隶上只是因为一个微小的时序差异核心可能
+on the slave just because of a tiny
+timing difference core to may got the
+
+447
+00:39:19,140 --> 00:39:23,610
+首先锁定，您知道执行结果可能完全不同
+lock first and the you know execution
+results are totally different likely to
+
+448
+00:39:23,610 --> 00:39:26,960
+如果不同的线程获得锁，则完全不同
+be totally different if different
+threads get the lock
+
+449
+00:39:26,960 --> 00:39:32,400
+所以多核是不确定性的严峻根源。 
+so multi-core is the grim source of
+non-determinism man is just totally
+
+450
+00:39:32,400 --> 00:39:39,210
+在这篇论文世界中是非法的，而且实际上就我所知
+outlawed in this papers world and indeed
+like as far as I can tell the techniques
+
+451
+00:39:39,210 --> 00:40:01,980
+不太适用该服务不能使用多核并行
+are not really applicable the service
+can't use multi-core parallel
+
+452
+00:40:01,980 --> 00:40:06,960
+并行性几乎可以肯定，硬件是多核并行的，但这是
+parallelism the hardware is almost
+certainly multi-core parallel but that's
+
+453
+00:40:06,960 --> 00:40:11,640
+位于虚拟机下面的硬件会监视该计算机， 
+the hardware sitting underneath the
+virtual machine monitor the machine that
+
+454
+00:40:11,640 --> 00:40:15,480
+虚拟机监视器向来宾操作系统之一公开
+the virtual machine monitor exposes to
+one of the guest operating systems that
+
+455
+00:40:15,480 --> 00:40:21,090
+运行模拟虚拟机的主备份是一个独角兽，它是一个单元
+runs the primary backup that emulated
+virtual machine is a unicorn it's a unit
+
+456
+00:40:21,090 --> 00:40:26,790
+本文中的处理器机器，我想这不是一个简单的方法
+processor machine in this paper and I'm
+guessing there's not an easy way for
+
+457
+00:40:26,790 --> 00:40:34,880
+他们使该设计适应多核虚拟机
+them to adapt this design to multi-core
+virtual machines
+
+458
+00:40:39,960 --> 00:40:44,950
+好，所以这些真的就是这些事件
+okay so so these are really it's it's
+it's these events that go over the
+
+459
+00:40:44,950 --> 00:40:55,660
+日志记录通道，因此日志的格式记录了他们没有的日志记录条目
+logging channel and so the format of a
+log record a log log entry they don't
+
+460
+00:40:55,660 --> 00:40:58,269
+可以这么说，但我猜想日志条目中确实有三件事
+quite say but I'm guessing that there's
+really three things in a log entry
+
+461
+00:40:58,269 --> 00:41:02,710
+有发生事件的指令号，因为如果您
+there's the instruction number at which
+the event occurred because if you're
+
+462
+00:41:02,710 --> 00:41:06,249
+传递中断，或者您知道输入或传递更好的信息
+delivering an interrupt or you know
+input or whatever it better be delivered
+
+463
+00:41:06,249 --> 00:41:10,569
+在主备份中的完全相同的位置，因此我们需要了解
+at exactly the same place in the primary
+backup so we need to know the
+
+464
+00:41:10,569 --> 00:41:14,170
+指令号和按指令号的意思是您知道
+instruction number and by instruction
+number I mean you know the number of
+
+465
+00:41:14,170 --> 00:41:18,279
+自机器启动以来的指令，为什么不是指令地址而是
+instructions since the Machine booted
+why not the instruction address but like
+
+466
+00:41:18,279 --> 00:41:23,499
+哦，或者自启动以来执行40亿条和第79条指令，所以登录
+oh or executing the four billion and
+79th instructions since boot so log
+
+467
+00:41:23,499 --> 00:41:31,210
+条目将有指令号4的中断输入
+entry is going to have instruction
+number four an interrupt for input it's
+
+468
+00:41:31,210 --> 00:41:35,769
+将成为在主节点上传递中断的指令
+going to be the instruction at which the
+interrupt was delivered on the primary
+
+469
+00:41:35,769 --> 00:41:41,140
+而对于像get这样的怪异指令，它将是
+and for a weird instruction like get at
+time of day it's going to be the
+
+470
+00:41:41,140 --> 00:41:44,980
+一天中获取时间的指令的指令号
+instruction number of the instruction of
+the get time of day or whatever
+
+471
+00:41:44,980 --> 00:41:49,269
+在主数据库上执行的指令，以便您了解备份
+instruction that was executed on the
+primary so that you know the backup
+
+472
+00:41:49,269 --> 00:41:54,819
+知道在哪里调用此事件会发生，所以会有一种类型
+knows where to where to call this event
+to occur okay so there's gonna be a type
+
+473
+00:41:54,819 --> 00:42:00,220
+你知道网络输入什么怪异的指令，然后我要
+you know network input whatever a weird
+instruction and then there's I'm gonna
+
+474
+00:42:00,220 --> 00:42:05,170
+是数据包到达的数据，它将是这些数据包之一的数据包数据
+be data for a packet arrival it's gonna
+be the packet data for one of these
+
+475
+00:42:05,170 --> 00:42:08,140
+奇怪的指令，它将是指令的结果
+weird instructions it's going to be the
+result of the instruction when it was
+
+476
+00:42:08,140 --> 00:42:13,299
+在主数据库上执行，以便备份虚拟机可以伪造
+executed on the primary so that the
+backup virtual machine can sort of fake
+
+477
+00:42:13,299 --> 00:42:17,910
+指令并提供相同的结果
+the instruction and supply that same
+result
+
+478
+00:42:22,109 --> 00:42:34,960
+好的，以这两个操作系统为例
+okay so so as an example the both of
+these operating systems guest operating
+
+479
+00:42:34,960 --> 00:42:40,240
+系统假定要求硬件在这种情况下是仿真硬件
+system assumes requires that the
+hardware in this case emulated hardware
+
+480
+00:42:40,240 --> 00:42:44,680
+虚拟机有一个计时器，每秒滴答百次，并导致
+virtual machine has a timer that ticks
+say a hundred times a second and causes
+
+481
+00:42:44,680 --> 00:42:49,540
+中断操作系统，这就是操作系统保持的方式
+interrupts to the operating system and
+that's how the operating system keeps
+
+482
+00:42:49,540 --> 00:42:54,700
+通过计数这些计时器中断来跟踪时间，以便播放
+track of time it's by counting these
+timer interrupts so the way that plays
+
+483
+00:42:54,700 --> 00:42:58,270
+记下那些计时器，注意为什么它们必须在完全相同的位置发生
+out those timer notice why they have to
+happen at exactly the same place in the
+
+484
+00:42:58,270 --> 00:43:04,089
+主要和备份，否则它们将不会执行相同的操作而不会产生差异
+primary and backup otherwise they don't
+execute the same no diverge so what
+
+485
+00:43:04,089 --> 00:43:10,720
+真正发生的是物理机上有一个计时器
+really happens is that the there's
+there's a timer on the physical machine
+
+486
+00:43:10,720 --> 00:43:16,060
+运行Ft虚拟机监视器和物理上的计时器
+that's running the Ft virtual machine
+monitor and the timer on the physical
+
+487
+00:43:16,060 --> 00:43:19,780
+机器滴答作响并向计时器传递中断，直到虚拟机为止
+machine ticks and delivers an interrupt
+a timer and up to the virtual machine
+
+488
+00:43:19,780 --> 00:43:24,820
+在主虚拟机上监视您所知道的
+monitor on the primary the virtual
+machine monitor at you know the
+
+489
+00:43:24,820 --> 00:43:31,930
+适当的时候停止执行主要记录
+appropriate moment stops the execution
+of the primary writes down the
+
+490
+00:43:31,930 --> 00:43:37,320
+自启动以来您所知道的指令号，然后
+instruction number that it was at you
+know instruction since boot and then
+
+491
+00:43:37,320 --> 00:43:41,830
+在来宾操作中提供各种伪造的模拟和中断
+delivers sort of fake simulates and
+interrupts into the guest operating
+
+492
+00:43:41,830 --> 00:43:44,530
+系统在主要指令号上说哦，你知道
+system in the primary at that
+instruction number saying oh you know
+
+493
+00:43:44,530 --> 00:43:47,080
+您正在仿真计时器刚刚打勾的硬件
+you're emulating the timer Hardware just
+ticked
+
+494
+00:43:47,080 --> 00:43:51,400
+有中断，然后主虚拟机监视器发送
+there's the interrupt and then the
+primary virtual machine monitor sends
+
+495
+00:43:51,400 --> 00:43:54,810
+您知道中断发生的那个指令号
+that instruction number which the
+interrupt happened you know to the
+
+496
+00:43:54,810 --> 00:44:00,520
+备份当然，其虚拟机监视器的备份也需要计时器
+backup the backup of course it's virtual
+machine monitor is also taking timer
+
+497
+00:44:00,520 --> 00:44:04,660
+从其物理计时器中断，它没有给他们，也没有给他们
+interrupts from its physical timer and
+it's not giving them it's not giving
+
+498
+00:44:04,660 --> 00:44:10,000
+这是真正的物理计时器中断到它的备份操作系统
+it's a real physical timer interrupts to
+the to the backup operating system it's
+
+499
+00:44:10,000 --> 00:44:15,700
+只是不理会它们，当法律为原始计时器的日志条目时
+just ignoring them when the law when the
+log entry for the primaries timer
+
+500
+00:44:15,700 --> 00:44:20,500
+中断到达此处，则备份虚拟机监视器将安排
+interrupts arrives here then the backup
+virtual machine monitor will arrange
+
+501
+00:44:20,500 --> 00:44:28,119
+ CPU，这需要特殊的CPU支持才能导致物理
+with the CPU and this requires special
+CPU support to cause the physical
+
+502
+00:44:28,119 --> 00:44:32,630
+机器以相同的指令号中断
+machine to interrupt at the same
+instruction number
+
+503
+00:44:32,630 --> 00:44:36,950
+在定时器中断时，虚拟的
+at the timer interrupts tapped into the
+primary at that point the virtual
+
+504
+00:44:36,950 --> 00:44:41,510
+机器监视器再次从来宾那里获得控制权，然后伪造计时器
+machine monitor gets control again from
+the guest and then fakes the timer
+
+505
+00:44:41,510 --> 00:44:46,190
+现在进入备份操作系统的中断完全相同
+interrupts into the backup operating
+system now exact exactly the same
+
+506
+00:44:46,190 --> 00:45:17,060
+指令号，因为它发生在主要井上，所以观察
+instruction number as it occurred on the
+primary well yeah so the observation is
+
+507
+00:45:17,060 --> 00:45:20,930
+这将取决于其中具有一些特殊硬件的CPU， 
+that this will this relies on the CPU
+having some special hardware in it where
+
+508
+00:45:20,930 --> 00:45:26,930
+ vmm可以告诉硬件CPU请从中中断一千条指令
+the vmm can tell the hardware CPU please
+interrupt a thousand instructions from
+
+509
+00:45:26,930 --> 00:45:32,990
+有时，您会知道vmm在哪里，以便您知道它会在
+now and then the vmm you know where so
+that you know it'll interrupt at the
+
+510
+00:45:32,990 --> 00:45:35,720
+正确的指令号与主要指令相同，然后
+right instruction number the same
+instruction as the primary did and then
+
+511
+00:45:35,720 --> 00:45:40,700
+ vmm只是告诉CPU启动X，然后在备份中再次执行，并且
+the vmm just tells the cpu to start X
+resume executing again in the backup and
+
+512
+00:45:40,700 --> 00:45:44,720
+恰好一千条指令之后，CPU会强制中断进入
+exactly a thousand instructions later
+the CPU will force an interrupt into the
+
+513
+00:45:44,720 --> 00:45:48,530
+虚拟机监视器，那是特殊的硬件，但事实证明是
+virtual machine monitor and that that's
+special hardware but it turns out it's
+
+514
+00:45:48,530 --> 00:45:53,930
+您知道所有Intel芯片上的产品，所以它不是不是那么特别
+you know on all Intel chips so it's not
+it's not that special anymore you know
+
+515
+00:45:53,930 --> 00:45:59,510
+ 15年前它是异国情调的，现在已经完全正常了，事实证明那里
+15 years ago it was exotic now it's
+totally normal and it turns out there's
+
+516
+00:45:59,510 --> 00:46:02,930
+如果您想进行剖析，还可以使用其他许多类似um的方法
+a lot of other uses for it like um if
+you want to do profiling you wanna do
+
+517
+00:46:02,930 --> 00:46:07,550
+ CPU时间性能分析您真正想要的东西或一种进行CPU时间性能分析的方法
+CPU time profiling what you'd really
+like or one way to do CPU time profiling
+
+518
+00:46:07,550 --> 00:46:11,420
+是让微处理器每千条指令中断一次， 
+is to have the microprocessor interrupt
+every thousand instructions right and
+
+519
+00:46:11,420 --> 00:46:15,470
+这是硬件，这是硬件，这也是相同的硬件
+this is the hardware that's this
+Hardware also this is the same hardware
+
+520
+00:46:15,470 --> 00:46:18,860
+这将导致微处理器每千次产生一个中断
+that would cause the microprocessor to
+generate an interrupt every thousand
+
+521
+00:46:18,860 --> 00:46:25,630
+指令，因此它是CPU中非常自然的一种小工具
+instructions so it's a very natural sort
+of gadget to want in your CPU
+
+522
+00:46:31,430 --> 00:46:39,170
+好的，是的
+all right yes
+
+523
+00:46:54,270 --> 00:46:59,760
+如果备份优先于主数据库，那该怎么办？ 
+what if the backup gets ahead of the
+primary so you know we standing above
+
+524
+00:46:59,760 --> 00:47:04,680
+知道哦，您知道主要对象即将在
+know that oh you know the primary is
+about to take an interrupt at the
+
+525
+00:47:04,680 --> 00:47:11,760
+第百万条指令，但是备份已经是您知道执行的百万分之一
+millionth instruction but the backup is
+already you know executed the millionth
+
+526
+00:47:11,760 --> 00:47:16,530
+和第一条指令，所以如果我们让这种情况发生，那也将会是
+and first instruction so it's gonna be
+if we let this happen it's gonna be too
+
+527
+00:47:16,530 --> 00:47:21,240
+如果让备份xu成为主要节点的负责人，则延迟交付中断
+late to deliver the interrupts if we let
+the backup xu the head of the primary
+
+528
+00:47:21,240 --> 00:47:26,040
+在同一时刻传递中断将为时已晚。 
+it's going to be too late to deliver the
+interrupts at the same point in the
+
+529
+00:47:26,040 --> 00:47:29,310
+主指令流和指令流的备份，因此我们
+primary instruction stream and the
+backup of the instruction stream so we
+
+530
+00:47:29,310 --> 00:47:33,660
+不能让这种情况发生，我们不能让备份领先于主要
+cannot let that happen we cannot let the
+backup get ahead of the primary in
+
+531
+00:47:33,660 --> 00:47:45,450
+执行和VMware aft做的方式就是备份虚拟
+execution and the way VMware aft does
+that is that the the backup virtual
+
+532
+00:47:45,450 --> 00:47:49,680
+机器监视器实际上保留了等待事件的缓冲区
+machine monitor it actually keeps a
+buffer of waiting events that have
+
+533
+00:47:49,680 --> 00:47:56,460
+从主服务器到达，除非有
+arrived from the primary and it will not
+let to the backup execute unless there's
+
+534
+00:47:56,460 --> 00:48:01,500
+该缓冲区中至少有一个事件，如果该缓冲区中有一个事件，则它
+at least one event in that buffer and if
+there's one event in that buffer then it
+
+535
+00:48:01,500 --> 00:48:07,410
+从指令号可以知道它受力的位置
+will know from the instruction number
+the place at which it's got a force the
+
+536
+00:48:07,410 --> 00:48:14,760
+备份停止执行，因此始终始终使用
+backup to stop executing so always
+always the backup is executing with the
+
+537
+00:48:14,760 --> 00:48:19,710
+准确告知CPU下一条指令的下一个停止点
+CPU being told exactly where the next
+stopping point the next instruction
+
+538
+00:48:19,710 --> 00:48:24,320
+停止点的数量是因为备份仅在其具有
+number of a stopping point is because
+the backup only executes if it has a an
+
+539
+00:48:24,320 --> 00:48:30,450
+这里的事件告诉它下一步在哪里停止，这意味着它在之后启动
+event here that tells it where to stop
+next so that means it starts up after
+
+540
+00:48:30,450 --> 00:48:33,570
+主数据库，因为备份甚至要等到主数据库才能开始执行
+the primary because the backup can't
+even start executing until the primary
+
+541
+00:48:33,570 --> 00:48:37,470
+已经生成了第一个事件，而该事件已经到达备份，因此
+has generated the first event and that
+event has arrived at the backup so the
+
+542
+00:48:37,470 --> 00:48:41,700
+基本上总是在至少一个事件之后的一个事件的备份类型
+backup sort of always one event
+basically behind the at least one event
+
+543
+00:48:41,700 --> 00:48:44,730
+落后于主要学校，如果出于某些其他原因而较慢
+behind the primary and if it's slower
+for some other whatever reason maybe
+
+544
+00:48:44,730 --> 00:48:47,760
+该物理机上还有其他东西在运行，则备份可能
+there's other stuff running on that
+physical machine then the backup might
+
+545
+00:48:47,760 --> 00:48:53,360
+让您了解主要事件背后的多个事件
+get you know multiple events behind at
+the primary
+
+546
+00:48:58,349 --> 00:49:05,520
+好吧，关于到达特定案例的过程有些混乱
+alright there's a one little piece of
+mess about arriving the specific case of
+
+547
+00:49:05,520 --> 00:49:17,950
+通常在数据包从网络接口到达时到达数据包
+arriving packets ordinarily when a
+packet arrives from a network interface
+
+548
+00:49:17,950 --> 00:49:22,210
+如果我们没有运行虚拟机，则网络接口卡将
+card if we weren't running a virtual
+machine the network interface card would
+
+549
+00:49:22,210 --> 00:49:27,730
+将数据包内容通过DMA传输到其所连接的计算机的内存中
+DMA the packet content into the memory
+of the computer that it's attached to
+
+550
+00:49:27,730 --> 00:49:33,069
+当数据从网络接口卡到达时，这意味着
+sort of as the data arrives from the
+network interface card and that means
+
+551
+00:49:33,069 --> 00:49:38,200
+您知道您永远不应该编写这样的软件，但是可能是因为
+you know you should never write software
+like this but it could be that the
+
+552
+00:49:38,200 --> 00:49:41,799
+在计算机上运行的操作系统实际上可能会看到
+operating system that's running on a
+computer might actually see the data of
+
+553
+00:49:41,799 --> 00:49:46,299
+数据包作为其DMA或从网络接口卡复制到内存中
+a packet as its DMA or copied from the
+network interface card into memory right
+
+554
+00:49:46,299 --> 00:49:51,010
+你知道这是，你知道我们不知道这个操作系统是什么
+you know this is and you know we don't
+know what operating this system is
+
+555
+00:49:51,010 --> 00:49:53,950
+经过精心设计，使其可以支持任何操作系统，而且成本可能很高
+designed so that it can support any
+operating system and cost maybe there is
+
+556
+00:49:53,950 --> 00:49:58,779
+监视内存中到达的数据包的操作系统
+an operating system that watches
+arriving packets in memory as they're
+
+557
+00:49:58,779 --> 00:50:04,779
+复制到内存中，所以我们不能让它发生，因为如果主发生
+copied into memory so we can't let that
+happen because if the primary happens to
+
+558
+00:50:04,779 --> 00:50:10,779
+在玩这个技巧，它将让您知道我们是否允许网络接口
+be playing that trick it's gonna see you
+know if we allowed the network interface
+
+559
+00:50:10,779 --> 00:50:15,549
+卡直接将DMA传入数据包输入主存储器
+card to directly DMA incoming packets
+into the memory of the primary the
+
+560
+00:50:15,549 --> 00:50:20,200
+最主要的是，我们无法控制何时投放网络的确切时间
+primary we don't have any control over
+the exact timing of when the network
+
+561
+00:50:20,200 --> 00:50:24,339
+接口卡将数据复制到内存中，因此我们不会知道
+interface card copies data into memory
+and so we're not going to know sort of
+
+562
+00:50:24,339 --> 00:50:32,020
+主服务器什么时候观察或未观察到来自数据包的数据
+at what times the primary did or didn't
+observe data from the packet arriving
+
+563
+00:50:32,020 --> 00:50:39,490
+所以这意味着实际上NIC将传入的数据包复制到
+and so what that means is that in fact
+the NIC copies incoming packets into
+
+564
+00:50:39,490 --> 00:50:43,210
+虚拟机监视器的专用内存，然后是网络接口
+private memory of the virtual machine
+monitor and then the network interface
+
+565
+00:50:43,210 --> 00:50:46,569
+卡中断虚拟机监视器并说哦，数据包已到达
+card interrupts the virtual machine
+monitor and says oh a packet has arrived
+
+566
+00:50:46,569 --> 00:50:51,190
+此时，虚拟机监视器将挂起主服务器和
+at that point the virtual machine
+monitor will suspend the primary and
+
+567
+00:50:51,190 --> 00:50:56,500
+记住在复制整个数据包到
+remember what instruction number had
+suspended at copy the entire packet into
+
+568
+00:50:56,500 --> 00:51:00,819
+主存储器挂起且不查看此副本时的主存储器
+the primaries memory while the primary
+suspended and not looking at this copy
+
+569
+00:51:00,819 --> 00:51:05,790
+然后将网络接口卡中断模拟为主
+and then emulate a network interface
+card interrupt into the primary
+
+570
+00:51:05,790 --> 00:51:13,050
+然后将数据包和指令号发送到备份
+and then send the packet and the
+instruction number to the backup the
+
+571
+00:51:13,050 --> 00:51:17,580
+备份也会挂起您知道虚拟机监视器将要备份的备份绳
+backup will also suspend the backup rope
+you know virtual machine monitor will
+
+572
+00:51:17,580 --> 00:51:21,030
+将备份花费在该指令号上，然后再次复制整个数据包
+spend the backup at that instruction
+number copy the entire packet and again
+
+573
+00:51:21,030 --> 00:51:25,650
+保证不观看数据到达后再备份
+to the back-up is guaranteed not to be
+watching the data arrive and then fakin
+
+574
+00:51:25,650 --> 00:51:30,710
+以相同的指令号中断主程序，这是
+interrupts at the same instruction
+numbers the primary and this is the
+
+575
+00:51:30,710 --> 00:51:57,030
+在文件中解释了一些反弹缓冲机制，是的， 
+something the bounce buffer mechanism
+explained in the paper okay yeah the the
+
+576
+00:51:57,030 --> 00:52:03,240
+仅说明而导致记录通道流量或很奇怪
+only instructions and that result in
+logging channel traffic or are weird
+
+577
+00:52:03,240 --> 00:52:09,300
+很少有指令的指令可能会产生
+instructions which are rare no its
+instructions that might yield a
+
+578
+00:52:09,300 --> 00:52:12,540
+如果在主数据库和备用数据库上执行类似的结果，则结果不同
+different result if executed on the
+primary and backup like instruction to
+
+579
+00:52:12,540 --> 00:52:15,930
+获取当前时间或当前处理器号或询问多少
+get the current time of day or current
+processor number or ask how many
+
+580
+00:52:15,930 --> 00:52:19,770
+指令已被执行，或者实际上是相对而言
+instructions have been executed or and
+those actually turn out to be relatively
+
+581
+00:52:19,770 --> 00:52:24,270
+难得的是，当某些机器问或
+rare there's also one them to get random
+tasks when some machines to ask or a
+
+582
+00:52:24,270 --> 00:52:28,500
+硬件生成用于密码学或其他的随机数，但那些
+hardware generated random number for
+cryptography or something and but those
+
+583
+00:52:28,500 --> 00:52:31,500
+不是日常的说明，大多数说明，例如添加说明
+are not everyday instructions most
+instructions like add instructions
+
+584
+00:52:31,500 --> 00:52:36,380
+他们将在小学获得相同的结果
+they're gonna get the same result on
+primary and that go
+
+585
+00:52:44,700 --> 00:52:51,060
+是的，因此备份中复制这些文件的方式只是转发
+yeah so the way those get replicated on
+the back up is just by forwarding that's
+
+586
+00:52:51,060 --> 00:52:55,079
+完全正确地打包和转发每个网络数据包
+exactly right each network packet just
+it's packaged up and forwarded as it is
+
+587
+00:52:55,079 --> 00:53:02,270
+作为网络数据包，并由tcp / ip协议栈解释为您知道
+as a network packet and is interpreted
+by the tcp/ip stack on both you know so
+
+588
+00:53:02,270 --> 00:53:09,359
+我预计99.99％的日志记录通道流量将成为传入数据包
+I'm expecting 99.99% of the logging
+channel traffic to be incoming packets
+
+589
+00:53:09,359 --> 00:53:14,040
+而只有一小部分来自特殊的不确定性结果
+and only a tiny fraction to be results
+from special non-deterministic
+
+590
+00:53:14,040 --> 00:53:20,010
+说明，因此我们可以猜测流量负载可能是多少
+instructions and so we can kind of guess
+what the traffic load is likely to be
+
+591
+00:53:20,010 --> 00:53:24,570
+对于基本上为客户服务的服务器，它是每个客户的副本
+for for a server that serves clients
+basically it's a copy of every client
+
+592
+00:53:24,570 --> 00:53:29,880
+数据包，然后我们就会知道什么记录通道，记录速度有多快
+packet and then we'll sort of know what
+the logging channel how fast the logging
+
+593
+00:53:29,880 --> 00:53:42,150
+频道必须没事，所以值得谈论一下
+channel has to be all right so um so
+it's worth talking a little bit about
+
+594
+00:53:42,150 --> 00:53:46,410
+输出是如何工作的，在这个系统中，实际上基本上是唯一的输出
+how output works and in this system
+really the only what output basically
+
+595
+00:53:46,410 --> 00:53:51,300
+表示仅发送客户端发送请求的数据包作为网络
+means only is sending packets that
+client send requests in as network
+
+596
+00:53:51,300 --> 00:53:56,760
+响应作为网络数据包返回，实际上没有
+packets the response goes back out as
+network packets and there's really no
+
+597
+00:53:56,760 --> 00:54:02,579
+我提到的其他形式的输出您知道主计算和备份计算
+other form of output as I mentioned the
+you know both primary and backup compute
+
+598
+00:54:02,579 --> 00:54:06,569
+他们想要发送的输出数据包，并要求模拟混合到
+the output packet they want to send and
+that sort of asks that simulated mix to
+
+599
+00:54:06,569 --> 00:54:10,410
+发送实际上在主数据库上发送的数据包，然后将其丢弃
+send the packet it's really sent on the
+primary and simply discard it the output
+
+600
+00:54:10,410 --> 00:54:17,040
+数据包在备份中被丢弃了，但是事实证明还多了
+packet discarded on the backup okay but
+it turns out is a little more
+
+601
+00:54:17,040 --> 00:54:24,630
+比那要复杂的多，因此假设我们正在运行的是某种
+complicated than that so supposing we're
+what we're running is a some sort of
+
+602
+00:54:24,630 --> 00:54:28,650
+简单的数据库服务器和操作我们的数据库的客户端操作
+simple database server and the operation
+the client operation that our database
+
+603
+00:54:28,650 --> 00:54:33,000
+服务器支持增量，客户端发送增量请求的想法
+server supports is increment and ideas
+the client sends an increment requests
+
+604
+00:54:33,000 --> 00:54:39,960
+数据库服务器增加该值并发送回新值，因此可能在
+the database server increments the value
+and sends back the new value so maybe on
+
+605
+00:54:39,960 --> 00:54:43,410
+主要井到目前为止，一切都很好，主要备份都
+the primary well let's say everything's
+fine so far and the primary backup both
+
+606
+00:54:43,410 --> 00:54:51,390
+内存中有值10，这是计数器的当前值，还有一些
+have value 10 in memory and that's the
+current value at the counter and some
+
+607
+00:54:51,390 --> 00:54:58,609
+局域网上的客户端发送一个您知道的增量请求给
+client on the local area network sends a
+you know an increment request to
+
+608
+00:54:58,810 --> 00:55:04,790
+数据包是主要的，您知道传送到主要是
+the primary that packet is you know
+delivered to the primary it's you know
+
+609
+00:55:04,790 --> 00:55:08,660
+它执行了主服务器软件，主服务器说哦
+it's executed the primary server
+software and the primary says oh you
+
+610
+00:55:08,660 --> 00:55:13,070
+知道当前值10我将更改为11并发送您知道的响应
+know current values 10 I'm gonna change
+to 11 and send a you know response
+
+611
+00:55:13,070 --> 00:55:20,570
+包发回给客户，说11作为他们回复与我相同的请求
+packet back to the client saying saying
+11 as their reply the same request as I
+
+612
+00:55:20,570 --> 00:55:25,040
+提到应该发送到备份的内容也将在此处处理
+mentioned gonna supposed to be sent to
+the backup will also be processed here
+
+613
+00:55:25,040 --> 00:55:28,730
+它将10更改为11也将生成回复，我们将其丢弃
+it's going to change this 10 to 11 also
+generate a reply and we'll throw it away
+
+614
+00:55:28,730 --> 00:55:33,620
+这就是应该发生的输出，但是您还需要询问
+that's what's supposed to happen the
+output however you also need to ask
+
+615
+00:55:33,620 --> 00:55:39,890
+如果您应该在尴尬的时间发生故障，该怎么办
+yourself what happens if there's a
+failure at an awkward time if you should
+
+616
+00:55:39,890 --> 00:55:44,540
+总是在这个班上应该总是问自己，最尴尬的时间是什么
+always in this class should always ask
+yourself what's the most awkward time to
+
+617
+00:55:44,540 --> 00:55:54,560
+有一个失败，失败会发生什么，然后假设
+have a failure and what would happen you
+to failure occurred then so suppose the
+
+618
+00:55:54,560 --> 00:56:01,190
+ primary确实的确会在这里将回复返回给客户端，但是客户端
+primary does indeed generate the reply
+here back to the client but the client
+
+619
+00:56:01,190 --> 00:56:05,330
+在将报告的回复发送给客户端后，主要数据库就会崩溃，并且
+the primary crashes just after sending
+the report its reply to the client and
+
+620
+00:56:05,330 --> 00:56:10,180
+更糟的是，事实证明您知道这只是一个网络
+furthermore and much worse it turns out
+that you know this is just a network it
+
+621
+00:56:10,180 --> 00:56:16,250
+不能保证传递数据包，让我们假设此日志条目位于
+doesn't guarantee to deliver packets
+let's suppose this log entry on the
+
+622
+00:56:16,250 --> 00:56:21,170
+当主要节点死亡时，日志记录通道也下降了，所以现在
+logging channel got dropped also when
+the when the primary died so now the
+
+623
+00:56:21,170 --> 00:56:28,010
+播放状态是客户收到回复说11，但备份没有
+state of play is the client received a
+reply saying 11 but the backup did not
+
+624
+00:56:28,010 --> 00:56:34,940
+获取客户端请求，因此其状态仍然为10，现在备份将接管
+get the client request so its state is
+still 10 no now the backup takes over
+
+625
+00:56:34,940 --> 00:56:39,650
+因为抓住了，主要的已经死了，这个客户或其他一些客户
+because it's seized the primary is dead
+and this client or maybe some other
+
+626
+00:56:39,650 --> 00:56:43,790
+客户端发送一个增量请求一个新的备份，现在它正在处理
+client sends an increment request a new
+backup and now it's really processing
+
+627
+00:56:43,790 --> 00:56:47,420
+这些请求，因此当新备份获得下一个增量请求时
+these requests and so the new backup
+when it gets the next increment requests
+
+628
+00:56:47,420 --> 00:56:55,640
+您知道它现在将其状态更改为11并生成第二个11 
+you know it's now going to change its
+state to 11 and generate a second 11
+
+629
+00:56:55,640 --> 00:57:00,470
+响应可能是同一客户，也可能是另一客户，如果客户
+response maybe the same client maybe to
+a different client which if the clients
+
+630
+00:57:00,470 --> 00:57:04,610
+比较笔记，或者如果它是同一客户，则显然不可能发生
+compare notes or if it's the same client
+it's just obviously cannot have happened
+
+631
+00:57:04,610 --> 00:57:10,670
+我不是这样，您知道吗，因为我们必须支持能够
+I didn't so you know because we have to
+support unmodified software that does
+
+632
+00:57:10,670 --> 00:57:13,220
+不该有任何有趣的事情
+not
+damn that there's any funny business of
+
+633
+00:57:13,220 --> 00:57:17,480
+复制正在进行，这意味着我们没有机会知道你
+replication going on that means we do
+not have the opportunity to you know you
+
+634
+00:57:17,480 --> 00:57:20,869
+可以想象客户会走，你知道我们可以改变客户以实现
+can imagine the client could go you know
+we could change the client to realize
+
+635
+00:57:20,869 --> 00:57:24,559
+容错发生了一些有趣的事情，我不知道是什么
+something funny it happened with the
+fault tolerance and do I don't know what
+
+636
+00:57:24,559 --> 00:57:27,559
+但是我们这里没有那个选项，因为整个系统实际上只是
+but we don't have that option here
+because this whole system really only
+
+637
+00:57:27,559 --> 00:57:33,799
+如果我们运行未经修改的软件是有道理的，所以这很大，这是一个
+makes sense if we're running unmodified
+software so so this was a big this is a
+
+638
+00:57:33,799 --> 00:57:43,130
+灾难我们不能让这种情况发生，有人从报纸上记得吗
+disaster we can't have let this happen
+does anybody remember from the paper how
+
+639
+00:57:43,130 --> 00:57:48,859
+他们防止这种情况发生，是的，所以您要这样做
+they prevent this from happening the
+output rule yeah so you want to do you
+
+640
+00:57:48,859 --> 00:58:03,260
+知道，所以输出规则是解决该问题的方法， 
+know yeah so the output rules is the
+their solution to this problem and the
+
+641
+00:58:03,260 --> 00:58:08,539
+想法是不允许他产生的客户认识您并产生任何
+idea is that the client he's not allowed
+to generate you know and generate any
+
+642
+00:58:08,539 --> 00:58:11,390
+输出主要的不允许产生任何输出以及我们
+output the primary's not allowed to
+generate any output and what we're
+
+643
+00:58:11,390 --> 00:58:17,000
+现在谈论的是此输出，直到备份确认它为止
+talking about now is this output here
+until the backup acknowledges that it
+
+644
+00:58:17,000 --> 00:58:24,410
+到目前为止已收到所有日志记录，因此
+has received all log records up to this
+point so the real sequence at the
+
+645
+00:58:24,410 --> 00:58:32,509
+主节点，然后让我们撤消崩溃主节点从10开始返回
+primary then let's now undone crash the
+primary go back to them starting at 10
+
+646
+00:58:32,509 --> 00:58:40,670
+现在，当输出规则是输入到达
+the real sequence now when the output
+rule is that the input arrives at the
+
+647
+00:58:40,670 --> 00:58:46,400
+输入到达的时间，即虚拟机监视器发送的副本
+time the input arrives that's when the
+virtual machine monitor sends a copy of
+
+648
+00:58:46,400 --> 00:58:53,150
+备份的输入，因此此日志消息的时间类型
+the input to the backup so the the sort
+of time at which this log message with
+
+649
+00:58:53,150 --> 00:58:58,240
+输入的发送要严格在主服务器生成输出之前
+the input is sent is before strictly
+before the primary generates the output
+
+650
+00:58:58,240 --> 00:59:05,150
+在通过网络触发此日志条目后，现在很明显
+sort of obvious then after firing this
+log entry off across a network and now
+
+651
+00:59:05,150 --> 00:59:13,099
+它正在走向备份，但我已经迷路了，不是虚拟的
+it's heading towards the backup but I'd
+have been lost my not the virtual
+
+652
+00:59:13,099 --> 00:59:16,609
+机器监视器向其生成的主服务器软件发送请求
+machine monitor delivers a request to
+the primary server software it generates
+
+653
+00:59:16,609 --> 00:59:19,869
+现在的输出
+the output so now the
+
+654
+00:59:20,690 --> 00:59:24,710
+复制您知道主要对象实际上已生成更改状态211 
+replicated you know the primary has
+actually generated change the state 211
+
+655
+00:59:24,710 --> 00:59:28,609
+并生成一个输出数据包，其中显示了11个，但虚拟机监视器
+and generated an output packet that says
+eleven but the virtual machine monitor
+
+656
+00:59:28,609 --> 00:59:31,160
+说哦，等等，我们不允许生成该输出，直到所有
+says oh wait a minute we're not allowed
+to generate that output until all
+
+657
+00:59:31,160 --> 00:59:34,700
+备份已确认先前的日志记录，因此您知道
+previous log records have been
+acknowledged by the backup so you know
+
+658
+00:59:34,700 --> 00:59:39,140
+这是最近的前一个日志消息，因此此输出由
+this is the most recent previous log
+message so this output is held by the
+
+659
+00:59:39,140 --> 00:59:44,569
+虚拟机监视，直到此日志条目包含输入数据包为止
+virtual machine monitor until the this
+log entry containing the input packet
+
+660
+00:59:44,569 --> 00:59:48,560
+从客户端传送到虚拟机监视器并由
+from the client is delivered to the
+virtual machine monitor and buffered by
+
+661
+00:59:48,560 --> 00:59:52,430
+虚拟机监视器，但不一定执行它，可能只是
+the virtual machine monitor but do not
+necessarily execute it it may be just
+
+662
+00:59:52,430 --> 00:59:56,869
+等待备份到达指令流中的那个点，然后
+waiting for the backup to get to that
+point in the instruction stream and then
+
+663
+00:59:56,869 --> 01:00:00,530
+虚拟机监视器将在此处发送活动数据包，说是的，我
+the virtual machine monitor here will
+send an active packet back saying yes I
+
+664
+01:00:00,530 --> 01:00:05,690
+确实获得了该输入，并且只有当确认返回时，才会
+did get that input and when the
+acknowledgment comes back only then will
+
+665
+01:00:05,690 --> 01:00:11,270
+虚拟机监视器在此处将数据包释放到网络上，因此
+the virtual machine monitor here release
+the packet out onto the network and so
+
+666
+01:00:11,270 --> 01:00:16,190
+这个想法是，如果客户本可以看到答复，那么必然
+the idea is that if the client could
+have seen the reply then necessarily the
+
+667
+01:00:16,190 --> 01:00:22,579
+备份必须已经看到了请求并至少将其缓冲了，因此我们不再
+backup must have seen the request and at
+least buffered it and so we no longer
+
+668
+01:00:22,579 --> 01:00:27,470
+在这种奇怪的情况下，客户可以看到答复，但随后
+get this weird situation in which a
+client can see a reply but then there's
+
+669
+01:00:27,470 --> 01:00:33,950
+故障和切入，副本对以下信息一无所知
+a failure and a cut over and the replica
+didn't know anything about that reply if
+
+670
+01:00:33,950 --> 01:00:40,310
+您知道还有一种情况，也许这条消息丢失了，如果这
+the you know there's also a situation
+maybe this message was lost and if this
+
+671
+01:00:40,310 --> 01:00:45,650
+日志条目丢失，然后主数据库崩溃了，因为它没有
+log entry was lost and then the primary
+crashes well since it hadn't been
+
+672
+01:00:45,650 --> 01:00:49,670
+已交付，因此备份没有发送操作，这意味着如果主服务器崩溃了
+delivered so the backup hadn't sent the
+act that means if the primary crashed
+
+673
+01:00:49,670 --> 01:00:53,810
+您知道此日志条目是在主要崩溃中带来的，它肯定已经崩溃了
+you know this log entry was brought in
+the primary crashed it must have crashed
+
+674
+01:00:53,810 --> 01:00:58,099
+在虚拟机监控器之前或至少在输出数据包和祈祷之前
+before the virtual machine monitor or at
+least the output packet and prayer for
+
+675
+01:00:58,099 --> 01:01:03,500
+该客户无法得到答复，因此无法
+this client couldn't have gotten the
+reply and so it's not in a position to
+
+676
+01:01:03,500 --> 01:01:12,550
+找出他们已经对输出规则满意的任何违规行为
+spot any irregularities they're already
+happy with the output rule
+
+677
+01:01:27,009 --> 01:01:34,160
+ brennon看到我不知道他们不写论文没有提到虚拟
+brennon see I don't know they don't
+paper doesn't mention how the virtual
+
+678
+01:01:34,160 --> 01:01:38,029
+实现了机器监视器，我的意思是这是非常低级的东西，因为您
+machine monitor is implemented I mean
+it's pretty low level stuff because you
+
+679
+01:01:38,029 --> 01:01:41,569
+知道它坐在那里分配内存并计算页表， 
+know it's sitting there allocating
+memory and figuring page tables and
+
+680
+01:01:41,569 --> 01:01:44,719
+与设备驱动程序交谈并拦截指令
+talking to device drivers and
+intercepting instructions and
+
+681
+01:01:44,719 --> 01:01:49,069
+了解客人正在执行什么指令，所以我们在说
+understanding what instructions the
+guest was executing so we're talking
+
+682
+01:01:49,069 --> 01:01:53,479
+关于低级的东西，您通常使用哪种语言写成C或
+about low-level stuff what language is
+written in you know traditionally C or
+
+683
+01:01:53,479 --> 01:02:02,449
+ C ++，但我实际上不知道好吗，主要的延迟了
+C++ but I don't actually know okay this
+of the primary has to delay at this
+
+684
+01:02:02,449 --> 01:02:09,410
+等待备份说它是最新的，这是真实的
+point waiting for the backup to say that
+it's up to date this is a real
+
+685
+01:02:09,410 --> 01:02:15,440
+几乎每种复制方案都存在性能问题
+performance thorn in the side of just
+about every replication scheme this sort
+
+686
+01:02:15,440 --> 01:02:19,999
+同步等待的时间，我们不能让主对象超前
+of synchronous wait where the we can't
+let the primary get too far ahead of the
+
+687
+01:02:19,999 --> 01:02:24,739
+进行备份，因为如果主数据库在发生故障时发生故障，那将是
+backup because if the primary failed
+while it was ahead that would be the
+
+688
+01:02:24,739 --> 01:02:30,440
+备份滞后于客户端，因此几乎每个复制都滞后
+backup lagging lagging behind clients
+right so just about every replication
+
+689
+01:02:30,440 --> 01:02:34,459
+系统有这个问题，在某个时候主节点必须停滞等待
+system has this problem that at some
+point the primary has to stall waiting
+
+690
+01:02:34,459 --> 01:02:38,329
+进行备份，即使计算机是
+for the backup and it's a real limit on
+performance even if the machines are
+
+691
+01:02:38,329 --> 01:02:41,959
+像并排和相邻的架子，仍然是您知道我们在谈论
+like side-by-side and adjacent racks
+it's still you know we're talking about
+
+692
+01:02:41,959 --> 01:02:45,979
+一个半毫秒左右的时间来发送消息
+a half a millisecond or something to
+send messages back and forth with a
+
+693
+01:02:45,979 --> 01:02:51,319
+主要停滞了，如果我们想承受地震或全市范围内的电力
+primary stalled and if we wanna like
+withstand earthquakes or citywide power
+
+694
+01:02:51,319 --> 01:02:54,319
+您知道备份中的主要故障必须位于不同的城市
+failures you know the primary in the
+backup have to be in different cities
+
+695
+01:02:54,319 --> 01:02:59,509
+如果我们每次产生输出，那大概相隔五毫秒
+that's probably five milliseconds apart
+every time we produce output if we
+
+696
+01:02:59,509 --> 01:03:03,349
+将每个数据包复制到不同城市的两个副本中
+replicate in the two replicas in
+different city every packet that it
+
+697
+01:03:03,349 --> 01:03:08,449
+产生此输出必须首先等待五毫秒或其他
+produces this output has to first wait
+the five milliseconds or whatever to
+
+698
+01:03:08,449 --> 01:03:11,449
+有最后一个日志条目进入备份，以及他们如何需要Osment 
+have the last log entry get to the
+backup and how they need Osment come
+
+699
+01:03:11,449 --> 01:03:15,289
+返回，然后我们可以释放路径包，您知道有点低
+back and then we can release a path
+packet and you know for sort of low
+
+700
+01:03:15,289 --> 01:03:19,940
+强度服务不是问题，但如果我们要建立一个
+intensity services that's not a problem
+but if we're building a you know
+
+701
+01:03:19,940 --> 01:03:22,940
+我们希望您知道的数据库服务器不是
+database server that we would like to
+you know that if it weren't for this
+
+702
+01:03:22,940 --> 01:03:25,960
+每秒可以处理数百万个请求
+could process millions of requests per
+second then
+
+703
+01:03:25,960 --> 01:03:31,660
+这真是令人难以置信的性能损失，这是为什么
+that's just unbelievably damaging for
+performance and this is a big reason why
+
+704
+01:03:31,660 --> 01:03:38,079
+您认识的人您知道他们是否可以使用复制方案
+people you know you know if they
+possibly can use a replication scheme
+
+705
+01:03:38,079 --> 01:03:41,230
+在更高层次上运作，并且有点理解
+that's operating at a higher level and
+kind of understands the semantics of
+
+706
+01:03:41,230 --> 01:03:45,220
+操作，因此它不必在您知道可以的每个数据包上停顿
+operations and so it doesn't have to
+stall on every packet you know it could
+
+707
+01:03:45,220 --> 01:03:49,750
+在每个高级操作上都停滞不前，甚至注意到您知道只读
+stall on every high level operation or
+even notice that well you know read-only
+
+708
+01:03:49,750 --> 01:03:52,990
+操作并不一定要停顿，仅此而已
+operations don't have to stall at all
+it's only right so that just all or
+
+709
+01:03:52,990 --> 01:03:55,839
+某些东西，但是你必须要有一个应用程序级的复制
+something but you have to there has to
+be an application level replication
+
+710
+01:03:55,839 --> 01:04:06,280
+实现您绝对正确的方案，因此观察是
+scheme to to realize that you're
+absolutely right so the observation is
+
+711
+01:04:06,280 --> 01:04:08,920
+您不必暂停仅拥有的主程序的执行
+that you don't have to stall the
+execution of the primary you only have
+
+712
+01:04:08,920 --> 01:04:13,990
+保持输出，所以也许这还不算很糟糕，但是
+to hold the output and so maybe that's
+not as bad as it could be but
+
+713
+01:04:13,990 --> 01:04:17,800
+但是，这意味着您在服务中认识的每个人都可以
+nevertheless it means that every you
+know in a service that could otherwise
+
+714
+01:04:17,800 --> 01:04:22,390
+在几微秒内对您知道的客户端做出了响应
+have responded in a couple of
+microseconds to the client you know if
+
+715
+01:04:22,390 --> 01:04:27,280
+我们必须先更新下一个城市中的副本，我们去了解一下10 
+we have to first update the replicas in
+the next city we turn to you know 10
+
+716
+01:04:27,280 --> 01:04:36,160
+微秒互动，如果您有10毫秒互动， 
+micro second interaction into it 10
+millisecond interactions possibly if you
+
+717
+01:04:36,160 --> 01:04:41,829
+有大量的客户提交并发请求，那么您可能
+have vast numbers of clients submitting
+concurrent requests then you may may be
+
+718
+01:04:41,829 --> 01:04:46,180
+即使在高延迟下也能够保持高吞吐量，但是您必须
+able to maintain high throughput even
+with high latency but you have to be
+
+719
+01:04:46,180 --> 01:04:51,210
+幸运或非常聪明的设计师能够做到这一点
+lucky to or very clever designer to get
+that
+
+720
+01:05:01,270 --> 01:05:06,680
+这是一个好主意，但是如果您登录主数据库的内存，该日志将
+that's a great idea but if you log in
+the memory of the primary that log will
+
+721
+01:05:06,680 --> 01:05:10,670
+当主要崩溃或服务器的通常语义消失时
+disappear when the primary crashes or
+that's usual semantics of a server
+
+722
+01:05:10,670 --> 01:05:16,280
+失败的是，您失去了包装盒内的所有物品，例如
+failing is that you lose everything
+inside the box like the contents of
+
+723
+01:05:16,280 --> 01:05:21,680
+记忆，或者即使失败，您也知道是否有人失败
+memory or you know if even if you didn't
+if the failure is that somebody
+
+724
+01:05:21,680 --> 01:05:25,570
+即使从电源插座上意外拔出电源线
+unplugged the power cable accidentally
+from the primary even if the primary
+
+725
+01:05:25,570 --> 01:05:30,710
+只是有电池备份的RAM或我不知道你不能得到什么
+just has battery backed up RAM or I
+don't know what you can't get at it
+
+726
+01:05:30,710 --> 01:05:36,050
+好吧，备份无法实现，因此实际上该系统确实记录了输出
+all right the backup can't get at it so
+in fact this system does log the output
+
+727
+01:05:36,050 --> 01:05:39,980
+它记录的位置在备份的内存中，以便
+and the place it logs it is in the
+memory of the backup and in order to
+
+728
+01:05:39,980 --> 01:05:43,640
+可靠地将其记录在那里，您必须遵守输出规则并等待
+reliably log it there you have to
+observe the output rule and wait for the
+
+729
+01:05:43,640 --> 01:05:48,500
+确认，所以这是完全正确的想法，只是不能使用主数据库的内存
+acknowledgment so it's entirely correct
+idea just can't use the primary's memory
+
+730
+01:05:48,500 --> 01:05:55,030
+为此，是的
+for it yes
+
+731
+01:05:58,300 --> 01:06:08,450
+再说一遍，这是一个聪明的主意，所以问题可能是输入
+say it again that's a clever idea I'd
+and so the question is maybe input
+
+732
+01:06:08,450 --> 01:06:12,770
+应该去主要的，但是输出应该来自备份
+should go to the primary but output
+should come from the backup
+
+733
+01:06:12,770 --> 01:06:17,210
+我完全没有想到这一点可能会起作用
+I completely haven't thought this
+through that might work that
+
+734
+01:06:17,210 --> 01:06:21,940
+我不知道那很有趣
+I don't know that's interesting
+
+735
+01:06:29,010 --> 01:06:31,910
+是的，也许我会
+yeah maybe I will
+
+736
+01:06:42,200 --> 01:06:56,099
+好吧，这确实暴露出的一种可能性是，您知道的情况
+okay one possibility this does expose
+though is that the situation you know
+
+737
+01:06:56,099 --> 01:07:00,329
+可能是主服务器在释放其输出后崩溃，因此客户端会
+maybe the a primary crashes after its
+output is released so the client does
+
+738
+01:07:00,329 --> 01:07:07,589
+收到答复，然后主数据库崩溃，备份输入仍在
+receive the reply then the primary
+crashes the backups input is still in
+
+739
+01:07:07,589 --> 01:07:13,589
+尚未备份的虚拟机监视器中的此事件缓冲区
+this event buffer in the virtual machine
+monitor of the backup it hasn't been
+
+740
+01:07:13,589 --> 01:07:18,809
+备份上线后交付给实际的复制服务
+delivered to the actual replicated
+service when the backup goes live after
+
+741
+01:07:18,809 --> 01:07:25,650
+主数据库崩溃时，备份首先必须消耗所有
+the crash of the primary the backup
+first has to consume all of the sort of
+
+742
+01:07:25,650 --> 01:07:29,130
+尚未使用X的日志记录，必须赶上X 
+log records that are lying around that
+it hasn't consumed X it has to catch up
+
+743
+01:07:29,130 --> 01:07:33,240
+到主数据库，否则它将不会接管相同的状态，因此在
+to the primary otherwise it won't take
+over with the same state so before the
+
+744
+01:07:33,240 --> 01:07:37,529
+备份可以上线，实际上它必须消耗所有这些条目，最后一个条目
+backup can go live it actually has to
+consume all these entries the last entry
+
+745
+01:07:37,529 --> 01:07:45,799
+大概是客户端的请求，因此备份将在之后生效
+is presumably is the request from the
+client so the backup will be live after
+
+746
+01:07:45,799 --> 01:07:51,510
+在它之后，在从客户端传递请求的中断之后， 
+after it after the interrupt that
+delivers the request from the client and
+
+747
+01:07:51,510 --> 01:07:56,819
+这意味着您知道的备份将其计数器增加到11，然后
+that means that the backup well you know
+increment its counter to eleven and then
+
+748
+01:07:56,819 --> 01:08:01,859
+生成一个输出数据包，由于它已经存在，它将生成
+generate an output packet and since it's
+live at this point it will generate the
+
+749
+01:08:01,859 --> 01:08:10,740
+输出数据包，客户端将得到十一个答复，如果
+output packet and the client will get to
+eleven replies which is also if it if
+
+750
+01:08:10,740 --> 01:08:18,689
+真正发生的事情可能是异常的，可能不是
+that really happened would be anomalous
+like possibly not something that could
+
+751
+01:08:18,689 --> 01:08:25,709
+如果只有一台服务器，那么好消息是几乎可以肯定地
+
+752
+01:08:25,710 --> 01:08:29,670
+几乎可以肯定，客户端正在使用TCP和
+the almost certainly the client is
+talking to this service using TCP and
+
+753
+01:08:29,670 --> 01:08:32,279
+这是请求和响应在TCP上来回传递
+that this is the request and the
+response go back and forth on a TCP
+
+754
+01:08:32,279 --> 01:08:37,560
+由于状态相同，引导备份何时接管备份
+Channel the when the backup takes over
+the backup since the state is identical
+
+755
+01:08:37,560 --> 01:08:40,890
+到主节点，它知道有关该TCP连接的所有信息，以及是否所有
+to the primaries it knows all about that
+TCP connection and whether all the
+
+756
+01:08:40,890 --> 01:08:46,679
+序列号是and whatnot，当它生成此数据包时，它将
+sequence numbers are and whatnot and
+when it generates this packet it will
+
+757
+01:08:46,679 --> 01:08:52,198
+使用与原始数据包和TCP相同的TCP序列号生成它
+generate it with the same TCP sequence
+number as an original packet and the TCP
+
+758
+01:08:52,198 --> 01:08:55,559
+客户端上的堆栈会说，哦，等等，这是重复的数据包
+
+759
+01:08:55,560 --> 01:08:59,100
+我们将在TCP级别和用户级别丢弃重复的数据包
+we'll discard the duplicate packet at
+the TCP level and the user level
+
+760
+01:08:59,100 --> 01:09:04,470
+软件将永远不会看到此重复项，因此该系统确实是您
+software will just never see this
+duplicate and so this system really you
+
+761
+01:09:04,470 --> 01:09:11,580
+知道您可以将其视为一种偶然或聪明的把戏，但事实
+know you can view this as a kind of
+accidental or clever trick but the fact
+
+762
+01:09:11,580 --> 01:09:16,290
+适用于可能发生转换的任何复制系统
+is for any replication system where
+cutover can happen which is to say
+
+763
+01:09:16,290 --> 01:09:22,649
+几乎所有复制系统都几乎不可能在其中设计它们
+pretty much any replication system it's
+essentially impossible to design them in
+
+764
+01:09:22,649 --> 01:09:29,429
+一种保证他们基本上不会产生重复输出的方式
+
+765
+01:09:29,430 --> 01:09:33,300
+知道你很好，你可以在任何一侧犯错，我什至都不产生
+know you well you can err on either side
+I'm not even either not generate the
+
+766
+01:09:33,300 --> 01:09:37,979
+输出会很糟糕，这很糟糕，或者您可能会生成
+output at all which would be bad which
+would be terrible or you can generate
+
+767
+01:09:37,979 --> 01:09:42,929
+基本上没有办法生成割接的输出两次
+
+768
+01:09:42,930 --> 01:09:46,770
+保证只产生一次，每个人都可能出错
+guaranteed generated only once everybody
+errors on the side of possibly
+
+769
+01:09:46,770 --> 01:09:51,810
+生成重复的输出，这意味着在某种程度上您知道
+generating duplicate output and that
+means that at some level you know the
+
+770
+01:09:51,810 --> 01:09:55,560
+所有复制方案的客户端都需要某种重复检测
+client side of all replication schemes
+need some sort of duplicate detection
+
+771
+01:09:55,560 --> 01:09:59,250
+我们在这里使用TCP方案，而我们没有TCP 
+scheme here we get to use TCP s that we
+didn't have TCP that would have to be
+
+772
+01:09:59,250 --> 01:10:03,230
+其他的东西也许是应用程序级别的序列号，或者我不知道是什么
+something else maybe application level
+sequence numbers or I don't know what
+
+773
+01:10:03,230 --> 01:10:09,120
+您会看到所有这些，实际上您会看到本质上的版本
+and you'll see all of this and actually
+you'll see versions of essentially
+
+774
+01:10:09,120 --> 01:10:14,570
+我说过的所有内容，例如实验2和3中的输出规则
+everything I've talked about like the
+output rule for example in labs 2 & 3
+
+775
+01:10:14,570 --> 01:10:20,690
+您将设计自己的复制状态机是
+you'll design your own replicated state
+machine yes
+
+776
+01:10:45,110 --> 01:10:51,600
+对第一部分是“是”，因此方案是主要发送答复，然后
+yes to the first part so the scenario is
+the primary sends the reply and then
+
+777
+01:10:51,600 --> 01:10:55,350
+主要发送衣服包或客户端关闭连接
+either the primary send the clothes
+packet or the client closes the connect
+
+778
+01:10:55,350 --> 01:10:58,920
+ TCP连接收到主服务器的答复后，所以现在好像没有
+the TCP connection after it receives the
+primary's reply so now there's like no
+
+779
+01:10:58,920 --> 01:11:02,760
+客户端上有连接，但备用端上有连接
+connection on the client side but there
+is a connection on the backup side and
+
+780
+01:11:02,760 --> 01:11:07,740
+因此现在进行备份，以便备份使用最后一个日志条目作为
+so now the backup so the backup consumes
+the very last log entry that as the
+
+781
+01:11:07,740 --> 01:11:12,360
+输入现已生效，因此我们不负责在
+input is now live so we're not
+responsible for replicating anything at
+
+782
+01:11:12,360 --> 01:11:16,980
+这是正确的，因为现在备份已经存在，没有其他副本了
+this point right because the backup now
+live there's no other replica as the
+
+783
+01:11:16,980 --> 01:11:23,460
+主节点死了，所以如果备份执行失败，我们就不这样做
+primary died so there's no like if if we
+don't if the backup fails to execute in
+
+784
+01:11:23,460 --> 01:11:26,550
+与主要对象的锁步实际上是正确的，因为主要对象已死
+lockstep with the primary that's fine
+actually because the primary is is dead
+
+785
+01:11:26,550 --> 01:11:30,510
+而且我们不想与它同步执行，所以入门是
+and we do not want to execute in
+lockstep with it okay so the primer is
+
+786
+01:11:30,510 --> 01:11:37,500
+现在不是实时的，它在此TCP连接上生成了一个未关闭的输出
+now not it's live it generates an output
+on this TCP connection that isn't closed
+
+787
+01:11:37,500 --> 01:11:41,790
+但是从备份的角度来看，此数据包与客户端一起到达CCP 
+yet from the backup point of view this
+packet arrives with the client on a CCP
+
+788
+01:11:41,790 --> 01:11:45,570
+从客户端的角度来看，不再存在的连接不再
+connection that doesn't exist anymore
+from the clients point of view like no
+
+789
+01:11:45,570 --> 01:11:48,510
+客户对他的大呼声，他只是要扔掉小包
+big whoopee on the client right he's
+just going to throw away the packet as
+
+790
+01:11:48,510 --> 01:11:52,320
+如果什么都没发生，则应用程序无法执行，客户端可以发送重置消息
+if nothing happened the application
+won't no the client may send a reset
+
+791
+01:11:52,320 --> 01:11:57,480
+诸如TCP错误之类的内容或返回备份的任何数据包
+something like a TCP error or whatever
+packet back to the backup and the backup
+
+792
+01:11:57,480 --> 01:12:00,660
+用它做某事或其他，但是没关系，因为我们不是
+does something or other with it but it
+doesn't matter because we're not
+
+793
+01:12:00,660 --> 01:12:04,230
+远离任何事物，因为没有主要的事物可以
+diverging from anything because there's
+no primary to diverge from you can just
+
+794
+01:12:04,230 --> 01:12:10,470
+处理我们说过但喜欢的流浪，实际上它要做的基本上是
+handle a stray we said however it likes
+and what it'll in fact do is basically
+
+795
+01:12:10,470 --> 01:12:17,310
+忽略，但是现在没有备份已经上线了，只是没有，我们不欠
+ignore but there's no now the backup has
+gone live there's just no we don't owe
+
+796
+01:12:17,310 --> 01:12:22,640
+任何人只要复制是的
+anybody anything as far as replication
+yeah
+
+797
+01:12:36,270 --> 01:12:40,870
+好吧，您可以打赌，因为备份内存映像与
+well you can bet since the backups
+memory image is identical to the
+
+798
+01:12:40,870 --> 01:12:45,130
+主要映像表示他们正在使用相同的源TCP发送数据包
+primaries image that they're sending
+packets with the very same source TCP
+
+799
+01:12:45,130 --> 01:12:51,070
+数字，它们是非常相同的，它们发送的所有内容都一点一点相同
+number and they're very same everything
+they're sending bit for bit identical
+
+800
+01:12:51,070 --> 01:13:03,640
+您知道此级别的数据包服务器没有IP地址或
+packets you know at this level the
+server's don't have IP addresses or for
+
+801
+01:13:03,640 --> 01:13:08,230
+我们的目的是您知道备份虚拟机中主要的虚拟机
+our purposes the virtual machines you
+know the primary in the back up virtual
+
+802
+01:13:08,230 --> 01:13:15,340
+机器具有IP地址，但物理计算机和vmm是
+machines have IP addresses but the the
+physical computer and the vmm are
+
+803
+01:13:15,340 --> 01:13:19,480
+对网络透明这不是完全正确，但基本上是
+transparent to the network it's not
+entirely true but it's basically the
+
+804
+01:13:19,480 --> 01:13:23,850
+物理机中的虚拟机监视器确实没有的情况
+case that the virtual machine monitor in
+the physical machine don't really have
+
+805
+01:13:23,850 --> 01:13:29,380
+自己在网络上的身份，因为您可以配置该身份
+identity of their own on the network
+because you can configure that then that
+
+806
+01:13:29,380 --> 01:13:33,040
+方式相反，这些不是您知道缝纫的虚拟机
+way instead these they're not you know
+the virtual machine with a sewing
+
+807
+01:13:33,040 --> 01:13:36,550
+操作系统在其自己的TCP堆栈中，它下面没有IP地址
+operating system in its own TCP stack it
+doesn't IP address underneath there an
+
+808
+01:13:36,550 --> 01:13:39,250
+地址以及所有其他内容，这些内容在
+address and all this other stuff which
+is identical between the primary in the
+
+809
+01:13:39,250 --> 01:13:42,969
+备份，并在发送数据包时将其与虚拟机IP一起发送
+backup and when it sends a packet it
+sends it with the virtual machines IP
+
+810
+01:13:42,969 --> 01:13:49,030
+地址和以太网地址，以及我的思维模型中最少的那些位
+address and Ethernet address and those
+bits least in my mental model are just
+
+811
+01:13:49,030 --> 01:13:54,130
+只需传递到局域网，这正是我们想要的
+simply passed through on to the local
+area network it's exactly what we want
+
+812
+01:13:54,130 --> 01:13:57,489
+所以我认为他不会产生与
+and so I think he doesn't generate
+exactly the same packets that the
+
+813
+01:13:57,489 --> 01:14:00,760
+主要会产生一些骗术
+primary would have generated there's
+maybe a little bit of trickery
+
+814
+01:14:00,760 --> 01:14:04,630
+你知道我们如果将这些实际上插入以太网的情况
+you know what the we if this is these
+are actually plugged into an Ethernet
+
+815
+01:14:04,630 --> 01:14:08,860
+切换到物理机，也许不是在一个计算机的两个不同端口中
+switch into the physical machines maybe
+it wasn't in two different ports of an
+
+816
+01:14:08,860 --> 01:14:12,480
+以太网交换机，我们希望以太网交换机改变主意
+Ethernet switch and we'd like the
+Ethernet switch to change its mind about
+
+817
+01:14:12,480 --> 01:14:18,790
+这两个机器中的哪个传送带有复制的数据包
+which of these two machines that
+delivers packets with replicated
+
+818
+01:14:18,790 --> 01:14:23,710
+服务以太网地址，所以那里有一些有趣的事情
+services Ethernet address and so there's
+a little bit of funny business there for
+
+819
+01:14:23,710 --> 01:14:26,260
+大多数情况下，它们只是生成相同的数据包，所以让我发送
+the most part they're just generating
+identical packets so let me just send
+
+820
+01:14:26,260 --> 01:14:28,500
+他们出来
+them out
+
+821
+01:14:29,550 --> 01:14:36,810
+好吧，我一直在讲的另一个小细节是我一直在假设
+okay so another little detail I've been
+glossing over is that I've been assuming
+
+822
+01:14:36,810 --> 01:14:41,790
+主数据库刚刚失败或备份刚刚失败即失败停止
+that the primary just fails or the
+backup just fails that is fail stop
+
+823
+01:14:41,790 --> 01:14:46,350
+是的，但这不是唯一的选择，另一个非常常见的情况是
+right but that's not the only option
+another very common situation that has
+
+824
+01:14:46,350 --> 01:14:51,390
+要处理的是，如果两台计算机仍处于启动状态并且正在运行并正在执行
+to be dealt with is if the two machines
+are still up and running and executing
+
+825
+01:14:51,390 --> 01:14:56,640
+但是网络上发生了一件有趣的事情，导致他们无法
+but there's something funny happen on
+the network that causes them not to be
+
+826
+01:14:56,640 --> 01:15:01,740
+能够互相交谈，但仍然能够与某些客户交谈，所以如果
+able to talk to each other but to still
+be able to talk to some clients so if
+
+827
+01:15:01,740 --> 01:15:05,100
+如果主备份无法互相通信，则会发生这种情况
+that happened if the primary backup
+couldn't talk to each other but they
+
+828
+01:15:05,100 --> 01:15:07,920
+仍然可以与客户交谈，他们都会认为哦，其他副本
+could still talk to the clients they
+would both think oh the other replicas
+
+829
+01:15:07,920 --> 01:15:12,450
+死了，我最好接管并上线，所以现在我们有两台机器上线
+dead I better take over and go live and
+so now we have two machines going live
+
+830
+01:15:12,450 --> 01:15:16,470
+有了这项服务，现在您知道他们不再互相发送日志
+with this service and now you know
+they're no longer sending each other log
+
+831
+01:15:16,470 --> 01:15:19,350
+事件或他们只是分歧的任何事情，也许他们正在接受
+events or anything they're just
+diverging maybe they're accepting
+
+832
+01:15:19,350 --> 01:15:22,590
+不同的客户输入和更改以不同的方式停留，所以现在我们有了
+different client inputs and changes are
+stayed in different ways so now we have
+
+833
+01:15:22,590 --> 01:15:28,080
+如果我们让备份中的主节点上线，那将是一场裂脑灾难
+a split brain disaster if we let the
+primary in the backup go live because it
+
+834
+01:15:28,080 --> 01:15:34,230
+是一个发生故障的网络，而不是这些机器， 
+was a network that has some kind of
+failure instead of these machines and
+
+835
+01:15:34,230 --> 01:15:41,910
+我的意思是本文解决之道是通过寻求外部权威
+the way that this paper solves it I mean
+is by appealing to an outside authority
+
+836
+01:15:41,910 --> 01:15:46,140
+做出关于允许使用哪个主要备份的决定
+to make the decision about which of the
+primary of the backup is allowed to be
+
+837
+01:15:46,140 --> 01:15:54,600
+活着，所以他们就是您，您知道事实证明他们的存储空间实际上不是
+live and so it they're you know it turns
+out that their storage is actually not
+
+838
+01:15:54,600 --> 01:15:58,980
+在本地磁盘上这几乎没有关系，但是它们的存储在某些外部
+on local disk this almost doesn't matter
+but their storage is on some external
+
+839
+01:15:58,980 --> 01:16:03,570
+磁盘服务器以及完全独立于该服务器中
+disk server and as well as being in this
+server as a like totally separate
+
+840
+01:16:03,570 --> 01:16:07,050
+服务与磁盘无关，该服务器恰好中止了该操作
+service there's nothing to do with disks
+there this server happens to abort this
+
+841
+01:16:07,050 --> 01:16:17,280
+通过网络进行测试并设置测试并设置服务，您可以在其中发送
+test and set test and set service over
+the network where you you can send a
+
+842
+01:16:17,280 --> 01:16:21,930
+测试并为其设置请求，并在内存中保留一些标志， 
+test and set request to it and there's
+some flag it's keeping in memory and
+
+843
+01:16:21,930 --> 01:16:25,590
+它将设置标志并返回原来的值，因此主要值和备用值
+it'll set the flag and return what the
+old value was so both primary and backup
+
+844
+01:16:25,590 --> 01:16:30,450
+必须获得此测试并设置标志，有点像锁
+have to sort of acquire this test and
+set flag it's a little bit like a lock
+
+845
+01:16:30,450 --> 01:16:34,920
+为了上线，他们都可以在同一时间发送测试和设置请求
+in order to go live they both may be
+send test and set requests at the same
+
+846
+01:16:34,920 --> 01:16:39,360
+是时候进行此测试并设置服务器了，第一个得到答复，说哦
+time to this test and set server the
+first one gets back a reply that says oh
+
+847
+01:16:39,360 --> 01:16:42,310
+该标志曾经是零，现在是一个
+the flag used to be zero now it's one
+this
+
+848
+01:16:42,310 --> 01:16:46,090
+从测试集服务器获得响应的第二个请求是哦
+second request to arrive the response
+from the testing set server is Oh
+
+849
+01:16:46,090 --> 01:16:50,200
+实际上，当您的请求到达时，标志已经是一个
+actually the flag was already one when
+your request arrived so so basically
+
+850
+01:16:50,200 --> 01:16:55,660
+您不允许成为主要用户，因此，此测试和设置服务器可以
+you're not allowed to be primary and so
+this this test and set server and we can
+
+851
+01:16:55,660 --> 01:17:00,700
+认为它是一台机器，是由仲裁员决定两者中的哪一个
+think of it as a single machine is the
+arbitrator that decides which of the two
+
+852
+01:17:00,700 --> 01:17:04,870
+如果他们俩都认为其他人因网络而死亡，则应该上线
+should go live if they both think the
+other ones dead due to a network
+
+853
+01:17:04,870 --> 01:17:17,830
+对有关此机制的所有问题进行分区，如果测试失败，是的
+partition any questions about this
+mechanism you're busted yeah if the test
+
+854
+01:17:17,830 --> 01:17:22,960
+并且设置服务器应该在关键时刻关闭，而实际上
+and set server should be dead at the
+critical moment when and so actually
+
+855
+01:17:22,960 --> 01:17:27,370
+即使在所有情况下都没有网络分区， 
+even if there's not a network partition
+under all circumstances in which one or
+
+856
+01:17:27,370 --> 01:17:30,280
+其中一个想要上线，因为它认为其他人甚至死了
+the other of these wants to go live
+because it thinks the others dead even
+
+857
+01:17:30,280 --> 01:17:33,850
+当另一个真的死了时，想要碰撞的那个仍然必须
+when the other one really is dead the
+one that wants to collide still has to
+
+858
+01:17:33,850 --> 01:17:39,100
+获取测试并设置锁定，因为类似于6:18的深层规则之一
+acquire the test and set lock because
+one of like the deep rules of 6:18 for
+
+859
+01:17:39,100 --> 01:17:45,850
+游戏是您无法分辨是否有另一台计算机坏掉了
+game is that you cannot tell whether or
+another computer is dead or not all you
+
+860
+01:17:45,850 --> 01:17:49,360
+知道是您停止从中接收数据包，并且您不知道
+know is that you stopped receiving
+packets from it and you don't know
+
+861
+01:17:49,360 --> 01:17:53,920
+是因为另一台计算机坏掉还是因为某事已消失
+whether it's because the other computer
+is dead or because something has gone
+
+862
+01:17:53,920 --> 01:17:57,340
+您和另一台计算机之间的网络有问题，因此所有备份
+wrong with the network between you and
+the other computer so all the backup
+
+863
+01:17:57,340 --> 01:18:00,720
+停得很好，我被卡在包中了，也许主要的已经死了，也许还活着
+ceases well I've stuck in packets maybe
+the primary is dead maybe it's live
+
+864
+01:18:00,720 --> 01:18:04,660
+主要对象可能会看到相同的内容，因此，如果存在网络分区，它们
+primary probably sees the same thing so
+if there's a network partition they
+
+865
+01:18:04,660 --> 01:18:07,210
+自该服务器以来，肯定不得不询问TAT，但由于他们不知道是否
+certainly have to ask the TAT since that
+server but since they don't know if it's
+
+866
+01:18:07,210 --> 01:18:11,830
+一个网络分区，他们必须询问测试集服务器，而不管是否
+a network partition they have to ask the
+testing set server regardless of whether
+
+867
+01:18:11,830 --> 01:18:15,970
+它是不是一个分区，所以无论何时想要碰撞测试并进行设置
+it's a partition or not so anytime
+either wants to collide the test and set
+
+868
+01:18:15,970 --> 01:18:19,780
+服务器还必须处于活动状态，因为他们始终必须获取此测试集
+server also has to be alive because they
+always have to acquire this testing set
+
+869
+01:18:19,780 --> 01:18:24,220
+锁定，因此测试和设置服务器听起来像是单点故障
+lock so the test and set server
+sounds like a single point of failure
+
+870
+01:18:24,220 --> 01:18:29,260
+他们试图建立一个复制的容错机制，除了
+they were trying to build a replicated
+fault tolerant whatever thing but in the
+
+871
+01:18:29,260 --> 01:18:35,740
+结束，您知道我们将无法进行故障转移，除非它仍然有效，所以这有点
+end you know we can't failover unless
+unless this is alive so that's a bit of
+
+872
+01:18:35,740 --> 01:18:39,520
+我正在猜测一个笨蛋，尽管我正在变得强大
+a bummer
+I'm guessing though I'm making a strong
+
+873
+01:18:39,520 --> 01:18:44,590
+猜测测试和设置服务器本身实际上是一个复制服务，并且
+guess that the test and set server is
+actually itself a replicated service and
+
+874
+01:18:44,590 --> 01:18:49,030
+是容错的权利，几乎可以肯定，我的意思是这些人正在
+is fault tolerant right it's almost
+certainly I mean these people are being
+
+875
+01:18:49,030 --> 01:18:53,560
+他们很高兴向您出售百万美元的高可用性存储
+where they're like happy to sell you a
+million dollar highly available storage
+
+876
+01:18:53,560 --> 01:18:56,760
+使用大量复制的系统
+system that
+uses enormous amounts of replication
+
+877
+01:18:56,760 --> 01:19:00,869
+内部um，因为测试设置在服务器上，我是
+internally um since the testing set
+thing is on there dis server I'm I'm
+
+878
+01:19:00,869 --> 01:19:05,219
+猜猜它也被复制了，您将在实验2和实验3中做的工作
+guessing it's replicated too and the
+stuff you'll be doing in lab 2 in lab 3
+
+879
+01:19:05,219 --> 01:19:11,040
+足以让您构建自己的容错测试，并且
+is more than powerful enough for you to
+build your own fault-tolerant test and
+
+880
+01:19:11,040 --> 01:19:15,650
+设置服务器，以便可以轻松解决此问题
+set server so this problem can easily be
+eliminated
+

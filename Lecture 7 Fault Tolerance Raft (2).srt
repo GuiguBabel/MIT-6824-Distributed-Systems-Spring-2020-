@@ -1,0 +1,4699 @@
+1
+00:00:01,000 --> 00:00:13,400
+假设三台服务器的日志如下所示，其中数字
+let's imagine three servers with logs
+that looked like this where the numbers
+
+2
+00:00:13,400 --> 00:00:17,060
+我正在写的是该日志条目中命令的术语号，因此我们
+I'm writing are the term numbers of the
+command that's in that log entry so we
+
+3
+00:00:17,060 --> 00:00:20,779
+不在乎实际的命令是什么，然后我得到一个数字日志
+don't really care what the actual
+commands are then I got a number the log
+
+4
+00:00:20,779 --> 00:00:38,840
+插槽，因此，我们假设下一个学期大概是第六学期
+slots and so let's imagine that the
+presumably the the next term is term six
+
+5
+00:00:38,840 --> 00:00:42,500
+尽管您实际上无法从董事会上的证据中看出这一点
+although you can't actually tell that
+from looking the evidence on the board
+
+6
+00:00:42,500 --> 00:00:47,480
+但必须至少为六个或更多，让我们想象一下选择了服务器s3 
+but it must be at least six or greater
+let's imagine that server s3 is chosen
+
+7
+00:00:47,480 --> 00:00:56,120
+作为第六学期的领导者，并且在s3的某个时刻，新领导者会想要
+as the leader for term six and at some
+point s3 the new leader is going to want
+
+8
+00:00:56,120 --> 00:01:00,110
+发送一个新的日志条目，所以我们假设它要发送第一个日志条目
+to send out a new log entry so let's
+suppose it wants to send out its first
+
+9
+00:01:00,110 --> 00:01:04,459
+每学期六个条目的日志条目，因此我们在考虑附加条目
+log entry per term six so we're sort of
+thinking about the append entries our
+
+10
+00:01:04,459 --> 00:01:11,299
+负责人将要发送的PC携带第一学期的日志条目
+PCs that the leader is going to send out
+to carry the first log entry for term
+
+11
+00:01:11,299 --> 00:01:16,459
+六个确实应该位于插槽13中，图2中的规则说
+six really should be under slot thirteen
+the rules in Figure two say that an
+
+12
+00:01:16,459 --> 00:01:22,099
+附加条目实际上是-以及客户端发送的命令
+append entries are bc actually as - as
+well as the command that the client sent
+
+13
+00:01:22,099 --> 00:01:25,039
+进入领导者，我们要在所有
+in to the leader that we want to
+replicate on the logs of all the
+
+14
+00:01:25,039 --> 00:01:33,279
+追随者那里有此追加条目RPC也包含此以前的日志
+followers there's this append entries
+RPC also contains this previous log
+
+15
+00:01:33,279 --> 00:01:44,270
+索引字段和上一个对数术语字段，以及当我们发送结束时
+index field and a previous log term
+field and when we're sending out an end
+
+16
+00:01:44,270 --> 00:01:48,859
+在这是我们领导应该输入的第一个条目的地方输入条目
+pend entries for where this is the first
+entry we're leaders supposed to put
+
+17
+00:01:48,859 --> 00:01:54,679
+有关前一个插槽的信息，发送新信息之前的插槽
+information about the previous slot the
+slot before the new information sending
+
+18
+00:01:54,679 --> 00:02:04,029
+因此，在这种情况下，上一个条目的对数索引为12，而
+out so in this case the log index of the
+previous entry is 12 and the term of the
+
+19
+00:02:04,029 --> 00:02:10,758
+领导者日志中用于上一个条目的命令是通过发送的
+command in the leaders log for the
+previous entry is by so sends out this
+
+20
+00:02:10,758 --> 00:02:16,409
+向追随者和追随者接受信息之前， 
+information to the followers
+and the followers before they accept a
+
+21
+00:02:16,409 --> 00:02:19,890
+ upend条目应该检查您是否知道他们已经收到
+upend entries are supposed to check you
+know they know they've received an
+
+22
+00:02:19,890 --> 00:02:26,849
+追加从此处开始的一些日志条目的条目以及它们的第一件事
+append entries that for some log entries
+that start here and the first thing they
+
+23
+00:02:26,849 --> 00:02:30,930
+要做的是检查接收者是否之前有过追踪者
+do is check that there are previous the
+receiving followers check that their
+
+24
+00:02:30,930 --> 00:02:36,120
+前一个日志条目与领导者所遵循的先前信息相匹配
+previous log entry matches the previous
+information that follow that the leader
+
+25
+00:02:36,120 --> 00:02:42,360
+发送出去，因此对于服务器来说，它当然与服务器不匹配，因此没有条目
+sent out so for a server to of course it
+doesn't match the server to has a entry
+
+26
+00:02:42,360 --> 00:02:46,799
+好的，但这是从学期开始的条目，而不是从第五回合开始的条目，因此
+here all right but it's an entry from
+term for not from turn five and so the
+
+27
+00:02:46,799 --> 00:02:51,060
+服务器二人将拒绝此追加条目并发送错误回复
+server twos going to reject this append
+entries and sort of send a false reply
+
+28
+00:02:51,060 --> 00:02:56,700
+后面的领导者和服务器甚至都没有东西，所以服务器
+back leader and server one doesn't even
+have anything here so server ones gonna
+
+29
+00:02:56,700 --> 00:03:03,480
+还拒绝领导者中的追加条目，到目前为止， 
+also reject the append entries in the
+leader and so so far so good right the
+
+30
+00:03:03,480 --> 00:03:08,220
+在这一点上已经避免的可怕的事情是你知道
+terrible thing that that has been
+averted at this point is you know the
+
+31
+00:03:08,220 --> 00:03:12,030
+我们绝对不希望看到的坏事是服务器实际上卡住了
+bad thing we absolutely don't want to
+see is that server to actually stuck the
+
+32
+00:03:12,030 --> 00:03:20,280
+这里的新博客条目将本质上破坏归纳证明
+new blog entry in here which would break
+sort of inductive proofs essentially
+
+33
+00:03:20,280 --> 00:03:27,359
+方案图所依赖并隐藏了服务器两个实际
+that the figure to scheme relies on and
+hide the fact that server two actually
+
+34
+00:03:27,359 --> 00:03:30,299
+具有不同的日志，因此与其接受日志输入服务器这两个项目不同， 
+had a different log so instead of
+accepting log entry server two projects
+
+35
+00:03:30,299 --> 00:03:36,150
+领导者看到的这个RPC是两次拒绝，领导者正在维护
+this RPC the leader sees is two
+rejections and leader is maintaining
+
+36
+00:03:36,150 --> 00:03:45,199
+下一个索引字段用于每个关注者，因此它具有下一个索引
+this next index field one for each
+follower so it has a next index for
+
+37
+00:03:45,199 --> 00:03:54,660
+服务器二和领导者有一个服务器的下一个索引大概是如果
+server two and the leader has a next
+index for server one presumably if the
+
+38
+00:03:54,660 --> 00:03:58,430
+如果服务器发送有关以下内容的信息，则应该在此之前说过： 
+should have said this before if the
+server sending out information about
+
+39
+00:03:58,430 --> 00:04:03,870
+这里的插槽13必须表示服务器的下一个索引是针对两个
+slot thirteen here that must mean that
+the server's next index is for both of
+
+40
+00:04:03,870 --> 00:04:11,099
+这些其他服务器最初是13台， 
+these other servers this started out as
+thirteen and that would be the case at
+
+41
+00:04:11,099 --> 00:04:14,940
+服务器，如果这个领导者刚刚重启，因为图两个规则
+the server if this leader had just
+restarted because the figure two rules
+
+42
+00:04:14,940 --> 00:04:21,238
+说下一个索引从新领导者日志的末尾开始，所以在
+say that next index starts out at the
+end of the new leaders log and so in
+
+43
+00:04:21,238 --> 00:04:25,980
+应对领导者应该减少其下一个误差的错误
+response to errors the leaders supposed
+to decrement its next in
+
+44
+00:04:25,980 --> 00:04:34,710
+偷，所以这样做都是因为两个人都从Boat deca先生那里得到了错误。加尔文重新发送
+steal so it does that for both got
+errors from boat deca mr. Calvin resends
+
+45
+00:04:34,710 --> 00:04:39,450
+这次服务器将发送带有前一个的追加条目
+and this time the server is going to
+send out append entries with previous
+
+46
+00:04:39,450 --> 00:04:47,430
+对数索引等于11，上一个对数项等于3， 
+log index equals 11
+and previous log term equals 3 and this
+
+47
+00:04:47,430 --> 00:04:53,250
+新的追加条目具有不同的先前日志索引，但是
+new append entries has it has a
+different previous log index but it's
+
+48
+00:04:53,250 --> 00:04:58,140
+这次服务器将要发送的日志条目中的内容
+the content in the log entries that the
+server is going to send out this time
+
+49
+00:04:58,140 --> 00:05:03,420
+包括您知道之后的新先前日志索引的所有条目
+include you know all the entries after
+that the new previous log index is
+
+50
+00:05:03,420 --> 00:05:10,710
+发送出去，因此服务器2现在在其中查找先前的日志索引11，并且看到
+sending out so server 2 now the previous
+log index 11 it looks there and it sees
+
+51
+00:05:10,710 --> 00:05:15,510
+呵呵，您知道术语3与读者发送给我的术语相同，因此服务器2是
+a ha you know the term is 3 same as what
+the reader is sending me so server 2 is
+
+52
+00:05:15,510 --> 00:05:20,520
+实际上将接受此追加条目，图2规则说哦，如果您
+actually going to accept this append
+entries and figure 2 rules say oh if you
+
+53
+00:05:20,520 --> 00:05:24,030
+接受一个吊坠，我们应该删除您日志中的所有内容， 
+accept a pendent we supposed to delete
+everything in your log after where the
+
+54
+00:05:24,030 --> 00:05:28,340
+追加条目开始并将其替换为追加条目中的所有内容，因此
+append entry starts and replace it with
+whatever's in the append entries so
+
+55
+00:05:28,340 --> 00:05:32,360
+服务器调整现在就可以做到
+server tune is going to do that now it's
+
+56
+00:05:32,810 --> 00:05:38,580
+他刚去5 6服务器1仍然有问题，因为它在插槽11上什么都没有
+he just went to 5 6 server 1 still has a
+problem cuz it has nothing at slot 11
+
+57
+00:05:38,580 --> 00:05:47,730
+中间将返回另一个错误，服务器现在将备份其服务器1 
+middle would return another error the
+server will now backup its server 1 next
+
+58
+00:05:47,730 --> 00:05:54,330
+ index 2 11它将从上一个索引开始发送日志
+index 2 11 it'll send out its log
+starting here with the previous index
+
+59
+00:05:54,330 --> 00:05:58,250
+和术语，现在指的是该插槽和该服务器实际可接受的服务器1 
+and term referring now to this slot and
+this one's actually acceptable server 1
+
+60
+00:05:58,250 --> 00:06:03,120
+它会采用它将接受新的日志条目并发送肯定的响应
+it'll adopt it'll accept the new log
+entries and send a positive response
+
+61
+00:06:03,120 --> 00:06:06,740
+回到服务器，现在他们都
+back to the server and now they're all
+
+62
+00:06:07,670 --> 00:06:13,880
+现在他们都被赶上了
+now they're all caught up and the
+
+63
+00:06:14,720 --> 00:06:21,420
+大概服务器也在看到跟随者接受并追加时
+presumably the server also when it sees
+that followers accepted and append
+
+64
+00:06:21,420 --> 00:06:24,360
+具有一定数量的日志条目的条目实际上会在下一个递增
+entries that had a certain number of log
+entries it actually increments this next
+
+65
+00:06:24,360 --> 00:06:31,020
+索引可能是14 4好，所以所有这些备份的最终结果是
+index could be 14 4 alright so the net
+effect of all this backing up is that
+
+66
+00:06:31,020 --> 00:06:36,770
+服务器已使用备份机制来检测
+the server has used a backup mechanism
+to detect the point at which the
+
+67
+00:06:36,770 --> 00:06:39,760
+关注者日志开始与此相等
+followers logs
+started to be equal to this
+
+68
+00:06:39,760 --> 00:06:43,900
+服务器，然后从该点开始发送每个关注者
+servers and then sent each of the
+followers starting from that point that
+
+69
+00:06:43,900 --> 00:06:49,810
+最后的那一点之后，服务器日志的完整剩余部分
+a complete remainder of the server's log
+after that last point at which they were
+
+70
+00:06:49,810 --> 00:07:01,890
+平等对待任何问题
+equal any questions all right
+
+71
+00:07:01,920 --> 00:07:07,990
+只是要重复我们之前的讨论，我们可能会再有一个
+just to repeat discussion we've had
+before and we'll probably have again you
+
+72
+00:07:07,990 --> 00:07:11,740
+请注意，我们在此处删除了一些博客条目，这些条目现在su删除了我
+notice that we erased some blog entries
+here which are now su erase that I
+
+73
+00:07:11,740 --> 00:07:18,570
+忘了他们是4和5，所以实际上有一些很好的东西
+forget what they were 4 & 5 so there
+were some well actually that was mostly
+
+74
+00:07:18,570 --> 00:07:24,760
+记住，我们在这里删除了此日志条目，这对于um server来说是这样- 
+remember we erased this log entry here
+this used to say for um server - the
+
+75
+00:07:24,760 --> 00:07:29,440
+问题是为什么系统可以忽略此客户端命令是可以的
+question is why was it ok for the system
+to forget about this client command
+
+76
+00:07:29,440 --> 00:07:33,370
+正确，我们擦除的这件事对应于现在的一些客户端命令
+right this thing we erased corresponds
+to some client command which are now
+
+77
+00:07:33,370 --> 00:07:42,790
+扔掉我昨天谈到这个是什么理由是的
+throwing away I talked about this
+yesterday what's the rationale here yeah
+
+78
+00:07:42,790 --> 00:07:46,720
+因此它不是大多数服务器，因此无论以前的领导者是什么
+so it's not a majority of the servers
+and therefore whatever previous leader
+
+79
+00:07:46,720 --> 00:07:51,310
+是谁发出来的，得到了​​大多数人的肯定
+it was who sent this out couldn't have
+gotten acknowledgments from a majority
+
+80
+00:07:51,310 --> 00:07:55,240
+的服务器，因此以前的领导者无法确定它是
+of servers therefore that previous
+leader couldn't have decided it was
+
+81
+00:07:55,240 --> 00:07:58,930
+提交的文件无法执行并将其应用于应用程序状态
+committed couldn't have executed it and
+applied it to the application state
+
+82
+00:07:58,930 --> 00:08:03,580
+永远不可能向客户发送肯定的答复，所以这不是
+could never have sent a positive reply
+back to the client so because this isn't
+
+83
+00:08:03,580 --> 00:08:07,060
+完成了大多数服务器，我们知道发送邮件的客户端没有理由
+done a majority of servers we know that
+the client who send in and has no reason
+
+84
+00:08:07,060 --> 00:08:10,240
+相信它的执行不可能得到答复，因为其中一项规则
+to believe it was executed couldn't have
+gotten a reply because one of the rules
+
+85
+00:08:10,240 --> 00:08:15,070
+是服务器仅通过领导者发送，而是仅在其之后发送答复给客户端
+is the server only sends over the leader
+only sends a reply to a client after it
+
+86
+00:08:15,070 --> 00:08:20,380
+提交并执行，因此客户没有理由相信它甚至
+commits and executes so the client had
+no reason to believe it was even
+
+87
+00:08:20,380 --> 00:08:24,730
+然后由任何服务器接收，然后根据图的规则基本上说
+received by any server and then and the
+rules of figure to basically say the
+
+88
+00:08:24,730 --> 00:08:27,880
+客户，如果他在一段时间后仍未收到任何响应，则应重新发送请求
+client if he gets no response after a
+while it supposed to resend the request
+
+89
+00:08:27,880 --> 00:08:33,700
+因此，我们知道这是什么请求，它都被抛弃了，我们从未执行过
+so we know whatever request this was it
+threw away we've never executed never
+
+90
+00:08:33,700 --> 00:08:41,160
+已包含在任何州中，客户将逐个重发
+
+91
+00:08:58,440 --> 00:09:08,290
+好吧，它总是删除关注者日志的后缀，我的意思是最后排序
+well it's always deleting suffix of the
+followers log I mean in the end the sort
+
+92
+00:09:08,290 --> 00:09:13,840
+后备答案的答案是，领导者拥有完整的日志，因此其所有
+of backup answer to this is that the
+leader has a complete log so all its
+
+93
+00:09:13,840 --> 00:09:19,270
+失败，它只会向我们发送完整的日志给关注者，实际上，如果您知道
+fails it can just send us complete log
+to the follower and indeed if you know
+
+94
+00:09:19,270 --> 00:09:22,390
+如果您刚刚启动了系统，即使在
+if you've just started up the system and
+something very strange happened even at
+
+95
+00:09:22,390 --> 00:09:26,140
+一开始，您可能最终会知道，也许在某些情况下
+the very beginning then you may end up
+actually you know maybe in some of the
+
+96
+00:09:26,140 --> 00:09:31,330
+测试第二个实验，您可能会备份到第一个条目，然后再备份
+tests for lab two you may end up backing
+up to the very first entry and then
+
+97
+00:09:31,330 --> 00:09:34,180
+让领导者本质上发送整个日志，但是因为领导者拥有
+having the leader essentially send the
+whole log but because the leader has
+
+98
+00:09:34,180 --> 00:09:37,330
+这整个法律，我们知道它可能会得到所有的信息
+this whole law we know it could sort of
+it's got all the information that's
+
+99
+00:09:37,330 --> 00:09:42,570
+需要感觉每个人的日志，如果需要
+required to feel everybody's logs if it
+needs to
+
+100
+00:09:49,260 --> 00:09:57,850
+好的，所以在此示例中，我想现在将其删除了，我们选择s3为
+okay all right so in this example which
+I guess are now erased we elected s3 as
+
+101
+00:09:57,850 --> 00:10:04,870
+领导者，问题是我们可以知道我们可以允许谁吗
+the leader and the question is could we
+you know who can we who are we allowed
+
+102
+00:10:04,870 --> 00:10:10,840
+选出这个领导者很酷，如果您阅读了
+to elect this leader right cool
+you know that all right if you read the
+
+103
+00:10:10,840 --> 00:10:15,670
+纸，你知道答案不只是任何人，事实证明，这对很多人都非常重要
+paper you know the answer is not just
+anyone it turns out it matters a lot for
+
+104
+00:10:15,670 --> 00:10:19,900
+正确性我们不允许任何人使用的系统的正确性
+the correctness the correctness of the
+system that we don't allow just anyone
+
+105
+00:10:19,900 --> 00:10:24,610
+成为领导者，例如计时器关闭的第一个节点可能在
+to be the leader like for example the
+first node whose timer goes off may in
+
+106
+00:10:24,610 --> 00:10:29,800
+事实上不是一个可以接受的领袖，所以事实证明筏有一些规则， 
+fact not be an acceptable leader and so
+it turns out raft has some rules that
+
+107
+00:10:29,800 --> 00:10:35,440
+适用于哦，是的，您可以成为领导者，也可以不成为领导者，以了解原因
+applies about oh yes you can be leader
+or you can't be leader and to see why
+
+108
+00:10:35,440 --> 00:10:43,090
+这是真的，让我们提出一个可能是木筏的稻草人建议
+this is true let's sort of set up a
+straw man proposal that maybe raft
+
+109
+00:10:43,090 --> 00:10:49,210
+应该接受应该使用日志最长的服务器作为领导者
+should accept should use the server with
+the longest log as the leader right you
+
+110
+00:10:49,210 --> 00:10:52,420
+知道一些可能是真实的替代宇宙，实际上在
+know some alternate universe that could
+be true and it is actually true in
+
+111
+00:10:52,420 --> 00:10:57,340
+设计不同的系统只是不在筏子里，所以我们的问题是
+systems with different designs just not
+in raft so the question we're
+
+112
+00:10:57,340 --> 00:11:09,910
+调查是为什么不使用宫颈最长的法律作为领导，这
+investigating is why not use the
+cervical longest law as leader and this
+
+113
+00:11:09,910 --> 00:11:16,090
+将涉及更改筏中的投票规则，只有选民投票支持
+would involve changing the voting rules
+in raft have a voters only vote for
+
+114
+00:11:16,090 --> 00:11:21,610
+较长日志的节点可以正常运行，因此该示例将是
+nodes that have longer logs all right so
+the example that's going to be
+
+115
+00:11:21,610 --> 00:11:25,900
+方便显示为什么这是一个坏主意，让我们假设我们有三个
+convenient for showing why this is a bad
+idea so let's imagine we have three
+
+116
+00:11:25,900 --> 00:11:34,360
+再次服务器，现在日志集设置为服务器Wan，其中有条款条目
+servers again and now the log set setups
+are server Wan has entries for terms
+
+117
+00:11:34,360 --> 00:11:41,950
+五六和七服务器二四五和八，服务器三也四
+five six and seven server two four five
+and eight and server three also four
+
+118
+00:11:41,950 --> 00:11:50,020
+五和八，这是当然要避免花费时间的第一个问题
+five and eight that's the first question
+of course to avoid spending our time
+
+119
+00:11:50,020 --> 00:11:54,520
+彻底胡说八道是要确保说服
+scratching our heads about utter
+nonsense is to make sure that convince
+
+120
+00:11:54,520 --> 00:11:58,060
+我们自己认为这种配置实际上可能会出现，因为如果不能
+ourselves that this configuration could
+actually arise because if it couldn't
+
+121
+00:11:58,060 --> 00:12:01,390
+可能出现然后可能是浪费时间来弄清楚
+possibly arise then
+may be a waste of time to figure out
+
+122
+00:12:01,390 --> 00:12:07,630
+如果确实发生了会发生什么，所以任何人都想提出一系列
+what would happen if it did arise so
+anybody wanna propose a sequence of
+
+123
+00:12:07,630 --> 00:12:17,140
+可能发生这组日志的事件
+events whereby this set of logs could
+have arisen how about an argument that
+
+124
+00:12:17,140 --> 00:12:31,650
+不可能出现哦，是的，好吧，也许我们会在某个时候备份
+it couldn't have arisen oh yeah okay so
+well maybe we'll back up sometime
+
+125
+00:12:31,800 --> 00:12:37,150
+好的，这样一台服务器就赢得了胜利，这是期限
+all right so server one wins is wins the
+election at this point and it's in term
+
+126
+00:12:37,150 --> 00:12:44,020
+六个发出，是的，它收到一个客户请求，发出第一个追加
+six sends out yeah it receives a client
+request sends out the first append
+
+127
+00:12:44,020 --> 00:12:56,160
+条目，然后就可以了，实际上一切都很好，到目前为止，没有错
+entries and then that's fine actually
+everything's fine so far nothing's wrong
+
+128
+00:12:56,790 --> 00:13:01,960
+好吧，所有这些事情的好选择就是它崩溃了，否则
+all right well a good bet for all these
+things is then it crashes right or it
+
+129
+00:13:01,960 --> 00:13:06,790
+在第六学期收到客户请求，将客户请求附加到其
+receives the client requests in term six
+it appends the client requests to its
+
+130
+00:13:06,790 --> 00:13:10,270
+自己的日志，它首先会做，并且即将发送笔记录，但是它
+own log which it does first and it's
+about to send out a pen entries but it
+
+131
+00:13:10,270 --> 00:13:14,770
+崩溃是的，它没有发送任何笔输入，然后您知道我们需要
+crashes yes it didn't send out any pen
+entries and then you know we need then
+
+132
+00:13:14,770 --> 00:13:19,360
+它崩溃并很快重新启动，有一个新的选举和天哪服务器
+it crashes and restarts very quickly
+there's a new election and gosh server
+
+133
+00:13:19,360 --> 00:13:24,460
+在第七届选举中再次当选一位新领导人。 
+one is elected again as the as the new
+leader it receives in term seven and
+
+134
+00:13:24,460 --> 00:13:33,220
+收到客户端请求，将其追加到其日志中，然后崩溃，然后
+receives a client request appends it to
+its log and then it crashes right and
+
+135
+00:13:33,220 --> 00:13:37,360
+然后在发生崩溃之后，我们进行了一次新的选举，也许服务器2被选举了
+then after after a crashes we have a new
+election maybe server 2 gets elected
+
+136
+00:13:37,360 --> 00:13:45,970
+这次服务器1可能现在已关闭，因此如果服务器2在
+this time maybe server 1 is down now so
+off the table if server 2 is elected at
+
+137
+00:13:45,970 --> 00:13:51,339
+在这一点上，假设服务器1仍然死了，什么是服务器，什么是服务器2 
+this point suppose server 1 is still
+dead what term is server what server two
+
+138
+00:13:51,339 --> 00:13:53,550
+场地
+venues
+
+139
+00:13:56,420 --> 00:14:00,710
+是的，八分是正确的答案，所以为什么八而不记得这个，你知道
+yeah eights the right answer so why
+eight and not remember this you know
+
+140
+00:14:00,710 --> 00:14:04,570
+现在不见了，为什么是八个而不是六个
+this is now gone why eight and not six
+
+141
+00:14:07,240 --> 00:14:11,270
+绝对正确，因此不要写在板上，而是为了服务器一
+that's absolutely right so not written
+on the board but in order for server one
+
+142
+00:14:11,270 --> 00:14:14,150
+要在这里当选，必须获得多数节点的投票
+to have been elected here it must have
+votes from majority of nodes which
+
+143
+00:14:14,150 --> 00:14:21,100
+如果您查看投票请求，请至少包含服务器对服务器3个中的一个
+include at least one of server-to-server
+three if you look at the vote request
+
+144
+00:14:21,100 --> 00:14:25,640
+代码和图二，如果您投票赞成某人，那您应该
+code and figure two if you vote for
+somebody you're you're supposed to
+
+145
+00:14:25,640 --> 00:14:32,900
+在长期存储中记录该术语，这意味着服务器2或
+record the term in persistent storage
+and that means that either server 2 or
+
+146
+00:14:32,900 --> 00:14:38,030
+服务器3在第六学期和事实上第七学期都是新的，因此什么时候
+server 3 are both new about term six and
+in fact term seven and therefore when
+
+147
+00:14:38,030 --> 00:14:41,750
+断绝一个人，他们不能选出新的领导人，至少其中一个人知道
+sever one dies and they cannot elect a
+new leader at least one of them knows
+
+148
+00:14:41,750 --> 00:14:48,020
+如果这个词是当前词，那么当前词是8，而如果
+that the current term was eight if that
+one and only that one actually if
+
+149
+00:14:48,020 --> 00:14:51,230
+只有一个人可以赢得选举，因为它拥有
+there's only one of them only that one
+could win an election because it has the
+
+150
+00:14:51,230 --> 00:14:53,840
+他们俩都知道第八学期的末期生育率较高，如果他们都知道，对不起
+higher terminal birth they both know
+about term eight sorry if they both know
+
+151
+00:14:53,840 --> 00:14:57,740
+大约第七学期，他们俩都将成为其中的一员
+about term seven then they'll both and
+either one of them will try to be leader
+
+152
+00:14:57,740 --> 00:15:02,960
+和第八个学期，这样就可以保证下一个学期必须是疾病
+and term eight so that fact of that the
+next term must be term a dis is insured
+
+153
+00:15:02,960 --> 00:15:08,060
+由多数人的财产必须重叠和事实，当前任期
+by the property of the majorities must
+overlap and the fact that current term
+
+154
+00:15:08,060 --> 00:15:12,710
+通过投票请求进行更新，并且保持不变，并且保证没有丢失
+is updated by vote request and is
+persistent and guarantee did not be lost
+
+155
+00:15:12,710 --> 00:15:15,650
+即使这里发生了一些崩溃，所以下一学期将是八个
+even if there were some crashes here so
+the next term is going to be eight
+
+156
+00:15:15,650 --> 00:15:19,490
+服务器二或服务器三将赢得领导选举，让我们
+server two or server three will win the
+leadership election and let's just
+
+157
+00:15:19,490 --> 00:15:25,820
+想象一下，无论是哪个发送新客户端的追加条目
+imagine that whichever one it is sends
+out append entries for a new client
+
+158
+00:15:25,820 --> 00:15:30,020
+请求另一个获取它，所以现在我们有了正确的配置，因此
+requests the other one gets it and so
+now we have this configuration right so
+
+159
+00:15:30,020 --> 00:15:36,080
+我有点走弯路，我们回到了最初的问题
+I was a bit of a detour we're back to
+our original question of in this
+
+160
+00:15:36,080 --> 00:15:42,860
+配置假设服务器可以恢复运行，请选择
+configuration suppose server one revives
+we have an election would it be okay to
+
+161
+00:15:42,860 --> 00:15:48,890
+使用服务器一台，只要规则是最长的日志获胜，就可以了
+use server one would it be okay to have
+the rule be the longest log wins the
+
+162
+00:15:48,890 --> 00:15:56,690
+最长的日志成为领导者是的，显然不对，因为服务器是
+longest log gets to be the leader yeah
+obviously not right because server was a
+
+163
+00:15:56,690 --> 00:16:07,250
+领导者确实要通过附加将其登录强制给关注者
+leader did it's going to force its log
+on to the to followers by the append
+
+164
+00:16:07,250 --> 00:16:09,950
+几分钟前我们刚刚谈到的条目机制
+entries machinery that we just talked
+about a few minutes ago
+
+165
+00:16:09,950 --> 00:16:13,850
+如果我们将服务器作为领导者，那您就会知道发出了一支钢笔
+if we live server one to be the leader
+it's gonna you know sent out a pen
+
+166
+00:16:13,850 --> 00:16:19,040
+条目（无论备份如何覆盖）都会帮助追随者擦除其内容
+entries whatever backup overwrite these
+aids tell the followers to erase their
+
+167
+00:16:19,040 --> 00:16:23,480
+术语a的日志条目接受用这六个和七个覆盖它们
+log entries for term a to accept to
+overwrite them with this six and seven
+
+168
+00:16:23,480 --> 00:16:30,380
+日志条目，然后继续与服务器相同，因此当然
+log entries and then to proceed now with
+identical to server ones so of course
+
+169
+00:16:30,380 --> 00:16:43,070
+为什么我们对此感到不安呢？ 
+why are we upset about this yeah yeah
+exactly it was already committed right
+
+170
+00:16:43,070 --> 00:16:50,060
+不是大多数服务器已经执行了提交
+it's not a majority of servers has
+already committed probably executed
+
+171
+00:16:50,060 --> 00:16:56,510
+很可能发送给客户的回复，因此我们无权删除它，并且
+quite possibly a reply sent to a client
+so we're not entitled to delete it and
+
+172
+00:16:56,510 --> 00:17:02,660
+因此，不能允许服务器一成为领导者并强制其登录
+therefore server one cannot be allowed
+to become leader and force its log onto
+
+173
+00:17:02,660 --> 00:17:12,050
+服务器2和3每个人都知道为什么这对于快速来说是个坏主意，并且因为
+servers two and three everybody see why
+that's bad idea for rapid and because of
+
+174
+00:17:12,050 --> 00:17:19,970
+当然这不可能是最短日志选举的规则
+that this can't possibly have been rule
+for elections of course shortest log
+
+175
+00:17:19,970 --> 00:17:26,900
+也不是很好，所以事实上，如果您继续阅读本节
+didn't work too well either and so in
+fact if you read forward to section
+
+176
+00:17:26,900 --> 00:17:31,300
+五点四点一
+something five point four point one
+
+177
+00:17:32,950 --> 00:17:41,380
+草案实际上具有稍微复杂的选举限制， 
+draft actually has a slightly more
+sophisticated election restriction that
+
+178
+00:17:43,960 --> 00:17:49,520
+请求投票处理RPC处理代码应该在它说之前进行检查
+the request vote handling RPC handling
+code is supposed to check before it says
+
+179
+00:17:49,520 --> 00:18:00,050
+是，先投票，是其他同伴，规则是我们只投票给您
+yes before votes yes for a different
+peer and the rule is we only vote you
+
+180
+00:18:00,050 --> 00:18:10,730
+对某些候选人发送赞成票，仅在候选人具有
+vote yes for some candidate who send us
+over request votes only if candidate has
+
+181
+00:18:10,730 --> 00:18:13,990
+更高的
+a higher
+
+182
+00:18:15,050 --> 00:18:31,450
+上一个日志条目中的术语或相同的上一个术语相同的迷人的上一个日志条目
+term in the last log entry or same last
+term same charming the last log entry
+
+183
+00:18:31,450 --> 00:18:44,720
+并且日志长度大于或等于接收到的服务器
+and a log length that's greater than or
+equal to the the server that received
+
+184
+00:18:44,720 --> 00:18:53,840
+接收到船的请求，因此如果服务器二获得一个请求，我们在这里应用
+that received the boat request and so if
+we apply this here if server two gets a
+
+185
+00:18:53,840 --> 00:19:03,410
+来自服务器的表决请求之一是我们最后的日志输入条款，或者是七个服务器
+vote request from server one there our
+last log entry terms or seven the server
+
+186
+00:19:03,410 --> 00:19:08,150
+一个人要发出一个投票请求，最后一个入学期限为7 
+one's gonna send out a request votes
+with a last entry term whatever of 7
+
+187
+00:19:08,150 --> 00:19:14,900
+服务器二是八，所以这不是真正的服务器服务，我们没有收到请求
+server twos is eight so this isn't true
+server service we didn't get a request
+
+188
+00:19:14,900 --> 00:19:22,220
+在最后一项或最后一项中具有较高任期的人
+from somebody with a higher term in the
+last entry and or the last entry terms
+
+189
+00:19:22,220 --> 00:19:26,540
+也不一样，第二个条款也不适用，所以
+aren't the same either said the second
+Clause doesn't apply either so neither
+
+190
+00:19:26,540 --> 00:19:30,470
+服务器到新服务或服务器三将投票给服务器一，所以甚至
+server to new serve nor server three is
+going to vote for server one and so even
+
+191
+00:19:30,470 --> 00:19:33,650
+如果它首先发出此投票请求，因为它的选举时间较短
+if it sends out this vote requests first
+because this has a shorter election
+
+192
+00:19:33,650 --> 00:19:36,830
+超时，除了它本身，没人会投票支持，所以我认为这不是一个
+timeout nobody's going to vote for it
+except itself so I don't think it's one
+
+193
+00:19:36,830 --> 00:19:41,900
+如果第二台服务器或第三台服务器成为一个服务器，则投票不是多数
+vote it's not a majority if either
+server two or server three becomes a
+
+194
+00:19:41,900 --> 00:19:45,920
+候选人，那么他们中的任何一个都会接受另一个，因为他们拥有
+candidate then either of them will
+accept the other because they have the
+
+195
+00:19:45,920 --> 00:19:50,000
+上一个学期的数字相同，并且其日志的长度均大于或等于
+same last term number and their logs are
+each greater than or equal to in length
+
+196
+00:19:50,000 --> 00:19:55,040
+和其他人，因此他们中的任何一个都将投票给另一个，这将是服务器
+and the others so either of them will
+vote for for the other one will server
+
+197
+00:19:55,040 --> 00:20:00,140
+对其中任何一个投一票，是因为服务器2或服务器3 
+one vote for either of them
+yes because either server 2 or server 3
+
+198
+00:20:00,140 --> 00:20:05,960
+在最后一个条目中有较高的学期号，所以您知道这是在做什么
+has a higher term number in the last
+entry so you know what this is doing is
+
+199
+00:20:05,960 --> 00:20:11,780
+确保只有在或喜欢候选人时您才能成为候选人
+making sure that you can only become a
+candidate if or it prefers candidates
+
+200
+00:20:11,780 --> 00:20:15,710
+知道更高的具有日志条目的一些更高的术语
+that knew about higher that have log
+entries some higher terms that is it
+
+201
+00:20:15,710 --> 00:20:18,679
+倾向于更可能从接收日志条目的候选人
+prefers candidates that are more likely
+to have been receiving log entries from
+
+202
+00:20:18,679 --> 00:20:25,400
+前任领导人，您知道第二部分说的很好，我们都是
+the previous leader and you know this
+second part says well we were all
+
+203
+00:20:25,400 --> 00:20:27,380
+听前一个领导，然后我们将
+listening to the previous leader then
+we're going to
+
+204
+00:20:27,380 --> 00:20:35,540
+对于从最后一位领导者那里看到更多请求的服务器
+for the server that has saw more
+requests from the very last leader any
+
+205
+00:20:35,540 --> 00:20:40,510
+有关选举限制的问题
+questions about the election restriction
+
+206
+00:20:45,520 --> 00:20:59,510
+关于发送日志条目的最后一件事是，该回滚方案位于
+okay final thing about sending out log
+entries is that this rollback scheme at
+
+207
+00:20:59,510 --> 00:21:03,679
+至少正如我描述的那样，如图2所示，它回滚了一个
+least as I described it and it's as its
+described in Figure two rolls back one
+
+208
+00:21:03,679 --> 00:21:09,559
+一次登录日志，您可能会发现很多有趣的事
+log entry at a time and you know
+probably a lot of fun that's okay
+
+209
+00:21:09,559 --> 00:21:15,290
+但是有些情况可能在现实世界中而且肯定在实验室中
+but there are situations maybe in the
+real world and definitely in the lab
+
+210
+00:21:15,290 --> 00:21:20,120
+测试一次备份一个条目将花费很长时间的测试
+tests where backing up one entry at a
+time is going to take a long long time
+
+211
+00:21:20,120 --> 00:21:25,820
+因此，在现实世界中，如果
+and so the real-world situation where
+that might be true is if they if a
+
+212
+00:21:25,820 --> 00:21:30,170
+追随者已经失望了很长一段时间，错过了很多高端作品， 
+follower has been down for a long time
+and missed a lot of upend entries and
+
+213
+00:21:30,170 --> 00:21:34,670
+领导者重新启动，如果您遵循图2中的伪代码， 
+the leader restarts and if you follow
+the pseudocode in Figure two if a leader
+
+214
+00:21:34,670 --> 00:21:38,570
+重新启动应该将其下一个索引设置为Leader日志的末尾，因此
+restarts is supposed to set its next
+index to the end of the leaders log so
+
+215
+00:21:38,570 --> 00:21:42,559
+如果关注者已关闭并且您知道错过了最后一千条日志
+if the follower has been down and you
+know miss the last thousand log entries
+
+216
+00:21:42,559 --> 00:21:48,350
+领导重新启动领导将不得不一次退后一步
+and leader reboots the leader is gonna
+have to walk back off one at a time one
+
+217
+00:21:48,350 --> 00:21:53,840
+一次跟随RPC追随者错过的所有数千个日志条目， 
+RPC at a time all thousand of those log
+entries that the follower missed and
+
+218
+00:21:53,840 --> 00:21:57,590
+您不知道为什么这在现实生活中永远不会发生的特定原因
+there's no you know particular reason
+why this would never happen in real life
+
+219
+00:21:57,590 --> 00:22:03,950
+在某些人为的情况下很容易发生测试
+it could easily happen at somewhat more
+contrived situation that the tests are
+
+220
+00:22:03,950 --> 00:22:09,890
+如果我们说我们有五台服务器， 
+definitely explorers is if a follower is
+if we say we have five servers and
+
+221
+00:22:09,890 --> 00:22:17,000
+有一个领导者，但是领导者被一个追随者困在一个
+there's there's a leader but the leaders
+got trapped with one follower in a
+
+222
+00:22:17,000 --> 00:22:19,790
+网络分区，但领导者不知道它不再是领导者，而是
+network partition but the leader doesn't
+know it's not leader anymore and it's
+
+223
+00:22:19,790 --> 00:22:23,150
+仍然向其一个关注者发送附加条目，但没有一个是
+still sending out append entries to its
+one follower and none of which are
+
+224
+00:22:23,150 --> 00:22:28,730
+在另一个多数分区中提交时，系统将继续
+committed while in the other majority
+partition the system is continuing as
+
+225
+00:22:28,730 --> 00:22:35,690
+通常情况下，该少数民族分区的前领导人和追随者可能最终把
+usual the ex leader and follower in that
+Minority partition could end up putting
+
+226
+00:22:35,690 --> 00:22:40,790
+在他们的日志中，您知道某种陈旧术语的日志条目数量不受限制
+in their logs you know sort of unlimited
+numbers of log entries for a stale term
+
+227
+00:22:40,790 --> 00:22:44,240
+永远不会提交，最终需要删除和覆盖
+that will never be committed and need to
+be deleted and overwritten eventually
+
+228
+00:22:44,240 --> 00:22:48,740
+当他们重新加入主要群体时，在现实中的可能性可能会降低一些
+when they rejoin the main group that's
+maybe a little less likely in the real
+
+229
+00:22:48,740 --> 00:22:55,280
+世界，但您会看到它的发生并进行了测试，以便能够
+world but you'll see it happen and the
+test set up so in order to be able to
+
+230
+00:22:55,280 --> 00:22:59,950
+备份得更快，该论文对更快的描述有些含糊
+back up faster that paper has
+somewhat a vague description of a faster
+
+231
+00:22:59,950 --> 00:23:07,300
+ 5.3节末尾的方案，这有点难以解释，因此
+scheme towards the end of section 5.3
+it's a little bit hard to interpret so
+
+232
+00:23:07,300 --> 00:23:11,650
+我将尝试解释他们关于如何更快备份的想法
+I'm gonna try to explain what their
+ideas about how to back up faster a
+
+233
+00:23:11,650 --> 00:23:15,520
+好一点了，一般的想法是能够拥有跟随者
+little bit better and the general idea
+is to be able to to have the follower
+
+234
+00:23:15,520 --> 00:23:19,630
+向领导发送足够的信息，使领导可以跳回整个
+send enough information to the leader
+that the leader can jump back an entire
+
+235
+00:23:19,630 --> 00:23:26,140
+每个附加条目都必须删除的条目的术语价值，以使其领先
+terms worth of entries that have to be
+deleted per append entries so it leader
+
+236
+00:23:26,140 --> 00:23:30,880
+可能只需要发送一个三角旗并在每个学期附加条目，其中
+may only have to send one in a pennant
+and append entries per term in which the
+
+237
+00:23:30,880 --> 00:23:38,080
+领导者和跟随者不同意，而不是每个条目一个，所以我有三种情况
+leader and follower disagree instead of
+one per entry so there's three cases I
+
+238
+00:23:38,080 --> 00:23:42,960
+认为很重要，事实是您可能会想到许多不同的事物
+think are important and the fact is that
+you can probably think of many different
+
+239
+00:23:42,960 --> 00:23:50,170
+日志备份加速策略，这是一个，所以我将划分
+log backup acceleration strategies and
+here's one so I'm going to divide the
+
+240
+00:23:50,170 --> 00:24:01,480
+您可能会看到三种情况，这是快速备份情况
+kinds of situations you might see into
+three cases so this is fast backup case
+
+241
+00:24:01,480 --> 00:24:09,280
+我只想谈论一位追随者和领导者，不用担心
+one I'm just going to talk about one
+follower and the leader and not worry
+
+242
+00:24:09,280 --> 00:24:18,040
+关于其他节点相同，我们有两个服务器，一个是跟随者，另一个是
+about the other nodes the same we have
+two server one which is the follower and
+
+243
+00:24:18,040 --> 00:24:29,080
+服务器2是领导者，所以这是一种情况，在这里我们需要备份
+server 2 which is the leader so this is
+one case and here we need to backup over
+
+244
+00:24:29,080 --> 00:24:39,600
+领导者完全缺少该术语的另一种情况
+a term where that term is entirely
+missing from the leader another case
+
+245
+00:24:44,640 --> 00:24:49,180
+因此，在这种情况下，我们需要备份一些条目，但是它们的条目
+so in this case we need to back up over
+some entries but their entries for a
+
+246
+00:24:49,180 --> 00:24:53,980
+领导者实际上很了解这个词的人
+term that the leader actually knows
+about so apparently the this followers
+
+247
+00:24:53,980 --> 00:24:58,960
+看到了几个条目，几个非常少的附加条目已发送出去
+saw a couple of entry a couple of the
+very Flass few append entries sent out
+
+248
+00:24:58,960 --> 00:25:03,640
+一个即将坠毁的领导者，但新的领导者没有看到他们，我们仍然
+by a leader that was about to crash but
+the new leader didn't see them we still
+
+249
+00:25:03,640 --> 00:25:11,680
+需要备份他们，第三种情况是追随者完全
+need to back up over them and a third
+case is where the followers entirely
+
+250
+00:25:11,680 --> 00:25:19,900
+缺少以下领导者同意，但追随者却错过了结尾
+missing the following the leader agree
+but the followers is missing the end of
+
+251
+00:25:19,900 --> 00:25:27,210
+领导者的日志，我相信您可以通过
+the leaders log and I believe you can
+take care of all three of these with
+
+252
+00:25:27,210 --> 00:25:32,140
+追随者发送回给他们的回复中的三段额外信息
+three pieces of extra information in the
+reply that a follower sends back to the
+
+253
+00:25:32,140 --> 00:25:37,300
+追加条目中案例的领导者，所以我们在谈论追加
+leader in the case in the append entries
+so we're talking about the append
+
+254
+00:25:37,300 --> 00:25:43,930
+如果追随者拒绝附加条目，则条目会回复，因为日志
+entries reply if the follower rejects
+the append entries because the logs
+
+255
+00:25:43,930 --> 00:25:47,500
+不同意以下三点信息， 
+don't agree there's three pieces of
+information that will be useful and
+
+256
+00:25:47,500 --> 00:25:55,450
+照顾三个街头案例，我称它们为X词，即
+taking care of three street cases I'll
+call them X term which is the term of
+
+257
+00:25:55,450 --> 00:26:05,460
+我记得领导者发送了这个先前的日志术语，这是有冲突的条目， 
+the conflicting entry I remember the
+leader sent this previous log term and
+
+258
+00:26:05,460 --> 00:26:09,040
+如果追随者拒绝它，因为它在这里有东西，但术语错误
+if the follower rejects it because it
+has something here but the terms wrong
+
+259
+00:26:09,040 --> 00:26:19,330
+这样就可以在这里将关注者词条用于冲突条目，否则您就知道我是
+so it'll put the followers term for the
+conflicting entry here or you know I'm
+
+260
+00:26:19,330 --> 00:26:25,030
+负数或某事它在日志中没有任何内容
+negative one or something it doesn't
+have anything in the log there it'll
+
+261
+00:26:25,030 --> 00:26:33,310
+还发回有冲突的索引，但索引是第一个
+also send back the index of the
+conflicting but the index are the first
+
+262
+00:26:33,310 --> 00:26:36,240
+该词项
+entry with that term
+
+263
+00:26:46,750 --> 00:26:52,750
+最后，如果根本没有任何日志条目，那么关注者将
+and finally if there wasn't any log
+entry there at all the follower will
+
+264
+00:26:52,750 --> 00:27:02,470
+像追随者日志一样发送其法律的长度，因此对于情况一
+send back on the length of its law like
+the followers log so for case one the
+
+265
+00:27:02,470 --> 00:27:16,150
+如果领导者看到领导者甚至没有
+way this helps if the it's a leader sees
+that the leader doesn't even have an
+
+266
+00:27:16,150 --> 00:27:22,870
+在其日志中根本没有X项的X项的条目，因此在这种情况下
+entry with X term of term X term at all
+in its log so that's this case where the
+
+267
+00:27:22,870 --> 00:27:26,260
+领导者没有五号位，如果领导者可以简单地回到
+leader didn't have turn five and if the
+leader can simply back up to the
+
+268
+00:27:26,260 --> 00:27:34,020
+跟随者的开头是X项，即
+beginning of the followers run of
+entries with X term that is the the
+
+269
+00:27:34,020 --> 00:27:41,650
+领导者可以将其下一个索引设置为此X索引对象，这是
+leader can set its next index to this X
+index thing which is the first entry the
+
+270
+00:27:41,650 --> 00:27:48,460
+跟随者运行第五学期的项目，所以如果领导者没有X 
+followers run of items from term five
+alright so if the leader doesn't have X
+
+271
+00:27:48,460 --> 00:27:53,710
+术语，它应该备份到X，将跟随者备份到X，第二个索引
+term at all it should back up to X back
+the follower up to X index the second
+
+272
+00:27:53,710 --> 00:27:59,770
+如果您可以检测到故障，领导者可以检测X项是否有效，并且
+case you can detect the fault the leader
+can detect if X term is valid and the
+
+273
+00:27:59,770 --> 00:28:08,280
+领导者实际上有项X项的日志条目，在这种情况下， 
+leader actually has log entries of term
+X term that's the case here where the
+
+274
+00:28:08,280 --> 00:28:12,820
+你知道分歧在这里，但领导者实际上有一些条目
+you know the disagreement is here but
+the leader actually has some entries
+
+275
+00:28:12,820 --> 00:28:18,510
+在这种情况下，领导者应备份到其具有的最后一个条目
+that term in that case the leader should
+back up to the last entry it has that
+
+276
+00:28:18,510 --> 00:28:24,790
+最后一个有冲突的字词的竞赛者追随者，这是最后一个
+has the contesta followers term for the
+conflicting term in it that is the last
+
+277
+00:28:24,790 --> 00:28:29,710
+在这种情况下，如果两个都不是领导者所要担任的职位
+entry that a leader has for term for in
+this case and if neither of these two
+
+278
+00:28:29,710 --> 00:28:36,010
+如果追随者通过可能的设置表明情况，那么案例实际上就是好的
+cases hold that is the well actually if
+the follower indicates by maybe setting
+
+279
+00:28:36,010 --> 00:28:39,520
+ X项减一，实际上它什么也没有
+X term to minus one it actually didn't
+have anything whatsoever at the
+
+280
+00:28:39,520 --> 00:28:46,960
+日志和索引冲突，因为日志太短，那么领导者应该
+conflicting log and index because it's
+log is too short then the leader should
+
+281
+00:28:46,960 --> 00:28:51,400
+将其下一个索引备份到关注者根本拥有的最后一个条目，然后开始
+back up its next index to the last entry
+that the follower had at all and start
+
+282
+00:28:51,400 --> 00:28:55,830
+从那里发送，我告诉你这是因为
+sending from there
+and I'm telling you this because it'll
+
+283
+00:28:55,830 --> 00:29:03,090
+对进行实验很有用，如果您错过了我的一些描述，那是在
+be useful for doing a lab and if you
+miss some of my description it's it's in
+
+284
+00:29:03,090 --> 00:29:20,970
+电子，那么关于这个备份业务的任何问题我想杰克
+electronics then any questions about
+this backing up business Jack I think
+
+285
+00:29:20,970 --> 00:29:26,880
+是的，是的，是的，也许是二进制搜索，但我不排除其他
+that's true yeah yeah yeah maybe binary
+search I'm not ruling out other
+
+286
+00:29:26,880 --> 00:29:32,130
+解决方案，我的意思是，您在阅读论文的非说明后就知道了
+solutions I mean that you know after
+reading the papers non description of
+
+287
+00:29:32,130 --> 00:29:37,530
+怎么做我喜欢做这个，可能还有其他方法
+how to do it I like cook this up and
+there's probably other ways to do this
+
+288
+00:29:37,530 --> 00:29:40,590
+大概是更好的方法和更快的方法，就像我确定
+probably better ways and faster ways of
+doing it like I'm I'm sure that if
+
+289
+00:29:40,590 --> 00:29:43,890
+您愿意发回更多信息或获得更复杂的信息
+you're willing to send back more
+information or have a more sophisticated
+
+290
+00:29:43,890 --> 00:29:50,550
+像二进制搜索这样的策略，您可以做得更好，是的，您几乎
+strategy like binary search you can do a
+better job yeah well you you almost
+
+291
+00:29:50,550 --> 00:29:55,140
+当然需要做一些经验表明，为了
+certainly need to do something
+experience suggests that in order to
+
+292
+00:29:55,140 --> 00:30:02,040
+通过测试，您可能需要对我做一些事情
+pass the tests you'll need to do
+something to as well probably not me
+
+293
+00:30:02,040 --> 00:30:06,420
+尽管我不像我写过的一种解决方案那样完全正确
+although I that's not quite true like
+one of the solutions I've written over
+
+294
+00:30:06,420 --> 00:30:11,490
+岁月实际上做了愚蠢的事情，仍然通过了测试，但是因为
+the years actually does the stupid thing
+and still passes the tests but because
+
+295
+00:30:11,490 --> 00:30:17,430
+您知道的测试是一种不幸但不可避免的事情
+the tests you know the one of the sort
+of unfortunate but inevitable things
+
+296
+00:30:17,430 --> 00:30:21,660
+关于我们提供给您的测试，他们对实时性有一些要求
+about the tests we give you is that they
+have a bit of a real time requirement
+
+297
+00:30:21,660 --> 00:30:25,590
+那就是测试不愿永远等待您的解决方案
+that is the tests are not willing to
+wait forever for your solution to
+
+298
+00:30:25,590 --> 00:30:30,720
+给出答案，这样就有可能找到您所知道的解决方案
+produce an answer so it is possible to
+have a solution that's you know
+
+299
+00:30:30,720 --> 00:30:36,710
+从技术上讲是正确的，但要花很长时间，以至于测试人员放弃
+technically correct but takes so long
+that the tester gives up and
+
+300
+00:30:36,710 --> 00:30:40,830
+不幸的是，您知道如果您的解决方案，测试人员将使您失败
+unfortunately you know we will the
+tester will fail you if your solution
+
+301
+00:30:40,830 --> 00:30:44,790
+没有完成测试，无论时限如何，因此您可以
+doesn't finish the test and whatever the
+time limit is and therefore you do
+
+302
+00:30:44,790 --> 00:30:50,460
+实际上必须要注意性能，以便您了解自己的
+actually have to pay some attention to
+performance in order you know your
+
+303
+00:30:50,460 --> 00:30:54,090
+解决方案必须既正确又要有足够的性能才能完成
+solution has to be both correct and have
+enough performance to finish before the
+
+304
+00:30:54,090 --> 00:30:58,260
+测试员很无聊，有时会在你身上出来，大概是10分钟，否则我不会
+tester gets bored and sometimes out on
+you which is like 10 minutes or I don't
+
+305
+00:30:58,260 --> 00:31:02,280
+知道它是什么，不幸的是，相对来说这东西足够复杂
+know what it is and unfortunately it's
+relatively this stuff's complex enough
+
+306
+00:31:02,280 --> 00:31:05,210
+写色彩校正并不难
+that it's not that hard to write a color
+correction
+
+307
+00:31:05,210 --> 00:31:16,850
+这不够快，是的，所以您可以利用领导者的方式告诉
+that's not fast enough yes so the way
+you can tap the leader can tell the
+
+308
+00:31:16,850 --> 00:31:23,120
+区别在于我们应该向跟随者发送术语号
+difference is that the follower we're
+supposed to send back the term number it
+
+309
+00:31:23,120 --> 00:31:29,120
+看到在冲突的条目中，如果领导者没有
+sees in the conflicting entry you we
+have case one if the leader does not
+
+310
+00:31:29,120 --> 00:31:34,880
+在其日志中包含该术语，因此在此关注者会将X术语设置为
+have that term in its log
+so here the follower will set X term to
+
+311
+00:31:34,880 --> 00:31:39,919
+五到五，因为这将是这将是
+five to five because this is this is
+going to be the this is gonna be the
+
+312
+00:31:39,919 --> 00:31:46,370
+冲突的词条追随者对领导者说的这个X术语表示五个
+conflicting entry the follower says this
+X term to five the leader observes oh I
+
+313
+00:31:46,370 --> 00:31:57,200
+在我的日志中没有第五学期，因此这种情况一，你知道
+do not have term five in my log and
+therefore this case one and you know it
+
+314
+00:31:57,200 --> 00:32:00,169
+应该备份到开始，就像没有跟随者没有领导者一样
+should back up to the beginning
+like it doesn't follower hasn't leader
+
+315
+00:32:00,169 --> 00:32:04,130
+没有任何一个，而第五学期进入，所以它应该摆脱所有这些
+has none of those and term five entry so
+it should just get rid of all of them in
+
+316
+00:32:04,130 --> 00:32:20,120
+通过备份到X索引的开头来跟随者
+the follower by backing up to the
+beginning which is X index yeah yeah
+
+317
+00:32:20,120 --> 00:32:25,909
+因为领导者会将其下一个索引备份到此处，然后发送
+because the leaders gonna back up its
+next index to here and then send an
+
+318
+00:32:25,909 --> 00:32:29,899
+追加从此处开始的条目，然后规则一个数字说“追随者” 
+append entries that starts here and the
+rules a figure to say ah the follower
+
+319
+00:32:29,899 --> 00:32:37,820
+只需替换它的日志，这样就可以摆脱击掌了，好吧
+just has to replace its log so it is
+gonna get rid of the fives okay alright
+
+320
+00:32:37,820 --> 00:32:42,140
+接下来要谈的是持久性，您将在图二中注意到
+the next thing I want to talk about is
+persistence you'll notice in Figure two
+
+321
+00:32:42,140 --> 00:32:47,750
+左上角的状态分为夏季和夏季
+that the state in the upper left-hand
+corners sort of divided and summer
+
+322
+00:32:47,750 --> 00:32:54,649
+标记为持久性，某些标记为易失性，这里发生的是
+marked persistent and some are marked
+volatile and what's going on here is
+
+323
+00:32:54,649 --> 00:32:59,899
+持久性和易失性之间的区别只知道
+that the the distinction between
+persistence and volatile you know only
+
+324
+00:32:59,899 --> 00:33:06,260
+服务器重新启动崩溃和重新启动很重要，因为持久性
+matters if a server reboots crashes and
+restarts because the persistent what the
+
+325
+00:33:06,260 --> 00:33:09,740
+持久的意思是，如果您更改其中一项，则将其标记为
+persistent means is that if you change
+one of those items it's marked
+
+326
+00:33:09,740 --> 00:33:15,710
+持久性，您应该将其写入服务器或磁盘中
+persistent you're supposed to the server
+supposed to write it to disk or to some
+
+327
+00:33:15,710 --> 00:33:20,799
+其他非易失性存储，例如as或电池支持的东西
+other non-volatile storage like as
+or battery-backed something or whatever
+
+328
+00:33:20,799 --> 00:33:26,330
+这将确保如果服务器重新启动，它将能够找到
+that will ensure that if the server
+restarts that it will be able to find
+
+329
+00:33:26,330 --> 00:33:34,159
+这些信息并将其重新加载到内存中，这使我们能够
+that information and sort of reload it
+into memory and that's to allow us to
+
+330
+00:33:34,159 --> 00:33:37,940
+允许服务器在发生崩溃时能够从中断处继续取回， 
+allow servers to be able to pick up
+where they left off if they crash and
+
+331
+00:33:37,940 --> 00:33:48,169
+现在重新启动，您可能会认为它会足够并且更简单
+restart now you might think that it
+would it would be sufficient and simpler
+
+332
+00:33:48,169 --> 00:33:55,879
+说得好，如果服务器崩溃，那么我们就把它扔掉，或者我们需要
+to say well if a server crashes then we
+just throw it away and or we need to be
+
+333
+00:33:55,879 --> 00:33:59,090
+能够将其丢弃并替换为全新的空服务器并带来
+able to throw it away and replace it
+with a brand-new empty server and bring
+
+334
+00:33:59,090 --> 00:34:04,610
+使其达到正确的速度，当然，您实际上要做的是能够做到
+it up to speed right and of course you
+do actually it is vital to be able to do
+
+335
+00:34:04,610 --> 00:34:08,179
+没错，因为如果某个服务器遭受了灾难性的故障
+that right because if some server
+suffers a failure of some catastrophic
+
+336
+00:34:08,179 --> 00:34:14,480
+像失败一样，您知道磁盘融化或您绝对需要的某些功能
+failure like it's you know disk melts or
+something you absolutely need to be able
+
+337
+00:34:14,480 --> 00:34:18,889
+替换它，您不能指望从其磁盘上获得任何有用的东西，如果
+to replace it and you cannot count on
+getting anything useful off its disk if
+
+338
+00:34:18,889 --> 00:34:22,040
+磁盘发生了问题，因此我们绝对需要能够更换
+something bad happened to its disk so we
+absolutely need to be able to replace
+
+339
+00:34:22,040 --> 00:34:28,369
+完全替换无状态的服务器，您可能会认为这是
+completely replace servers that have no
+state whatsoever you might think that's
+
+340
+00:34:28,369 --> 00:34:32,599
+足以应付任何困难，但事实并非如此
+sufficient to handle any difficulties
+but it's actually not it turns out that
+
+341
+00:34:32,599 --> 00:34:38,540
+另一个常见的故障模式是您知道整个群集的电源故障
+another common failure mode is power
+failure of you know the entire cluster
+
+342
+00:34:38,540 --> 00:34:43,129
+他们都在同一时间停止执行，在这种情况下，我们
+where they all stop executing at the
+same time right and in that case we
+
+343
+00:34:43,129 --> 00:34:48,679
+无法解决或者我们无法通过简单地扔掉
+can't handle or we can't handle that
+failure by simply throwing away the
+
+344
+00:34:48,679 --> 00:34:53,750
+服务器，并用我们从戴尔购买的新硬件替换它们
+servers and replacing them with new
+hardware that we buy from Dell we
+
+345
+00:34:53,750 --> 00:34:58,970
+实际上必须能够起步，我们需要能够获得副本
+actually have to be able to get off the
+ground we need to be able to get a copy
+
+346
+00:34:58,970 --> 00:35:04,130
+返回状态以保持执行，如果我们希望我们的服务
+of the state back in order to keep
+executing if we want our service to be
+
+347
+00:35:04,130 --> 00:35:09,290
+容错的，因此至少是为了处理这种情况
+fault tolerant and therefore in order at
+least in order to handle the situation
+
+348
+00:35:09,290 --> 00:35:13,400
+同时发生电源故障，我们必须有一种方法使服务器能够
+of simultaneous power failure we have to
+have a way for the server's to sort of
+
+349
+00:35:13,400 --> 00:35:19,040
+将其状态保存在电源恢复供电的位置
+save their state somewhere where it will
+be available when the power returns and
+
+350
+00:35:19,040 --> 00:35:23,960
+这是观察持久性情况的一种方式，它说
+that's one way of viewing what's going
+on with persistence it said that's the
+
+351
+00:35:23,960 --> 00:35:28,859
+要求重新启动服务器所需的状态
+state that's required
+to get a server going again I'm after
+
+352
+00:35:28,859 --> 00:35:33,589
+单个电源故障或整个集群的电源故障
+either a single power failure or power
+failure of the entire cluster
+
+353
+00:35:33,589 --> 00:35:42,500
+好吧，图二这三个项目只有三个项目是持久的，所以
+alright so figure two this three items
+only three items are persistent so
+
+354
+00:35:44,900 --> 00:36:03,779
+有一个类似于当前所有日志条目并被投票支持的日志
+there's a log that's like all the log
+entries current term and voted for and
+
+355
+00:36:03,779 --> 00:36:07,559
+通过您知道我们其中一台服务器重新启动的方式，它实际上必须进行
+by the way you know one of us server
+reboots it actually has to make an
+
+356
+00:36:07,559 --> 00:36:14,849
+显式检查以确保这些数据在其磁盘上有效
+explicit check to make sure that these
+data are valid on its disk before it
+
+357
+00:36:14,849 --> 00:36:18,869
+重新加入木筏群，我必须要说些什么哦，是的，我实际上是
+rejoins the raft cluster I have to have
+some way of saying oh yeah I actually do
+
+358
+00:36:18,869 --> 00:36:24,180
+有一些保存持久状态，而不是一堆零
+have some save persistent state as
+opposed to a bunch of zeros that that
+
+359
+00:36:24,180 --> 00:36:34,170
+是无效的，所以必须保留日志的原因是
+are not valid all right so the reason
+why log has to be persisted is that at
+
+360
+00:36:34,170 --> 00:36:40,160
+至少根据图二，这是应用程序状态的唯一记录
+least according to figure two this is
+the only record of the application state
+
+361
+00:36:40,160 --> 00:36:44,160
+那是图二并没有真正的概念，害怕二没有说我们
+that is figure two doesn't really have a
+notion fears two does not say that we
+
+362
+00:36:44,160 --> 00:36:48,329
+必须保持应用程序状态，以便我们运行数据库还是您知道
+have to persist the application state so
+if we're running a database or you know
+
+363
+00:36:48,329 --> 00:36:53,309
+测试和设置服务，例如针对vmware的实际数据库或实际
+a test and set service like for vmware
+ft the actual database or the actual
+
+364
+00:36:53,309 --> 00:36:57,210
+仅根据图二，test and set标志的值不是持久的
+value of the test and set flag isn't
+persistent according to figure two only
+
+365
+00:36:57,210 --> 00:37:02,160
+登录名，因此当服务器重新启动时，只有可用的信息
+the logins and so when the server
+restarts the only information available
+
+366
+00:37:02,160 --> 00:37:08,460
+重建应用程序状态是日志中的命令序列， 
+to reconstruct the application state is
+the sequence of commands in the log and
+
+367
+00:37:08,460 --> 00:37:17,369
+因此必须坚持下去，这就是当前术语的原因
+so that has to be persisted that's what
+about current term why does current term
+
+368
+00:37:17,369 --> 00:37:20,329
+必须坚持
+have to be persistent
+
+369
+00:37:34,589 --> 00:37:39,760
+是的，所以他们俩都在确保每个学期只有一个
+yeah so they're both about ensuring that
+there's only one that each term has at
+
+370
+00:37:39,760 --> 00:37:45,910
+最多一位领导人，所以是的，所以投票赞成具体的内容，您知道这可能会造成破坏
+most one leader so yeah so voted for the
+specific you know potential damaging
+
+371
+00:37:45,910 --> 00:37:50,800
+情况是，如果服务器收到船请求并投票给服务器一， 
+case is that if a server receives a boat
+request and votes for server one and
+
+372
+00:37:50,800 --> 00:37:55,720
+然后崩溃，如果不坚持下去，谁投票的身份
+then it crashes and if it didn't persist
+this the identity of who had voted for
+
+373
+00:37:55,720 --> 00:37:59,920
+在坠机事故中，我们开始从
+and in my crash we start get another
+boat request for the same term from
+
+374
+00:37:59,920 --> 00:38:03,550
+服务器二，说天哪，我没有投票给任何人，因为我的投票是
+server two and say gosh I haven't voted
+for anybody because my voted for is
+
+375
+00:38:03,550 --> 00:38:05,859
+我现在要为服务器2投票
+blank
+now I'm gonna vote for server 2 and now
+
+376
+00:38:05,859 --> 00:38:12,160
+我们的服务器在同一期限内对服务器1和服务器2进行了投票，这可能
+our servers voted for server 1 and for
+server 2 in the same term and that might
+
+377
+00:38:12,160 --> 00:38:16,000
+允许两台服务器，因为服务器和服务器均已投票
+allow two servers
+since both server and server to voted
+
+378
+00:38:16,000 --> 00:38:19,210
+他们俩可能都认为自己拥有三分之二的多数， 
+for themselves they both may think they
+have a majority out of three and they're
+
+379
+00:38:19,210 --> 00:38:23,349
+两者都将成为领导者现在我们有两个同时的服务器用于同一个
+both going to become leader now we have
+two simultaneous servers for the same
+
+380
+00:38:23,349 --> 00:38:28,569
+这个词，所以这就是为什么我投票赞成必须持续使用当前词是
+term so this that's why I voted for it
+has to be persistent current term is
+
+381
+00:38:28,569 --> 00:38:34,510
+会更加微妙，但实际上我们之前谈到过
+gonna be a little more subtle but we
+actually talked before about how you
+
+382
+00:38:34,510 --> 00:38:38,470
+再次知道我们不希望一个学期拥有多个服务器，如果我们
+know again we don't want to have more
+than one server for a term and if we
+
+383
+00:38:38,470 --> 00:38:44,500
+不知道这是什么术语号，那么我们就不一定那么难了
+don't know what term number it is then
+we can't necessarily then it may be hard
+
+384
+00:38:44,500 --> 00:38:49,780
+确保一个学期只有一台服务器，我想也许
+to ensure that there's only one server
+for a term and I think maybe in this
+
+385
+00:38:49,780 --> 00:38:57,190
+例如，如果服务器1宕机，服务器2和服务器3宕机，我们将尝试
+example ya if s if server 1 was down and
+server 2 and server 3 we're gonna try to
+
+386
+00:38:57,190 --> 00:39:02,140
+选择一台新服务器，他们需要证明正确的转弯数字是8，而不是
+elect a new server they need evidence
+that the correct turn numbers 8 and not
+
+387
+00:39:02,140 --> 00:39:06,670
+ 6对，因为如果他们忘记了当前任期，那仅仅是
+6 right because if they if they forgot
+about current term and it was just
+
+388
+00:39:06,670 --> 00:39:09,550
+服务器2和服务器3互相投票，并且他们只有日志
+server 2 and server 3 voting for each
+other and they only had their log to
+
+389
+00:39:09,550 --> 00:39:12,849
+看看他们可能认为下一学期应该是第六学期
+look at they might think the next term
+should be term 6 they did that they
+
+390
+00:39:12,849 --> 00:39:16,119
+开始为第六学期生产东西，但是现在会有很多困惑
+start producing stuff for term 6 but now
+there's gonna be a lot of confusion
+
+391
+00:39:16,119 --> 00:39:21,720
+因为我们有两个不同的学期六，所以这就是我当前学期的原因
+because we have two different term sixes
+and so that's the reason my current term
+
+392
+00:39:21,720 --> 00:39:27,579
+必须坚持不懈地保存有关具有
+has to be persistent to preserve
+evidence about term numbers that have
+
+393
+00:39:27,579 --> 00:39:38,440
+已经被使用过，每次您都必须坚持使用这些
+already been used these have to be
+persisted pretty much every time you
+
+394
+00:39:38,440 --> 00:39:44,170
+正确地更改它们，所以安全的做法当然是每次添加
+change them right so certainly the safe
+thing to do is every time you add an
+
+395
+00:39:44,170 --> 00:39:51,190
+记录日志或更改当前词条表示已投票赞成您可能需要您
+entry of log or change current term
+are said voted for you need you probably
+
+396
+00:39:51,190 --> 00:39:54,520
+需要坚持下去，并在一个真正的木筏服务器上，这意味着将其写入
+need to persist that and in a real raft
+server that would mean writing it to the
+
+397
+00:39:54,520 --> 00:39:59,230
+磁盘，以便您有一些文件记录了这些东西，您可以
+disk so you'd have some set of files
+that recorded this stuff you can
+
+398
+00:39:59,230 --> 00:40:04,619
+如果观察到一点，您可能会偷偷摸摸
+probably be a little bit you may be can
+cut some corners if you observed that
+
+399
+00:40:04,619 --> 00:40:09,730
+在与外界沟通之前，您不需要坚持这些事情
+you don't need to persist these things
+until you communicate with the outside
+
+400
+00:40:09,730 --> 00:40:13,210
+因此，可能会有一些进行批量处理的机会，方法是说
+world so there may be some opportunity
+for a little bit of batching by saying
+
+401
+00:40:13,210 --> 00:40:17,230
+好吧，在我们要回复RPC或
+well we don't have to persist anything
+until we're about to reply to an RPC or
+
+402
+00:40:17,230 --> 00:40:23,220
+即将发出RPC，我的意思是可以避免出现一些持续存在的x' 
+about to send out an RPC I mean that may
+allow you to avoid a few persisting x'
+
+403
+00:40:23,220 --> 00:40:31,180
+重要的原因是将内容写入磁盘可能非常
+the reason that's important is that
+writing stuff to disk is can be very
+
+404
+00:40:31,180 --> 00:40:34,330
+昂贵的话，那是我们要谈论的机械硬盘
+expensive it's a if it's a mechanical
+hard drive that we're talking about then
+
+405
+00:40:34,330 --> 00:40:38,650
+如果我们坚持的方式是在
+writing anything you know if the way
+we're persisting is writing files on the
+
+406
+00:40:38,650 --> 00:40:43,030
+磁盘在磁盘上写入任何内容都会花费大约10毫秒，因为
+disk writing anything on the disk cost
+you about 10 milliseconds because you
+
+407
+00:40:43,030 --> 00:40:47,560
+要么等待磁盘旋转到要写入的点
+either have to wait for the disk to spin
+for the point you want to write to spin
+
+408
+00:40:47,560 --> 00:40:51,849
+在磁头下方，磁盘仅每10毫秒旋转一次，或者
+under the head which disk only rotates
+about once every 10 milliseconds or
+
+409
+00:40:51,849 --> 00:40:55,690
+更糟糕的是，您可能实际上不得不设法将手臂向正确的方向移动，因此
+worse that you may actually have to seek
+to move the arm the right track right so
+
+410
+00:40:55,690 --> 00:41:01,510
+这些每个系统可能非常昂贵，如果要
+these per systems can be terribly
+terribly expensive and if for sort of
+
+411
+00:41:01,510 --> 00:41:06,220
+任何一种简单的设计都可能成为限制因素
+any kind of straightforward design
+they're likely to be the limiting factor
+
+412
+00:41:06,220 --> 00:41:13,690
+表现，因为它们意味着可以做任何事情
+in performance because they mean that
+doing anything anything whatsoever on
+
+413
+00:41:13,690 --> 00:41:18,580
+这些图形服务器需要10毫秒的弹出时间和10毫秒的时间
+these graph servers takes ten
+milliseconds a pop and 10 milliseconds
+
+414
+00:41:18,580 --> 00:41:23,320
+比说发送RPC或几乎其他任何内容所需的时间长
+as far longer than it takes to say send
+an RPC or almost anything else you might
+
+415
+00:41:23,320 --> 00:41:29,609
+每次执行10毫秒意味着将数据持久存储到
+do 10 milliseconds each means you can
+just never if you persist data to a
+
+416
+00:41:29,609 --> 00:41:33,400
+机械驱动器，您永远无法建立筏服务，它可以提供更多服务
+mechanical drive you just can never
+build a raft service it can serve more
+
+417
+00:41:33,400 --> 00:41:38,530
+每秒超过100个请求，因为这就是您在10时获得的请求
+than 100 requests per second because
+that's what you get it at 10
+
+418
+00:41:38,530 --> 00:41:44,770
+每次操作的毫秒数，您知道这是成本，所以这实际上就是全部
+milliseconds per operation and you know
+this is this cost so this is really all
+
+419
+00:41:44,770 --> 00:41:48,420
+关于同步成本
+about cost of synchronous
+
+420
+00:41:49,920 --> 00:41:59,530
+只是更新，它出现在许多系统中，例如文件系统
+just updates and it comes up in many
+systems like file systems the file
+
+421
+00:41:59,530 --> 00:42:03,280
+您的笔记本电脑上运行的系统是设计人员花费大量资金的
+systems that are running in your laptops
+are that the designers spend a huge
+
+422
+00:42:03,280 --> 00:42:07,120
+试图解决性能问题的时间量
+amount of time sort of trying to
+navigate around the performance problems
+
+423
+00:42:07,120 --> 00:42:10,960
+他们将同步磁盘的数量视为磁盘写入，因为为了进行填充
+of synchronous disk up they think of as
+disk writes because in order for stuff
+
+424
+00:42:10,960 --> 00:42:14,200
+确保磁盘安全，以便更新笔记本电脑上的文件系统
+to get safe on your disk in order to
+update the file system on your laptop's
+
+425
+00:42:14,200 --> 00:42:20,620
+安全地找到磁盘，结果文件系统必须喜欢如何
+disk safely there turns out the file
+system has to like be careful about how
+
+426
+00:42:20,620 --> 00:42:25,420
+它会写入，有时需要等待磁盘完成写入，因此这
+it writes and needs to sometimes wait
+for the disk to finish writing so this
+
+427
+00:42:25,420 --> 00:42:29,740
+就像跨系统的问题，肯定会出现在所有系统中
+is a like a cross-cutting issue in all
+kinds of systems certainly comes up in
+
+428
+00:42:29,740 --> 00:42:34,900
+草案，如果您要构建一个系统，则可以提供一百多个
+draft if you want it to build a system
+they could serve more than a hundred
+
+429
+00:42:34,900 --> 00:42:39,940
+每秒的任务数，那么会有很多选择，一个是您可以使用
+quests per second then there's a bunch
+of options one is you can use a
+
+430
+00:42:39,940 --> 00:42:44,320
+固态驱动器或某种闪存或固态八驱动器可以完成的任务
+solid-state drive or some kind of flash
+or something solid eight drives can do a
+
+431
+00:42:44,320 --> 00:42:52,600
+可能需要十分之一毫秒的时间写入闪存
+write to the flash memory in maybe a
+tenth of a millisecond so that's a
+
+432
+00:42:52,600 --> 00:42:57,730
+系数为您的一百倍，或者如果您更加精明，也许您可​​以
+factor of a hundred for you or if you're
+even more sophisticated maybe you can
+
+433
+00:42:57,730 --> 00:43:03,820
+建立自己的电池供电DRAM，并在电池供电方面保持持久性
+build yourself battery backed DRAM and
+do the persistence into battery back
+
+434
+00:43:03,820 --> 00:43:11,020
+ DRAM，然后如果服务器重新启动，则希望重新启动的时间比重新启动的时间短
+DRAM and then if the server reboots hope
+that reboot was took shorter than the
+
+435
+00:43:11,020 --> 00:43:14,560
+电池可持续使用的时间量，并且您持续存在的电量仍然
+amount of time the battery lasts and
+that this stuff you persisted is still
+
+436
+00:43:14,560 --> 00:43:19,420
+在内存中的原因，我的意思是，如果您有钱又精明的原因
+in the RAM and the reason I mean if you
+have money and sophistication the reason
+
+437
+00:43:19,420 --> 00:43:23,230
+赞成您可以每秒写入数百万次的DRAM，因此
+to favor that is you can write DRAM you
+know millions of times per second and so
+
+438
+00:43:23,230 --> 00:43:28,600
+无论如何这可能不会成为性能瓶颈， 
+it's probably not going to be a
+performance bottleneck anyway so that
+
+439
+00:43:28,600 --> 00:43:35,230
+这个问题是为什么，它在某种程度上标记了持久性与易变性， 
+this problem is why and it's sort of
+marking a persistent versus volatile and
+
+440
+00:43:35,230 --> 00:43:38,910
+图2对性能以及
+figure 2 is like has a lot of
+significance for performance as well as
+
+441
+00:43:38,910 --> 00:43:48,300
+崩溃恢复和正确性有关持续存在的任何问题
+crash recovery and correctness any
+questions about persisting yeah
+
+442
+00:43:55,570 --> 00:44:10,340
+是的，所以您的问题基本上是您在编写代码，说去
+yes alright so your question is
+basically you're writing code say go
+
+443
+00:44:10,340 --> 00:44:13,520
+筏实现的代码，或者您试图编写一个真正的r子手
+code for your raft implementation or
+you're trying to write a real rafterman
+
+444
+00:44:13,520 --> 00:44:18,500
+实施，您实际上要确保当您坚持
+implementation and you actually want to
+make sure that when you persist your an
+
+445
+00:44:18,500 --> 00:44:21,800
+更新法律或当前条款或实际上存在的任何条款
+update to the law or the current term or
+whatever that it in fact will be there
+
+446
+00:44:21,800 --> 00:44:26,300
+崩溃后重新启动，就像您要做的食谱是什么
+after a crash and reboot like what's the
+recipe for what you have to do to make
+
+447
+00:44:26,300 --> 00:44:31,040
+确保它在那里，并且您观察到，如果您在UNIX或
+sure it's there and your observation
+that if you call you know on a UNIX or
+
+448
+00:44:31,040 --> 00:44:36,980
+ Linux或任何Mac（如果您调用正确）都知道正确的系统调用是
+Linux or whatever Mac if you call right
+you know the right system call is how
+
+449
+00:44:36,980 --> 00:44:41,330
+您将其写入磁盘文件时，只需指出就可以了。 
+you write to a disk file you simply call
+right as you pointed out it is not the
+
+450
+00:44:41,330 --> 00:44:45,800
+在写入返回后，数据在磁盘上是安全的，并且在
+case that after the write returns the
+data is safe on disk and will survive a
+
+451
+00:44:45,800 --> 00:44:51,200
+重新启动它几乎可以肯定不是几乎不在磁盘上，所以您知道
+reboot it almost certainly isn't almost
+certainly not on disk so the you know
+
+452
+00:44:51,200 --> 00:44:56,210
+您需要以所需的任何速率在UNIX上进行特定的魔术操作
+the particular piece of magic you need
+to do is on unix at any rate you need
+
+453
+00:44:56,210 --> 00:45:01,340
+您需要调用正确的权限，以便您无法写一些打开的文件
+you need to call right so you cannot
+write some file you've opened that's
+
+454
+00:45:01,340 --> 00:45:06,290
+将包含您要编写的内容，然后您调用了这个F 
+going to contain the stuff that you want
+to write and then you got a call this F
+
+455
+00:45:06,290 --> 00:45:12,010
+圣呼叫在大多数系统上保证F同步不返回
+st. call which on most systems the
+guarantee is that F sync doesn't return
+
+456
+00:45:12,010 --> 00:45:18,140
+直到您之前写入此文件的所有数据安全地放在
+until all the data you've previously
+written into this file is safely on the
+
+457
+00:45:18,140 --> 00:45:23,780
+如果介质仍然存在，则将其放在介质上
+surface on the media in a place on a
+place where it will still be there if
+
+458
+00:45:23,780 --> 00:45:29,030
+发生了车祸，所以这件事是一些东西，然后这个电话是一个昂贵的电话， 
+there's a crash so so this thing is some
+then this call is an expensive call and
+
+459
+00:45:29,030 --> 00:45:33,500
+这就是为什么它是单独的，这就是为什么Wright不只写磁盘F的原因
+that's why it's a separate that's why
+Wright doesn't write the disk only F
+
+460
+00:45:33,500 --> 00:45:37,010
+同步确实是因为它是如此昂贵，除非您不愿意这样做
+sync does is because it's so expensive
+you would never want to do it unless you
+
+461
+00:45:37,010 --> 00:45:46,280
+真的想保留一些数据，以便可以使用更昂贵的数据
+really wanted to persist some stuff some
+data okay so you can use more expensive
+
+462
+00:45:46,280 --> 00:45:51,410
+磁盘硬件人们经常使用的另一个技巧是尝试批量处理
+disk hardware the other trick people
+play a lot is to try to batch that is if
+
+463
+00:45:51,410 --> 00:45:55,370
+如果客户请求很多，您可以输入
+you can if client requests are if you
+have a lot of client requests coming in
+
+464
+00:45:55,370 --> 00:45:59,210
+也许您应该接受其中的许多内容，而不要对其中的任何内容进行回复
+maybe you should accept a lot of them
+and not reply to any of them for a
+
+465
+00:45:59,210 --> 00:46:01,640
+一点点，我们称之为很多
+little bit we call a lot of them
+accumulate
+
+466
+00:46:01,640 --> 00:46:07,610
+然后坚持下去，您一次可以从一百个日志条目中了解一百个日志条目
+and then persist you know a hundred log
+entries at a time from your hundred
+
+467
+00:46:07,610 --> 00:46:12,320
+客户并且您只知道然后发送附加条目就好了，因为您这样做
+clients and you know only then send out
+the append entries good because you do
+
+468
+00:46:12,320 --> 00:46:16,130
+如果您收到客户端请求，实际上必须将这些东西持久保存到磁盘
+actually have to persist this stuff to
+disk if you receive a client request you
+
+469
+00:46:16,130 --> 00:46:20,330
+您必须先将新条目持久化到磁盘，然后再发送附加条目
+have to persist the new entry to disk
+before you send the append entries our
+
+470
+00:46:20,330 --> 00:46:26,690
+ PC追随者，因为如果认识的领导者不允许
+PCs the followers because you're not
+allowed if the leader you know the
+
+471
+00:46:26,690 --> 00:46:34,400
+领导者，基本上是承诺提交该请求，并且不能
+leader it's essentially promising to
+commit that that request and can't
+
+472
+00:46:34,400 --> 00:46:37,490
+忘记它，确实追随者必须坚持
+forget about it
+and indeed the followers have to persist
+
+473
+00:46:37,490 --> 00:46:40,880
+在他们回复附加条目之前，将新的日志条目添加到其磁盘，因为
+the new log entry to their disk before
+they reply to the append entries because
+
+474
+00:46:40,880 --> 00:46:45,110
+它们被应用于追加条目，这也是保留和保证的承诺。 
+they were apply to the append entries
+it's also a promise to preserve and
+
+475
+00:46:45,110 --> 00:46:48,620
+最终提交该日志条目，以便在以下情况下不能忘记它们： 
+eventually commit that log entry so they
+can't be allowed to forget about it if
+
+476
+00:46:48,620 --> 00:47:01,430
+他们最终会碰到其他有关持久性的问题
+they crash other questions about
+persistence all right well final you
+
+477
+00:47:01,430 --> 00:47:09,620
+知道关于持久性的一些细节是，图二中的一些内容
+know a little detail about persistence
+is that some of the stuff in figure two
+
+478
+00:47:09,620 --> 00:47:12,770
+不是持久的，所以值得为之挠头
+is not persistent and so it's worth
+scratching your head a little bit about
+
+479
+00:47:12,770 --> 00:47:17,240
+为什么提交索引会持续应用下一个索引并匹配索引，为什么它是公平的游戏
+why commit index lasts apply next index
+and match index why it's fair game for
+
+480
+00:47:17,240 --> 00:47:22,010
+如果服务器崩溃并重新启动，则只需将它们丢弃，就像为什么
+them to be simply thrown away if the
+server crashes and restarts like why
+
+481
+00:47:22,010 --> 00:47:26,510
+您不是不是知道提交索引还是最后一次应用它，就像geez最后一次应用是
+wasn't you know commit index or last
+apply it like geez last applied is the
+
+482
+00:47:26,510 --> 00:47:30,440
+记录如果我们扔掉了，我们执行了多少，不是吗
+record of how much we've executed right
+if we throw that away aren't we gonna
+
+483
+00:47:30,440 --> 00:47:35,690
+两次执行日志条目，这是正确的，为什么呢？为什么呢？ 
+execute log entries twice and is that
+correct how about that why is why is it
+
+484
+00:47:35,690 --> 00:47:39,310
+安全丢弃最后应用
+safe to throw away last applied
+
+485
+00:47:46,680 --> 00:47:58,150
+是的，我是所有人，这里都是筏子的简单性和安全性，所以这就是
+yes I am we're all about simplicity and
+safety here with raft so that's exactly
+
+486
+00:47:58,150 --> 00:48:04,240
+纠正为什么所有其他内容都随您变化的原因
+correct the the reason why all that
+other stuff can be non-volatile as you
+
+487
+00:48:04,240 --> 00:48:07,930
+提到我的意思是对不起多变，为什么其他领域可以
+mentioned I mean sorry volatile the
+reason why those other fields can be
+
+488
+00:48:07,930 --> 00:48:12,580
+易变而被抛弃的是，我们可以使领导者重建
+volatile and thrown away is that we can
+the leader can reconstruct sort of
+
+489
+00:48:12,580 --> 00:48:17,650
+通过检查自己的日志和附加结果提交的内容
+what's been committed by inspecting its
+own log and by the results of append
+
+490
+00:48:17,650 --> 00:48:20,680
+发送给关注者的条目，最初是指领导者，如果
+entries that it sends out to the
+followers I mean initially the leader if
+
+491
+00:48:20,680 --> 00:48:23,320
+如果每个人都因为停电而重新启动
+it if everybody restarts because they
+experienced a power failure
+
+492
+00:48:23,320 --> 00:48:27,880
+最初，领导者不知道承诺了什么，执行了什么，但是
+initially the leader does not know
+what's committed what's executed but
+
+493
+00:48:27,880 --> 00:48:31,210
+当它发出日志并追加条目时，它将收集一些信息
+when it sends out log and append entries
+it'll sort of gather back information
+
+494
+00:48:31,210 --> 00:48:34,780
+基本上是追随者关于他们的日志中有多少匹配
+and essentially from the followers about
+What's in how much of their logs match
+
+495
+00:48:34,780 --> 00:48:38,070
+领导者，因此在坠机前必须付出多少
+the leaders and therefore how much must
+have been committed before the crash
+
+496
+00:48:38,070 --> 00:48:43,150
+ 4-2世界中的另一件事不是真实世界
+another thing in the 4-2 world which is
+not the real world
+
+497
+00:48:43,150 --> 00:48:47,770
+关于图2的另一件事是，图2假定应用程序
+another thing about figure two is that
+figure two assumes that the application
+
+498
+00:48:47,770 --> 00:48:54,310
+如果重新启动时发生崩溃，则状态会被破坏并丢弃，因此
+state is destroyed and thrown away if
+there's a crash in a restart so the
+
+499
+00:48:54,310 --> 00:48:57,550
+图二世界假设，当日志持续存在时，应用程序状态
+figure two world assumes that while log
+is persistent that the application state
+
+500
+00:48:57,550 --> 00:49:04,200
+绝对不是持久性的，要求与图2不一致，因为
+is absolutely not persistent required
+not to be consistent in figure 2 because
+
+501
+00:49:04,200 --> 00:49:10,030
+在图2中，日志从一开始就保存下来
+the in figure 2 the log is preserved
+persisted from the very beginning of the
+
+502
+00:49:10,030 --> 00:49:15,640
+系统，那么如果您播放各种内容，将会发生什么
+system and so what's going to happen if
+you sort of play out what the various
+
+503
+00:49:15,640 --> 00:49:21,130
+领导重新启动后，图2中的规则是领导最终将重新
+rules in figure 2 after a leader restart
+is that the leader will eventually re
+
+504
+00:49:21,130 --> 00:49:26,500
+执行传递给您知道的应用程序的每个日志条目
+execute every single log entry that is
+handed to the application you know
+
+505
+00:49:26,500 --> 00:49:31,420
+从重新启动后的日志条目一开始，木筏将交给
+starting with log entry one after a
+reboot it's the raft is gonna hand the
+
+506
+00:49:31,420 --> 00:49:34,840
+应用程序，每个日志条目都从一个开始，这样一来
+application every log entry starting
+from one and so that will after a
+
+507
+00:49:34,840 --> 00:49:39,640
+重新启动应用程序将完全从头开始重建其状态。 
+restart the application will completely
+reconstruct its state from scratch by a
+
+508
+00:49:39,640 --> 00:49:45,430
+每次重新启动后，从整个日志的时间开始重播； 
+replay from the beginning of the time of
+the entire log after each restart and
+
+509
+00:49:45,430 --> 00:49:49,390
+再次，这就像是一种简单而优雅的计划， 
+again that's like a sort of
+straightforward elegant plan but
+
+510
+00:49:49,390 --> 00:49:55,290
+显然很慢
+obviously potentially very slow
+
+511
+00:49:56,119 --> 00:50:04,670
+这将我们带入下一个主题，即日志压缩和快照，以及
+which brings us to the next topic which
+is log compaction and and snapshots and
+
+512
+00:50:04,670 --> 00:50:09,619
+这与实验3b有很大关系，实际上您会看到日志压缩和
+this has a lot to do with lab 3b
+actually you'll see log compaction and
+
+513
+00:50:09,619 --> 00:50:15,440
+实验室3b中vlog 3b中的快照，以及日志压缩和
+snapshots in vlog 3b in lab 3b and so
+the problem that log compaction and
+
+514
+00:50:15,440 --> 00:50:20,690
+快照解决了一个难题，对于一个长期运行的系统， 
+snapshotting is solving a raft is that
+indeed for a long-running system that's
+
+515
+00:50:20,690 --> 00:50:25,310
+如果已经按照图2的规则进行了数周，数月或数年， 
+been going for weeks or months or years
+if we just follow the figure 2 rules the
+
+516
+00:50:25,310 --> 00:50:28,490
+日志只会持续增长，最终可能会导致数以百万计的条目
+log just keeps on growing may end up you
+know millions and millions of entries
+
+517
+00:50:28,490 --> 00:50:34,130
+很长，因此如果将其存储在磁盘上，例如
+long and so requires a lot of memory to
+store if you store it on disk like if
+
+518
+00:50:34,130 --> 00:50:37,130
+您必须在每次保存日志时都保存它，它消耗了我
+you have to persist it every time you
+persist the log it's using up a huge I
+
+519
+00:50:37,130 --> 00:50:41,990
+可能在磁盘上没有空间，并且如果服务器曾经启动过，它必须重建其
+may not space on disk and if a server
+ever be starts it has to reconstruct its
+
+520
+00:50:41,990 --> 00:50:46,040
+通过从以下位置重放这些数百万个日志条目来表示状态
+state by replaying these millions and
+millions of log entries from the very
+
+521
+00:50:46,040 --> 00:50:50,030
+开始，整个服务器可能需要几个小时才能运行
+beginning which could take like hours
+for a server to run through its entire
+
+522
+00:50:50,030 --> 00:50:54,680
+日志，如果它崩溃并重新启动，我们将执行所有类似的操作
+log and we execute it if it crashes and
+restarts all of which is like similar
+
+523
+00:50:54,680 --> 00:50:58,670
+浪费什么，因为在崩溃之前它已经有应用程序
+what kind of wasted because before it
+crashed it had already had applications
+
+524
+00:50:58,670 --> 00:51:11,750
+状态，因此为了应对这种愤怒，请使用快照和
+state and so in order to cope with this
+wrath has this idea of snapshots and the
+
+525
+00:51:11,750 --> 00:51:18,410
+快照背后的一种想法是能够保存或要求应用程序
+sort of idea behind snapshots is to be
+able to save or ask the application to
+
+526
+00:51:18,410 --> 00:51:23,270
+保存其状态的副本以及特定的日志条目，因此我们
+save a copy of its state as of a
+particular log entry so we've been
+
+527
+00:51:23,270 --> 00:51:28,160
+大多数情况下是忽略应用程序，但事实是您知道我们是否拥有
+mostly kind of ignoring the application
+but the fact is that you know if we have
+
+528
+00:51:28,160 --> 00:51:33,349
+假设我们正在BRAF下构建键值存储，您知道日志是
+a suppose we're building a key value
+store under BRAF you know the log is
+
+529
+00:51:33,349 --> 00:51:37,099
+将包含一堆您知道放入获取或读写请求的信息
+gonna contain a bunch of you know
+putting gets or read and write request
+
+530
+00:51:37,099 --> 00:51:42,410
+所以也许某条法律包含您知道某客户希望将X设置为一个的看跌期权
+so maybe a law contains you know a put
+that some client wants to set X to one
+
+531
+00:51:42,410 --> 00:51:47,690
+然后是另一个，它说X到2，然后您知道y等于7或
+and then another one where it says X to
+2 and then you know y equals 7 or
+
+532
+00:51:47,690 --> 00:51:53,569
+无论如何，如果在筏执行时没有崩溃， 
+whatever and if there's no crashes as
+the raft is executing along there's
+
+533
+00:51:53,569 --> 00:51:57,260
+如果是Rath上方的图层，将是这个应用程序， 
+going to be this if the layer above Rath
+there's going to be this application and
+
+534
+00:51:57,260 --> 00:52:01,520
+应用程序，如果它是键值存储数据库，它将要满足
+the application if it's a key value
+store databases it's going to be meeting
+
+535
+00:52:01,520 --> 00:52:07,220
+这张桌子，筏子在我们下一张桌子后递给它一个命令
+this table and as raft hands it one
+command after our next
+
+536
+00:52:07,220 --> 00:52:10,880
+应用程序将更新其表，以便您在第一个之后知道
+the applications going to update its
+table so you know after the first
+
+537
+00:52:10,880 --> 00:52:14,300
+命令将X设置为1，第二条命令稳定后
+command it's going to set X to one and
+it's stable after the second command
+
+538
+00:52:14,300 --> 00:52:18,400
+它会更新它的表，你知道
+it's going to update its table you know
+
+539
+00:52:19,630 --> 00:52:24,320
+一个有趣的事实是，对于大多数应用程序，应用程序状态为
+one interesting fact is that for most
+applications the application state is
+
+540
+00:52:24,320 --> 00:52:29,840
+在某种程度上可能比相应的日志小得多
+likely to be much smaller than the
+corresponding log right at some level we
+
+541
+00:52:29,840 --> 00:52:33,710
+知道您知道的日志和状态就是其中的日志，并且
+know that the the you know the log and
+the state are the log in that and the
+
+542
+00:52:33,710 --> 00:52:38,320
+日志中某些点的状态都是可互换的，它们都
+state as of some point in the log are
+kind of interchangeable right they both
+
+543
+00:52:38,320 --> 00:52:44,570
+关于应用程序状态的某种暗示是相同的，但是日志可能
+sort of implied the same thing about the
+state of the application but the log may
+
+544
+00:52:44,570 --> 00:52:48,170
+包含很多人，他们知道很多多重作业2x他们用尽了
+contain a lot of you know a lot of
+multiple assignments 2x they use up a
+
+545
+00:52:48,170 --> 00:52:51,860
+日志中有很多空间，但也可以有效地将其压缩为单个
+lot of space in the log but are also to
+effectively compact it down to a single
+
+546
+00:52:51,860 --> 00:52:56,300
+表中的条目，这在这些复制的应用程序中非常典型
+entry in the table and that's pretty
+typical of these replicated applications
+
+547
+00:52:56,300 --> 00:53:02,690
+但关键是我们没有存储可能会非常庞大​​的日志， 
+but the point is that instead of storing
+the log which may go to be huge we have
+
+548
+00:53:02,690 --> 00:53:08,060
+而是选择存储可能较小的表的选项，这是
+the option of storing instead the table
+which might be a lot smaller and that's
+
+549
+00:53:08,060 --> 00:53:14,420
+当筏感觉到日志已经到达时，快照正在执行什么操作
+what the snapshots are doing so when
+raft feels that it's log has gotten to
+
+550
+00:53:14,420 --> 00:53:19,190
+太大，您知道的大小超过一兆字节或十兆字节
+be too large you know more than a
+megabyte or ten megabytes or whatever
+
+551
+00:53:19,190 --> 00:53:24,260
+一些任意的限制筏将要求应用程序制作快照
+some arbitrary limit raft will ask the
+application to take make a snapshot of
+
+552
+00:53:24,260 --> 00:53:28,370
+它在日志中某个点的应用程序状态
+it the application state as of a certain
+point in the log
+
+553
+00:53:28,370 --> 00:53:33,110
+因此，如果我们添加了筏是否要求应​​用程序提供快照引用， 
+so if we add if raft asked the
+application for a snapshot reference it
+
+554
+00:53:33,110 --> 00:53:37,370
+会在快照中选择快照所引用的一点，并要求
+would pick a point in the log that the
+snapshot referred to and require the
+
+555
+00:53:37,370 --> 00:53:41,570
+产生快照的应用程序，这是非常关键的
+application to produce a snapshot as at
+that point this is extremely critical
+
+556
+00:53:41,570 --> 00:53:45,980
+因为因为我们要做的是在那之前扔掉所有东西
+because the because what we're about to
+do is throw away everything before that
+
+557
+00:53:45,980 --> 00:53:48,860
+点，所以如果没有意愿去寻找与快照相对应的点
+point so if there's not a will to find
+point that corresponds to a snapshot
+
+558
+00:53:48,860 --> 00:53:54,910
+那么我们就无法安全地丢弃该点之前的日志，这意味着
+then we can't safely throw away the log
+before that point so that means that
+
+559
+00:53:54,910 --> 00:53:58,340
+拉斯（Rath）是否会让您知道要在按扣上扣一下，所以基本上
+Rath is gonna have you know ask for
+snaps on the snap so it's basically just
+
+560
+00:53:58,340 --> 00:54:04,520
+该表只是关于数据库服务器的，我们还需要注释
+the table it's just about a database
+server and we also need to annotate the
+
+561
+00:54:04,520 --> 00:54:09,890
+快照，其中的条目号与您相对应，因此基本上就是您
+snapshot with the entry number that are
+corresponds to you so it's basically you
+
+562
+00:54:09,890 --> 00:54:16,400
+知道条目是否为1 2 3此快照对应于日志之后
+know if the entries are 1 2 3 this
+snapshot corresponds to just after log
+
+563
+00:54:16,400 --> 00:54:23,329
+如果我们将快照持久化到磁盘大鼠持久化，则快照在手的索引3 
+index 3 with the snapshot in hand
+if we persist it to disk rats persistent
+
+564
+00:54:23,329 --> 00:54:33,890
+到磁盘筏不再需要这部分日志，它可以简单地抛出
+to disk raft never again will need this
+part of the logs and it can simply throw
+
+565
+00:54:33,890 --> 00:54:39,589
+只要它保留了债务日志中某个快照的快照，它就会消失
+it away as long as it persists a
+snapshot as of a certain in debt log
+
+566
+00:54:39,589 --> 00:54:44,450
+索引加上该索引之后的日志，只要它一直保留在磁盘上
+index plus the log after that index as
+long as that's persisted to disk we
+
+567
+00:54:44,450 --> 00:54:49,789
+从来不需要之前进行记录，所以这就是英国皇家空军所做的一切
+never going to need to log before that
+and so this is what RAF does the rocks
+
+568
+00:54:49,789 --> 00:54:52,970
+要求应用程序获取快照，然后将快照保存到磁盘
+ask the application for snapshot gets
+the snapshot saves it to disk with the
+
+569
+00:54:52,970 --> 00:54:58,369
+记录之后，它会立即将此记录扔掉，因此它确实可以运行
+log after that it just throws away this
+log here right and so it really operates
+
+570
+00:54:58,369 --> 00:55:03,529
+或那种持久性故事都是关于日志中的快照对
+or the sort of persistence story is all
+about pairs of a snapshot in the log
+
+571
+00:55:03,529 --> 00:55:09,890
+之后，与快照关联的日志中的点之后，我看不到
+after that after the point in the log
+associated with snapshot I don't see
+
+572
+00:55:09,890 --> 00:55:12,700
+这是
+this yes
+
+573
+00:55:24,309 --> 00:55:29,270
+不，它仍然是，这是您知道的一种幻像条目，一二
+no it's still it's it's you know there's
+these sort of phantom entries one two
+
+574
+00:55:29,270 --> 00:55:37,390
+三，您知道日志的后缀确实被视为仍然是
+three and this you know suffix of the
+log is indeed viewed as still the it's
+
+575
+00:55:37,390 --> 00:55:41,240
+也许思考它的正确方法仍然只有一个日志，除了这些
+maybe the right way to think of it is
+still there's just one log except these
+
+576
+00:55:41,240 --> 00:55:46,579
+条目是一种幻像条目，我们可以将其视为
+entries are sort of phantom entries that
+we that we can view as being kind of
+
+577
+00:55:46,579 --> 00:55:51,020
+原则上在那里，但由于我们是我们，所以我们无需查看它们，因为我们
+there in principle but since we're we
+never need to look at them because we
+
+578
+00:55:51,020 --> 00:55:53,869
+具有快照的事实是它们只是碰巧没有存储在任何地方
+have the snapshot the fact that they
+just happened not to be stored anywhere
+
+579
+00:55:53,869 --> 00:55:58,700
+既不在这里也不在那里，但是，是的，你应该认为它是
+is neither here nor there but it's but
+yeah you should think of it as being
+
+580
+00:55:58,700 --> 00:56:04,819
+窃取了相同的日志，这不仅是丢弃了他们的早期条目，还这样做了
+stole the same log it's just not just
+threw away their early entries did this
+
+581
+00:56:04,819 --> 00:56:07,579
+答案可能有点太客气了，因为事实是
+that's a maybe a little bit too glib of
+an answer because the fact is that
+
+582
+00:56:07,579 --> 00:56:12,559
+图二以有关日志的方式进行讨论，使您可以按照以下方式进行操作： 
+figure two talks about the log in ways
+that makes it that if you just follow
+
+583
+00:56:12,559 --> 00:56:15,799
+有时候您仍然需要这些较早的条目，因此您必须
+figure to you sometimes still need these
+earlier entries and so you'll have to
+
+584
+00:56:15,799 --> 00:56:19,670
+考虑到有时它说： 
+reinterpret figure two a little bit in
+light of the fact that sometimes it says
+
+585
+00:56:19,670 --> 00:56:32,680
+等等等等日志条目不存在的地方
+blah blah blah a log entry where the log
+entry doesn't exist okay
+
+586
+00:56:39,390 --> 00:56:44,890
+好的，那么重启时会发生什么，所以重启的故事要多一些
+okay and so what happens on a restart
+so the restart story is a little more
+
+587
+00:56:44,890 --> 00:56:48,700
+它比以前仅带有一个日志要复杂得多
+complicated in it than it used to be
+with just a log what happens on a
+
+588
+00:56:48,700 --> 00:56:54,549
+重新启动是，筏子需要离开，以提供最新的图形
+restart is that there needs to be away
+for raft to give the latest for graph to
+
+589
+00:56:54,549 --> 00:57:01,059
+在其磁盘上找到最新的快照日志对，并将快照交给
+find the latest snapshot log pair on its
+disk and hand the snapshot to the
+
+590
+00:57:01,059 --> 00:57:04,990
+应用程序，因为我们不再能够重播您知道的所有日志
+application because we no longer are
+able to replay you know all the log
+
+591
+00:57:04,990 --> 00:57:08,740
+条目，因此必须有其他方法可以基本上初始化应用程序
+entries so there must be some other way
+to initialize the application basically
+
+592
+00:57:08,740 --> 00:57:11,440
+应用程序不仅必须能够生成快照
+not only is the application have to be
+able to produce a snapshot of
+
+593
+00:57:11,440 --> 00:57:15,839
+应用程序状态，但它必须能够吸收以前制作的
+application state but but it has to be
+able to absorb a previously made
+
+594
+00:57:15,839 --> 00:57:20,740
+快照并从快照等方式将其稳定地重建在内存中
+snapshot and sort of reconstruct it
+stable in memory from a snapshot and so
+
+595
+00:57:20,740 --> 00:57:23,710
+现在，即使筏可以管理整个快照内容
+this now even though raft is kind of
+managing this whole snapshotting stuff
+
+596
+00:57:23,710 --> 00:57:28,299
+快照内容实际上是应用程序和RAF的属性
+the snapshot contents are really the
+property to the application and RAF
+
+597
+00:57:28,299 --> 00:57:31,420
+甚至不了解其中的内容，只有应用程序可以理解，因为它
+doesn't even understand what's in here
+only the application does because it's
+
+598
+00:57:31,420 --> 00:57:36,279
+全部包含应用程序特定信息，因此重新启动后
+all full of application specific
+information so after a restart the
+
+599
+00:57:36,279 --> 00:57:45,789
+应用程序必须能够吸收筏发现的最新快照，因此
+application has to be able to absorb the
+latest snapshot that raft found so for
+
+600
+00:57:45,789 --> 00:57:52,089
+就这么简单，不幸的是，快照和
+just this simple it would be simple
+unfortunately this snapshotting and in
+
+601
+00:57:52,089 --> 00:57:56,920
+特别是领导者可能会丢弃部分日志的想法
+particular the idea that the leader
+might throw away part of its log
+
+602
+00:57:56,920 --> 00:58:01,809
+引入了一个主要的复杂性，那就是如果有一些
+introduces a major piece of complexity
+and that is that if there's some
+
+603
+00:58:01,809 --> 00:58:10,809
+跟随者，其日志在领导者登录之前结束
+follower out there whose log ends before
+the point at which the leaders log
+
+604
+00:58:10,809 --> 00:58:15,819
+然后开始，除非我们发明新东西，否则需要安装monney快照
+starts then unless we invent something
+new we need monney install snapshot
+
+605
+00:58:15,819 --> 00:58:20,859
+除非我们发明新东西，否则追随者永远无法掌握最新信息
+unless we invent something new that
+follower can never get up-to-date right
+
+606
+00:58:20,859 --> 00:58:25,210
+因为如果关注者知道是否有一些关注者，其日志仅为
+because if the followers you know if
+there's some follower whose log only is
+
+607
+00:58:25,210 --> 00:58:29,890
+前两个日志条目我们不再需要三个日志条目
+the first two log entries we no longer
+have the log entry three that's required
+
+608
+00:58:29,890 --> 00:58:35,410
+在附加条目RPC中将其发送给该关注者，以使其日志赶上
+to send it to that follower in an append
+entries RPC to allow its log to catch up
+
+609
+00:58:35,410 --> 00:58:44,819
+对于领导者，我们现在可以避免
+to the leaders now
+we could avoid this problem by having
+
+610
+00:58:44,819 --> 00:58:50,430
+如果有任何追随者，领导者永远不会删除其日志的一部分
+the leader never drop part of its log if
+there's any follower out there that
+
+611
+00:58:50,430 --> 00:58:54,960
+还没有赶上领导者正在考虑做一个
+hasn't caught up to the point at which
+the leader is thinking about doing a
+
+612
+00:58:54,960 --> 00:58:58,920
+快照，因为领导者知道下一个索引
+snapshot because the leader knows
+through next index
+
+613
+00:58:58,920 --> 00:59:02,569
+其实领导者并不真正知道，但领导者原则上可以知道
+well actually leader doesn't really know
+but the leader could know in principle
+
+614
+00:59:02,569 --> 00:59:06,660
+每个追随者走了多远，领导者就可以说我永远不会
+how far each follower had gotten and the
+leader could say well I'm just never
+
+615
+00:59:06,660 --> 00:59:12,059
+要在最短的关注者结束之前删除我的日志部分
+gonna drop the part of my log before the
+end of the follower with the shortest
+
+616
+00:59:12,059 --> 00:59:20,039
+日志，这没关系，他们实际上可能只是个好主意。 
+log and that would be okay they might
+actually just be a good idea period the
+
+617
+00:59:20,039 --> 00:59:23,039
+为什么这不是一个好主意的原因当然是如果一个追随者
+reason why that's maybe not such a great
+idea is that of course if a follower
+
+618
+00:59:23,039 --> 00:59:28,770
+关闭一周，您就会知道不会确认日志条目，并且
+shut down for a week you know it's not
+gonna be acknowledging log entries and
+
+619
+00:59:28,770 --> 00:59:34,349
+这意味着领导者无法通过快照减少内存使用，因此
+that means that the leader can't reduce
+its memory use by snapshotting so the
+
+620
+00:59:34,349 --> 00:59:40,289
+选择的木筏设计方式是允许首领扔掉
+way the raft designs chosen to go is
+that the leader is allowed to throw away
+
+621
+00:59:40,289 --> 00:59:43,619
+某些追随者需要的部分日志，因此我们需要一些
+parts of its logs that would be needed
+by some follower and so we need some
+
+622
+00:59:43,619 --> 00:59:48,029
+追加条目以处理某些结尾之间的差距的其他方案
+other scheme that append entries to deal
+with the gap between the end of some
+
+623
+00:59:48,029 --> 00:59:51,839
+关注者登录领导者日志的开头，因此解决方案是
+followers log in the beginning of the
+leaders log and so that solution is the
+
+624
+00:59:51,839 --> 01:00:06,930
+安装快照RPC的方法是，当一个领导者时，我们会有一些跟随者
+install snapshot RPC and the deal is
+that when a leader we have some follower
+
+625
+01:00:06,930 --> 01:00:12,240
+谁的日志是，您知道刚刚打开日志，那么领导者将
+whose log is that you know just powered
+on its log as short the leaders gonna
+
+626
+01:00:12,240 --> 01:00:15,869
+发送并附加条目，您知道它将被强迫领导者
+send it and append entries and you know
+it's gonna be forced the leaders gonna
+
+627
+01:00:15,869 --> 01:00:19,079
+被迫备份，并且有时领导者知道失败或失败
+be forced to backup and at some point
+the leader you know failure or fail
+
+628
+01:00:19,079 --> 01:00:23,339
+依赖召回将使领导者意识到这已经到了开始
+dependent recalls will cause the leader
+to realize it it's reached the beginning
+
+629
+01:00:23,339 --> 01:00:27,150
+实际日志的门，然后在该位置发送而不是附加
+of the actual log its doors and at that
+point instead of sending in append
+
+630
+01:00:27,150 --> 01:00:33,569
+领导者将发送其当前快照的条目以及当前法律以及其发送的
+entries the leader will send its current
+snapshot plus current law well send its
+
+631
+01:00:33,569 --> 01:00:37,890
+当前快照给关注者，然后大概立即关注它
+current snapshot to the follower and
+then presumably immediately follow it
+
+632
+01:00:37,890 --> 01:00:43,190
+附有符合领导者现行法律的附加条目
+with an append entries that has the
+leaders current law
+
+633
+01:00:46,770 --> 01:00:49,770
+问题
+questions
+
+634
+01:00:52,369 --> 01:00:59,140
+是的，我很伤心，这就像在这里增加了很大的复杂性
+yeah I'm the sad truth this is like this
+is adds significant complexity here
+
+635
+01:00:59,140 --> 01:01:05,029
+ Jarrell我今年三岁，部分原因是因为需要这种合作
+Jarrell I'm three partially because of
+the kind of cooperation that's required
+
+636
+01:01:05,029 --> 01:01:08,779
+在拉夫之间，这有点违反模块化
+between raff this is sort of a little
+bit of a violation of modularity it
+
+637
+01:01:08,779 --> 01:01:13,579
+需要良好的合作，例如安装快照时
+requires a good deal cooperation like
+for example when an install snapshot
+
+638
+01:01:13,579 --> 01:01:17,779
+进入了筏，但筏确实需要应用程序
+comes in it's delivered to raft but raft
+really requires the application to
+
+639
+01:01:17,779 --> 01:01:24,109
+吸收快照，因此他们彼此之间要比其他人更多地交谈
+absorb the snapshot so they have to talk
+to each other more than they otherwise
+
+640
+01:01:24,109 --> 01:01:35,210
+可能是的问题是，这是创建快照的方式
+might yes the question is that this is
+the way the snapshot is created
+
+641
+01:01:35,210 --> 01:01:38,719
+完全取决于应用程序，因此快照
+dependent on the application
+it's absolutely it so the snapshot
+
+642
+01:01:38,719 --> 01:01:42,680
+创建功能是应用程序的一部分，就像钥匙一样
+creation function is part of the
+application as part of like the key
+
+643
+01:01:42,680 --> 01:01:46,789
+价值服务器，所以抽奖您知道如何以某种方式调用应用程序并说geez 
+value server so raffle you know somehow
+call up to the application and say geez
+
+644
+01:01:46,789 --> 01:01:50,329
+您知道我现在真的很喜欢应用程序中的快照，因为只有
+you know I really like a snapshot right
+now in the application because only the
+
+645
+01:01:50,329 --> 01:01:57,650
+应用程序了解其状态，并且您知道反函数
+application understands what it's status
+and you know the inverse function by
+
+646
+01:01:57,650 --> 01:02:01,729
+应用程序也可以完全从快照文件重建状态
+which an application reconstructs a
+state from a snapshot files also totally
+
+647
+01:02:01,729 --> 01:02:06,859
+当然，取决于每个应用程序在哪里交织在一起
+application dependent where there's
+intertwining because of course every
+
+648
+01:02:06,859 --> 01:02:12,789
+快照必须在日志中标有与之对应的点
+snapshot has to be labeled with a point
+in a log that it corresponds to
+
+649
+01:02:25,270 --> 01:02:39,680
+谈论第六条法则和十三条图，好吧，这里的问题
+talking about rule six and figure
+thirteen okay so yeah the question here
+
+650
+01:02:39,680 --> 01:02:46,250
+就是这样，您将在实验三中面临这个问题，因为RPC系统
+is that and you will be faced with this
+in lab three that because the RPC system
+
+651
+01:02:46,250 --> 01:02:50,900
+并非完全可靠且序列不正确，RBC可能无法
+isn't perfectly reliable and perfectly
+sequenced and RBC's can arrive out of
+
+652
+01:02:50,900 --> 01:02:54,650
+是否订购，或者您可能发送RPC并没有得到任何答复，并认为是
+order or not at all or you may send an
+RPC and get no response and think it was
+
+653
+01:02:54,650 --> 01:02:58,310
+丢失，但实际上已传递，并且丢失了所有这些回复
+lost but actually was delivered and was
+the reply that was lost all these things
+
+654
+01:02:58,310 --> 01:03:04,610
+发生包括将我们的个人电脑和领导者发送到任何安装快照的情况
+happen including to send to whatever
+install snapshot our pcs and the leaders
+
+655
+01:03:04,610 --> 01:03:08,750
+几乎可以肯定，我们同时发送了许多PC，您都知道
+almost certainly sending out many our
+pcs concurrently you know both append
+
+656
+01:03:08,750 --> 01:03:15,020
+条目和安装快照，这意味着您可以获取诸如install之类的信息
+entries and install snapshots that means
+that you can get things like install
+
+657
+01:03:15,020 --> 01:03:19,510
+回顾过去的电脑
+snapshot our pcs from deep in the past
+
+658
+01:03:20,560 --> 01:03:29,990
+几乎所有其他权利，因此追随者必须小心
+almost anything else right and therefore
+the the follower has to be careful you
+
+659
+01:03:29,990 --> 01:03:35,650
+知道必须仔细考虑到达的安装快照，并且
+know has to think carefully about an
+install snapshot that arrives and the
+
+660
+01:03:37,270 --> 01:03:41,990
+是的，我想您要问的是，跟随者是否收到
+yeah I think the specific thing you're
+asking is that if follower receives that
+
+661
+01:03:41,990 --> 01:03:46,310
+看起来完全冗余的安装快照，即安装
+an install snapshot that appears to be
+completely redundant that is the install
+
+662
+01:03:46,310 --> 01:03:50,390
+快照包含的信息早于关注者的信息
+snapshot contains information that's
+older than the information the follower
+
+663
+01:03:50,390 --> 01:03:55,250
+已经有了追随者应该做什么，并统治了第六条
+already has
+what should the follower do and rule six
+
+664
+01:03:55,250 --> 01:03:59,480
+图十三说了些什么，但我认为对此的同样有效的回应是
+and figure thirteen says something but I
+think equally valid response to that is
+
+665
+01:03:59,480 --> 01:04:07,460
+追随者可以忽略明显不是过去的快照
+that the follower can ignore a snapshot
+that clearly is from the past I don't
+
+666
+01:04:07,460 --> 01:04:17,990
+非常了解第六条规则，我想继续讲一些
+really understand that rule six okay I
+want to move on to sort of somewhat more
+
+667
+01:04:17,990 --> 01:04:24,730
+到目前为止，我们还没有真正尝试确定概念性话题
+conceptual topic for a bit so far we
+haven't really tried to nail down
+
+668
+01:04:24,730 --> 01:04:28,610
+关于什么是正确的一切
+anything about what it meant to be
+correct
+
+669
+01:04:28,610 --> 01:04:36,290
+我对复制服务的含义已经是任何其他类型的服务
+what I meant for a replicated service
+already any other kind of service to be
+
+670
+01:04:36,290 --> 01:04:42,320
+行为正确，原因以及您对我大多数人都知道
+behaving correctly and the reason why
+and you know whatever for most of my
+
+671
+01:04:42,320 --> 01:04:46,070
+我设法过上的生活而不必太担心精确
+life I managed to get by without
+worrying too much about precise
+
+672
+01:04:46,070 --> 01:04:49,730
+正确性的定义，但事实是您知道您是否要尝试
+definitions of correctness but the fact
+is that you know if you're trying to
+
+673
+01:04:49,730 --> 01:04:53,030
+优化某些东西，或者您尝试通过一些奇怪的极端情况进行思考
+optimize something or you're trying to
+think through some weird corner case
+
+674
+01:04:53,030 --> 01:04:58,100
+实际上有一个或多或少正式的决定方法通常是很方便的
+it's often handy to actually have a more
+or less formal way of deciding is that
+
+675
+01:04:58,100 --> 01:05:01,910
+行为正确与否，所以您知道我们在说什么
+behavior correct or not correct and so
+you know for here what we're talking
+
+676
+01:05:01,910 --> 01:05:05,540
+您是否知道客户正在将请求发送到我们复制的
+about is you know clients are sending in
+requests to the to our replicated
+
+677
+01:05:05,540 --> 01:05:09,710
+使用我们的PC进行服务，也许他们会派人知道该服务，也许是
+service with our PC maybe they'll be
+sending who knows well maybe the service
+
+678
+01:05:09,710 --> 01:05:14,210
+崩溃了，它可能正在启动，您知道正在加载快照或任何客户端
+is crash it can be starting and you know
+loading snapshots or whatever the client
+
+679
+01:05:14,210 --> 01:05:18,320
+发送请求并获得响应，例如响应正确吗？ 
+sends in a request and gets a response
+like is that response correct how are we
+
+680
+01:05:18,320 --> 01:05:22,430
+应该如何判断响应a是正确的还是
+supposed to how are we supposed to tell
+whether response a would be correct or
+
+681
+01:05:22,430 --> 01:05:27,740
+回应B，所以我们需要一个概念，我们需要一个相当正式的区分概念
+response B so we need a notion we need a
+pretty formal notion of distinguishing
+
+682
+01:05:27,740 --> 01:05:33,770
+哦，从现在开始还可以，这是一个错误的答案，对于本练习，我们
+oh that's okay from now that would be a
+wrong answer and for this lab the our
+
+683
+01:05:33,770 --> 01:05:42,410
+正确性的概念是线性化能力，我提到了强
+notion of correctness is linearize
+ability and I mentioned strong
+
+684
+01:05:42,410 --> 01:05:45,490
+一致性，我提到的一些论文具有很强的一致性和
+consistency and some of the papers I
+mentioned strong consistency and
+
+685
+01:05:45,490 --> 01:05:50,540
+基本等同于线性化能力线性化能力是一种
+basically equivalent to linearize
+ability linearize ability is a sort of a
+
+686
+01:05:50,540 --> 01:05:57,410
+形式化或多或少的行为，如果有
+formalization of more or less of the
+behavior you would expect if there was
+
+687
+01:05:57,410 --> 01:06:02,210
+只是一台服务器，并且没有崩溃，它执行了客户端请求的命令
+just one server and it didn't crash and
+it executed the command client requests
+
+688
+01:06:02,210 --> 01:06:09,170
+一次只有一个，您知道没有发生过什么有趣的事，所以它有一个
+one at a time and you know nothing funny
+ever happened so it has it has a
+
+689
+01:06:09,170 --> 01:06:14,110
+定义和定义我会写出定义然后再讨论
+definition and the definition I'll write
+out the definition then talk about it so
+
+690
+01:06:14,110 --> 01:06:30,830
+因此执行历史记录是可线性化的，可线性化，这在注释中
+so an execution history is linearizable
+linearizable and this is in the notes if
+
+691
+01:06:30,830 --> 01:06:34,910
+存在总订单，因此执行历史记录是一个序列
+there exists a total order so an
+execution history is a sequence of
+
+692
+01:06:34,910 --> 01:06:39,510
+客户请求也许来自许多客户的许多请求
+client requests maybe many requests from
+many clients
+
+693
+01:06:39,510 --> 01:06:53,640
+如果历史记录中有一些总的操作顺序，则它与
+if there's some total order of the
+operations in the history it matches the
+
+694
+01:06:53,640 --> 01:06:56,250
+请求的实时顺序，因此如果有一个请求
+real-time order of requests so if one
+request
+
+695
+01:06:56,250 --> 01:07:01,200
+如果客户发出请求并得到响应，然后再及时
+if client sends out a request and gets a
+response and then later in time another
+
+696
+01:07:01,200 --> 01:07:04,890
+客户端发出一个请求，我得到响应，这两个请求已排序
+client sends out a request and I get a
+response those two requests are ordered
+
+697
+01:07:04,890 --> 01:07:08,940
+因为其中一个在另一个完成之后开始
+because one of them's started after the
+other one finished
+
+698
+01:07:08,940 --> 01:07:13,860
+所以它的线性化历史是线性化的，如果存在一个阶
+so it's linearizable history is
+linearizable if there exists an order of
+
+699
+01:07:13,860 --> 01:07:23,250
+历史记录中与非并发实时匹配的操作
+the operations in the history that
+matches real-time for non concurrent
+
+700
+01:07:23,250 --> 01:07:42,270
+要求没有时间重叠的请求，每次阅读都可以
+requests that is for a request to didn't
+overlap in time and each read you can
+
+701
+01:07:42,270 --> 01:07:46,740
+认为它是每个读取都从最前面的值看到的值
+think of it as each read sees the value
+from the most immediately preceding
+
+702
+01:07:46,740 --> 01:08:08,400
+顺序访问同一条数据的最新权利
+right to the the same piece of data most
+recent right in the order all right this
+
+703
+01:08:08,400 --> 01:08:12,620
+这个定义让我通过示例来说明它的含义
+is the definition let me illustrate what
+it means by running through an example
+
+704
+01:08:12,620 --> 01:08:16,620
+因此，历史记录首先是客户操作的记录，所以这是一个
+so first of all the history is a record
+of client operations so this is a
+
+705
+01:08:16,620 --> 01:08:20,580
+您可以从此定义之外应用的定义并不有吸引力
+definition that you can apply from
+outside this definition doesn't appeal
+
+706
+01:08:20,580 --> 01:08:24,540
+以任何方式了解实施内部发生的情况或实施的方式
+in any way to what happens inside the
+implementation or how the implementation
+
+707
+01:08:24,540 --> 01:08:30,000
+如果我们看到系统正在运行并且可以观察的话，那是可以做到的
+works it's something that we can if we
+see a system operating and we can watch
+
+708
+01:08:30,000 --> 01:08:34,290
+传入和传出的消息我们可以回答的问题是执行
+the messages that come in and out we can
+answer the question was that execution
+
+709
+01:08:34,290 --> 01:08:42,410
+我们观察到线性化，所以让我
+that we observe linearizable so let me
+
+710
+01:08:44,830 --> 01:08:51,160
+让我写出历史，并讨论为什么它是线性化的或不可线性化的
+let me write out of history and talk
+about why it is or isn't linearizable
+
+711
+01:08:53,529 --> 01:09:03,379
+好的，这是一个示例，新的眼睛功能谈到了操作
+
+712
+01:09:03,380 --> 01:09:07,250
+从一个点开始，到另一个点结束，所以这对应于
+start at one point and end at another
+and so this corresponds to the time at
+
+713
+01:09:07,250 --> 01:09:13,970
+哪个客户发送了一个请求，然后又收到了回复，所以让我们假设
+which a client sends a request and then
+later receives a reply so let us suppose
+
+714
+01:09:13,970 --> 01:09:19,189
+我们的历史表明，在这个特定时间的某个客户
+that our history says that at at some
+particular time this time some client
+
+715
+01:09:19,189 --> 01:09:24,579
+发送了对名为X的数据项的写入请求，并要求将其设置为1 
+
+716
+01:09:24,580 --> 01:09:30,170
+然后时间过去了，第二个竖线是该客户获得
+and then time passed and at the second
+vertical bar is when that client got a
+
+717
+01:09:30,170 --> 01:09:33,290
+此时通过发送请求进行回复，您知道时间过去，谁知道
+reply through send a request at this
+point you know time pass who knows
+
+718
+01:09:33,290 --> 01:09:37,729
+当客户在那里收到回复，然后稍后及时
+what's happening when the client got a
+reply there and then later in time that
+
+719
+01:09:37,729 --> 01:09:40,279
+客户或其他客户并不重要
+client or some other client doesn't
+really matter
+
+720
+01:09:40,279 --> 01:09:45,469
+再次发送对项目X和值2的写入请求，并获得响应
+
+721
+01:09:45,470 --> 01:09:56,990
+正确，与此同时，一些客户端发送对X的读取并获得值2并发送了
+right meanwhile some client sends a read
+for X and gets value 2 and sent the
+
+722
+01:09:56,990 --> 01:10:00,890
+在那里请求并获得值为2的响应，还有另一个
+request there and got the response with
+value 2 there and there's another
+
+723
+01:10:00,890 --> 01:10:07,280
+请求我们观察到它是历史记录的一部分已发送给阅读
+request that we observed it's a part of
+the history request was sent to read
+
+724
+01:10:07,280 --> 01:10:14,750
+值X并返回值1，所以当我们有这样的历史记录时，您
+value X and it got value 1 back and so
+when we have a history like this you
+
+725
+01:10:14,750 --> 01:10:17,690
+知道问题是您问这个历史的吗？ 
+know the question were that you asked
+about this history is is this a
+
+726
+01:10:17,690 --> 01:10:22,310
+机械化服务做系统的线性化历史
+linearizable history that is did the
+machinery did the service did the system
+
+727
+01:10:22,310 --> 01:10:28,430
+产生了这个历史，是线性化的系统还是它产生了
+that produced this history and was that
+a linearizable system or did it produce
+
+728
+01:10:28,430 --> 01:10:31,790
+在这种情况下，如果此历史不是线性听不见的，则为可线性化的历史
+a linearizable history in this case if
+this history is not linear inaudible
+
+729
+01:10:31,790 --> 01:10:38,750
+然后丽莎，我们在谈论我有3个，我们知道那里有一个问题
+then then Lisa we're talking about I
+have 3 we know we have a problem there
+
+730
+01:10:38,750 --> 01:10:43,460
+必须是一些可以的错误，所以我们需要对此进行分析，以确定是否
+must be some some bug ok so we need to
+analyze this to figure out if it's
+
+731
+01:10:43,460 --> 01:10:48,830
+线性化的线性化能力要求我们产生一个订单
+linearizable there's linear linearize
+ability requires us to produce an order
+
+732
+01:10:48,830 --> 01:10:54,800
+您知道该历史中四个操作的一个顺序，所以我们知道
+you know one by one order of the four
+operations in that history so we know
+
+733
+01:10:54,800 --> 01:10:57,050
+我们正在寻找订单，并且有两个约束
+we're looking for an order and there's
+two constraints on the
+
+734
+01:10:57,050 --> 01:11:07,640
+命令之一是，如果一项操作在另一项操作开始之前完成，则该操作
+order one is if one operation finished
+before another started then the one that
+
+735
+01:11:07,640 --> 01:11:13,790
+首先完成必须在历史上排在第一位，另一个是如果有人看过
+finished first has to come first in the
+history the other is if some read sees a
+
+736
+01:11:13,790 --> 01:11:20,920
+特定的写入值，则读取必须按顺序在写入之后进行
+particular written value then the read
+must come after the write in the order
+
+737
+01:11:20,920 --> 01:11:24,380
+好吧，我们要订购，所以我们要产生一个有四个订单
+all right so we want to order so we're
+gonna produce an order that has four
+
+738
+01:11:24,380 --> 01:11:29,030
+输入两个权利和两个线索，我将用箭头画出
+entries the two rights and the two leads
+I'm gonna draw with arrows that
+
+739
+01:11:29,030 --> 01:11:33,800
+这两个规则所暗示的约束，那么我们的命令就必须服从
+constraints implied by those two rules
+and then our order is gonna have to obey
+
+740
+01:11:33,800 --> 01:11:39,200
+这些约束，所以一个约束是此写操作在此之前完成
+these constraints so one constraint is
+that this write finished before this
+
+741
+01:11:39,200 --> 01:11:44,420
+写操作开始，因此排序约束之一是该写操作
+write started and therefore one of the
+ordering constraints is that this write
+
+742
+01:11:44,420 --> 01:11:51,290
+必须以总顺序出现，在此写入之前，此读取看到了
+must appear in the total order before
+this write this read saw the value of
+
+743
+01:11:51,290 --> 01:11:59,090
+所以总阅读顺序必须是两个
+two so in the total order the most
+recent right that this read must come
+
+744
+01:11:59,090 --> 01:12:03,610
+在此权利之后，此写入必须是最新的权利，这意味着
+after this right and this write must be
+the most recent right so that means that
+
+745
+01:12:03,610 --> 01:12:08,930
+按照总顺序，我们必须看到X-2的右边，然后在它后面读取X 
+in the total order we must see the right
+of X - 2 and then after it the read of X
+
+746
+01:12:08,930 --> 01:12:21,050
+它产生-如果我们假设X尚未读取，则X的读数为1 
+it yields - and this this read of X of 1
+if we assume that the X didn't already
+
+747
+01:12:21,050 --> 01:12:27,020
+值1一定存在这种关系，那就是读取
+have the value 1 there there must be in
+this relationship and that is the read
+
+748
+01:12:27,020 --> 01:12:32,750
+必须紧随权利之后，并且此权利也必读
+must come after the right and this read
+also must become for this right and
+
+749
+01:12:32,750 --> 01:12:37,910
+也许还有其他限制-无论如何我们都可以接受
+maybe there's some other restrictions -
+anyway we can take these we can take
+
+750
+01:12:37,910 --> 01:12:41,090
+这组箭头并将其展平成一个顺序，实际上如此
+this set of arrows and flatten it out
+into an order and that actually works so
+
+751
+01:12:41,090 --> 01:12:45,590
+该订单即表明该历史记录的总订单
+the order that's the total order that
+demonstrates that this history is
+
+752
+01:12:45,590 --> 01:12:56,510
+ linearizable首先是x-1的右边，然后是x的读数产生1，然后是
+linearizable is first the right of x - 1
+then the read of x yielding 1 then the
+
+753
+01:12:56,510 --> 01:13:03,190
+ x-2的右边和x的读数产生2 
+right of x - 2 and the read of x that
+yields 2
+
+754
+01:13:03,920 --> 01:13:07,920
+好吧，所以这个命令确实遵守命令
+alright so the fact that there is this
+order that does obey the ordering
+
+755
+01:13:07,920 --> 01:13:13,980
+约束条件表明该历史记录是线性化能力，您不知道吗
+constraints shows that this history is
+linearize ability and doesn't you know
+
+756
+01:13:13,980 --> 01:13:17,940
+如果我们担心产生此历史的系统是否
+if we're worried about the system that
+produced this history whether it's a but
+
+757
+01:13:17,940 --> 01:13:22,110
+该系统是线性的，那么我们看到的这个特定示例没有
+that system is linearizable then this
+particular example we saw it doesn't
+
+758
+01:13:22,110 --> 01:13:29,040
+与该系统可线性化的任何假设相矛盾
+contradict the presumption that the
+system is linearizable any questions
+
+759
+01:13:29,040 --> 01:13:48,150
+关于我每次读取时看到的内容，您知道读取X时所看到的值必须是
+about what I just did each read sees you
+know read of X the value it sees must be
+
+760
+01:13:48,150 --> 01:13:56,330
+它们按顺序按最近的程序正确编写的值，因此
+them value written by the most the most
+recent proceeding right in the order so
+
+761
+01:13:56,330 --> 01:14:00,239
+您知道在这种情况下，我们完全可以接受此订单，因为
+you know in this case in this case we're
+totally ok with this order because this
+
+762
+01:14:00,239 --> 01:14:04,770
+读取它看到的值确实是最近一次写入所写入的值
+read the value it saw is indeed the
+value written by the most recent write
+
+763
+01:14:04,770 --> 01:14:12,630
+按照这个顺序，这读了它感叹的价值，我的意思是非正式地
+in this order and this read the value it
+sighs I mean in informally it's that
+
+764
+01:14:12,630 --> 01:14:17,940
+如果我在Rita中写了一些东西，那么不能真正读的读取就不会产生过时的数据
+reads can't real should not be yielding
+stale data if I write something in Rita
+
+765
+01:14:17,940 --> 01:14:21,870
+回到天哪，我应该看到我写的值，这就像
+back gosh I should see the value I wrote
+and that's like a formalization of the
+
+766
+01:14:21,870 --> 01:14:24,230
+认为
+notion that
+
+767
+01:14:27,530 --> 01:14:40,430
+哦，是的，是的，好吧，让我，让我，他说对了，这不是
+oh yes oh yeah yeah all right let me let
+me he's right up example that's not
+
+768
+01:14:40,430 --> 01:14:48,110
+确实是线性化的，因此示例二让我们假设我们的历史是我们有权
+indeed linearizable so example two let's
+suppose our history is we had a right of
+
+769
+01:14:48,110 --> 01:14:57,880
+ X值为一，右为第二
+X value one right back with value two
+
+770
+01:15:14,090 --> 01:15:20,120
+所以我们也想写出箭头，所以我们知道
+and so this one we also want to write
+out the arrows and so we know what the
+
+771
+01:15:20,120 --> 01:15:26,120
+约束在任何总阶上，我们可能会发现X的权利为1，因为
+constraints are on any total order we
+might find the right of X to one because
+
+772
+01:15:26,120 --> 01:15:31,130
+之所以需要时间，是因为它是在正确的x开始之前实时完成的，并且必须
+of time because it finished in real time
+before the right x to started and must
+
+773
+01:15:31,130 --> 01:15:38,510
+在以任何令人满意的顺序出现之前，我们必须产生Ecsta的权利，两个必须
+come before in any satisfying order we
+produce the right of Ecsta two has to
+
+774
+01:15:38,510 --> 01:15:45,280
+出现在X的读取之前就在右边，它产生两个，所以我们有这个箭头
+come before the right before the read of
+X that yields two so we have this arrow
+
+775
+01:15:46,840 --> 01:15:51,410
+ X的读取必须在X到1的读取开始之前完成，所以我们有了这个
+the read of X had to finished before the
+read of X to one started so we have this
+
+776
+01:15:51,410 --> 01:16:03,830
+箭头和X读为1，因为它看到值1必须在
+arrow and the read of X to one because
+it saw value one has to come after the
+
+777
+01:16:03,830 --> 01:16:09,770
+ X-1的权利，更重要的是X 2的权利-更重要的是，我们不能
+right of X - 1 and more crucially before
+the right of X 2 - right so we can't
+
+778
+01:16:09,770 --> 01:16:14,240
+如果先紧跟着X，我将写出X 
+have this read of X yielding one if it's
+immediately preceded by I'll write out X
+
+779
+01:16:14,240 --> 01:16:23,060
+ -2所以我们也有这样的箭头，因为其中有一个循环
+- 2 so we also have this arrow like this
+and because there's a cycle in these
+
+780
+01:16:23,060 --> 01:16:29,150
+约束没有可以遵循所有这些约束的命令，因此
+constraints there's no order that can
+obey all these constraints and therefore
+
+781
+01:16:29,150 --> 01:16:37,660
+这个历史不是线性化的，因此产生它的系统是
+this history is not linearizable and so
+the system that produced it is
+
+782
+01:16:37,660 --> 01:16:44,320
+不是一个线性化的系统，您知道历史将是线性化的
+is not a linearizable system you know
+would be linearizable the history was
+
+783
+01:16:44,320 --> 01:17:05,770
+缺少这三个中的任何一个，我会中断周期，是的，也许我不是
+missing any one of these three and I
+would break the cycle yes maybe I'm not
+
+784
+01:17:05,770 --> 01:17:11,230
+可以肯定，因为假设还是我不知道如何合并像这样的非常奇怪的东西
+sure because suppose or I don't know how
+to incorporate very strange things like
+
+785
+01:17:11,230 --> 01:17:18,910
+假设某人为红色27，您知道如果没有27的权利并不是真的
+supposing somebody red 27 you know it
+doesn't really if there's no right of 27
+
+786
+01:17:18,910 --> 01:17:23,710
+读27至少不会像我写出规则那样排序
+a read of 27 doesn't at least the way
+I've written out the rules doesn't sort
+
+787
+01:17:23,710 --> 01:17:29,200
+当然，您可能会构建某种反依赖性
+of well there may be some sort of anti
+dependency that you would construct okay
+
+788
+01:17:29,200 --> 01:17:35,340
+嗯，下周我将继续讨论
+um I will continue this discussion next
+week
+

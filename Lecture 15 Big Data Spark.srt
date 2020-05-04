@@ -1,0 +1,4153 @@
+1
+00:00:06,899 --> 00:00:17,770
+好的，今天我们要谈论火花
+all right today today we're going to
+talk about spark spark say essentially a
+
+2
+00:00:17,770 --> 00:00:24,400
+您可以将它视为MapReduce的后续产品，这是
+successor to MapReduce you can think of
+it as a kind of evolutionary step in
+
+3
+00:00:24,400 --> 00:00:31,210
+ MapReduce以及我们正在研究它的一个原因是，它如今已广泛用于
+MapReduce and one reason we're looking
+at it is that it's widely used today for
+
+4
+00:00:31,210 --> 00:00:37,260
+事实证明，数据中心计算非常流行并且非常有用
+data center computations that's turned
+out to be very popular and very useful
+
+5
+00:00:37,260 --> 00:00:41,589
+它要做的一件有趣的事情是它
+one interesting thing it does which will
+pay attention to is that it it
+
+6
+00:00:41,589 --> 00:00:47,550
+概括了MapReduce两个阶段的类型，将地图引入了
+generalizes the kind of two stages of
+MapReduce the map introduced into a
+
+7
+00:00:47,550 --> 00:00:57,579
+完整的多步数据流图概念，这对
+complete notion of multi-step data flow
+graphs that and this is both helpful for
+
+8
+00:00:57,579 --> 00:01:02,139
+程序员的灵活性，它更具表现力，并且还为系统
+flexibility for the programmer it's more
+expressive and it also gives the system
+
+9
+00:01:02,139 --> 00:01:07,530
+在优化和优化方面，SPARC系统还有很多需要解决的问题
+the SPARC system a lot more to chew on
+when it comes to optimization and
+
+10
+00:01:07,530 --> 00:01:12,759
+处理故障和处理故障，以及
+dealing with faults dealing with
+failures and also for the from the
+
+11
+00:01:12,759 --> 00:01:16,539
+程序员的角度来看它支持迭代应用程序
+programmers point of view it supports
+iterative applications application said
+
+12
+00:01:16,539 --> 00:01:21,909
+您知道有效地循环数据要比产生我们更好
+you know loop over the data effectively
+much better than that produced us you
+
+13
+00:01:21,909 --> 00:01:27,579
+可以通过运行多个MapReduce应用程序将很多东西拼凑在一起
+can cobble together a lot of stuff with
+multiple MapReduce applications running
+
+14
+00:01:27,579 --> 00:01:36,149
+一个接一个，但是在SPARC中一切都更加方便，所以我
+one after another but it's all a lot
+more convenient in and SPARC okay so I
+
+15
+00:01:36,149 --> 00:01:41,909
+我想我将从一个示例应用程序开始，这是
+think I'm just gonna start right off
+with an example application this is the
+
+16
+00:01:41,909 --> 00:01:52,840
+ PageRank的代码，我将复制以下代码进行一些更改
+code for PageRank and I'll just copy
+this code with a few a few changes from
+
+17
+00:01:52,840 --> 00:01:56,789
+中的一些示例源代码
+some sample source code in the
+
+18
+00:01:57,520 --> 00:02:02,680
+在火花源中，我想这实际上有点难以阅读
+in the spark source I guess it's
+actually a little bit hard to read let
+
+19
+00:02:02,680 --> 00:02:06,479
+我只是给我第二条定律尝试使其变大
+me just give me a second law try to make
+it bigger
+
+20
+00:02:14,860 --> 00:02:20,120
+好的，所以如果这太难读了，是否有它的副本
+all right okay so if this is if this is
+too hard to read is there's a copy of it
+
+21
+00:02:20,120 --> 00:02:26,570
+在注释中，它是代码的扩展以及本文的第3至2节
+in the notes and it's an expansion of
+the code and section 3 to 2 in the paper
+
+22
+00:02:26,570 --> 00:02:33,500
+页面排名，这是一种算法，Google使用了非常著名的算法
+a page rank which is a algorithm that
+Google uses pretty famous algorithm for
+
+23
+00:02:33,500 --> 00:02:42,380
+计算不同网页搜索结果对PageRank的重要性
+calculating how important different web
+search results are what PageRank is
+
+24
+00:02:42,380 --> 00:02:46,700
+试图做得好实际上PageRank有点广泛
+trying to do
+well actually PageRank is sort of widely
+
+25
+00:02:46,700 --> 00:02:51,350
+用作无法正常工作的示例， 
+used as an example of something that
+doesn't actually work that well and
+
+26
+00:02:51,350 --> 00:02:56,510
+ MapReduce，原因是PageRank涉及一堆
+MapReduce and the reason is that
+PageRank involves a bunch of sort of
+
+27
+00:02:56,510 --> 00:03:01,130
+截然不同的步骤，更糟的是，PageRank涉及迭代，其中存在循环
+distinct steps and worse PageRank
+involves iteration there's a loop in it
+
+28
+00:03:01,130 --> 00:03:06,130
+必须运行很多次，MapReduce没什么可说的
+that's got to be run many times and
+MapReduce just has nothing to say about
+
+29
+00:03:06,130 --> 00:03:15,860
+关于迭代，此版本的PageRank的输入PageRank只是一个
+about iteration the input the PageRank
+for this version of PageRank is just a
+
+30
+00:03:15,860 --> 00:03:23,360
+网络中每个链接一个巨大的行集合，然后每行有两个
+giant collection of lines one per link
+in the web and each line then has two
+
+31
+00:03:23,360 --> 00:03:28,550
+ URLs包含链接的页面的URL以及包含该链接的链接的URL 
+URLs the URL of the page containing a
+link and the URL of the link that that
+
+32
+00:03:28,550 --> 00:03:33,920
+页面指​​向，您是否知道目的是通过以下方式获取此文件
+page points to and you know if the
+intent is that you get this file from by
+
+33
+00:03:33,920 --> 00:03:38,390
+爬网并查看所有内容，将所有链接收集在一起
+crawling the web and looking at all the
+all collecting together all the links in
+
+34
+00:03:38,390 --> 00:03:46,790
+网络的输入绝对是巨大的，只是一种愚蠢的行为
+the web's the input is absolutely
+enormous and as just a sort of silly
+
+35
+00:03:46,790 --> 00:03:53,180
+从我实际运行这段代码时为我们提供的小例子，我给出了一些
+little example for us from when I
+actually run this code I've given some
+
+36
+00:03:53,180 --> 00:03:56,959
+这里输入示例，这就是impro真正看起来的样子
+example input here and this is the way
+the impro would really look it's just
+
+37
+00:03:56,959 --> 00:04:03,290
+每行用两个URL排列，我使用的是u1，即页面的URL和u3 
+lines each line with two URLs and I'm
+using u1 that's the URL of a page and u3
+
+38
+00:04:03,290 --> 00:04:09,489
+例如作为该页面指向的链接的URL，只是为了方便
+for example as the URL of a link that
+that page points to just for convenience
+
+39
+00:04:09,489 --> 00:04:15,230
+所以这个输入文件代表的网络图只有三页
+and so the web graph that this input
+file represents there's only three pages
+
+40
+00:04:15,230 --> 00:04:22,610
+在其中一二三中，我可以解释这些链接，其中有一个链接
+in it one two three I could just
+interpret the links there's a link from
+
+41
+00:04:22,610 --> 00:04:27,419
+一二三有一个从一回到自己的链接
+one two three
+there's a link from one back to itself
+
+42
+00:04:27,419 --> 00:04:32,710
+有一个从两个到三个的网络链接，有一个从两个回到的网络链接。 
+there's a web link from two to three
+there's a web link from two back to
+
+43
+00:04:32,710 --> 00:04:39,190
+本身，并且有一个从三到一个的网络链接，就像一个非常简单的图表
+itself and there's a web link from three
+to one just like a very simple graph
+
+44
+00:04:39,190 --> 00:04:45,100
+构造PageRank尝试做的事情是您知道重要性的估计
+structure what PageRank is trying to do
+it's you know estimating the importance
+
+45
+00:04:45,100 --> 00:04:50,620
+每页的真正含义是它在评估重要性
+of each page what that really means is
+that it's estimating the importance
+
+46
+00:04:50,620 --> 00:04:56,979
+根据其他重要页面是否具有指向给定页面的链接以及
+based on whether other important pages
+have links to a given page and what's
+
+47
+00:04:56,979 --> 00:05:01,150
+真正在这里发生的是这种对估计概率的建模
+really going on here is this kind of
+modeling the estimated probability that
+
+48
+00:05:01,150 --> 00:05:08,199
+单击链接的用户将在每个给定页面上结束，因此该用户
+a user who clicks on links will end on
+each given page so it has this user
+
+49
+00:05:08,199 --> 00:05:14,289
+用户有85％的机会跟随来自
+model in which the user has a 85 percent
+chance of following a link from the
+
+50
+00:05:14,289 --> 00:05:19,150
+用户当前页面，该页面来自用户当前的随机选择的链接
+users current page following a randomly
+selected link from the users current
+
+51
+00:05:19,150 --> 00:05:25,900
+页面转到该链接所指向的位置，并有15％的机会简单地切换到某些链接
+page to wherever that link leads and a
+15% chance of simply switching to some
+
+52
+00:05:25,900 --> 00:05:29,080
+其他页面，即使没有链接也不会像您知道的那样链接
+other page even though there's not a
+link to it as you would if you you know
+
+53
+00:05:29,080 --> 00:05:38,949
+直接在浏览器中输入一个URL，想法是他喝了
+entered a URL directly into the browser
+and the idea is that the he drank
+
+54
+00:05:38,949 --> 00:05:45,400
+算法类型重复运行此算法，它模拟用户查看
+algorithm kind of runs this repeatedly
+it sort of simulates the user looking at
+
+55
+00:05:45,400 --> 00:05:51,610
+页面，然后点击链接，并添加了from页面的重要性
+a page and then following a link and
+kind of adds the from pages importance
+
+56
+00:05:51,610 --> 00:05:55,720
+到目标网页的重要性，然后再运行一次， 
+to the target pages importance and then
+sort of runs this again and it's going
+
+57
+00:05:55,720 --> 00:06:02,889
+最终进入像SPARC上的页面排名之类的系统，它将在某种程度上运行
+to end up in the system like page rank
+on SPARC it's going to kind of run this
+
+58
+00:06:02,889 --> 00:06:09,030
+模拟所有页面并行或有文字
+simulation for all pages in parallel it
+or literately
+
+59
+00:06:09,900 --> 00:06:14,680
+的想法是，它将跟踪算法将保持
+the and the idea is that it's going to
+keep track the algorithms gonna keep
+
+60
+00:06:14,680 --> 00:06:19,560
+跟踪每个页面或每个URL的页面排名，并对其进行更新
+track of the page rank of every single
+page or every single URL and update it
+
+61
+00:06:19,560 --> 00:06:24,610
+因为它模拟了随机的用户点击，我的意思是最终
+as it sort of simulates random user
+clicks I mean that eventually that those
+
+62
+00:06:24,610 --> 00:06:31,529
+排名现在将收敛于真正的最终价值
+ranks will converge on kind of the true
+final values now
+
+63
+00:06:31,529 --> 00:06:37,259
+因为它是迭代的，尽管您可以在快速的MapReduce中编写代码，但这是一个
+because it's iterative although you can
+code this up in rapid MapReduce it's a
+
+64
+00:06:37,259 --> 00:06:45,439
+痛苦的是，它不能只是一个MapReduce程序，而必须是多个
+pain it can't be just a single MapReduce
+program it has to be multiple you know
+
+65
+00:06:45,439 --> 00:06:51,359
+多次调用MapReduce应用程序，其中每个调用
+multiple calls to a MapReduce
+application where each call sort of
+
+66
+00:06:51,359 --> 00:06:55,739
+模拟迭代中的一个步骤，因此您可以在MapReduce中进行操作，但这是一个
+simulates one step in the iteration so
+you can do in a MapReduce but it's a
+
+67
+00:06:55,739 --> 00:07:00,479
+痛苦，这也是一种斜率，因为MapReduce只考虑了一个
+pain and it's also kind of slope because
+MapReduce it's only thinking about one
+
+68
+00:07:00,479 --> 00:07:05,279
+ map和一个reduce，它总是从磁盘的GFS中读取其输入
+map and one reduce and it's always
+reading its input from the GFS from disk
+
+69
+00:07:05,279 --> 00:07:09,089
+和GFS文件系统，并始终写入其输出，这就是
+and the GFS filesystem and always
+writing its output which would be this
+
+70
+00:07:09,089 --> 00:07:17,069
+每页更新的等级每个阶段还写入每页更新的那些
+sort of updated per page ranks every
+stage also writes those updated per page
+
+71
+00:07:17,069 --> 00:07:23,009
+也可以在GFS中对文件进行排名，因此如果您将其作为排序运行，则会有很多文件I / O 
+ranks to files in GFS also so there's a
+lot of file i/o if you run this as sort
+
+72
+00:07:23,009 --> 00:07:31,279
+一系列MapReduce应用程序的正确处理，所以我们这里有这个总和
+of a sequence of MapReduce applications
+all right so we have here this sum
+
+73
+00:07:31,279 --> 00:07:35,869
+嗯，有一个PageRank代码，我实际上要冒出来
+there's an a PageRank code that came
+with um came a spark I'm actually gonna
+
+74
+00:07:35,869 --> 00:07:40,009
+为你运行它，我要为你运行整个过程
+run it for you I'm gonna run the whole
+thing for you
+
+75
+00:07:40,009 --> 00:07:44,359
+这段代码显示在我刚才显示的输入中，以查看最终
+this code shown here on the input that
+I've shown just to see what the final
+
+76
+00:07:44,359 --> 00:07:50,259
+输出是，然后我将仔细检查，我们将逐步进行
+output is and then I'll look through and
+we're going to step by step and
+
+77
+00:07:52,679 --> 00:08:02,619
+展示它如何执行，所以现在您应该在
+show how it executes alright so here's
+the you should see a screen share now at
+
+78
+00:08:02,619 --> 00:08:10,199
+一个终端窗口，我向您显示输入文件，然后我得到了帮助
+a terminal window and I'm showing you
+the input file then I got a hand to this
+
+79
+00:08:10,199 --> 00:08:17,019
+ PageRank程序，现在是我的阅读方式，我知道您已经下载了
+PageRank program and now here's how I
+read it I've you know I've downloaded a
+
+80
+00:08:17,019 --> 00:08:23,529
+将SPARC复制到我的笔记本电脑上，事实证明这很容易，如果是
+copy of SPARC to my laptop it turns out
+to be pretty easy and if it's a pre
+
+81
+00:08:23,529 --> 00:08:29,229
+我可以运行它的编译版本，它只在Java虚拟机中运行
+compiled version of it I can just run it
+just runs in the Java Virtual Machine I
+
+82
+00:08:29,229 --> 00:08:33,789
+可以非常轻松地运行它，因此它实际上是在下载SPARC并运行
+can run it very easily so it's actually
+doing downloading SPARC and running
+
+83
+00:08:33,789 --> 00:08:37,559
+简单的东西原来很简单，所以我要运行
+simple stuff turns out to be pretty
+straightforward so I'm gonna run the
+
+84
+00:08:37,559 --> 00:08:43,418
+我用输入显示的代码，我们会看到很多
+
+85
+00:08:43,419 --> 00:08:52,089
+错误消息的流逝，但最终支持人员运行了程序并打印
+of junk error messages go by but in the
+end support runs the program and prints
+
+86
+00:08:52,089 --> 00:08:56,399
+最终结果，我们得到了我拥有的三个页面的三个排名， 
+the final result and we get these three
+ranks for the three pages I have and
+
+87
+00:08:56,399 --> 00:09:01,889
+显然第一页的排名最高
+apparently page one has the highest rank
+
+88
+00:09:02,819 --> 00:09:09,160
+我不完全知道为什么，但这就是算法最终要做的
+and I'm not completely sure why but
+that's what the algorithm ends up doing
+
+89
+00:09:09,160 --> 00:09:13,439
+所以您当然知道我们对算法本身并不是很感兴趣
+so you know of course we're not really
+that interested in the algorithm itself
+
+90
+00:09:13,439 --> 00:09:26,470
+就像我们如何执行arc执行一样，所以我要动手
+so much as how we execute arc execute
+sit all right so I'm gonna hand to
+
+91
+00:09:26,470 --> 00:09:33,339
+了解什么是编程模型并产生火花，因为它可能不完全是
+understand what the programming model is
+and spark because it's perhaps not quite
+
+92
+00:09:33,339 --> 00:09:40,779
+看起来该如何将程序逐行交给SPARC 
+what it looks like I'm gonna hand the
+program line by line to the SPARC
+
+93
+00:09:40,779 --> 00:09:49,240
+解释器，因此您可以启动此火花外壳程序并为其输入代码
+interpreter so you can just fire up this
+spark shell thing and type code to it
+
+94
+00:09:49,240 --> 00:09:57,730
+直接，所以我已经准备了一个版本的MapReduce程序， 
+directly so I've sort of prepared a
+version of the MapReduce program that I
+
+95
+00:09:57,730 --> 00:10:05,800
+可以一次在此处运行一行，因此第一行是该行所在的行
+can run a line at a time here so the
+first line is this line in which it
+
+96
+00:10:05,800 --> 00:10:11,019
+读取或要求SPARC读取此输入文件，并且您知道输入
+reads the or asking SPARC to read this
+input file and it's you know the input
+
+97
+00:10:11,019 --> 00:10:15,990
+我带三个页面显示的文件
+file I showed with the three pages in it
+
+98
+00:10:16,110 --> 00:10:23,110
+好的，所以这里要注意的是，当Sparky是文件时， 
+okay so one thing there notice here is
+is that when Sparky's a file what is
+
+99
+00:10:23,110 --> 00:10:29,769
+实际要做的是从GFS（如分布式文件系统）中读取文件，然后
+actually doing is reading a file from a
+GFS like distributed file system and
+
+100
+00:10:29,769 --> 00:10:36,579
+碰巧是HDFS Hadoop文件系统，但是这个HDFS文件系统非常
+happens to be HDFS the Hadoop file
+system but this HDFS file system is very
+
+101
+00:10:36,579 --> 00:10:40,720
+很像GFS，所以如果您有一个巨大的文件，就像拥有一个文件
+much like GFS so if you have a huge file
+as you would with got a file with all
+
+102
+00:10:40,720 --> 00:10:46,720
+所有链接的URL和HDFS上的Web都将文件拆分
+the URLs all the links and the web on it
+on HDFS is gonna split that file up
+
+103
+00:10:46,720 --> 00:10:51,730
+在很多您知道的东西中，它会将文件分片
+among lots and lots you know bite by
+chunks it's gonna shard the file over
+
+104
+00:10:51,730 --> 00:10:57,329
+很多服务器，所以读取文件的真正含义是
+lots and lots of servers and so what
+reading the file really means is that
+
+105
+00:10:57,329 --> 00:11:02,740
+ spark将安排对许多许多应用进行计算
+spark is gonna arrange to run a
+computation on each of many many
+
+106
+00:11:02,740 --> 00:11:10,209
+机器，每个机器读取输入文件的一个块或一个分区，然后
+machines each of which reads one chunk
+or one partition of the input file and
+
+107
+00:11:10,209 --> 00:11:16,209
+实际上实际上是系统终止或HDFS终止将文件大分割
+in fact actually the system ends up or
+HDFS ends up splitting the file big
+
+108
+00:11:16,209 --> 00:11:19,319
+文件通常会进入更多分区
+files typically into many more
+partitions
+
+109
+00:11:19,319 --> 00:11:23,860
+然后有工作机，所以每台工作机都将结束
+then there are worker machines and so
+every worker machine is going to end up
+
+110
+00:11:23,860 --> 00:11:28,990
+负责查看输入文件的多个分区
+being responsible for looking at
+multiple partitions of the input files
+
+111
+00:11:28,990 --> 00:11:37,670
+这很像地图的工作方式mapreduce好吧，所以这是第一行
+this is all a lot like the way map works
+mapreduce okay so this is the first line
+
+112
+00:11:37,670 --> 00:11:44,180
+在程序中，您可能想知道变量行实际上是什么，所以在
+in the program and you may wonder what
+the variable lines actually hold so in
+
+113
+00:11:44,180 --> 00:11:50,840
+打印出线条的结果，但带有线条点-事实证明，即使
+printed the result of lines but with the
+lines points - it turns out that even
+
+114
+00:11:50,840 --> 00:11:55,880
+尽管看起来我们已经输入了一行代码，要求系统读取
+though it looks like we've typed a line
+of code that's asking the system to read
+
+115
+00:11:55,880 --> 00:12:02,090
+一个文件，实际上它没有读取文件，并且一段时间不会读取文件了， 
+a file in fact it hasn't read the file
+and won't read the file for a while what
+
+116
+00:12:02,090 --> 00:12:07,030
+我们实际上是在用此代码在这里构建该代码在做什么不是
+we're really building here with this
+code what this code is doing is not
+
+117
+00:12:07,030 --> 00:12:13,130
+导致输入被处理，而不是这段代码是建立一个
+causing the input to be processed
+instead what this code does is builds a
+
+118
+00:12:13,130 --> 00:12:19,250
+沿袭图为我们想要的计算建立了一个配方
+lineage graph it builds a recipe for the
+computation we want like a little kind
+
+119
+00:12:19,250 --> 00:12:23,450
+您在本文的图三中看到的血统图
+of lineage graph that you see in Figure
+three in the paper so what this code is
+
+120
+00:12:23,450 --> 00:12:27,320
+这样做只是建立谱系图，建立计算配方
+doing it's just building the lineage
+graph building the computation recipe
+
+121
+00:12:27,320 --> 00:12:32,960
+而实际上只是开始计算时不进行计算
+and not doing the computation when the
+computations only gonna actually start
+
+122
+00:12:32,960 --> 00:12:39,080
+一旦我们执行了论文所称的动作，即像
+to happen once we execute what the paper
+calls an action which is a function like
+
+123
+00:12:39,080 --> 00:12:44,390
+以收集为例，最后告诉马克，哦，我现在实际上想要输出
+collect for example to finally tell mark
+oh look I actually want the output now
+
+124
+00:12:44,390 --> 00:12:50,360
+请去实际执行谱系图，然后告诉我
+please go and actually execute the
+lineage graph and tell me what the
+
+125
+00:12:50,360 --> 00:12:53,840
+结果是线条实际上是一块
+result is
+so what lines holds is actually a piece
+
+126
+00:12:53,840 --> 00:13:01,220
+现在不了解谱系图的结果，以便了解计算
+of the lineage graph not a result now in
+order to understand what the computation
+
+127
+00:13:01,220 --> 00:13:07,730
+将在我们最终运行它时执行，我们实际上可以在此时询问SPARC，我们可以
+will do when we finally run it we could
+actually ask SPARC at this point we can
+
+128
+00:13:07,730 --> 00:13:14,840
+请口译员继续进行，并告诉我们您实际所知
+ask the interpreter to please go ahead
+and tell us what you know I actually
+
+129
+00:13:14,840 --> 00:13:19,780
+到目前为止执行血统图，并告诉我们结果是什么
+execute the lineage graph up to this
+point and tell us what the results are
+
+130
+00:13:19,780 --> 00:13:24,350
+所以，你通过调用一个动作来做到这一点，我将称之为collect， 
+so and you do that by calling an action
+I'm going to call collect which so just
+
+131
+00:13:24,350 --> 00:13:31,070
+打印到目前为止执行谱系图的所有结果以及我们正在执行的操作
+prints out all the results of executing
+the lineage graph so far and what we're
+
+132
+00:13:31,070 --> 00:13:34,790
+希望看到这里是您知道到目前为止我们已经要求它做的所有事情
+expecting to see here is you know all
+we've asked it to do so far the lineage
+
+133
+00:13:34,790 --> 00:13:38,120
+图只是说请阅读文件，所以我们希望看到最后一个
+graph just says please read a file so
+we're expecting to see that the final
+
+134
+00:13:38,120 --> 00:13:44,020
+输出只是文件的内容，实际上这就是我们得到的以及所得到的
+output is just the contents of the file
+and indeed that's what we get and what
+
+135
+00:13:44,020 --> 00:13:48,890
+这个谱系图是什么
+what
+this lineage graph this one
+
+136
+00:13:48,890 --> 00:13:57,350
+转换谱系图的结果只是在
+transformation lineage graph is results
+in is just the sequence of lines one at
+
+137
+00:13:57,350 --> 00:14:03,620
+一次，所以实际上是一组线，一组字符串，每个字符串包含
+a time so it's really a set of lines a
+set of strings each of which contains
+
+138
+00:14:03,620 --> 00:14:10,010
+输入的一行不错，所以这是程序的第一行
+one line of the input alright so that's
+the first line of the program the second
+
+139
+00:14:10,010 --> 00:14:19,760
+行本质上是收集符号的即时编译
+line is is collect essentially just
+just-in-time compilation of the symbolic
+
+140
+00:14:19,760 --> 00:14:25,280
+执行链是的，是的，是的，所以收集了什么
+execution chain yeah yeah yeah yeah
+that's what's going on so what collect
+
+141
+00:14:25,280 --> 00:14:30,280
+确实，如果您致电收集，实际上发生了很多事情
+does is it actually huge amount of stuff
+happens if you call collect
+
+142
+00:14:30,280 --> 00:14:37,100
+它告诉SPARC采取谱系图并产生Java字节码
+it tells SPARC to take the lineage graph
+and produce java bytecodes
+
+143
+00:14:37,100 --> 00:14:40,940
+描述了您所知道的所有各种转换
+that describe all the various
+transformations you know which in this
+
+144
+00:14:40,940 --> 00:14:45,170
+情况不是很多，因为我们只是读取文件，所以SPARC很好， 
+case it's not very much since we're just
+reading a file but so SPARC well when
+
+145
+00:14:45,170 --> 00:14:50,810
+您致电收集SPARC，通过查看来确定所需数据的位置
+you call collect SPARC well figure out
+where the data is you want by looking
+
+146
+00:14:50,810 --> 00:14:57,380
+ HDFS，您会知道只需选择一组工人来处理不同的任务
+HDFS it'll you know just pick a set of
+workers to run to process the different
+
+147
+00:14:57,380 --> 00:15:01,580
+输入数据的分区将编译沿袭图，我们达到
+partitions of the input data it'll
+compile the lineage graph and we reach
+
+148
+00:15:01,580 --> 00:15:05,660
+沿袭图转换为Java字节码，然后发送字节码
+transformation in the lineage graph into
+java bytecodes it sends the byte codes
+
+149
+00:15:05,660 --> 00:15:10,850
+向所有Spark选择的工作机和那些工作机
+out to the all the worker machines that
+spark chose and those worker machines
+
+150
+00:15:10,850 --> 00:15:18,050
+执行字节码，然后字节码说哦，你知道的请阅读告诉
+execute the byte codes and the byte
+codes say oh you know please read tell
+
+151
+00:15:18,050 --> 00:15:24,770
+每个工人在输入处读取分区，然后最后收集
+each worker to read it's partition at
+the input and then finally collect goes
+
+152
+00:15:24,770 --> 00:15:32,120
+取出并从工作程序中获取所有结果数据，因此再次没有
+out and fetches all the resulting data
+back from the workers and so again none
+
+153
+00:15:32,120 --> 00:15:34,910
+直到您真正想要采取行动之前，我们都会
+of this happens until you actually
+wanted an action and we sort of
+
+154
+00:15:34,910 --> 00:15:39,170
+现在过早运行收集，您通常不会这样做，因为我只是
+prematurely run collect now you wouldn't
+ordinarily do that I just because I just
+
+155
+00:15:39,170 --> 00:15:43,460
+想要查看输出是什么，以了解转换是什么
+want to see what the the output is to
+understand what the transformations are
+
+156
+00:15:43,460 --> 00:15:51,490
+好的，如果您查看我正在显示的代码
+doing okay
+if you look at the code that I'm showing
+
+157
+00:15:51,490 --> 00:16:01,779
+第二行是此地图调用，所以请假行指的是
+the second line is this map call so the
+leave so line sort of refers to the
+
+158
+00:16:01,779 --> 00:16:06,369
+第一个转换的输出是对应于字符串的集合
+output of the first transformation which
+is the set of strings correspond to
+
+159
+00:16:06,369 --> 00:16:11,740
+输入中的行我们将要调用map，我们已经要求系统调用
+lines in the input we're gonna call map
+we've asked the system call map on that
+
+160
+00:16:11,740 --> 00:16:16,660
+映射的作用是在输入的每个元素上运行一个函数
+and what map does is it runs a function
+over each element of the input that is
+
+161
+00:16:16,660 --> 00:16:22,019
+在这种情况下，或者输入的每一行，那个小功能就是S箭头
+in this case or each line of the input
+and that little function is the S arrow
+
+162
+00:16:22,019 --> 00:16:27,160
+基本上描述了一个调用split函数的函数
+whatever which basically describes a
+function that calls the split function
+
+163
+00:16:27,160 --> 00:16:34,990
+每行拆分仅获取一个字符串，并返回一个在
+on each line split just takes a string
+and returns a array of strings broken at
+
+164
+00:16:34,990 --> 00:16:39,730
+有空间的地方以及该行的最后部分
+the places where there are spaces and
+the final part of this line that refers
+
+165
+00:16:39,730 --> 00:16:44,740
+对于第0＆1部分，对于输入的每一行，我们都希望在
+to parts 0 & 1 says that for each line
+of input we want to at the output of
+
+166
+00:16:44,740 --> 00:16:51,040
+此转换是该行的第一个字符串，然后是第二个字符串
+this transformation be the first string
+on the line and then the second string
+
+167
+00:16:51,040 --> 00:16:54,189
+线，所以我们只是做一些转换以将这些弦
+of the line so we're just doing a little
+transformation to turn these strings
+
+168
+00:16:54,189 --> 00:16:59,019
+变成更容易处理的东西
+into something that's a little bit
+easier to process and again at a
+
+169
+00:16:59,019 --> 00:17:02,799
+好奇心，我要打电话收集链接只是
+curiosity
+I'm gonna call collect on links one just
+
+170
+00:17:02,799 --> 00:17:09,329
+验证我们了解它的作用，然后您可以看到行所在的位置
+to verify that we understand what it
+does and you can see where as lines held
+
+171
+00:17:09,329 --> 00:17:18,490
+只是字符串行链接现在包含一对从URL到URL的字符串
+just string lines links one now holds
+pairs of strings of from URL and to URL
+
+172
+00:17:18,490 --> 00:17:28,630
+每个链接一个，执行此映射时可以完全执行
+one for each link and when this executes
+this map executes it can execute totally
+
+173
+00:17:28,630 --> 00:17:32,799
+在每个工人各自独立的输入分区上，因为它只是
+independently on each worker on its own
+partition of the input because it's just
+
+174
+00:17:32,799 --> 00:17:37,630
+独立考虑每条线之间没有交互
+considering each line independently
+there's no interaction involved between
+
+175
+00:17:37,630 --> 00:17:41,950
+不同的行或不同的分区，如果这些映射在运行
+different lines or different partitions
+these are it's running if these this map
+
+176
+00:17:41,950 --> 00:17:47,860
+是每个输入记录上的纯本地操作，因此可以完全在
+is a purely local operation on each
+input record so can run totally in
+
+177
+00:17:47,860 --> 00:17:55,929
+在所有分区上的所有工作人员上并行，确定
+parallel on all the workers on all their
+partitions ok the next line in the
+
+178
+00:17:55,929 --> 00:18:02,320
+程序就是所谓的“与众不同”，这里发生的是
+program is this called the distinct and
+what's going on here is that we only
+
+179
+00:18:02,320 --> 00:18:07,390
+希望对每个链接计数一次，因此如果给定页面具有指向另一个页面的多个链接
+want to count each link once so if a
+given page has multiple links to another
+
+180
+00:18:07,390 --> 00:18:15,789
+页面，我们只考虑出于PageRank的目的之一，因此
+page we want to only consider one of
+them for the purposes of PageRank and so
+
+181
+00:18:15,789 --> 00:18:19,710
+如果您考虑实际需要什么，现在就查找重复项
+this just looks for duplicates now if
+you think about what it actually takes
+
+182
+00:18:19,710 --> 00:18:28,320
+在您知道多TB数据项集合中查找重复项
+to look for duplicates in a you know
+multi terabyte collection of data items
+
+183
+00:18:28,320 --> 00:18:32,110
+这不是开玩笑，因为数据项在某些地方
+it's no joke
+because the data items are in some
+
+184
+00:18:32,110 --> 00:18:36,909
+自从开始以来，随机顺序和输入以及独特的需求
+random order and the input and what
+distinct needs to do since an e sirup
+
+185
+00:18:36,909 --> 00:18:42,940
+用单个输入替换每个重复的输入，以某种方式满足不同的需求
+replace each duplicated input with a
+single input distinct needs to somehow
+
+186
+00:18:42,940 --> 00:18:48,010
+将所有相同且需要的物品放在一起
+bring together all of the items that are
+identical and that's going to require
+
+187
+00:18:48,010 --> 00:18:51,720
+沟通时要记住，所有这些数据都分布在所有员工身上
+communication remember that all these
+data is spread out over all the workers
+
+188
+00:18:51,720 --> 00:18:55,659
+我们希望确保您所知道的任何我们带来的洗牌
+we want to make sure that any you know
+that we bring we sort of shuffle the
+
+189
+00:18:55,659 --> 00:18:59,620
+周围的数据，以便任何两个相同或在同一工作人员上的项目
+data around so that any two items that
+are identical or on the same worker so
+
+190
+00:18:59,620 --> 00:19:02,080
+那个工人可以做到这一点，我等一下，我要去三个
+that that worker can do this I'll wait a
+minute there's three of these I'm gonna
+
+191
+00:19:02,080 --> 00:19:06,789
+用一个替换它这三个，我的意思是说，当它
+replace it these three with a single one
+I mean that means that distinct when it
+
+192
+00:19:06,789 --> 00:19:12,760
+最终要执行需要沟通，这是一场洗牌，所以
+finally comes to execute requires
+communication it's a shuffle and so the
+
+193
+00:19:12,760 --> 00:19:17,110
+将通过散列项目或散列项目来驱动洗牌
+shuffle is going to be driven by either
+hashing the items the hashing the items
+
+194
+00:19:17,110 --> 00:19:20,169
+选择将处理该项目的工作人员，然后发送该项目
+to pick the worker that will process
+that item and then sending the item
+
+195
+00:19:20,169 --> 00:19:24,460
+跨网络，或者您知道可以通过某种方式实施
+across the network or you know possibly
+you could be implemented with a sort or
+
+196
+00:19:24,460 --> 00:19:30,809
+系统对所有输入进行排序，然后对排序后的输入进行拆分
+the system sort of sorts all the input
+and then splits up the sorted input
+
+197
+00:19:31,870 --> 00:19:37,910
+总体来说，我实际上不知道该做什么的工人，但无论如何我都会
+overall the workers I'd actually don't
+know which it does but anyway I'm gonna
+
+198
+00:19:37,910 --> 00:19:42,440
+在这种情况下需要大量计算，但是几乎没有
+require a lot of computation in this
+case however almost fact nothing
+
+199
+00:19:42,440 --> 00:19:49,300
+发生任何事情，因为没有重复，抱歉
+whatsoever happens because there were no
+duplicates and sorry whoops
+
+200
+00:19:49,300 --> 00:19:58,370
+链接到所有权利，这样任何人都可以收集到该链接，并且输出是
+links to all right so anyone collect and
+the links to which is the output a
+
+201
+00:19:58,370 --> 00:20:05,630
+基本上，除了顺序相同的两个链接外，另一个是
+distinct is basically except for order
+identical two links one which was the
+
+202
+00:20:05,630 --> 00:20:09,080
+输入该转换，订单更改，因为它当然有
+input to that transformation and the
+orders change because of course it has
+
+203
+00:20:09,080 --> 00:20:19,310
+哈希或排序或其他可以进行下一个转换的东西是
+to hash or sort or something all right
+the next the next transformation is is
+
+204
+00:20:19,310 --> 00:20:27,890
+按键分组，我们要去的是我们要收集的
+grouped by key and here what we're
+heading towards is we want to collect
+
+205
+00:20:27,890 --> 00:20:35,120
+所有的链接都证明了我们想用很少的C进行计算
+all of the links it turns out for the
+computation with little C we want to
+
+206
+00:20:35,120 --> 00:20:40,400
+将来自给定页面的所有链接收集到一个位置，以便该组
+collect together all the links from a
+given page into one place so the group
+
+207
+00:20:40,400 --> 00:20:45,380
+按键将分组，将所有记录从两个URL中移出
+by key is gonna group by it's gonna move
+all the records all these from two URL
+
+208
+00:20:45,380 --> 00:20:51,160
+配对，然后将它们按照来自的URL分组
+pairs it's gonna group them by the from
+URL that is it's gonna bring together
+
+209
+00:20:51,160 --> 00:20:57,650
+来自同一页面的所有链接实际上都会折叠
+all the links that are from the same
+page and it's gonna actually collapse
+
+210
+00:20:57,650 --> 00:21:02,000
+他们进入每个页面的链接的整个集合将崩溃
+them down into the whole collection of
+links from each page is gonna collapse
+
+211
+00:21:02,000 --> 00:21:07,780
+将其分为该页面URL的链接列表以及
+them down into a list of links into that
+pages URL plus a list of the links that
+
+212
+00:21:07,780 --> 00:21:17,050
+从该页面开始，尽管这需要沟通， 
+start at that page and again this is
+gonna require communication although
+
+213
+00:21:17,050 --> 00:21:21,590
+ spark我怀疑spark足够聪明来优化此效果，因为
+spark I suspect spark is clever enough
+to optimize this because the distinct
+
+214
+00:21:21,590 --> 00:21:31,580
+已经将所有来自URL的具有相同记录的记录放在分组依据的同一工作程序上
+already um put all records with the same
+from URL on the same worker the group by
+
+215
+00:21:31,580 --> 00:21:36,500
+关键很容易，也许我根本就不需要沟通，因为
+key could easily and may well just I'm
+not have to communicate at all because
+
+216
+00:21:36,500 --> 00:21:41,960
+它可以观察到数据已经被from URL键分组了，所以
+it can observe that the data is already
+grouped by the from URL key all right so
+
+217
+00:21:41,960 --> 00:21:47,149
+让我们打印链接三个让我们运行收集实际驱动
+let's print links three
+let's run collect actually drive the
+
+218
+00:21:47,149 --> 00:21:55,429
+计算，看看结果是什么，实际上我们在这里看到的是
+computation and see what the result is
+and indeed what we're looking at here is
+
+219
+00:21:55,429 --> 00:22:01,639
+一对夫妇的数组，其中每个元组的第一部分是来自页面的URL 
+an array of couples where the first part
+of each tuple is the URL the from page
+
+220
+00:22:01,639 --> 00:22:08,209
+第二个是从该首页开始的链接列表，因此您可以
+and the second is the list of links that
+start at that front page and so you can
+
+221
+00:22:08,209 --> 00:22:12,199
+看到YouTube有一个指向您两个的链接，三个指向您三个的链接
+see the YouTube has a link to you two
+and three you three as a link to just u
+
+222
+00:22:12,199 --> 00:22:29,059
+ 1和u 1都有到u 1＆u 3的链接，所以链接3现在是迭代
+1 and u 1 has a link to u 1 & u 3 okay
+so that's link 3 now the iteration is
+
+223
+00:22:29,059 --> 00:22:32,869
+从这里开始几行，它将用到这些东西
+going to start in a couple lines from
+here it's gonna use these things over
+
+224
+00:22:32,869 --> 00:22:39,619
+再一次，循环的每个迭代都将使用此
+and over again each iteration of the
+loop is going to use this this
+
+225
+00:22:39,619 --> 00:22:46,549
+链接3中的信息，以便对传播概率进行排序，以便
+information in links 3 in order to sort
+of propagate probabilities in order to
+
+226
+00:22:46,549 --> 00:22:52,459
+模拟这些用户从所有页面到所有其他链接的点击
+sort of simulate these user clicking I'm
+from from all pages to all other link to
+
+227
+00:22:52,459 --> 00:22:57,139
+两页，所以这个长度的东西是这些链接数据将用于
+two pages so this length stuff is these
+links data is gonna be used over and
+
+228
+00:22:57,139 --> 00:23:00,259
+再来一次，我们要保存它，事实证明，每次我
+over again and we're gonna want to save
+it it turns out that each time I've
+
+229
+00:23:00,259 --> 00:23:05,089
+所谓的收集到目前为止，火花已经重新执行“添加来自
+called collect so far spark has
+re-execute 'add the computation from
+
+230
+00:23:05,089 --> 00:23:09,799
+从头开始，因此我进行的每个催收电话都涉及重新读取
+scratch so every call to collect I've
+made has involved spark rereading the
+
+231
+00:23:09,799 --> 00:23:14,809
+输入文件重新运行该第一张地图，重新运行不连续的，如果我要
+input file re running that first map
+rerunning the distinct and if I were to
+
+232
+00:23:14,809 --> 00:23:18,769
+再次致电收集，它将通过密钥重新运行此路线，但我们不想拥有
+call collect again it would rerun this
+route by key but we don't want to have
+
+233
+00:23:18,769 --> 00:23:25,279
+一遍又一遍地在每个连接数TB的链接上完成此操作
+to do that over and over again on sort
+of multiple terabytes of links for each
+
+234
+00:23:25,279 --> 00:23:29,659
+循环迭代，因为我们已经计算了一次，它将声明此列表
+loop iteration because we've computed it
+once and it's gonna state this list of
+
+235
+00:23:29,659 --> 00:23:34,669
+链接将保持不变，我们只想保存并重复使用，以便顺序
+links is gonna stay the same we just
+want to save it and reuse it so in order
+
+236
+00:23:34,669 --> 00:23:39,709
+告诉火花我们想要一遍又一遍地使用它的外观
+to tell spark that look we want to use
+this over and over again the programmer
+
+237
+00:23:39,709 --> 00:23:48,679
+需要明确说明论文所说的持久化此数据，实际上
+is required to explicitly what the paper
+calls persist this data and in fact
+
+238
+00:23:48,679 --> 00:23:53,270
+如果您想睡一个现代的火花，您调用的功能将无法持久
+modern spark the function you call
+not persist if you want to sleep in a
+
+239
+00:23:53,270 --> 00:23:59,030
+内存，但是它被称为现金，因此链接的含义与我们使用的链接相同
+memory but but it's called cash and so
+links for is just identical the links we
+
+240
+00:23:59,030 --> 00:24:06,620
+接受我们希望触发的注释，将链接保留在内存中
+accept with the annotation that we'd
+like sparked keep links for in memory
+
+241
+00:24:06,620 --> 00:24:14,300
+因为我们要一遍又一遍地使用它，这样我们需要的最后一件事
+because we're gonna use it over and over
+again ok so that the last thing we need
+
+242
+00:24:14,300 --> 00:24:20,510
+在循环开始之前要做的是，我们将为每个页面设置一组页面等级
+to do before the loop starts is we're
+gonna have a set of page ranks for every
+
+243
+00:24:20,510 --> 00:24:28,250
+页面由源URL索引，我们需要初始化每个页面的排名，而不是
+page indexed by source URL and we need
+to initialize every pages rank it's not
+
+244
+00:24:28,250 --> 00:24:33,050
+真的在这里排名这是我们要初始化所有的概率
+really ranks here it's kind of
+probabilities we're gonna initialize all
+
+245
+00:24:33,050 --> 00:24:38,300
+一个概率，所以它们都以一个概率开始
+the probabilities to one so they all
+start out with a probability one with
+
+246
+00:24:38,300 --> 00:24:43,700
+相同的等级，但我们会很好，实际上，您的代码看起来像
+the same rank but we're gonna well we're
+gonna actually you code that looks like
+
+247
+00:24:43,700 --> 00:24:52,130
+它在改变等级，但实际上，当我们在显示的代码中执行循环时
+it's changing ranks but in fact when we
+execute the loop in the code I'm showing
+
+248
+00:24:52,130 --> 00:24:56,540
+实际上，它为每次循环迭代产生了一个新的等级排名
+it really produces a new version of
+ranks for every loop iteration that's
+
+249
+00:24:56,540 --> 00:25:02,630
+更新以反映代码算法属于推送页面这一事实
+updated to reflect the fact that the
+code algorithm is kind of pushed page
+
+250
+00:25:02,630 --> 00:25:10,150
+从每个P到页面的每个页面的排名都是链接到的，所以让我们
+ranks from each from each P
+to the page is that it links to so let's
+
+251
+00:25:10,150 --> 00:25:17,260
+打印排名还可以查看其中的内容仅仅是源URL的映射
+print ranks also to see what's inside
+it's just a mapping from URL from source
+
+252
+00:25:17,260 --> 00:25:23,260
+每个页面的当前页面排名值的URL可以开始执行
+URL to the current page rank value for
+every page ok not gonna start executing
+
+253
+00:25:23,260 --> 00:25:30,220
+火花内部允许用户请求更细粒度的计划
+inside the spark allow the user to
+request more fine-grained scheduling
+
+254
+00:25:30,220 --> 00:25:33,700
+原始比缓存要控制的地方，即缓存的存储位置或存储方式
+primitives than cache that is to control
+where that is stored or how the
+
+255
+00:25:33,700 --> 00:25:41,020
+计算性能很好，是的，所以cache cache是​​more的特例。 
+computations are performed well yeah so
+cache cache is a special case of a more
+
+256
+00:25:41,020 --> 00:25:46,780
+一般的持续通话可以告诉我我想知道的火花保存此内容
+general persist call which can tell
+spark look I want to you know save this
+
+257
+00:25:46,780 --> 00:25:52,179
+内存中的数据，或者我想将其保存在HDFS中，以便将其复制并全部
+data in memory or I want to save it in
+HDFS so that it's replicated and all
+
+258
+00:25:52,179 --> 00:25:58,660
+幸免于难，所以您在那儿通常会有一点灵活性，您知道我们
+survived crashes so you got a little
+flexibility there in general you know we
+
+259
+00:25:58,660 --> 00:26:04,240
+不必在此代码中对分区进行任何说明，spark会
+didn't have to say anything about the
+partitioning in this code and spark will
+
+260
+00:26:04,240 --> 00:26:09,510
+刚开始时选择某种分区是由
+just choose something at first the
+partitioning is driven by the
+
+261
+00:26:09,510 --> 00:26:16,000
+原始输入文件的分区，但是当我们运行包含
+partitioning of the original input files
+but when we run transformations that had
+
+262
+00:26:16,000 --> 00:26:19,059
+改组不得不改变分区，就像不同的那样
+to shuffle had to change the
+partitioning like distinct it does that
+
+263
+00:26:19,059 --> 00:26:25,059
+并按键分组是否会在内部产生火花，如果我们不这样做的话
+and group by key does that spark will do
+something internally that if we don't do
+
+264
+00:26:25,059 --> 00:26:28,960
+任何我们什么都不说，只会选择某种方法，例如对密钥进行哈希处理
+any we don't say anything it'll just
+pick some scheme like hashing the keys
+
+265
+00:26:28,960 --> 00:26:34,090
+例如在可用的工人上，但您可以告诉它您知道我的样子
+over the available workers for example
+but you can tell it look you know I it
+
+266
+00:26:34,090 --> 00:26:39,130
+事实证明，这种对数据进行分区的特定方法是使用
+turns out that this particular way of
+partitioning the data you know use a
+
+267
+00:26:39,130 --> 00:26:42,490
+不同的哈希函数，或者按范围划分而不是哈希
+different hash function or maybe
+partitioned by ranges instead of hashing
+
+268
+00:26:42,490 --> 00:26:53,950
+您可以告诉它是否喜欢更聪明的方法来控制分区，所以
+you can tell it if you like more clever
+ways to control the partitioning okay so
+
+269
+00:26:53,950 --> 00:26:57,780
+我将开始循环的第一件事，我希望
+I'm about to start
+the first thing the loop does and I hope
+
+270
+00:26:57,780 --> 00:27:06,150
+您可以在第12行看到代码，我们实际上将运行此连接，这是
+you can see the the code on line 12 we
+actually gonna run this join this is the
+
+271
+00:27:06,150 --> 00:27:12,900
+该关节正在执行的循环的第一次迭代的第一个语句是
+first statement of the first iteration
+of the loop with this joint is doing is
+
+272
+00:27:12,900 --> 00:27:20,630
+将链接与行列连接起来，然后将在一起
+joining the links with the ranks and
+what that does is pull together the
+
+273
+00:27:20,630 --> 00:27:24,720
+链接中的相应条目，其中每个URL表示什么意思
+corresponding entries in the links which
+said for every URL what is the point
+
+274
+00:27:24,720 --> 00:27:29,820
+它有什么链接，我有点将链接与
+what does it have links to and I'm sort
+of putting together the links with the
+
+275
+00:27:29,820 --> 00:27:33,720
+排名，但排名表示每个URL的当前PageRank是什么，所以现在
+ranks and but the rank says is for every
+URL what's this current PageRank so now
+
+276
+00:27:33,720 --> 00:27:39,630
+我们在一起，每一页都有一个项目
+we have together and a single item for
+every page
+
+277
+00:27:39,630 --> 00:27:43,650
+它当前的PageRank是什么以及它指向的链接是什么，因为我们
+both what its current PageRank is and
+what links it points to because we're
+
+278
+00:27:43,650 --> 00:27:50,400
+将当前PageRank的每个页面推送到它指定的所有页面，并
+gonna push every pages current PageRank
+to all the pages it appoints to and
+
+279
+00:27:50,400 --> 00:27:57,840
+同样，这个联合是呃，这就是本文所说的广泛变革，因为它
+again this joint is uh is what the paper
+calls a wide transformation because it
+
+280
+00:27:57,840 --> 00:28:07,670
+是不是不是本地的，我的意思是它可能需要洗牌数据
+doesn't it's not a local the I mean it
+needs to it may need to shuffle the data
+
+281
+00:28:07,670 --> 00:28:13,230
+通过URL键来带来链接的相应元素，并
+by the URL key in order to bring
+corresponding elements of links and
+
+282
+00:28:13,230 --> 00:28:19,650
+实际上，我现在可以并肩作战了，我相信火花足够聪明，可以注意到
+ranks together now in fact I believe
+spark is clever enough to notice that
+
+283
+00:28:19,650 --> 00:28:27,210
+链接和等级已经按照与实际相同的方式通过键进行分区
+links and ranks are already partitioned
+by key in the same way actually that
+
+284
+00:28:27,210 --> 00:28:33,000
+假设当我们创建排名时，它巧妙地创建了链接
+assumes that it cleverly created links
+well when we created ranks its assumes
+
+285
+00:28:33,000 --> 00:28:39,510
+它巧妙地使用与使用的相同的哈希方案创建了行列
+that it cleverly created
+ranks using the same hash scheme as used
+
+286
+00:28:39,510 --> 00:28:43,530
+当它创建链接时，但是如果它那么聪明，它将注意到该链接
+when it created links but if it was that
+clever then it will notice that links
+
+287
+00:28:43,530 --> 00:28:48,630
+和等级以相同的方式传递，也就是说链接等级是
+and ranks are passed in the same way
+that is to say that the links ranks are
+
+288
+00:28:48,630 --> 00:28:55,380
+已经在相同的工作人员上，或对具有相同的相应分区感到抱歉
+already on the same workers or sorry the
+corresponding partitions with the same
+
+289
+00:28:55,380 --> 00:29:00,120
+钥匙已经在同一工人中，希望星火会注意到这一点，而不是
+keys are already in the same workers and
+hopefully spark will notice that and not
+
+290
+00:29:00,120 --> 00:29:03,210
+如果在链接中出现问题，则必须移动任何数据
+have to move any data around if
+something goes wrong though in links and
+
+291
+00:29:03,210 --> 00:29:05,700
+等级以不同的方式划分，那么数据将不得不在此移动
+ranks are partitioned in different ways
+then data will have to move at this
+
+292
+00:29:05,700 --> 00:29:10,410
+指向将两者中的相应键连接起来
+point
+to join up corresponding keys in the two
+
+293
+00:29:10,410 --> 00:29:17,980
+和两个rdd都很好，所以JJ现在包含了每个页面
+and the two rdd's alright so JJ
+contained now contains both every pages
+
+294
+00:29:17,980 --> 00:29:28,660
+排名和每页链接列表，正如您现在所看到的，我们还有更多
+rank and every pages list of links as
+you can see now we have a even more
+
+295
+00:29:28,660 --> 00:29:34,120
+复杂的数据结构是一个数组，每页包含一个元素
+complex data structure it's an array
+with an element per page with the pages
+
+296
+00:29:34,120 --> 00:29:40,420
+带有链接列表的URL，在该URL的一点是您选择的页面
+URL with a list of the links and the one
+point over there is the page you choose
+
+297
+00:29:40,420 --> 00:29:47,320
+当前的排名，所有这些信息都是任何一种
+current rank and these are all all this
+information is any sort of a single
+
+298
+00:29:47,320 --> 00:29:52,290
+记录，其中包含我们需要的每一页的所有信息
+record that has all this information for
+each page together where we need it
+
+299
+00:29:52,290 --> 00:29:58,120
+好吧，下一步是我们要弄清楚每一页
+alright the next step is that we're
+gonna figure out every page is gonna
+
+300
+00:29:58,120 --> 00:30:04,030
+将其当前页面等级的一小部分推到它链接到的所有页面上
+push a fraction of its current page rank
+to all the pages that it links to it's
+
+301
+00:30:04,030 --> 00:30:07,240
+某种形式将其当前页面排名划分为其链接的所有页面
+kind of sort of divided up its current
+page rank among all the pages it links
+
+302
+00:30:07,240 --> 00:30:09,270
+至
+to
+
+303
+00:30:11,160 --> 00:30:18,420
+这就是您所做的事情，您基本上知道发生了什么
+and that's what this contribs does you
+know basically what's going on is that
+
+304
+00:30:18,420 --> 00:30:27,060
+这是一个互相调用的映射，我们正在为每个页面映射
+it's a one another one call to map and
+we're mapping over the for each page
+
+305
+00:30:27,060 --> 00:30:32,220
+在该页面指向的URL上运行地图，对于每个页面
+were running map over the URLs that that
+pages points to and for each page it
+
+306
+00:30:32,220 --> 00:30:39,600
+指向我们只是在计算这个数字，这是当前页面的
+points to we're just calculating this
+number which is the from pages current
+
+307
+00:30:39,600 --> 00:30:44,130
+排名除以指向的总页数，因此
+rank divided by the total number of
+pages that points to so this sort of
+
+308
+00:30:44,130 --> 00:30:50,400
+知道您知道如何创建一个从链接名称到众多链接之一的映射
+figured you know creates a mapping from
+link name to one of the many
+
+309
+00:30:50,400 --> 00:31:04,050
+对这些页面的贡献新页面排名，我们可以偷看一下这是什么
+contributions to that pages new page
+rank and we can sneak peek it what this
+
+310
+00:31:04,050 --> 00:31:10,020
+将会产生，我认为这就像URL列表一样简单得多
+is gonna produce I think is a much
+simpler thing it just as a list of URLs
+
+311
+00:31:10,020 --> 00:31:15,510
+以及对网址页面排名的贡献，还有更多
+and contributions to the URLs page ranks
+and there's there's more there's you
+
+312
+00:31:15,510 --> 00:31:19,740
+在这里每个URL知道多个记录，因为任何给定的记录
+know more than one record for each URL
+here because there's gonna for any given
+
+313
+00:31:19,740 --> 00:31:22,800
+页面上，每个指向该链接的链接都会有一条记录
+page there's gonna be a record here for
+every single link that points to it
+
+314
+00:31:22,800 --> 00:31:29,400
+表示此链接的任何贡献来自此
+indicating this contribution of from
+whatever that link came from to this
+
+315
+00:31:29,400 --> 00:31:35,130
+页面到此页面新的更新的PageRank现在必须要做的是我们需要
+page to this pages new updated PageRank
+what has to happen now is that we need
+
+316
+00:31:35,130 --> 00:31:42,420
+总结每一页，我们需要总结一下PageRank的贡献
+to sum up for every page we need to sum
+up the PageRank contributions for that
+
+317
+00:31:42,420 --> 00:31:46,470
+页面中有内容，所以我们再次需要在这里进行洗牌
+page that are in contribs so again we
+going to need to do a shuffle here it's
+
+318
+00:31:46,470 --> 00:31:50,850
+我们将进行广泛的变革，因为我们需要带来
+gonna be a wide a transformation with a
+wide input because we need to bring
+
+319
+00:31:50,850 --> 00:31:57,420
+我们需要将每一页的所有贡献要素汇总在一起
+together all of the elements of contribs
+for each page we need to bring together
+
+320
+00:31:57,420 --> 00:32:03,170
+并将同一工人分配到同一分区，以便可以将它们全部汇总
+and to the same worker to the same
+partition so they can all be summed up
+
+321
+00:32:03,530 --> 00:32:10,470
+而完成PageRank的方法就是按键减少
+and the way that's done the bay PageRank
+does that is with this reduced by key
+
+322
+00:32:10,470 --> 00:32:17,480
+通话会减少峰值，他首先要做的是将所有内容整合在一起
+call would reduce spike he does is
+it first of all it brings together all
+
+323
+00:32:17,480 --> 00:32:24,350
+具有相同键的记录，然后对每个记录的第二个元素求和
+the records with the same key and then
+sums up the second element of each one
+
+324
+00:32:24,350 --> 00:32:30,320
+给定密钥的那些记录中的一个，并产生作为输出的密钥
+of those records for a given key and
+produces as output the key which is a
+
+325
+00:32:30,320 --> 00:32:39,020
+ URL和数字的总和，实际上是更新的PageRank 
+URL and the sum of the numbers which is
+the updated PageRank there's actually
+
+326
+00:32:39,020 --> 00:32:43,100
+这里有两个转换，第一个通过键减少，第二个是
+two transformations here the first ones
+is reduced by key and the second is this
+
+327
+00:32:43,100 --> 00:32:49,640
+映射值，而这是实现15％概率的部分
+map values which and and this is the
+part that implements the 15% probability
+
+328
+00:32:49,640 --> 00:33:00,220
+进入随机页面的可能性以及跟随链接的机会的85％ 
+of going to a random page and the 85%
+chance of following a link all right
+
+329
+00:33:00,220 --> 00:33:04,460
+让我们顺便看看一下等级，即使我们在这里分配了两个等级
+let's look at ranks by the way even
+though we've assigned two ranks here um
+
+330
+00:33:04,460 --> 00:33:08,750
+这最终将要做的是创建一个全新的转变
+what this is going to end up doing is
+creating an entirely new transformation
+
+331
+00:33:08,750 --> 00:33:14,780
+我不是这样，不是在更改已计算的值或涉及到的值
+I'm so not it's not changing the value
+is already computed or when it comes to
+
+332
+00:33:14,780 --> 00:33:17,660
+执行此操作不会更改任何值，而已计算出来
+executing this it won't change any
+values are already computed it just
+
+333
+00:33:17,660 --> 00:33:27,500
+用新的输出创建一个新的新转换，我们可以看到会发生什么
+creates a new a new transformation with
+new output and we can see what's gonna
+
+334
+00:33:27,500 --> 00:33:32,390
+确实发生了，现在我们现在的会员等级只是一堆
+happen in indeed we now have member
+ranks originally was just a bunch of
+
+335
+00:33:32,390 --> 00:33:37,190
+对URL PageRank现在再次出现，如果您是我，我将进行页面排名
+pairs of URL PageRank now again we
+appears if you are I'll page rank
+
+336
+00:33:37,190 --> 00:33:43,210
+另一个不同的是，我们实际上已经对其进行了更新，从而一步一步改变了它们
+another different we'd actually updated
+them sort of changed them by one step
+
+337
+00:33:43,570 --> 00:33:48,650
+而且我不知道您是否还记得我们看到的原始PageRank值，但
+and I don't know if you remember the
+original PageRank values we saw but
+
+338
+00:33:48,650 --> 00:33:54,350
+这些更接近我们看到的最终输出，然后是
+these are closer to those final output
+that we saw then the original values of
+
+339
+00:33:54,350 --> 00:34:01,190
+一切都还好，所以这是循环时算法的一次迭代
+all one are okay so that was one
+iteration of the algorithm when the loop
+
+340
+00:34:01,190 --> 00:34:08,230
+返回顶部，它将执行相同的加入平面地图并按键减少
+goes back up to the top it's gonna do
+the same join flat map and reduce by key
+
+341
+00:34:08,230 --> 00:34:15,110
+每次，您都知道循环实际上在做什么
+and each time it's again you know what
+the loop is actually doing is producing
+
+342
+00:34:15,110 --> 00:34:20,330
+这个血统图，所以它不会更新
+this lineage graph and so it's not
+updating the variables that are
+
+343
+00:34:20,330 --> 00:34:25,210
+在循环中提到，它实际上是在创建实质上附加新
+mentioned in the loop it's really
+creating essentially appending new
+
+344
+00:34:25,210 --> 00:34:30,399
+将节点转换为要构建的谱系图
+transformation nodes to the lineage
+graph that it's building
+
+345
+00:34:30,399 --> 00:34:37,520
+但是我在循环之后只运行了一次Elite，然后现在这就是
+but I've only run that Elite once after
+the loop and then now this is what the
+
+346
+00:34:37,520 --> 00:34:42,409
+真正的代码在这一点上实际运行的代码是否实际运行收集，因此它们
+real code does the real code actually
+runs collect at this point and so they
+
+347
+00:34:42,409 --> 00:34:46,668
+仅在计算时才在真正的PageRank实现中
+were in the real PageRank implementation
+only at this point with the computation
+
+348
+00:34:46,668 --> 00:34:50,479
+甚至因为打来的电话而开始收集，我出发去阅读
+
+349
+00:34:50,480 --> 00:34:54,909
+最终的负担，我们需要通过所有这些转换和混洗来投入
+end burden we're on the input through
+all these transformations and shuffles
+
+350
+00:34:54,909 --> 00:34:59,720
+对于广泛的依赖关系，最后在
+for the wide dependencies and finally
+collect the output together on the
+
+351
+00:34:59,720 --> 00:35:03,530
+运行此程序的计算机的运行方式
+computer that's running this program by
+the way the computer that runs the
+
+352
+00:35:03,530 --> 00:35:07,940
+本文称其为驱动程序的程序是驱动计算机
+program that the paper calls it the
+driver the driver computer is the one
+
+353
+00:35:07,940 --> 00:35:13,220
+实际上运行了这种扇贝程序，有点像火花
+that actually runs this scallop program
+that's kind of driving the spark
+
+354
+00:35:13,220 --> 00:35:18,859
+计算，然后程序将使用此输出变量并将其运行
+computation and then the program takes
+this output variable and runs it through
+
+355
+00:35:18,859 --> 00:35:35,210
+在收集到的每个记录上打印出格式精美的打印好的，这样
+a nice nicely formatted print on each of
+the records in the collect up okay so
+
+356
+00:35:35,210 --> 00:35:37,630
+那是
+that's the
+
+357
+00:35:39,140 --> 00:35:48,880
+人们用于Scala的一种编程风格，我的意思是火花
+kind of style of programming that people
+use for Scala and I mean for for spark
+
+358
+00:35:51,910 --> 00:35:57,920
+相对于MapReduce，要注意的一件事是该程序很好
+went one thing to note here relative to
+MapReduce is that this program well you
+
+359
+00:35:57,920 --> 00:36:02,720
+知道并看起来有点复杂，但事实是该程序是
+know and look looks a little bit complex
+but the fact is that this program is
+
+360
+00:36:02,720 --> 00:36:09,680
+做许多MapReduce的工作或做大量的工作
+doing the work of many many MapReduce or
+doing an amount of work that would
+
+361
+00:36:09,680 --> 00:36:16,700
+需要许多单独的MapReduce程序才能实现，所以您知道
+require many separate MapReduce programs
+in order to implement so you know it's
+
+362
+00:36:16,700 --> 00:36:20,240
+ 21行，也许您使用了两个比MapReduce程序简单的程序
+21 lines and maybe you used two
+MapReduce programs that are simpler than
+
+363
+00:36:20,240 --> 00:36:25,339
+但这对于21行来说需要做很多工作，事实证明这是
+that but this is doing a lot of work for
+21 lines and it turns out that this is
+
+364
+00:36:25,339 --> 00:36:29,450
+你知道这是一个真正的算法，所以就像一个漂亮的
+you know this is sort of a real
+algorithm to so it's like a pretty
+
+365
+00:36:29,450 --> 00:36:37,069
+简洁易用的程序易于编程的方式来表达海量大数据
+concise and easy program easy to program
+way to express vast Big Data
+
+366
+00:36:37,069 --> 00:36:50,770
+您知道人们喜欢非常成功的计算
+computations you know people like pretty
+successful okay so again
+
+367
+00:36:50,770 --> 00:36:54,700
+只想重复一遍，直到最终收集或此代码正在做的是
+just want to repeat that until the final
+collect or this code is doing is
+
+368
+00:36:54,700 --> 00:36:58,600
+生成谱系图而不处理数据和谱系
+generating a lineage graph and not
+processing the data and the the lineage
+
+369
+00:36:58,600 --> 00:37:01,690
+它实际产生的图形
+graph that it produces actually the
+paper
+
+370
+00:37:01,690 --> 00:37:06,280
+我只是从纸上复制下来的，这就是谱系图的样子
+I'm just copied this from the paper this
+is what the lineage graph looks like
+
+371
+00:37:06,280 --> 00:37:11,740
+你知道这就是程序产生的全部
+it's you know this is all that the
+program is producing it's just this
+
+372
+00:37:11,740 --> 00:37:16,210
+图，直到最终收集，您可以看到这是这些的序列
+graph until the final collect and you
+can see that it's a sequence of these
+
+373
+00:37:16,210 --> 00:37:21,580
+处理阶段，我们读取文件以产生链接，然后完全
+processing stage where we read the file
+to produce links and then completely
+
+374
+00:37:21,580 --> 00:37:26,680
+我们分别产生这些初始等级，然后重复加入
+separately we produce these initial
+ranks and then there's repeated joins
+
+375
+00:37:26,680 --> 00:37:41,170
+并通过密钥对减少，每次循环迭代都会产生一个join，每个
+and reduced by key pairs each loop
+iteration produces a join and a each of
+
+376
+00:37:41,170 --> 00:37:44,230
+这些对是一个循环迭代，您可以再次看到该循环是
+these pairs is one loop iteration and
+you can see again that the loop is
+
+377
+00:37:44,230 --> 00:37:49,420
+将越来越多的节点附加到图上，而不是没有做的事情
+appended more and more nodes to the
+graph rather than what it is not doing
+
+378
+00:37:49,420 --> 00:37:56,800
+特别是它没有生成循环图，循环正在生成所有
+in particular it is not producing a
+cyclic graph the loop is producing all
+
+379
+00:37:56,800 --> 00:38:01,000
+这些图是循环的另一件事，需要注意的是您不会看到
+these graphs are a cyclic another thing
+to notice that you wouldn't have seen a
+
+380
+00:38:01,000 --> 00:38:05,200
+ MapReduce是这里的数据，这是我们兑现的数据
+MapReduce is that this data here which
+was the data that we cashed that we
+
+381
+00:38:05,200 --> 00:38:09,490
+持续使用一次又一次，每次循环迭代等等
+persisted is used over and over again
+and every loop iteration and so it
+
+382
+00:38:09,490 --> 00:38:16,500
+火花将其保留在内存中，并将多次对其进行查询
+sparks going to keep this in memory and
+it's going to consult it multiple times
+
+383
+00:38:20,070 --> 00:38:28,570
+好吧，所以它实际上在执行过程中发生了
+alright so it actually happens during
+execution what is the execution look
+
+384
+00:38:28,570 --> 00:38:39,040
+再次像这样，假设是输入数据开始的数据种类
+like so again the the assumption is that
+the data the input data starts out kind
+
+385
+00:38:39,040 --> 00:38:48,460
+通过在HDFS中预先分区，我们假设我们的一个文件是我们的输入
+of pre partitioned by over in HDFS
+we assume our one file it's our input
+
+386
+00:38:48,460 --> 00:38:53,470
+文件已经拆分为许多您知道的64 MB或可能的文件
+files already split up into lots of you
+know 64 megabyte or whatever it may
+
+387
+00:38:53,470 --> 00:39:01,030
+ HDFS中发生的事情Spark知道，当您开始时，您实际上是在打电话
+happen pieces in HDFS spark knows that
+when you started you actually call
+
+388
+00:39:01,030 --> 00:39:03,760
+收集计算的开始spark知道输入数据已经存在
+collect the start of computation spark
+knows that the input data is already
+
+389
+00:39:03,760 --> 00:39:11,440
+分区HDFS，它将尝试将工作分散在一个
+partitioned HDFS and it's gonna try to
+split up the work the workers in a
+
+390
+00:39:11,440 --> 00:39:15,940
+相应的方式，因此，如果它知道我实际上不知道
+corresponding way so if it knows that
+there's I actually don't know what the
+
+391
+00:39:15,940 --> 00:39:21,340
+细节，它可能实际上试图在同一位置运行计算
+details are a bit it might actually try
+to run the computation on the same
+
+392
+00:39:21,340 --> 00:39:31,650
+存储HDFS数据的计算机，或者可能只是设置了一堆工作人员来
+machines that store the HDFS data or it
+may just set up a bunch of workers to
+
+393
+00:39:31,650 --> 00:39:37,330
+读取每个HDFS分区，并且可能再次超过一个
+read each of the HDFS partitions and
+again there's likely to be more than one
+
+394
+00:39:37,330 --> 00:39:45,580
+每个工人每个分区，所以我们有了输入文件，第一件事是
+partition per per worker so we have the
+input file and the very first thing is
+
+395
+00:39:45,580 --> 00:39:53,260
+每个工作人员都将其作为输入文件的一部分进行读取，因此这是他们的读取
+that each worker reads as part of the
+input file so this is the read their
+
+396
+00:39:53,260 --> 00:39:57,760
+如果您还记得下一步，则读取文件，此图是每个工作人员应该在其中绘制的地图
+file read if you remember the next step
+is a map where the each worker supposed
+
+397
+00:39:57,760 --> 00:40:02,770
+映射一个小功能，将输入的每一行分成两个
+to map a little function that splits up
+each line of input into a from two
+
+398
+00:40:02,770 --> 00:40:08,410
+链接的tupple um，但这纯粹是本地操作，因此可以继续进行
+linked tupple um but this is a purely
+local operation and so it can go on in
+
+399
+00:40:08,410 --> 00:40:13,450
+相同的工人，所以我们想象我们先读取数据，然后
+the same worker so we imagine that we
+read the data and then in the very same
+
+400
+00:40:13,450 --> 00:40:19,750
+工人的火花会做那个初始图，所以你知道我在画箭头
+worker spark is gonna do that initial
+map so you know I'm drawing an arrow
+
+401
+00:40:19,750 --> 00:40:22,960
+这实际上是每个工人到自己的箭头，因此没有网络
+here's really an arrow from each worker
+to itself so there's no network
+
+402
+00:40:22,960 --> 00:40:28,540
+确实涉及到沟通，只是您知道我们进行了初读， 
+communication involved indeed it's just
+you know we run the first read and the
+
+403
+00:40:28,540 --> 00:40:33,700
+输出可以直接馈送到那个小的map函数，实际上这是
+output can be directly fed to that
+little map function and in fact this is
+
+404
+00:40:33,700 --> 00:40:40,980
+最初的地图实际上触发了数据流
+that that initial map in fact spark
+certainly streams the data record by
+
+405
+00:40:40,980 --> 00:40:45,260
+通过这些转换进行记录，而不是读取整个输入
+record through these transformations so
+instead of reading the entire input
+
+406
+00:40:45,260 --> 00:40:52,020
+分区，然后在整个输入分区上运行映射SPARC读取
+partition and then running the map on
+the entire input partition SPARC reads
+
+407
+00:40:52,020 --> 00:40:56,310
+第一个记录或第一个记录，然后运行地图
+the first record or maybe the first just
+couple of records and then runs the map
+
+408
+00:40:56,310 --> 00:41:02,010
+总的来说，我实际上是每条记录运行E的每条记录
+on just sort of all I'm each record in
+fact runs each record of E if it was
+
+409
+00:41:02,010 --> 00:41:06,660
+在继续阅读下一点内容之前，可以进行许多转换
+many transformations as it can before
+going on and reading the next little bit
+
+410
+00:41:06,660 --> 00:41:10,050
+从文件中，这样就不必存储这些文件
+from the file and that's so that it
+doesn't have to store yes these files
+
+411
+00:41:10,050 --> 00:41:14,849
+可能很大，不是一半，所以就像存储整个输入文件一样
+could be very large it isn't one half so
+like store the entire input file it's
+
+412
+00:41:14,849 --> 00:41:18,990
+仅通过逐条记录处理记录就可以提高效率，所以有一个
+much more efficient just to process it
+record by record okay so there's a
+
+413
+00:41:18,990 --> 00:41:24,420
+问题，所以每个链中的第一个节点是持有HDFS块的工作程序
+question so the first node in each chain
+is the worker holding the HDFS chunks
+
+414
+00:41:24,420 --> 00:41:28,349
+链中的其余节点是沿袭中的节点
+and the remaining nodes in the chain are
+the nodes in the lineage oh yeah I'm
+
+415
+00:41:28,349 --> 00:41:32,220
+怕我在这里有点困惑，我认为思考这个问题的方法是
+afraid I've been a little bit confusing
+here I think the way to think of this is
+
+416
+00:41:32,220 --> 00:41:37,800
+到目前为止，所有这些事情都是在单个工人身上发生的，所以这是
+that so far all this happen is happening
+on it on individual workers so this is
+
+417
+00:41:37,800 --> 00:41:43,460
+一个工人，也许这是另一个工人， 
+worker one maybe this is another worker
+and
+
+418
+00:41:45,890 --> 00:41:50,210
+每个工人都是独立进行的，我在想
+each worker is sort of proceeding
+independently and I'm imagining that
+
+419
+00:41:50,210 --> 00:41:55,220
+它们都在存储不同分区的同一台计算机上运行
+they're all running on the same machines
+that stored the different partitions of
+
+420
+00:41:55,220 --> 00:41:59,630
+ HTTPS密钥卡，但此处可能存在网络通信，可从HDFS发送到
+the HTTPS fob but there could be Network
+communication here to get from HDFS to
+
+421
+00:41:59,630 --> 00:42:04,990
+对负责的工人，但之后这是非常快速的一种本地
+the to the responsible worker but after
+that it's very fast kind of local
+
+422
+00:42:04,990 --> 00:42:20,090
+一切正常，所以这就是所谓的
+operations all right and so this is what
+happens for the with the people called
+
+423
+00:42:20,090 --> 00:42:22,540
+狭窄
+the narrow
+
+424
+00:42:23,210 --> 00:42:28,529
+依赖关系，即看起来只是考虑的每个记录的转换
+dependencies that is transformations
+that just look consider each record of
+
+425
+00:42:28,529 --> 00:42:33,749
+独立数据，而不必担心与其他人的关系
+data independently without ever having
+to worry about the relationship to other
+
+426
+00:42:33,749 --> 00:42:39,239
+进行记录，这样一来，它的效率可能已经比
+records so by the way this is already
+potentially more efficient than
+
+427
+00:42:39,239 --> 00:42:46,769
+ MapReduce，那是因为如果我们在这里有多个地图阶段
+MapReduce and that's because if we have
+what amount to multiple map phases here
+
+428
+00:42:46,769 --> 00:42:50,999
+它们只是在内存中串在一起，而MapReduce（如果您不是超级） 
+they just string together in memory
+whereas MapReduce if you're not super
+
+429
+00:42:50,999 --> 00:42:54,630
+如果您运行多个MapReduce，即使
+clever
+if you run multiple MapReduce is even if
+
+430
+00:42:54,630 --> 00:42:59,640
+它们只是退化的地图，每个阶段都会使用MapReduce应用程序
+they're sort of degenerate map only
+MapReduce applications each stage would
+
+431
+00:42:59,640 --> 00:43:04,619
+减少s运算的G的输入并将其输出写回到GFS，然后
+reduce input from G of s compute and
+write its output back to GFS then the
+
+432
+00:43:04,619 --> 00:43:08,309
+下一阶段将是正确的计算，因此在这里我们消除了阅读
+next stage would be compute right so
+here we've eliminated the reading
+
+433
+00:43:08,309 --> 00:43:14,309
+用它来写，你知道这不是一个很深的优势，但它肯定会有所帮助
+writing in it you know it's not a very
+deep advantage but it sure helps
+
+434
+00:43:14,309 --> 00:43:23,130
+效率很高的李先生，但是并不是所有的转换都是狭窄的
+enormous Li for efficiency okay however
+not all the transformations are narrow
+
+435
+00:43:23,130 --> 00:43:28,529
+并非所有的人都按记录类型逐个读取其输入记录
+not all just sort of read their input
+record by record kind of with every
+
+436
+00:43:28,529 --> 00:43:32,489
+记录独立于其他记录，所以我担心的是
+record independent from other records
+and so what I'm worried about is the
+
+437
+00:43:32,489 --> 00:43:37,559
+需要知道所有实例的所有具有
+distinct call which needed to know all
+instances all records that had a
+
+438
+00:43:37,559 --> 00:43:42,749
+类似地，特定密钥按密钥分组需要了解所有
+particular key similarly group by key
+needs to know about all instances that
+
+439
+00:43:42,749 --> 00:43:50,210
+有一个关键的连接也必须四处移动，所以需要两个输入
+have a key join also it's gotta move
+things around so that takes two inputs
+
+440
+00:43:50,210 --> 00:43:54,960
+需要将两个输入的所有键连接在一起，以便所有记录
+needs to join together all keys from
+both inputs so that this all records
+
+441
+00:43:54,960 --> 00:43:58,650
+来自同一个键的两个输入，所以有一堆这些非本地的
+from both inputs that are the same key
+so there's a bunch of these non-local
+
+442
+00:43:58,650 --> 00:44:04,469
+本文将之称为广泛的转换，因为它们
+transformations which the paper calls
+wide transformations because they
+
+443
+00:44:04,469 --> 00:44:08,579
+可能不得不查看输入的所有分区
+potentially have to look at all
+partitions of the input that's a lot
+
+444
+00:44:08,579 --> 00:44:14,430
+就像MapReduce中的reduce服务示例一样，我们正在讨论
+like reduce in MapReduce serve example
+distinct exposing we're talking about
+
+445
+00:44:14,430 --> 00:44:20,489
+您知道的独特阶段将在多名工人上运行
+the distinct stage you know the distinct
+is going to be run on multiple workers
+
+446
+00:44:20,489 --> 00:44:27,299
+也没有对每个键单独进行区分的工作，因此我们可以进行分区
+also and no distinct works on each key
+independently and so we can partition
+
+447
+00:44:27,299 --> 00:44:33,239
+按键计算，但当前数据未按键分区
+the computation by key but the
+data currently is not partitioned by key
+
+448
+00:44:33,239 --> 00:44:36,569
+实际上根本没有被任何东西划分，只是
+at all actually isn't really partitioned
+by anything but just sort of however
+
+449
+00:44:36,569 --> 00:44:44,479
+ HDFS让我失真了，所以我们要在四个词上区别对待四个
+HDFS have my distorted so four distinct
+we're gonna run distinct on all the word
+
+450
+00:44:44,479 --> 00:44:50,009
+分区，所有工作人员都按键分区，但是您知道任何一个
+partition and all the workers
+partitioned by key but you know any one
+
+451
+00:44:50,009 --> 00:44:54,930
+工作人员需要查看具有给定键的所有输入记录，该键可能是
+worker needs to see all of the input
+records with a given key which may be
+
+452
+00:44:54,930 --> 00:45:00,380
+散布在所有前面
+spread out over all of the preceding
+
+453
+00:45:00,680 --> 00:45:07,499
+之前的转型的工人，你们所有人都知道他们是
+workers for the preceding transformation
+and all of all of the you know they're
+
+454
+00:45:07,499 --> 00:45:10,469
+所有的工人负责不同的钥匙，但钥匙可能是
+all for the workers are responsible for
+different keys but the keys may be
+
+455
+00:45:10,469 --> 00:45:13,039
+摊开
+spread out over
+
+456
+00:45:16,849 --> 00:45:21,319
+实际上，工人要进行先前的转型
+workers for the preceeding
+transformation now in fact the workers
+
+457
+00:45:21,319 --> 00:45:25,759
+通常是一样的，要运行地图的工作人员是一样的
+are the same typically it's gonna be the
+same workers running the map is running
+
+458
+00:45:25,759 --> 00:45:28,940
+运行不同的，但是数据需要在两者之间移动
+running the distinct but the data needs
+to be moved between the two
+
+459
+00:45:28,940 --> 00:45:33,049
+转换以将所有键组合在一起，因此实际上产生了什么火花
+transformations to bring all the keys
+together and so what sparks actually
+
+460
+00:45:33,049 --> 00:45:38,269
+将要执行的操作是将此地图的输出通过其键对每个记录进行哈希处理
+gonna do it's gonna take the output of
+this map hash the each record by its key
+
+461
+00:45:38,269 --> 00:45:42,769
+并使用您知道的模数来选择哪个工人
+and use that you know mod the number of
+workers to select which workers should
+
+462
+00:45:42,769 --> 00:45:48,349
+看到它，实际上实现与您的实现非常相似
+see it and in fact the implementation is
+a lot like your implementation of
+
+463
+00:45:48,349 --> 00:45:55,549
+ MapReduce在狭窄的最后发生的最后一件事
+MapReduce the very last thing that
+happens in in the last of the narrow
+
+464
+00:45:55,549 --> 00:46:01,700
+阶段是将输出切成对应的桶
+stages is that the output is going to be
+chopped up into buckets corresponding to
+
+465
+00:46:01,700 --> 00:46:06,890
+下一次转型的不同工人
+the different workers for the next
+transformation where it's going to be
+
+466
+00:46:06,890 --> 00:46:13,579
+离开等待他们来取货，我看到瓢是每个工人都在跑
+left waiting for them to fetch I saw the
+scoop is that each of the workers run
+
+467
+00:46:13,579 --> 00:46:16,940
+他们可以通过的所有狭窄阶段的尽可能多的阶段
+the sort of as many stages all the
+narrows stages they can through the
+
+468
+00:46:16,940 --> 00:46:21,289
+完成并将所有这些存储在
+completion and store the output split up
+into buckets when all of these are
+
+469
+00:46:21,289 --> 00:46:27,859
+完成后，我们就可以开始运行工人进行独特的转换
+finished then we can start running the
+workers for the distinct transformation
+
+470
+00:46:27,859 --> 00:46:32,660
+第一步是从其他所有工人那里获取相关的存储桶
+whose first step is go and fetch from
+every other worker the relevant bucket
+
+471
+00:46:32,660 --> 00:46:38,239
+的最后一个狭窄阶段的输出，然后我们可以运行不同的，因为
+of the output of the last narrow stage
+and then we can run the distinct because
+
+472
+00:46:38,239 --> 00:46:42,259
+所有给定的密钥都在同一工人上，他们都可以开始生产
+all the given keys are on the same
+worker and they can all start producing
+
+473
+00:46:42,259 --> 00:46:46,150
+输出自己
+output themselves
+
+474
+00:46:48,199 --> 00:46:52,709
+现在所有这些Y转换当然是非常昂贵的
+all right now of course these Y
+transformations are quite expensive the
+
+475
+00:46:52,709 --> 00:46:56,459
+现在，转换非常高效，因为我们只是在进行每个转换
+now transformations are super efficient
+because we're just sort of taking each
+
+476
+00:46:56,459 --> 00:47:00,929
+完全在本地记录并运行一堆函数
+record and running a bunch of functions
+on it totally locally the Y
+
+477
+00:47:00,929 --> 00:47:04,349
+转换需要推动大量数据，基本上影响所有数据
+transformations require pushing a lot of
+data impact essentially all of the data
+
+478
+00:47:04,349 --> 00:47:08,880
+在PageRank中，您知道获得了TB级的输入数据，这意味着
+in for PageRank you know you get
+terabytes of input data that means that
+
+479
+00:47:08,880 --> 00:47:12,359
+您知道在此阶段它仍然是相同的数据，因为这是所有链接
+you know it's still the same data at
+this stage because it's all the links
+
+480
+00:47:12,359 --> 00:47:17,309
+然后在网络上，现在我们将TB和TB的数据推送到
+and then in the web so now we're pushing
+terabytes and terabytes of data over the
+
+481
+00:47:17,309 --> 00:47:23,009
+网络，以实现从地图功能的输出到
+network to implement this shuffle from
+the output of the map functions to the
+
+482
+00:47:23,009 --> 00:47:28,229
+不同功能的输入，因此这些广泛的转换非常漂亮
+input of the distinct functions so these
+wide transformations are pretty
+
+483
+00:47:28,229 --> 00:47:31,529
+大量的交流，他们也
+heavyweight
+a lot of communication and they're also
+
+484
+00:47:31,529 --> 00:47:35,669
+这种计算障碍，因为我们必须等待所有狭窄
+kind of computation barrier because we
+have to wait all for all the narrow
+
+485
+00:47:35,669 --> 00:47:42,919
+在我们继续之前完成处理，因此有广泛的转变
+processing to finish before we can go on
+to the so there's wide transformation
+
+486
+00:47:45,979 --> 00:47:53,239
+好的，说那里有一些
+all right that said the there are some
+
+487
+00:47:54,289 --> 00:47:59,819
+由于SPARC具有视图，因此可以进行优化SPARC会创建
+optimizations that are possible because
+SPARC has a view SPARC creates the
+
+488
+00:47:59,819 --> 00:48:06,659
+整个谱系图，然后再开始任何数据处理，因此可以
+entire lineage graph before it starts
+any of the data processing so smart can
+
+489
+00:48:06,659 --> 00:48:10,139
+检查沿袭图，寻找优化机会， 
+inspect the lineage graph and look for
+opportunities for optimization and
+
+490
+00:48:10,139 --> 00:48:15,599
+如果有一系列窄步运行它们，当然可以运行所有这些
+certainly running all of if there's a
+sequence of narrow stages running them
+
+491
+00:48:15,599 --> 00:48:19,619
+全部都在同一台机器上，每个输入基本上都按顺序调用
+all in the same machine by basically
+sequential function calls on each input
+
+492
+00:48:19,619 --> 00:48:24,179
+记录这绝对是一项优化，只有在您进行
+record that's definitely an optimization
+that you can only notice if you sort of
+
+493
+00:48:24,179 --> 00:48:30,889
+一次查看整个血统图，另一个优化
+see the entire lineage graph all at once
+another optimization that
+
+494
+00:48:34,470 --> 00:48:40,140
+当数据已经全部分区时，spark确实会注意到
+spark does is noticing when the data has
+all has has already been partitioned due
+
+495
+00:48:40,140 --> 00:48:44,310
+彻底改组了数据已经按照它的方式进行了分区
+to a wide shuffle that the data is
+already partitioned in the way that it's
+
+496
+00:48:44,310 --> 00:48:51,240
+下一步需要进行广泛的转型，因此在我们最初的
+going to be needed for the next wide
+transformation so in the in our original
+
+497
+00:48:51,240 --> 00:49:00,030
+程序让我们看一下，我认为我们连续有两个不同的转换
+program let's see I think we have two
+wide transformations in a row distinct
+
+498
+00:49:00,030 --> 00:49:05,849
+需要洗牌，但要按组分组，它将把所有
+requires a shuffle but group by key also
+it's gonna bring together all the
+
+499
+00:49:05,849 --> 00:49:11,609
+用给定的键进行记录，并用每个键的列表替换它们
+records with a given key and replace
+them with a list of for every key the
+
+500
+00:49:11,609 --> 00:49:16,859
+您知道从该URL开始的链接列表，它们都是广泛的运算符
+list of links you know starting at that
+URL these are both wide operators they
+
+501
+00:49:16,859 --> 00:49:21,150
+两者都是按键分组的，所以也许我们必须对不同
+both are grouping by key and so maybe we
+have to do a shuffle for the distinct
+
+502
+00:49:21,150 --> 00:49:25,560
+但火花可以巧妙地识别出您已经知道的高点
+but spark can cleverly recognize a high
+you know that is already shuffled in a
+
+503
+00:49:25,560 --> 00:49:28,920
+适用于按组分组的方式，我们无需在其他混洗中进行
+way that's appropriate for a group by
+key we don't have to do in other shuffle
+
+504
+00:49:28,920 --> 00:49:32,730
+因此，即使原则上按组分组也可以
+so even though group by key is in
+principle it could be a wide
+
+505
+00:49:32,730 --> 00:49:38,130
+转换实际上我怀疑spark在没有通信的情况下实现了转换
+transformation in fact I suspect spark
+implements it without communication
+
+506
+00:49:38,130 --> 00:49:44,540
+因为数据已经按键分区，所以可能按键分组
+because the data is already partitioned
+by key so maybe the group by key
+
+507
+00:49:45,569 --> 00:49:53,640
+可以在这种特殊情况下完成，而不会浪费数据
+can be done in this particular case
+without shuffling data without expense
+
+508
+00:49:53,999 --> 00:49:58,329
+当然，您知道它只能这样做，因为它产生了整个谱系
+of course it you know can only do this
+because it produced the entire lineage
+
+509
+00:49:58,329 --> 00:50:02,559
+首先绘制图形，然后再运行计算，因此这部分有机会
+graph first and only then ran the
+computation so this part gets a chance
+
+510
+00:50:02,559 --> 00:50:10,410
+进行检查和优化，甚至可以转换图形
+to sort of examine and optimize and
+maybe transform the graph
+
+511
+00:50:13,770 --> 00:50:20,730
+这样看起来实际上是有关谱系图或方法的任何问题
+so that looks topic actually any any
+questions about lineage graphs or how
+
+512
+00:50:20,730 --> 00:50:28,380
+事情被执行了，我可以自由地与下一件事情互动
+things are executed
+I feel free to interact the next thing I
+
+513
+00:50:28,380 --> 00:50:40,080
+要谈论的是容错，在这里，您知道这些
+want to talk about is fault tolerance
+and here the you know these kind of
+
+514
+00:50:40,080 --> 00:50:42,990
+计算不是容错所要寻找的不是
+computations they're not the fault
+tolerance are looking for is not the
+
+515
+00:50:42,990 --> 00:50:46,620
+您对数据库想要的绝对容错能力
+sort of absolute fault tolerance you
+would want with the database what you
+
+516
+00:50:46,620 --> 00:50:49,950
+真的是永远无法承受失去任何您真正想要的是
+really just cannot ever afford to lose
+anything what you really want is a
+
+517
+00:50:49,950 --> 00:50:54,900
+在这里永远不会丢失数据的数据库，我们正在寻找的容错能力是
+database that never loses data here the
+fault tolerance we're looking for is
+
+518
+00:50:54,900 --> 00:51:00,540
+更像是，如果我们必须重复计算，我们将完全
+more like well it's expensive if we have
+to repeat the computation we can totally
+
+519
+00:51:00,540 --> 00:51:04,590
+如果需要，可以重复此计算，但是您知道这将需要我们花费一些时间
+repeat this computation if we have to
+but you know it would take us a couple
+
+520
+00:51:04,590 --> 00:51:09,510
+数小时，这很烦人，但不是世界末日，因此我们希望
+of hours and that's irritating but not
+the end of the world so we're looking to
+
+521
+00:51:09,510 --> 00:51:15,140
+您知道可以容忍常见错误，但是我们不必一定不必
+you know tolerate common errors but we
+don't have to certainly don't have to
+
+522
+00:51:15,140 --> 00:51:26,700
+具有防弹能力以容忍任何可能的错误，例如火花
+having bulletproof ability to tolerate
+any possible error so for example spark
+
+523
+00:51:26,700 --> 00:51:31,890
+如果某种控制的驱动程序不复制该驱动程序计算机
+doesn't replicate that driver machine if
+the driver which was sort of controlling
+
+524
+00:51:31,890 --> 00:51:34,860
+计算并知道驱动程序崩溃的沿袭图
+the computation and knew about the
+lineage graph of the driver crashes I
+
+525
+00:51:34,860 --> 00:51:38,280
+认为您必须重新运行整个过程，但是您只知道任何一台计算机
+think you have to rerun the whole thing
+but you know any only any one machine
+
+526
+00:51:38,280 --> 00:51:41,430
+仅每隔几个月崩溃一次，所以没什么大不了的
+only crashes maybe every few months so
+that's no big deal
+
+527
+00:51:41,430 --> 00:51:48,090
+还要注意的另一件事是，HDFS是一种单独的事物，SPARC只是
+another thing to notice is that HDFS is
+sort of a separate thing SPARC is just
+
+528
+00:51:48,090 --> 00:51:55,290
+假设输入是在HDFS上以容错方式复制的，实际上
+assuming that the input is replicated in
+a fault-tolerant way on HDFS and indeed
+
+529
+00:51:55,290 --> 00:51:59,760
+就像GFS HDFS确实将数据的多个副本保留在多个
+just just like GFS HDFS does indeed keep
+multiple copies of the data on multiple
+
+530
+00:51:59,760 --> 00:52:05,220
+如果其中一个崩溃，则服务器可以继续使用另一个副本，因此
+servers if one of them crashes can
+soldier on with the other copy so the
+
+531
+00:52:05,220 --> 00:52:11,340
+假定输入数据具有相对的容错能力，并且
+input data is assumed to be to be
+relatively fault tolerant and
+
+532
+00:52:11,340 --> 00:52:17,310
+这意味着最高级别的是火花策略，如果其中之一
+what that means that at the highest
+level is that spark strategy if one of
+
+533
+00:52:17,310 --> 00:52:23,730
+工人失败只是重新计算该工人应承担的责任
+the workers fail is just to recompute
+the whatever that worker was responsible
+
+534
+00:52:23,730 --> 00:52:29,340
+为了重复这些计算，他们在某些情况下被工人迷失了
+for to just repeat those computations
+they were lost with the worker on some
+
+535
+00:52:29,340 --> 00:52:37,130
+其他工人和其他机器上，所以基本上就是这样
+other worker and on some other machine
+so that's basically what's going on and
+
+536
+00:52:37,130 --> 00:52:42,150
+如果您的血统很长，您可能会花一些时间
+it you know it might take a while if you
+have a long lineage like you would
+
+537
+00:52:42,150 --> 00:52:45,270
+实际上可以与PageRank一起使用，因为您知道PageRank有很多迭代
+actually get with PageRank because you
+know PageRank with many iterations
+
+538
+00:52:45,270 --> 00:52:53,790
+产生很长的谱系图的一种方式是火花使它变得不那么糟糕
+produces a very long lineage graph one
+way that spark makes it not so bad that
+
+539
+00:52:53,790 --> 00:52:56,880
+如果一个工人，它可能必须是从头开始的一切计算机。 
+it has to be may have to be computer
+everything from scratch if a worker
+
+540
+00:52:56,880 --> 00:53:02,790
+失败的原因是每个工人实际上负责多个分区
+fails is that each workers actually
+responsible for multiple partitions at
+
+541
+00:53:02,790 --> 00:53:08,910
+输入，因此火花可以移动那些零件，从而给其余每个工人仅一个
+the input so spark can move those parts
+move give each remaining worker just one
+
+542
+00:53:08,910 --> 00:53:13,850
+分区，它们将基本使重新计算瘫痪
+of the partitions and they'll be able to
+basically paralyzed the recomputation
+
+543
+00:53:13,850 --> 00:53:19,140
+失败的工作人员通过在
+that was lost with the failed worker by
+running each of its partitions on a on a
+
+544
+00:53:19,140 --> 00:53:24,870
+并行的其他工人，因此，如果所有其他失败，火花只会返回
+different worker in parallel so if all
+else fails spark just goes back to the
+
+545
+00:53:24,870 --> 00:53:29,310
+从输入开始，只是重新计算正在运行的所有内容
+beginning from being input and just
+recomputes everything that was running
+
+546
+00:53:29,310 --> 00:53:38,880
+但是在那台机器上，就目前而言，我们的依赖关系就差不多结束了
+on that machine however and for now our
+dependencies that's pretty much the end
+
+547
+00:53:38,880 --> 00:53:42,030
+的故事，但是实际上有一个问题
+of the story
+however there actually is a problem with
+
+548
+00:53:42,030 --> 00:53:48,210
+广泛的依存关系使该故事没有您所吸引
+the wide dependencies that makes that
+story not as attractive as you might
+
+549
+00:53:48,210 --> 00:53:58,730
+希望这是一个主题这里是一个失败的节点1失败的工作程序
+hope so this is a topic here is failure
+one failed node 1 failed worker
+
+550
+00:54:00,920 --> 00:54:13,200
+在具有广泛依赖关系的血统图中
+in a lineage graph that has wide
+dependencies so the a reasonable or a
+
+551
+00:54:13,200 --> 00:54:16,799
+您可能拥有的样例图是，您知道也许您有依赖性
+sort of sample graph you might have is
+you know maybe you have a dependency
+
+552
+00:54:16,799 --> 00:54:26,549
+您知道的图形始于一些功率相关性，但之后
+graph that's you know starts with some
+power dependencies but then after a
+
+553
+00:54:26,549 --> 00:54:37,740
+虽然您具有广泛的依赖性，所以您得到的转换依赖于所有
+while you have a wide dependency so you
+got transformations that depend on all
+
+554
+00:54:37,740 --> 00:54:44,190
+前面的转换，然后是一些小的狭窄转换，就可以了
+the preceding transformations and then
+some small narrow ones all right and you
+
+555
+00:54:44,190 --> 00:54:48,119
+知道游戏是一个工人失败了，我们需要重建
+know the game is that a single workers
+fail and we need to reconstruct the
+
+556
+00:54:48,119 --> 00:54:55,200
+在我们进入最终动作并产生输出之前，Maeby的领域
+Maeby's field before we've gone to the
+final action and produce the output so
+
+557
+00:54:55,200 --> 00:55:02,220
+我们需要进行某种重构，重新计算在该现场工作中
+we need to kind of reconstruct recompute
+what was on this field work the the
+
+558
+00:55:02,220 --> 00:55:09,359
+这里有害的是，通常随着火花的执行，你知道
+damaging thing here is that ordinarily
+as spark is executing along it you know
+
+559
+00:55:09,359 --> 00:55:14,700
+它执行每个转换，使我们输出到下一个
+it executes each of the transformations
+gives us output to the next
+
+560
+00:55:14,700 --> 00:55:18,599
+转换，但除非您除非，否则不会保留原始输出
+transformation but doesn't hold on to
+the original output unless you unless
+
+561
+00:55:18,599 --> 00:55:24,509
+您碰巧告诉它链接数据与该缓存调用保持一致
+you happen to tell it to like the links
+data is persisted with that cache call
+
+562
+00:55:24,509 --> 00:55:31,069
+但一般来说，数据不会保留下来，因为现在如果您拥有
+but in general that data is not held on
+to because now if you have a like the
+
+563
+00:55:31,069 --> 00:55:35,940
+ PageRank谱系图可能长达数十步或数百步，您不想
+PageRank lineage graph maybe dozens or
+hundreds of steps long you don't want to
+
+564
+00:55:35,940 --> 00:55:40,710
+保留所有这些数据的方式太多了，无法容纳在内存中，因此
+hold on to all that data it's way way
+too much to fit in memory so as the
+
+565
+00:55:40,710 --> 00:55:45,559
+ SPARC经过这些转换后会丢弃所有数据
+SPARC sort of moves through these
+transformations it discards all the data
+
+566
+00:55:45,559 --> 00:55:50,279
+与较早的转换相关，这意味着我们什么时候到达这里
+associated with earlier transformations
+that means when we get here and if this
+
+567
+00:55:50,279 --> 00:55:56,640
+ worker失败，我们需要在其他位置重新启动其计算
+worker fails we need to we need to
+restart its computation on a different
+
+568
+00:55:56,640 --> 00:56:01,670
+现在的工人，所以我们可以作为输入，也许可以做原始的缩小
+worker now so we can be the input and
+maybe do the original narrow
+
+569
+00:56:01,670 --> 00:56:05,690
+转换只取决于我们的输入
+transformations
+they just depend on the input which we
+
+570
+00:56:05,690 --> 00:56:08,660
+必须重新阅读，但是如果我们要进行y转换，则需要
+have to reread but then if we get to
+this y transformation we have this
+
+571
+00:56:08,660 --> 00:56:13,970
+它需要输入的不仅仅是来自同一分区上相同分区的问题
+problem that it requires input not just
+from the same partition on the same
+
+572
+00:56:13,970 --> 00:56:18,440
+工人，但也来自其他每个分区以及这些工人，因此他们
+worker but also from every other
+partition and these workers so they're
+
+573
+00:56:18,440 --> 00:56:23,450
+在这个例子中还活着的人已经经历了这种转变， 
+still alive have in this example have
+proceeded past this transformation and
+
+574
+00:56:23,450 --> 00:56:31,310
+因此放弃了此转换的输出，因为它可能是
+therefore discarded the output of this
+transformation since it may have been a
+
+575
+00:56:31,310 --> 00:56:36,770
+前一阵子，因此我们的输入满足了所有
+while ago and therefore the input did
+our recomputation needs from all the
+
+576
+00:56:36,770 --> 00:56:41,839
+其他分区不再存在，因此，如果我们不小心，这意味着
+other partitions doesn't exist anymore
+and so if we're not careful that means
+
+577
+00:56:41,839 --> 00:56:46,819
+为了重建这个现场工作人员的计算，我们可能
+that in order to rebuild this the
+computation on this field worker we may
+
+578
+00:56:46,819 --> 00:56:55,040
+实际上必须重新执行所有其他工人的这一部分，以及
+in fact have to re execute this part of
+every other worker as well as well as
+
+579
+00:56:55,040 --> 00:57:01,250
+失败工人的整个血统图，所以这可能非常
+the entire lineage graph on the failed
+worker and so this could be very
+
+580
+00:57:01,250 --> 00:57:05,089
+如果我们在谈论的话会损害权利哦，我的意思是我一直在经营这个巨人
+damaging right if we're talking about oh
+I mean I've been running this giant
+
+581
+00:57:05,089 --> 00:57:10,369
+激发一天的工作，然后一千台机器中的一台发生故障，这可能意味着我们
+spark job for a day and then one of a
+thousand machines fails that may mean we
+
+582
+00:57:10,369 --> 00:57:13,970
+我们必须知道比这更聪明的事情，我们必须回到
+have to we know anything more clever
+than this that we have to go back to the
+
+583
+00:57:13,970 --> 00:57:18,680
+从每个工人的头开始，重新计算整个过程
+very beginning on every one of the
+workers and recompute the whole thing
+
+584
+00:57:18,680 --> 00:57:22,730
+从头开始，不，它将花费相同的工作量
+from scratch no it's gonna be the same
+amount of work is going to take the same
+
+585
+00:57:22,730 --> 00:57:30,170
+一天重新计算一天的计算量，所以这是我们无法接受的
+day to recompute a day's computation so
+this would be unacceptable we'd really
+
+586
+00:57:30,170 --> 00:57:33,680
+喜欢它，如果一千个工人中有一个坠毁，我们必须做
+like it so that if if one worker out of
+a thousand crashes that we have to do
+
+587
+00:57:33,680 --> 00:57:42,560
+从中恢复的工作量相对较小，因此火花可以
+relatively little work to recover from
+that and because of that spark allows
+
+588
+00:57:42,560 --> 00:57:48,560
+您检查点以定期进行特定转换的检查点
+you to check point to make periodic
+check points of specific transformation
+
+589
+00:57:48,560 --> 00:57:57,260
+所以，在这张图中，我们要做的就是在扇贝程序中调用
+so um so in this graph what we would do
+is in the scallop program we would call
+
+590
+00:57:57,260 --> 00:58:00,920
+我认为这是持久调用，实际上我们以特殊方式调用持久调用
+I think it's the persist call actually
+we call the persist call with a special
+
+591
+00:58:00,920 --> 00:58:06,520
+说，看你计算此输出的参数
+argument that says look after you
+compute the output of this
+
+592
+00:58:06,520 --> 00:58:11,770
+转换，请将输出保存到HDFS 
+transformation please save the output to
+HDFS
+
+593
+00:58:11,770 --> 00:58:18,560
+所以一切，然后如果某事失败了，火花将知道那
+and so everything and then if something
+fails the spark will know that aha the
+
+594
+00:58:18,560 --> 00:58:24,680
+正在进行的转换的输出是安全的，所以我们只有
+output of the proceeding transformation
+was safe th th d fs and so we just have
+
+595
+00:58:24,680 --> 00:58:30,770
+从每个DFS读取它，而不是在所有分区的所有DFS上重新计算它
+to read it from each DFS instead of
+recomputing it on all for all partitions
+
+596
+00:58:30,770 --> 00:58:36,260
+回到时间的开始，因为HDFS是一个单独的存储
+back to the beginning of time um and
+because HDFS is a separate storage
+
+597
+00:58:36,260 --> 00:58:40,250
+系统本身是在容错中复制的，即一个工人
+system which is itself replicated in
+fault-tolerant the fact that one worker
+
+598
+00:58:40,250 --> 00:58:47,950
+失败，您知道即使工作程序失败，HDFS仍将可用
+fails you know the HDFS is still going
+to be available even if a worker fails
+
+599
+00:58:49,690 --> 00:58:59,480
+所以我认为对于我们的示例PageRank，我认为传统的做法是
+so I think so for our example PageRank I
+think what would be traditional would be
+
+600
+00:58:59,480 --> 00:59:06,410
+告诉火花检查点输出检查
+to tell
+spark to check point the output to check
+
+601
+00:59:06,410 --> 00:59:10,340
+排名，你甚至不知道你可以告诉它只检查点
+put ranks and you wouldn't even know you
+can tell it to only check point
+
+602
+00:59:10,340 --> 00:59:16,010
+定期地，所以您知道您是否要将此事物运行100次迭代
+periodically so you know if you're gonna
+run this thing for 100 iterations it
+
+603
+00:59:16,010 --> 00:59:24,020
+实际上需要花费大量时间将整个等级保存到HDFS，因为
+actually takes a fair amount of time to
+save the entire ranks to HDFS because
+
+604
+00:59:24,020 --> 00:59:28,250
+再次，我们谈论的是总计TB的数据，所以也许我们可以
+again we're talking about terabytes of
+data in total so maybe we would we can
+
+605
+00:59:28,250 --> 00:59:38,150
+告诉SPARC每10次迭代仅将检查点的等级分配给HDFS或
+tell SPARC look only check point ranks
+to HDFS every every 10th iteration or
+
+606
+00:59:38,150 --> 00:59:42,530
+限制范围的方法，尽管您知道这是两者之间的权衡
+something to limit the expanse although
+you know it's a trade-off between the
+
+607
+00:59:42,530 --> 00:59:48,290
+昂贵的反复将东西保存到磁盘上，以及如果一个工人要花多少钱
+expensive repeatedly saving stuff to
+disk and how much of a cost if a worker
+
+608
+00:59:48,290 --> 00:59:51,700
+失败了，您必须回去重做
+failed you had to go back and redo it
+
+609
+00:59:55,630 --> 01:00:02,220
+当我们打电话给Bertha时，它确实是一个检查点，这是一个问题
+Bertha's a question when we call
+that does act as a checkpoint you know
+
+610
+01:00:02,220 --> 01:00:05,490
+好吧，这是一个很好的问题，我不知道答案
+okay so this is a very good question
+which I don't know the answer to the
+
+611
+01:00:05,490 --> 01:00:10,890
+观察到，我们可以在这里叫现金，我们可以叫收银员，我们可以
+observation is that we could call cash
+here and we do call cashier and we could
+
+612
+01:00:10,890 --> 01:00:18,960
+打电话给收银员，现金的通常用途是将数据保存在内存中
+call cashier and the usual use of cash
+is just to save data in memory with the
+
+613
+01:00:18,960 --> 01:00:22,740
+打算重用它，这肯定是为什么要在这里调用它的原因，因为我们
+intent to reuse it that's certainly why
+it's being called here because we're
+
+614
+01:00:22,740 --> 01:00:30,690
+使用链接，但在我的示例中，它也会使
+using links for but in my example it
+would also have the effect of making the
+
+615
+01:00:30,690 --> 01:00:34,980
+此阶段的输出在内存中可用，尽管不是在HDFS上，而是在
+output of this stage available in memory
+although not on not an HDFS but in the
+
+616
+01:00:34,980 --> 01:00:45,360
+这些工人的记忆，这篇论文从不谈论这种可能性， 
+memory of these workers and the paper
+never talks about this possibility and
+
+617
+01:00:45,360 --> 01:00:49,890
+我不太确定发生了什么可能会起作用，或者可能是事实
+I'm not really sure what's going on
+maybe that would work or maybe the fact
+
+618
+01:00:49,890 --> 01:00:56,460
+现金要求仅仅是建议性的，如果
+that the cash requests are merely
+advisory and maybe evicted if the
+
+619
+01:00:56,460 --> 01:01:01,740
+工作人员的空间用完意味着打电话给现金并不能给您带来收益
+workers run out of space means that
+calling cash doesn't give you it isn't
+
+620
+01:01:01,740 --> 01:01:06,660
+就像一个可靠的指示，以确保数据确实可用， 
+like a reliable directed to make sure
+the data really is available it's just
+
+621
+01:01:06,660 --> 01:01:10,440
+好吧，它可能会在大多数节点上可用，但并非在所有节点上都可用，因为请记住
+well it'll probably be available on most
+nodes but not all nodes because remember
+
+622
+01:01:10,440 --> 01:01:17,760
+即使是单个节点也会丢失其数据，我们将不得不做一堆
+even a single node loses its data and
+we're gonna have to do a bunch of
+
+623
+01:01:17,760 --> 01:01:25,920
+重新计算，所以我猜想复制仍然存在
+recomputation so III I'm guessing that
+persists with replication is a firm
+
+624
+01:01:25,920 --> 01:01:29,850
+指令以确保即使有
+directive to guarantee that the data
+will be available even if there's a
+
+625
+01:01:29,850 --> 01:01:34,340
+失败我真的不知道这是一个好问题
+failure
+I don't really know it's a good question
+
+626
+01:01:40,110 --> 01:01:48,630
+好吧，那是编程模型和执行模型以及
+alright okay so that's the programming
+model and the execution model and the
+
+627
+01:01:48,630 --> 01:01:54,600
+失败策略，顺便说一下失败策略
+failure strategy and by the way just a
+beat on the failure strategy a little
+
+628
+01:01:54,600 --> 01:02:00,450
+这些系统进行故障恢复的方式更多一些
+bit more the way these systems do
+failure recovery is it's not a minor
+
+629
+01:02:00,450 --> 01:02:06,420
+随着人们建立越来越大的集群，成千上万
+thing as as people build bigger and
+bigger clusters with thousands and
+
+630
+01:02:06,420 --> 01:02:10,020
+您知道成千上万台机器作业被中断的可能性
+thousands of machines you know the
+probability that job will be interrupted
+
+631
+01:02:10,020 --> 01:02:16,700
+至少有一个工人失败，它确实确实开始接近一个，所以
+by at least one worker failure it really
+does start to approach one and so the
+
+632
+01:02:16,700 --> 01:02:22,740
+旨在用于大型集群的最新设计实际上已经
+the designs recent designs intended to
+run on big clusters have really been to
+
+633
+01:02:22,740 --> 01:02:28,170
+故障恢复策略在很大程度上占主导地位，例如
+a great extent dominated by the failure
+recovery strategy and that's for example
+
+634
+01:02:28,170 --> 01:02:35,240
+关于SPARC为何坚持要进行转型的很多解释
+a lot of the explanation for why SPARC
+insists that the transformations be
+
+635
+01:02:35,240 --> 01:02:44,340
+确定性的，为什么它们的rdd是不可变的，因为您知道
+deterministic and why the are these its
+rdd's are immutable because you know
+
+636
+01:02:44,340 --> 01:02:49,800
+这就是通过简单地重新计算一个就可以使其从故障中恢复的原因
+that's what allows it to recover from
+failure by simply recomputing one
+
+637
+01:02:49,800 --> 01:02:53,750
+分区，而不必从头开始整个计算， 
+partition instead of having to start the
+entire computation from scratch and
+
+638
+01:02:53,750 --> 01:02:59,850
+过去有很多建议的集群大数据
+there have been in the past plenty of
+proposed sort of cluster big data
+
+639
+01:02:59,850 --> 01:03:03,930
+执行模型中确实存在可变数据，并且其中
+execution models in which there really
+was mutable data and in which
+
+640
+01:03:03,930 --> 01:03:08,130
+如果您查找分布式共享，则计算可能是不确定的
+computations could be non-deterministic
+make if you look up distributed shared
+
+641
+01:03:08,130 --> 01:03:14,340
+那些都支持可变数据并且支持不确定性的存储系统
+memory systems those all support mutable
+data and they support non-deterministic
+
+642
+01:03:14,340 --> 01:03:20,480
+执行力，但是因为这样，他们往往没有好的失败策略，所以
+execution but because of that they tend
+not to have a good failure strategy so
+
+643
+01:03:20,480 --> 01:03:25,410
+您知道三十年前，当大型集群用于计算机时，这些都不是
+you know thirty years ago when a big
+cluster was for computers none of this
+
+644
+01:03:25,410 --> 01:03:29,250
+很重要，因为故障几率很小而且非常之多
+mattered because the failure probability
+was little very low and so many
+
+645
+01:03:29,250 --> 01:03:36,240
+当时，各种计算模型似乎是合理的，但随着
+different kinds of computation models
+seemed reasonable then but as the
+
+646
+01:03:36,240 --> 01:03:41,600
+集群已经成长为成千上万的工人，实际上是唯一
+clusters have grown to be hundreds and
+thousands of workers really the only
+
+647
+01:03:41,600 --> 01:03:47,400
+幸存下来的模型就是您可以设计出非常有效的模型
+models that have survived are ones for
+which you can devise a very efficient to
+
+648
+01:03:47,400 --> 01:03:52,890
+故障恢复策略，不需要一直备份到
+failure recovery strategy that does not
+require backing all the way up to the
+
+649
+01:03:52,890 --> 01:03:56,160
+开始和重新开始讨论的论文
+beginning
+and restarting the paper talks about
+
+650
+01:03:56,160 --> 01:04:01,140
+当批评我时，我分配了共享内存，这是一个
+this a little bit when it's criticizing
+I'm distributed shared memory and it's a
+
+651
+01:04:01,140 --> 01:04:14,030
+非常肯定的批评，我敢打赌，这是一个很大的设计约束，所以火花不会
+very valid criticism I bet it's a big
+design constraint okay so the sparks not
+
+652
+01:04:14,030 --> 01:04:19,640
+非常适合各种加工，非常适合批量加工
+perfect for all kinds of processing it's
+really geared up for batch processing of
+
+653
+01:04:19,640 --> 01:04:25,440
+大量的数据批量处理大量数据，因此如果您有TB级
+giant amounts of data bulk bulk data
+processing so if you have terabytes of
+
+654
+01:04:25,440 --> 01:04:31,500
+数据并且您想知道咀嚼它几个小时就很好了
+data and you want to you know chew away
+on it for for a couple hours smart great
+
+655
+01:04:31,500 --> 01:04:37,530
+如果您经营的是银行，则需要处理银行转帐或其他人的
+if you're running a bank and you need to
+process bank transfers or people's
+
+656
+01:04:37,530 --> 01:04:43,650
+平衡查询，则SPARC与这种处理无关
+balance queries then SPARC is just not
+relevant to that kind of processing
+
+657
+01:04:43,650 --> 01:04:48,119
+已知或某种典型的网站（我登录到您都可以访问） 
+known or to sort of typical websites
+where I log into you know I access
+
+658
+01:04:48,119 --> 01:04:53,880
+我和亚马逊想订购一些纸巾并将其放入我的购物场所
+Amazon and I want to order some paper
+towels and put them into my shopping
+
+659
+01:04:53,880 --> 01:04:58,680
+购物车SPARC不会帮助您维护此部分的购物车
+cart SPARC is not going to help you
+maintain this part the shopping cart
+
+660
+01:04:58,680 --> 01:05:03,800
+ SPARC可能有助于离线分析客户的购买习惯
+SPARC may be useful for analyzing your
+customers buying habits sort of offline
+
+661
+01:05:03,800 --> 01:05:11,369
+但不是用于在线处理的另一种方式
+but not for sort of online processing
+the other sort of kind of a little more
+
+662
+01:05:11,369 --> 01:05:15,900
+接近家庭的情况，在报纸上不太引人注意的是流
+close to home situation that spark in
+the papers not so great at is stream
+
+663
+01:05:15,900 --> 01:05:19,790
+处理i SPARC绝对假定所有输入均已可用
+processing i SPARC definitely assumes
+that all the input is already available
+
+664
+01:05:19,790 --> 01:05:26,010
+但在许多情况下，人们的输入实际上是输入流
+but in many situations the input that
+people have is really a stream of input
+
+665
+01:05:26,010 --> 01:05:30,180
+就像他们记录了用户在其网站上的所有点击，并希望进行分析
+like they're logging all user clicks on
+their web sites and they want to analyze
+
+666
+01:05:30,180 --> 01:05:35,100
+他们了解用户行为，这不是固定数量的
+them to understand user behavior you
+know it's not a kind of fixed amount of
+
+667
+01:05:35,100 --> 01:05:40,470
+数据实际上是输入数据流，您知道SPARC就像描述
+data is really a stream of input data
+and you know SPARC as in describing the
+
+668
+01:05:40,470 --> 01:05:46,109
+关于处理数据流，论文真的没有什么要说的，但是
+paper doesn't really have anything to
+say about processing streams of data but
+
+669
+01:05:46,109 --> 01:05:51,480
+对于喜欢使用spark和and的人来说，它离家很近
+it turned out to be quite close to home
+for people who like to use spark and and
+
+670
+01:05:51,480 --> 01:05:54,810
+现在有一个称为火花流的SPARC变体，它有点
+now there's a variant of SPARC called
+spark streaming that that is a little
+
+671
+01:05:54,810 --> 01:05:59,550
+当数据到达时，它会更适合处理数据，您知道
+more geared up to kind of processing
+data as it arrives and you know sort of
+
+672
+01:05:59,550 --> 01:06:05,390
+将其分解成较小的批次并一次运行一次以激发火花
+breaks it up into smaller batches and
+runs in a batch at a time to spark
+
+673
+01:06:05,390 --> 01:06:10,920
+所以对很多不好的东西都是有好处的，但这肯定是正确的
+so it's good for a lot of bad stuff but
+that's certainly on to be thing right to
+
+674
+01:06:10,920 --> 01:06:16,920
+总结UH，您应该将Spark视为MapReduce和
+wrap up the UH you should view spark as
+a kind of evolution after MapReduce and
+
+675
+01:06:16,920 --> 01:06:25,080
+我可能会解决一些表现力和性能方面的问题，或者
+I may fix some expressivity and
+performance sort of problems or that
+
+676
+01:06:25,080 --> 01:06:31,080
+ MapReduce有SPARC正在做的很多事情是在制作数据流程图
+MapReduce has what a lot of what SPARC
+is doing is making the data flow graph
+
+677
+01:06:31,080 --> 01:06:36,360
+他明确要求他以图形的方式思考计算
+explicit sort of he wants you to think
+of computations in the style of figure
+
+678
+01:06:36,360 --> 01:06:41,610
+整个谱系图中的三个计算阶段和数据之间的移动
+three of entire lineage graphs stages of
+computation and the data moving between
+
+679
+01:06:41,610 --> 01:06:47,310
+这些阶段，并对此图进行了优化，故障恢复是
+these stages and it does optimizations
+on this graph and failure recovery is
+
+680
+01:06:47,310 --> 01:06:52,440
+也非常考虑血统图，所以它实际上是
+very much thinking about the lineage
+graph as well so it's really part of a
+
+681
+01:06:52,440 --> 01:06:57,600
+朝着明确思考数据的方向迈出更大的步伐和大数据处理
+larger move and big data processing
+towards explicit thinking about the data
+
+682
+01:06:57,600 --> 01:07:04,500
+流程图作为描述计算的一种方式，赢得了很多特定的胜利
+flow graphs as a way to describe
+computations a lot of the specific win
+
+683
+01:07:04,500 --> 01:07:09,630
+和SPARC与性能有关，这些是
+and SPARC have to do with performance
+part of the prepend these are
+
+684
+01:07:09,630 --> 01:07:13,980
+直截了当但很重要的一些表现
+straightforward but nevertheless
+important some of the performance comes
+
+685
+01:07:13,980 --> 01:07:18,750
+而不是在转换之间将数据保留在内存中
+from leaving the data in memory between
+transformations rather than you know
+
+686
+01:07:18,750 --> 01:07:21,600
+将它们写入GFS，然后在下一个开始时将它们读回
+writing them to GFS and then reading
+them back at the beginning of the next
+
+687
+01:07:21,600 --> 01:07:25,950
+转换本质上与MapReduce和另一个有关
+transformation which you essentially
+have to do with MapReduce and the other
+
+688
+01:07:25,950 --> 01:07:32,760
+是定义这些数据集的能力，这些数据是Dedes并告诉SPARC离开
+is the ability to define these data sets
+these are Dedes and tell SPARC to leave
+
+689
+01:07:32,760 --> 01:07:37,920
+这个RDD在内存中，因为我将再次使用它以及后续阶段
+this RDD in memory because I'm going to
+reuse it again and subsequent stages and
+
+690
+01:07:37,920 --> 01:07:41,760
+重用它比重新计算要便宜，这种事情
+it's cheaper to reuse it than it is to
+recompute it and that sort of a thing
+
+691
+01:07:41,760 --> 01:07:48,720
+这很容易，而且在MapReduce中很难实现SPARC，结果是系统
+that's easy and SPARC and hard to get at
+in MapReduce and the result is a system
+
+692
+01:07:48,720 --> 01:07:55,560
+那是非常成功的，使用非常广泛的，如果您值得
+that's extremely successful and
+extremely widely used and if you deserve
+
+693
+01:07:55,560 --> 01:08:01,980
+真正的成功好吧，这就是我要说的，我很乐意回答问题
+real success okay that that's all I have
+to say and I'm happy to take questions
+
+694
+01:08:01,980 --> 01:08:04,820
+如果有人有
+if anyone has them
+
+695
+01:08:09,910 --> 01:08:11,970
+您
+you
+

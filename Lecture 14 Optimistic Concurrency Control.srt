@@ -1,0 +1,5159 @@
+1
+00:00:00,060 --> 00:00:06,150
+我想谈谈农场日和乐观的并发控制， 
+I'd like to like to talk about farms day
+and optimistic concurrency control which
+
+2
+00:00:06,150 --> 00:00:10,860
+是主要有趣的技术，它利用了我们谈论农场的原因
+is the main interesting technique that
+uses the reason we're talking about farm
+
+3
+00:00:10,860 --> 00:00:16,350
+这是该系列中有关事务和复制的最后一篇文章， 
+it's this the last paper in the series
+about transactions and replication and
+
+4
+00:00:16,350 --> 00:00:21,720
+分片，这仍然是一个开放的研究领域，人们完全可以
+sharding and this is still an open
+research area where people are totally
+
+5
+00:00:21,720 --> 00:00:30,359
+对绩效或绩效与一致性不满意
+not satisfied with performance or in the
+kind of performance versus consistency
+
+6
+00:00:30,359 --> 00:00:32,668
+可以进行权衡，他们仍在尝试做得更好
+trade-offs that are available and
+they're still trying to do better
+
+7
+00:00:32,668 --> 00:00:36,780
+特别是这份特殊的论文是由出色的表现所激发的
+and in particular this particular paper
+is motivated by the huge performance
+
+8
+00:00:36,780 --> 00:00:43,800
+这些新的RDMA NIC的潜力，所以您可能想知道，因为我们只是
+potential of these new RDMA NICs
+so you may be wondering since we just
+
+9
+00:00:43,800 --> 00:00:48,000
+阅读有关扳手的信息，农场与其他扳手有何不同
+read about spanner
+how farm differs some spanner both of
+
+10
+00:00:48,000 --> 00:00:51,660
+他们毕竟复制，他们使用两阶段提交的交易
+them after all replicate and they use
+two-phase commit for transactions of
+
+11
+00:00:51,660 --> 00:00:56,850
+在那个级别上，它们看起来就像是已部署系统中的扳手
+that level they seem pretty similar
+spanner as a is a deployed systems been
+
+12
+00:00:56,850 --> 00:01:02,640
+很长时间以来，它的主要重点是地理复制
+used a lot for a long time its main
+focus is on Geographic replication that
+
+13
+00:01:02,640 --> 00:01:06,930
+能够在东海岸和西海岸以及其他地方复制
+is to be able to have copies on there
+like east and west coasts and different
+
+14
+00:01:06,930 --> 00:01:11,189
+数据中心并能够进行合理有效的交易
+data centers and be able to have
+reasonably efficient transactions that
+
+15
+00:01:11,189 --> 00:01:16,590
+涉及许多不同地方的数据片段，最具创新性
+involve pieces of data in lots of
+different places and the most innovative
+
+16
+00:01:16,590 --> 00:01:20,640
+关于它的事情，因为为了尝试解决它多长时间的问题
+thing about it because in order to try
+to solve the problem of how long it
+
+17
+00:01:20,640 --> 00:01:26,119
+长距离进行两阶段提交是因为它有一个特殊的
+takes to do two-phase commit over long
+distances is that it has a special
+
+18
+00:01:26,119 --> 00:01:32,189
+使用同步时间和时间的只读事务的优化路径
+optimization path for read-only
+transactions using synchronized time and
+
+19
+00:01:32,189 --> 00:01:36,680
+如果记得，您会从扳手获得的性能是读/写
+the performance you get out of spanner
+if you remember is that a read/write
+
+20
+00:01:36,680 --> 00:01:42,509
+交易需要10到100毫秒，具体取决于
+transaction takes 10 to 100 milliseconds
+depending on how close together the
+
+21
+00:01:42,509 --> 00:01:49,079
+农场中不同的数据中心做出了非常不同的设计决策
+different data centers are farm makes a
+very different set of design decisions
+
+22
+00:01:49,079 --> 00:01:52,710
+并针对不同类型的工作负载首先是研究原型
+and targets a different kind of workload
+first of all it's a research prototype
+
+23
+00:01:52,710 --> 00:01:57,390
+因此它绝不是成品，而目标是探索
+so it's not by any means a finished
+product and the goal is to explore the
+
+24
+00:01:57,390 --> 00:02:04,259
+这些新的RDMA高速网络硬件的潜力，因此它实际上仍然
+potential of these new RDMA high speed
+networking hardware so it's really still
+
+25
+00:02:04,259 --> 00:02:09,619
+探索性系统，它假定所有副本都在同一个数据中心中
+an exploratory system it assumes that
+all replicas are in the same data center
+
+26
+00:02:09,619 --> 00:02:11,880
+绝对没有任何意义
+absolutely it doesn't wouldn't make
+sense
+
+27
+00:02:11,880 --> 00:02:15,600
+这些副本甚至位于不同的数据中心，更不用说在东海岸了
+the replicas were in even in different
+data centers let alone on East Coast
+
+28
+00:02:15,600 --> 00:02:20,640
+与西海岸之战，因此它并不是要解决扳手问题
+versus West Coast so it's not trying to
+solve a problem that spanner is about
+
+29
+00:02:20,640 --> 00:02:23,790
+如果整个数据中心宕机了怎么办，我能取出数据吗？ 
+what happens if an entire data center
+goes down can I so get out my data
+
+30
+00:02:23,790 --> 00:02:27,540
+确实，它具有容错能力的程度是针对个人的
+really that's does the extent that it
+has fault tolerance is for individual
+
+31
+00:02:27,540 --> 00:02:33,720
+崩溃，或者在整个数据中心断电并尝试恢复后尝试恢复
+crashes or maybe try to recover after a
+whole data center loses power and gets
+
+32
+00:02:33,720 --> 00:02:39,210
+再次恢复它使用这种RDMA技术，我将谈论但
+restored again it uses this RDMA
+technique which I'll talk about but
+
+33
+00:02:39,210 --> 00:02:43,650
+可能已经严重限制了设计选项，并且
+already may turns out to seriously
+restrict the design options and because
+
+34
+00:02:43,650 --> 00:02:49,980
+另一方面，该农场中的一部分被迫使用乐观并发控制
+of this farm is forced to use optimistic
+concurrency control on the other hand
+
+35
+00:02:49,980 --> 00:02:56,300
+他们获得的性能远远高于扳手农场所能做到的
+the performance they get is far far
+higher than spanner farm can do a
+
+36
+00:02:56,300 --> 00:03:00,900
+在58微秒内传输一个简单的事务，这来自图7 
+transit a simple transaction in 58
+microseconds and this is from figure 7
+
+37
+00:03:00,900 --> 00:03:06,780
+和第6.3节，所以这是58微秒，而到10毫秒
+and section 6.3 so this is 58
+microseconds versus to 10 milliseconds
+
+38
+00:03:06,780 --> 00:03:12,960
+扳手所需的时间比扳手快一百倍， 
+that the spanner takes is that's about a
+hundred times faster than spanner so
+
+39
+00:03:12,960 --> 00:03:17,730
+那也许是我们最大的巨大差异
+that's maybe the main huge differences
+that farm us how much higher performance
+
+40
+00:03:17,730 --> 00:03:26,640
+但不是针对地理复制的，所以您知道这个农场
+but is not aimed at Geographic
+replication so this you know farms
+
+41
+00:03:26,640 --> 00:03:31,790
+性能令人印象深刻，比其他任何东西都快
+performance is extremely impressive like
+how much faster than anything else
+
+42
+00:03:31,790 --> 00:03:35,370
+另一种看待方式是扳手和农场目标不同
+another way to look at it is that
+spanner and farm target different
+
+43
+00:03:35,370 --> 00:03:39,150
+瓶颈和跨度是人们担心的主要瓶颈
+bottlenecks and span are the main
+bottleneck the people worried about is
+
+44
+00:03:39,150 --> 00:03:42,900
+光速和网络光速之间的延迟和网络离开
+the speed of light and network speed of
+light delays and network leaves between
+
+45
+00:03:42,900 --> 00:03:50,130
+数据中心，而在农场中，设计担心的主要瓶颈
+data centers whereas in farm the main
+bottlenecks that the design is worried
+
+46
+00:03:50,130 --> 00:03:54,209
+大约是服务器上的CPU时间，因为他们希望
+about is is CPU time on the server's
+because they kind of wished away the
+
+47
+00:03:54,209 --> 00:03:57,180
+通过将所有副本置于同一位置来加快光速和网络延迟
+speed of light and network delays by
+putting all the replicas in the same
+
+48
+00:03:57,180 --> 00:04:01,070
+数据中心没事
+data center all right
+
+49
+00:04:01,220 --> 00:04:08,459
+这样的背景如何使其适合684序列
+so sort of the background of how this
+fits into the 684 sequence the setup and
+
+50
+00:04:08,459 --> 00:04:15,860
+服务器场是您将它们全部运行在一个数据中心中， 
+farm is that you have it's all running
+in one datacenter there's a sort of
+
+51
+00:04:16,040 --> 00:04:21,120
+配置管理器这是我们之前所见的配置
+configuration manager this which we've
+seen before and the configuration
+
+52
+00:04:21,120 --> 00:04:25,110
+经理决定哪个代表
+managers in charge of deciding which rep
+which
+
+53
+00:04:25,110 --> 00:04:30,479
+在每个数据分片之前，服务器应是备份中的主要服务器，如果
+servers should be the primary in the
+backup before each shard of data and if
+
+54
+00:04:30,479 --> 00:04:37,110
+您仔细阅读后会看到他们使用Zookeeper来帮助他们
+you read carefully you'll see that they
+use zookeeper in order to help them
+
+55
+00:04:37,110 --> 00:04:40,139
+实现此配置管理器，但这不是本文的重点
+implement this configuration manager but
+it's not not the focus of the paper at
+
+56
+00:04:40,139 --> 00:04:42,539
+所有相反，有趣的是， 
+all
+instead the interesting thing is that
+
+57
+00:04:42,539 --> 00:04:47,490
+数据通过一堆主要备用付款人的密钥分片
+the data is sharded split up by key
+across a bunch of primary backup payers
+
+58
+00:04:47,490 --> 00:04:52,919
+所以我的意思是说一个分片继续存在，您知道主一台服务器主一台备份
+so I mean one shard goes on you know
+primary one server primary one backup
+
+59
+00:04:52,919 --> 00:04:59,879
+一个又一个短的主数据库来备份两个，依此类推，这意味着
+one another short one primary to backup
+two and so forth and that means that
+
+60
+00:04:59,879 --> 00:05:03,870
+每当您更新数据时，都需要在主数据库和
+anytime you update data you need to
+update it both on the primary and on the
+
+61
+00:05:03,870 --> 00:05:08,250
+备份，这些不是这些主副本，这些副本不由维护
+backup and these are not these primaries
+these replicas are not maintained by
+
+62
+00:05:08,250 --> 00:05:14,969
+ PAC或类似的东西，而是更新所有数据副本
+PACs or anything like it instead all the
+replicas of the data are updated
+
+63
+00:05:14,969 --> 00:05:18,180
+每当有变化时，如果您阅读，则必须始终阅读
+whenever there's a change and if you
+read you always have to read from the
+
+64
+00:05:18,180 --> 00:05:24,210
+当然，这种复制的主要原因是容错和
+primary the reason for this replication
+of course is fault tolerance and the
+
+65
+00:05:24,210 --> 00:05:29,039
+他们得到的一种容错能力是，只要给定碎片的一个副本
+kind of fault tolerance they get is that
+as long as one replicas of a given shard
+
+66
+00:05:29,039 --> 00:05:33,409
+可用，那么该分片将可用，因此它们只需要一个
+is available then that shard will be
+available so they only require one
+
+67
+00:05:33,409 --> 00:05:39,900
+如果有数据的话，活的副本不是多数，也不是整个系统
+living replica not a majority and the
+system as a whole if there's say a data
+
+68
+00:05:39,900 --> 00:05:43,889
+中心白色电源故障，只要至少有一个，它就可以恢复
+center white power failure it can
+recover as long as there's at least one
+
+69
+00:05:43,889 --> 00:05:49,560
+系统中每个分片的副本的另一种放置方式是
+replicas of every shard in the system
+another way of putting that is if you
+
+70
+00:05:49,560 --> 00:05:54,330
+他们有F加一个副本，那么他们可以忍受F次失败
+they have F plus one replicas then they
+can tolerate up to F failures for that
+
+71
+00:05:54,330 --> 00:06:00,860
+碎片，除了每种数据的主要备份副本外， 
+shard in addition to the primary backup
+copies of each sort of data there's
+
+72
+00:06:00,860 --> 00:06:06,479
+运行它的事务代码可能是最方便的
+transaction code that runs it's maybe
+most convenient to think of the
+
+73
+00:06:06,479 --> 00:06:11,789
+交易代码作为独立的客户端运行，实际上它们在运行交易
+transaction code is running as separate
+clients in fact they run the transaction
+
+74
+00:06:11,789 --> 00:06:16,560
+在与实际服务器场存储相同的机器上进行实验的代码
+code in their experiments on the same
+machines as the actual farm storage
+
+75
+00:06:16,560 --> 00:06:24,270
+服务器，但我通常会认为它们是一组单独的客户端， 
+servers but I'll mostly think of them as
+as being a separate set of clients and
+
+76
+00:06:24,270 --> 00:06:29,960
+客户端正在运行事务，并且该事务需要读写
+the clients are running transactions and
+the transactions need to read and write
+
+77
+00:06:29,960 --> 00:06:38,020
+除这些外，还存储在分片服务器中的数据对象
+data objects that are stored in the
+in the sharded servers in addition these
+
+78
+00:06:38,020 --> 00:06:42,849
+交易这些客户每个客户不仅运行交易，而且还运行
+transaction these clients each client
+not only runs the transactions but also
+
+79
+00:06:42,849 --> 00:06:48,330
+充当两阶段提交的事务协调器
+acts as that transaction coordinator for
+two-phase commit
+
+80
+00:06:48,330 --> 00:06:53,589
+好吧，这是他们获得性能的基本方法，因为这真的
+okay so it's the basic set up the way
+they get performance because this really
+
+81
+00:06:53,589 --> 00:06:57,669
+这是一篇有关如何获得高性能并仍然拥有
+this is a paper all about how you can
+get high performance and still have
+
+82
+00:06:57,669 --> 00:07:04,150
+通过分片获得高性能的一种方式是
+transactions one way they get high
+performances with sharding these are the
+
+83
+00:07:04,150 --> 00:07:12,219
+从某种意义上讲，主要成分是通过在实验中分片
+ingredients in a sense the main way is
+through sharding in experiments they
+
+84
+00:07:12,219 --> 00:07:17,050
+通过90种方式将其数据分摊到90台服务器上，也许是45种方式，而不是
+shard their data over 90 ways for 90
+servers or maybe it's 45 ways and not
+
+85
+00:07:17,050 --> 00:07:21,279
+只要操作和不同的碎片差不多
+just if as long as the operations and
+different shards are more or less
+
+86
+00:07:21,279 --> 00:07:25,899
+彼此独立，可自动为您加速90倍
+independent of each other that just gets
+you an automatic 90 times speed up
+
+87
+00:07:25,899 --> 00:07:30,699
+因为您可以运行90糖浆中的任何糖浆
+because you can run whatever it is
+you're running in parallel on 90 syrups
+
+88
+00:07:30,699 --> 00:07:36,520
+这个巨大的钱来自较短的分片，还有他们为了获得的另一个技巧
+this huge went from shorter sharding um
+another trick they play in order to get
+
+89
+00:07:36,520 --> 00:07:41,919
+良好的性能，因为所有数据都必须容纳在它们不需要的服务器的RAM中
+good performance as the data all has to
+fit in the RAM of the servers they don't
+
+90
+00:07:41,919 --> 00:07:46,089
+真正将数据存储在磁盘上，所有这些都必须放入RAM中，这意味着
+really store the data on disk
+it all has to fit in RAM and that means
+
+91
+00:07:46,089 --> 00:07:50,620
+当然，您可以很快摆脱另一种方式，即它们变得很高
+of course you can get out of pretty
+quickly another way that they get high
+
+92
+00:07:50,620 --> 00:07:56,199
+性能是他们需要容忍掉电，这意味着他们
+performance is they need to tolerate
+power failures which means that they
+
+93
+00:07:56,199 --> 00:07:59,499
+不能只是使用RAM，因为它们需要在上电后恢复数据
+can't just be using RAM because they
+need to recover the data after a power
+
+94
+00:07:59,499 --> 00:08:04,589
+发生故障，RAM在断电时会丢失内容，因此它们有一个聪明的选择
+failure and RAM loses contents on a
+power failure so they have a clever
+
+95
+00:08:04,589 --> 00:08:11,020
+非易失性Ram方案，用于让RAM的内容在电源中存活
+non-volatile Ram scheme for having the
+contents of RAM the data survived power
+
+96
+00:08:11,020 --> 00:08:16,360
+失败，这与将数据持久存储在磁盘上相反
+failures this is in contrast to storing
+the data persistently on disk i'm is
+
+97
+00:08:16,360 --> 00:08:22,180
+比磁盘快得多他们使用的另一个技巧是使用此RDMA 
+much faster than disk um another trick
+they play is they use this RDMA
+
+98
+00:08:22,180 --> 00:08:31,289
+实质上是聪明的网络接口卡技术
+technique which essentially clever
+network interface cards that allow that
+
+99
+00:08:31,289 --> 00:08:35,919
+接受指示我们直接进入接口卡的数据包
+accept packets that instruct that then
+that we're interface card to directly
+
+100
+00:08:35,919 --> 00:08:42,698
+读写服务器的内存，而不会中断服务器
+read and write the memory of the server
+without interrupting the server I know
+
+101
+00:08:42,698 --> 00:08:48,569
+他们玩的技巧就是您通常所说的内核旁路
+that trick they play is what you often
+call kernel bypass
+
+102
+00:08:48,680 --> 00:08:58,790
+这意味着应用程序级代码可以直接访问网络
+which means that the application level
+code can directly access the network
+
+103
+00:08:58,790 --> 00:09:02,540
+接口卡，而无需涉及内核，所以这些都是
+interface card without getting the
+kernel involved okay so these are all
+
+104
+00:09:02,540 --> 00:09:07,520
+我们正在寻找的那种巧妙的技巧倒掉了
+the sort of clever tricks we're looking
+at out pour it that they used to get
+
+105
+00:09:07,520 --> 00:09:11,270
+高性能，我将谈论我们已经讨论过分片
+high performance and I'll talk about
+we've already talked about sharding a
+
+106
+00:09:11,270 --> 00:09:15,430
+很多，但我将在本讲座中讨论其余内容
+lot but I'll talk about the rest in this
+lecture
+
+107
+00:09:15,430 --> 00:09:21,560
+好吧，首先我要谈谈非易失性Ram，这是真的
+okay so first I'll talk about
+non-volatile Ram I mean this is really a
+
+108
+00:09:21,560 --> 00:09:31,310
+不会真正影响设计其余部分的话题
+topic that doesn't doesn't really affect
+the rest of the design directly as I
+
+109
+00:09:31,310 --> 00:09:37,190
+当客户端更新时，所有数据和用于场的数据都存储在RAM中
+said all the data and for farm is stored
+in RAM when you update it when a client
+
+110
+00:09:37,190 --> 00:09:39,800
+交易更新了一条数据，这实际上意味着它可以到达
+transaction updates a piece of data what
+that really means is it reaches out to
+
+111
+00:09:39,800 --> 00:09:43,760
+存储数据并导致这些服务器修改
+the relevant servers that store the data
+and causes those servers to modify the
+
+112
+00:09:43,760 --> 00:09:49,370
+事务正在修改的任何对象都可以在对象中对其进行修改
+whatever object is the transaction is
+modifying to object modify it right in
+
+113
+00:09:49,370 --> 00:09:53,540
+ RAM，就写入而言，它们不会进入磁盘，这就是您
+RAM and that's as far as the writes get
+they don't go to disk and this is you
+
+114
+00:09:53,540 --> 00:09:56,959
+知道与您的筏实施的对比，例如花了多少钱
+know contrast to your raft
+implementations for example which spent
+
+115
+00:09:56,959 --> 00:10:04,310
+很多时间将数据持久保存到磁盘上没有持久性，在服务器场中
+a lot of time persisting data to disk
+there's no persisting and in farm this
+
+116
+00:10:04,310 --> 00:10:07,880
+在RAM中写东西是一件大事，写ram大约需要200 
+is a big wind writing stuff in RAM write
+a write to ram takes about 200
+
+117
+00:10:07,880 --> 00:10:11,930
+十亿分之一秒，而对固态硬盘的袭击甚至是非常快的
+nanoseconds whereas a raid even to a
+solid state drive which is pretty fast a
+
+118
+00:10:11,930 --> 00:10:17,330
+失速寻道驱动器的权利大约需要一百微秒，然后写入
+right to a stall seek drive takes about
+a hundred microseconds and a write to
+
+119
+00:10:17,330 --> 00:10:21,080
+我们的硬盘驱动器大约需要十毫秒，因此能够写入
+our hard drive takes about ten
+milliseconds so being able to write to
+
+120
+00:10:21,080 --> 00:10:26,270
+ ram值得许多数量级和速度的交易
+ram is worth many many orders of
+magnitude and speed for transactions
+
+121
+00:10:26,270 --> 00:10:30,770
+会改变事物，但伊朗当然会丢失其内容和电源故障，因此
+that modify things but of course iran
+loses its content and a power failure so
+
+122
+00:10:30,770 --> 00:10:37,990
+它本身并不是持久的，您可能会认为写作
+it's not persistent by itself as a side
+you might think that writing
+
+123
+00:10:37,990 --> 00:10:43,610
+如果您有副本服务器，则对多个服务器的RAM进行修改
+modifications to the RAM of multiple
+servers that if you have replica servers
+
+124
+00:10:43,610 --> 00:10:48,080
+然后您更新所有可能具有足够持久性的副本，因此
+and you update all the replicas that
+that might be persistent enough and so
+
+125
+00:10:48,080 --> 00:10:53,150
+毕竟，如果您有F 1 F +1个副本，则最多可以容忍F个故障，并且
+after all if you have F 1 F +1 replicas
+you can tolerate up to F failures and
+
+126
+00:10:53,150 --> 00:10:57,350
+仅在多个服务器上写入Ram的原因不好
+the reason why just simply writing to
+Ram on multiple servers is not good
+
+127
+00:10:57,350 --> 00:11:00,870
+一个站点范围内的电源故障将足以破坏
+enough is that a site-wide power failure
+will destroy
+
+128
+00:11:00,870 --> 00:11:09,029
+您所有的服务器，从而违反了故障发生的假设
+all of your servers and thus violating
+the assumption that the failures are in
+
+129
+00:11:09,029 --> 00:11:12,810
+不同的服务器是独立的，所以我们需要一个即使它也可以工作的方案
+different servers are independent so we
+need a scheme that it's gonna work even
+
+130
+00:11:12,810 --> 00:11:24,210
+如果整个数据中心的电源故障，那么论坛会做什么呢？ 
+if power fails to the entire data center
+so what what forum does is it it puts a
+
+131
+00:11:24,210 --> 00:11:28,230
+为每个机架中的一块大电池供电，并通过
+battery a big battery in every rack and
+runs the power supply system through the
+
+132
+00:11:28,230 --> 00:11:32,970
+电池，因此如果发生电源故障，电池会自动接管电池， 
+batteries so the batteries automatically
+take over if there's a power failure and
+
+133
+00:11:32,970 --> 00:11:37,830
+保持所有机器运行至少到电池出现故障为止，但是当然
+keep all their machines running at least
+until the battery fails but of course
+
+134
+00:11:37,830 --> 00:11:41,490
+你知道电池不是很大，可能只能用自己的电池
+you know the battery is not very big it
+may only be able to run their their
+
+135
+00:11:41,490 --> 00:11:45,900
+机器说了10分钟之类的时间，因此电池本身不足
+machines for say 10 minutes or something
+so the battery by itself is not enough
+
+136
+00:11:45,900 --> 00:11:50,760
+为了使系统能够承受较长的电源故障，因此
+to make this the system be able to
+withstand a lengthy power failure so
+
+137
+00:11:50,760 --> 00:11:56,460
+而是当电池系统看到主电源出现故障时， 
+instead the battery system when it sees
+that the main power is failed the
+
+138
+00:11:56,460 --> 00:12:00,330
+电池系统在保持服务器的Marling的同时也会提醒
+battery system while it keeps the
+server's Marling also alerts the
+
+139
+00:12:00,330 --> 00:12:04,500
+服务器的所有服务器，并带有某种中断或消息告诉
+server's all the servers and with some
+kind of interrupt or message telling
+
+140
+00:12:04,500 --> 00:12:09,020
+他们看起来力量刚刚失败，您知道您只剩10分钟了
+them look the powers just failed you
+know you only got 10 minutes left before
+
+141
+00:12:09,020 --> 00:12:16,170
+电池也会发生故障，因此此时场服务器上的软件会复制所有
+the batteries fail also so at that point
+the software on farms servers copies all
+
+142
+00:12:16,170 --> 00:12:21,630
+的雨水活动会先停止对农场的所有处理，然后再复制每个
+of rain active stops all processing it
+for farm first and then copies each
+
+143
+00:12:21,630 --> 00:12:25,650
+服务器将其所有RAM复制到与之相连的固态驱动器
+server copies all of its RAM to a
+solid-state drive attached to that
+
+144
+00:12:25,650 --> 00:12:30,089
+服务器是我所希望的，可能需要几分钟，而一旦所有的RAM被
+server I'm what wished could take a
+couple minutes and once all the RAM is
+
+145
+00:12:30,089 --> 00:12:33,600
+复制到固态驱动器，然后机器自行关闭并转动
+copied to the solid-state drive then the
+machine shuts itself down and turns
+
+146
+00:12:33,600 --> 00:12:39,870
+本身关闭，所以如果一切顺利，所有机器都将发生站点范围的电源故障
+itself off so if all goes well there's a
+site-wide power failure all the machines
+
+147
+00:12:39,870 --> 00:12:45,180
+当数据中心恢复供电时，将其RAM保存到磁盘
+save their RAM to disk when the power
+comes back up in the datacenter all the
+
+148
+00:12:45,180 --> 00:12:51,540
+机器重启时将读取保存在磁盘上的内存映像
+machines will when they reboot will read
+the memory image that was saved on disk
+
+149
+00:12:51,540 --> 00:12:57,420
+恢复到RAM中，但必须进行一些恢复，但基本上
+restored into RAM and but there's some
+recovery that has to go on but basically
+
+150
+00:12:57,420 --> 00:13:00,570
+他们不会因为力量而失去任何持久状态
+they won't have lost any of their
+persistent state due to the power
+
+151
+00:13:00,570 --> 00:13:07,310
+失败，这实际上意味着该农场正在使用常规Ram 
+failure and so what that really means is
+that the farm is using conventional Ram
+
+152
+00:13:07,310 --> 00:13:13,200
+但本质上使RAM非易失性能够承受电源
+but it's essentially made the RAM
+non-volatile being able to survive power
+
+153
+00:13:13,200 --> 00:13:17,339
+使用这种电池的技巧而导致故障
+failures with the
+this trick of using a battery having a
+
+154
+00:13:17,339 --> 00:13:21,660
+电池警报服务器使服务器固态存储RAM内容
+battery alert the server having the
+server store the RAM content solid-state
+
+155
+00:13:21,660 --> 00:13:33,509
+驱动有关nvram方案的任何问题，这是一个有用的
+drives any questions about the nvram
+scheme alright this is a is a useful
+
+156
+00:13:33,509 --> 00:13:40,559
+技巧，但值得记住的是，它只有在有
+trick but it is worthwhile keeping mind
+that it really only helps if there's
+
+157
+00:13:40,559 --> 00:13:46,499
+停电就是如果您只知道整个事件序列， 
+power failures that is if the you know
+the whole sequence of events only it
+
+158
+00:13:46,499 --> 00:13:50,639
+如果电池发现主电源出现故障，则将其设置为火车
+gets set in train when the battery
+notices that the main power is failed if
+
+159
+00:13:50,639 --> 00:13:53,749
+还有其他导致服务器故障的原因，例如
+there's some other reason
+causing the server to fail like
+
+160
+00:13:53,749 --> 00:13:57,120
+硬件出现问题或软件中存在错误
+something goes wrong with the hardware
+or there's a bug in the software that
+
+161
+00:13:57,120 --> 00:14:02,670
+导致崩溃那些崩溃非易失性Ram系统只是一无所有
+causes a crash those crashes the
+non-volatile Ram system is just nothing
+
+162
+00:14:02,670 --> 00:14:06,809
+与这些崩溃有关的那些崩溃将导致计算机重新启动并
+to do with those crashes those crashes
+will cause the machine to reboot and
+
+163
+00:14:06,809 --> 00:14:10,470
+丢失其RAM中的内容，它将无法恢复它们，因此
+lose the contents of its RAM and it
+won't be able to recover them so this
+
+164
+00:14:10,470 --> 00:14:15,660
+ NVRAM方案适用于电源故障，但不适用于其他崩溃，所以这就是为什么
+NVRAM scheme is good for power failures
+but not other crashes and so that's why
+
+165
+00:14:15,660 --> 00:14:21,720
+除了NVRAM场外，还具有多个副本的多个副本
+in addition to the NVRAM farm also has
+multiple copies multiple replicas of
+
+166
+00:14:21,720 --> 00:14:28,730
+每个分片都可以，因此该NVRAM方案从根本上消除了
+each shard all right so this NVRAM
+scheme essentially eliminates
+
+167
+00:14:28,730 --> 00:14:35,160
+持久性成为系统性能的瓶颈
+persistence rates as a bottleneck in the
+performance of the system leaving only
+
+168
+00:14:35,160 --> 00:14:39,120
+当性能瓶颈在网络和CPU上时，这就是我们要讲的
+as performance bottlenecks the network
+and the CPU which is what we'll talk
+
+169
+00:14:39,120 --> 00:14:49,679
+关于下一个确定，所以有一个问题，即数据中心电源是否发生故障并且场丢失
+about next ok so there's a question if
+the datacenter power fails and farm lose
+
+170
+00:14:49,679 --> 00:14:53,759
+固态硬盘的所有内容都可以将所有数据传送到
+everything for solid-state drive would
+it be possible to carry all the data to
+
+171
+00:14:53,759 --> 00:15:01,009
+一个不同的数据中心并原则上绝对在那里继续运行
+a different data center and continue
+operation there in principle absolutely
+
+172
+00:15:01,009 --> 00:15:07,230
+在实践中，我认为恢复电源肯定会更容易
+in practice I think would be would all
+certainly be easier to restore power to
+
+173
+00:15:07,230 --> 00:15:12,240
+数据中心然后移动驱动器，问题是没有电源，并且
+the data center then to move the drives
+the problem is there's no power and the
+
+174
+00:15:12,240 --> 00:15:16,230
+老式旧数据中心的电源，因此您必须物理移动驱动器
+power in the dated old data center so
+you'd have to physically move the drives
+
+175
+00:15:16,230 --> 00:15:21,389
+而计算机可能只是新数据中心的驱动器，所以这是
+and the computers maybe just the drives
+to the new data center so this was if
+
+176
+00:15:21,389 --> 00:15:27,279
+您想这样做，这可能是可行的，但肯定不是
+you wanted to do this it might be
+possible but it's certainly not
+
+177
+00:15:27,279 --> 00:15:32,879
+这不是农场设计师所想的，他们认为电源已恢复
+it's not what the farm designers had in
+mind they assumed the power be restored
+
+178
+00:15:33,300 --> 00:15:40,930
+好的，那是NVRAM，在这一点上，我们可以忽略其余的nvram 
+okay so that's NVRAM and at this point
+we can just ignore nvram for the rest of
+
+179
+00:15:40,930 --> 00:15:46,540
+并非如此，它并不会真正与其余的设计交互
+the design it doesn't it doesn't really
+interact with the rest of the design
+
+180
+00:15:46,540 --> 00:15:54,269
+除了我们知道必须担心将数据写入磁盘之外，所以
+except that we know we're have to worry
+about writing data to disk all right so
+
+181
+00:15:54,269 --> 00:15:59,290
+正如我提到的，一旦您消除拥有大量数据，剩下的瓶颈
+as I mentioned the remaining bottlenecks
+once you eliminate having a great data
+
+182
+00:15:59,290 --> 00:16:02,769
+保留在磁盘上以保持剩余瓶颈与CPU和
+to disk for persistence in remaining
+bottlenecks have to do with the CPU and
+
+183
+00:16:02,769 --> 00:16:09,220
+实际上是Farman的网络，实际上是我曾经使用过的许多系统
+the network in fact in farman and indeed
+a lot of the systems that i've been
+
+184
+00:16:09,220 --> 00:16:16,420
+与一个巨大的瓶颈有关的是要处理的CPU时间
+involved with the a huge bottleneck has
+been the cpu time required to deal with
+
+185
+00:16:16,420 --> 00:16:21,309
+网络互动，因此现在我们可以将CPU视为此处的共同瓶颈
+network interactions so now we're can
+CPU are kind of joint bottlenecks here
+
+186
+00:16:21,309 --> 00:16:27,550
+场没有任何类型的光网络速度问题，它只有
+farm doesn't have any kind of speed of
+light network problems it just has the
+
+187
+00:16:27,550 --> 00:16:31,689
+问题，或者只是花费大量时间来消除瓶颈
+problems or it just spends a lot of time
+eliminating bottlenecks having to do is
+
+188
+00:16:31,689 --> 00:16:38,309
+将网络数据传入和传出计算机，因此首先作为背景
+getting network data into and out of the
+computers so first as a background I
+
+189
+00:16:38,309 --> 00:16:43,180
+想要列出传统架构的用途，例如
+want to lay out what the conventional
+architecture is for getting things like
+
+190
+00:16:43,180 --> 00:16:51,610
+应用程序之间和不同计算机上的远程过程调用数据包
+remote procedure call packets between
+applications and on different computers
+
+191
+00:16:51,610 --> 00:16:56,949
+这样我们就可以了解为什么农场采用的这种方法更多
+just so that can we have an idea of why
+this approach that farm takes is more
+
+192
+00:16:56,949 --> 00:17:03,220
+高效，所以通常情况是在一台可能要
+efficient so typically what's going on
+is on one computer that maybe wants to
+
+193
+00:17:03,220 --> 00:17:09,429
+发送一个过程调用消息，您可能有一个应用程序，然后
+send a procedure call message you might
+have an application and then the
+
+194
+00:17:09,429 --> 00:17:15,490
+应用程序在用户空间中运行，这里有一个用户内核边界
+application is running in user space
+there's a user kernel boundary here the
+
+195
+00:17:15,490 --> 00:17:19,359
+应用程序对内核进行系统调用，这并不是特别便宜
+application makes system calls into the
+kernel which are not particularly cheap
+
+196
+00:17:19,359 --> 00:17:24,338
+为了发送数据，然后在
+
+197
+00:17:24,339 --> 00:17:29,620
+所涉及的内核正在通过网络发送数据，通常可能是
+kernel involved is sending data over the
+network there might be what's usually
+
+198
+00:17:29,620 --> 00:17:36,070
+称为套接字层，可进行缓冲，其中涉及复制
+called a socket layer that does
+buffering which involves copying the
+
+199
+00:17:36,070 --> 00:17:40,230
+数据需要时间，通常会有一个复杂的TCP 
+data which takes time there's typically
+a complex TCP
+
+200
+00:17:40,230 --> 00:17:45,059
+协议栈，它了解所有有关重传和顺序的信息
+the protocol stack that knows all about
+things like retransmitting and sequence
+
+201
+00:17:45,059 --> 00:17:51,650
+数字，校验和和流控制那里有很多处理
+numbers and check sums and flow control
+there's quite a bit of processing there
+
+202
+00:17:51,650 --> 00:17:57,299
+底部有一块称为网络接口的硬件
+at the bottom there's a piece of
+hardware called the network interface
+
+203
+00:17:57,299 --> 00:18:04,830
+带有一堆寄存器的卡，内核可以通过该寄存器进行配置
+card which is has a bunch of registers
+that the kernel can talk to to configure
+
+204
+00:18:04,830 --> 00:18:09,260
+它并且它具有通过电缆将位发送到网络上所需的硬件
+it and it has hardware required to send
+bits out over the cable onto the network
+
+205
+00:18:09,260 --> 00:18:15,080
+内核中有某种网络接口卡驱动程序， 
+and so there's some sort of network
+interface card driver in the kernel and
+
+206
+00:18:15,080 --> 00:18:19,919
+然后所有我们认为价格卡的自我尊重都使用直接记忆
+then all self respecting that we're
+gonna price cards use direct memory
+
+207
+00:18:19,919 --> 00:18:23,970
+可以将数据包移入和移出主机内存，因此
+access to move packets into and out of
+host memory so there's going to be
+
+208
+00:18:23,970 --> 00:18:28,919
+网络接口卡D做成的数据包队列之类的东西
+things like queues of packets that the
+network interfaces card has D made into
+
+209
+00:18:28,919 --> 00:18:33,630
+存储等待内核读取和传出的色相的数据包
+memory the waiting for the kernel to
+read and outgoing hues the packets that
+
+210
+00:18:33,630 --> 00:18:36,840
+内核希望我们尽快面对面发送
+the kernel would like then that we're
+going to face to car to send as soon as
+
+211
+00:18:36,840 --> 00:18:41,700
+方便吧，所以您想发送类似RPC请求的消息，让我们开始吧
+convenient all right so you want to send
+a message like an RPC request let's go
+
+212
+00:18:41,700 --> 00:18:45,240
+从应用程序通过堆栈网络接口卡向下发送
+down from the application through the
+stack network interface card sends the
+
+213
+00:18:45,240 --> 00:18:51,840
+放在电缆上然后在另一侧没有反向堆叠
+bits out on a cable and then there's the
+reverse stack on the other side isn't
+
+214
+00:18:51,840 --> 00:18:57,270
+网络接口硬件在内核中，然后器官或面部可能
+network interface Hardware here in the
+kernel then organ or face might
+
+215
+00:18:57,270 --> 00:19:02,850
+中断内核内核运行驱动程序代码，该程序将数据包传递给TCP 
+interrupt the kernel kernel runs driver
+Code which hands packets to the TCP
+
+216
+00:19:02,850 --> 00:19:08,630
+协议，将它们写入缓冲区，等待应用程序读取它们
+protocol which writes them into buffers
+waiting for the application to read them
+
+217
+00:19:08,630 --> 00:19:12,419
+在某个时刻，应用程序四处读取它们，从而进行系统调用
+at some point the application gets
+around reading them makes system calls
+
+218
+00:19:12,419 --> 00:19:19,440
+进入内核，将这些缓冲区中的数据复制到用户空间，这是一个
+into the kernel copies the data out of
+these buffers into user space this is a
+
+219
+00:19:19,440 --> 00:19:24,630
+很多软件，很多处理，很多昂贵的CPU 
+lot of software it's a lot of processing
+and a lot of fairly expensive CPU
+
+220
+00:19:24,630 --> 00:19:29,669
+系统调用和中断等操作以及结果复制数据
+operations like system calls and
+interrupts and copying data as a result
+
+221
+00:19:29,669 --> 00:19:35,340
+因此，传统的网络通信相对较慢，因此很难构建
+so classical Network communication is
+relatively slow it's quite hard to build
+
+222
+00:19:35,340 --> 00:19:39,360
+具有传统架构的RPC系统
+an RPC system with the kind of
+traditional architecture that can
+
+223
+00:19:39,360 --> 00:19:45,390
+每秒传递超过数十万或BC消息
+deliver more than say a few hundred
+thousand or BC messages per second and
+
+224
+00:19:45,390 --> 00:19:49,500
+可能看起来很多，但数量级太少了
+that might seem like a lot but it's
+orders of magnitude too few for the kind
+
+225
+00:19:49,500 --> 00:19:53,290
+场试图达到的性能指标
+of performance that farm is trying to
+target and in general that
+
+226
+00:19:53,290 --> 00:19:58,810
+每秒十万个PC远远不及速度
+couple hundred thousand our pcs per
+second is far far less than the speed
+
+227
+00:19:58,810 --> 00:20:03,130
+网络接口中的实际网络硬件（如网络线） 
+that the actual network hardware like
+Network wire in the network interface
+
+228
+00:20:03,130 --> 00:20:07,390
+卡通常能够将这些电缆以10吉比特的速度运行
+card is capable of typically these
+cables run at things like 10 gigabits
+
+229
+00:20:07,390 --> 00:20:12,970
+每秒很难编写我们的PC软件
+per second it's very very hard to write
+our PC software that can generate small
+
+230
+00:20:12,970 --> 00:20:18,760
+数据库经常需要使用的那种消息，很难
+messages of the kind that databases
+often need to use it's very hard to
+
+231
+00:20:18,760 --> 00:20:24,280
+以这种风格编写可以生成或吸收10之类的软件的软件
+write software in this style that can
+generate or absorb anything like 10
+
+232
+00:20:24,280 --> 00:20:32,080
+每秒的千兆字节消息数百万甚至数千万
+gigabits per second of messages that's
+millions maybe tens of millions of
+
+233
+00:20:32,080 --> 00:20:37,660
+每秒的邮件数量还可以，因此这是服务器场不使用的计划， 
+messages per second ok so this is the
+plan that farm doesn't use and a sort of
+
+234
+00:20:37,660 --> 00:20:52,030
+对此计划的反应是农场使用--降低生产成本的想法
+a reaction to to this plan instead farm
+uses - - ideas to reduce the costs of
+
+235
+00:20:52,030 --> 00:21:01,480
+围绕第一个推送数据包，我将其称为内核旁路和
+pushing packets around the first one
+I'll call kernel bypass and the idea
+
+236
+00:21:01,480 --> 00:21:06,880
+这里是，而不是应用程序通过
+here is that instead of the application
+sending all its data down through a
+
+237
+00:21:06,880 --> 00:21:18,130
+复杂的内核代码堆栈，而不是内核配置的应用程序
+complex stack of kernel code instead the
+application the kernel configures the
+
+238
+00:21:18,130 --> 00:21:24,310
+计算机中的保护机制，以允许应用程序直接访问
+protection machinery in the computer to
+allow the application direct access to
+
+239
+00:21:24,310 --> 00:21:28,060
+网络接口卡，因此应用程序实际上可以与
+network interface card so the
+application can actually reach out and
+
+240
+00:21:28,060 --> 00:21:33,340
+触摸网络接口寄存器，并告诉它该怎么做
+touch the network interfaces registers
+and tell it what to do in addition the
+
+241
+00:21:33,340 --> 00:21:38,770
+网络接口卡，当它是DMA且该内核旁路方案是它的DNA 
+network interface card when it DMAs
+and this kernel bypass scheme it DNA's
+
+242
+00:21:38,770 --> 00:21:42,700
+直接进入应用程序内存，应用程序可以在其中看到字节
+directly into application memory where
+the application can see the bytes
+
+243
+00:21:42,700 --> 00:21:47,650
+在没有内核干预的情况下以及应用程序何时直接到达
+arriving directly without kernel
+intervention and when the application
+
+244
+00:21:47,650 --> 00:21:53,620
+需要发送数据的应用程序可以创建网络接口的队列
+needs to send data the application can
+create queues that the network interface
+
+245
+00:21:53,620 --> 00:21:58,360
+卡可以直接通过DMA读取并通过电线发送，所以现在我们已经
+card can directly read with DMA and send
+out over the wire so now we've
+
+246
+00:21:58,360 --> 00:22:03,280
+完全消除了网络内核中涉及的所有内核代码
+completely eliminated all the kernel
+code involved in networking kernels just
+
+247
+00:22:03,280 --> 00:22:06,140
+不参与，没有系统调用，没有中断
+not involved there's no system calls
+there's no interrupts
+
+248
+00:22:06,140 --> 00:22:09,530
+该应用程序只是直接说明为什么网络接口是它的内存
+the application just directly reason why
+it's memory that the network interface
+
+249
+00:22:09,530 --> 00:22:21,920
+卡看到另一边当然是同一个东西，这是这个
+card sees and of course the same thing
+on the other side and this is a this is
+
+250
+00:22:21,920 --> 00:22:27,950
+网络上实际上不可能实现的想法
+an idea that is actually was not
+possible years ago with network
+
+251
+00:22:27,950 --> 00:22:33,200
+接口卡，但可以设置大多数现代的严肃网络接口卡
+interface cards but most modern serious
+network interface cards okay can be set
+
+252
+00:22:33,200 --> 00:22:37,250
+为此，它确实需要您知道的应用程序
+up to do this it does however require
+that the application you know you know
+
+253
+00:22:37,250 --> 00:22:43,280
+ TCP为您执行的所有操作，例如校验和或重新传输
+all those things that TCP was doing for
+you like check sums or retransmission
+
+254
+00:22:43,280 --> 00:22:49,190
+现在，如果我们要执行此操作，则该应用程序将由您负责
+the application would now be in charge
+if we wanted to do this you can actually
+
+255
+00:22:49,190 --> 00:22:57,530
+使用您可以在升级过程中找到的工具包自己进行内核绕过
+do this yourself kernel bypass using a
+toolkit that you can find on the way up
+
+256
+00:22:57,530 --> 00:23:02,060
+称为DP DK，使用起来相对容易
+called
+DP DK and it's relatively easy to use
+
+257
+00:23:02,060 --> 00:23:08,620
+并允许人们编写超高性能的网络应用程序
+and allows people to write extremely
+high performance networking applications
+
+258
+00:23:08,620 --> 00:23:14,180
+但是，因此表单确实会使用它，因此您直接与
+but and so so form does use this it's
+applications directly you talk to the
+
+259
+00:23:14,180 --> 00:23:19,850
+将DM ace颈项并入应用程序存储器中，我们有一个学生
+neck the neck DM ace things right into
+application memory we have a student
+
+260
+00:23:19,850 --> 00:23:24,290
+问题，对不起，这是否意味着农场计算机运行了修改过的
+question I'm sorry yes does this mean
+that farm machines run a modified
+
+261
+00:23:24,290 --> 00:23:32,750
+操作系统II我不知道我相信这个问题的实际答案
+operating system well I I don't know the
+actual answer that question I believe
+
+262
+00:23:32,750 --> 00:23:38,120
+服务器场是在Windows上运行的某种形式的Windows，无论是否必须
+farm is runs on Windows some form of
+Windows whether or not they had to
+
+263
+00:23:38,120 --> 00:23:46,940
+修改Windows我不知道在Linux世界中，在Linux世界中
+modify Windows I do not know in the sort
+of Linux world in Linux world there's
+
+264
+00:23:46,940 --> 00:23:50,690
+已经对此提供了完全支持，它确实需要内核干预
+already full support for this
+it does require kernel intervention
+
+265
+00:23:50,690 --> 00:23:56,600
+因为内核必须愿意提供通常的应用程序代码
+because the kernel has to be willing to
+give ordinarily application code cannot
+
+266
+00:23:56,600 --> 00:24:01,520
+直接对设备执行任何操作，因此必须修改Linux以允许
+do anything directly with devices so
+Linux has had to be modified to allow
+
+267
+00:24:01,520 --> 00:24:08,660
+允许内核将硬件访问权委派给应用程序，因此
+the allow the kernel to delegate
+hardware access to applications so it
+
+268
+00:24:08,660 --> 00:24:13,670
+确实需要修改内核，那些监视场合已经在Linux中
+does require kernel modifications those
+monitor occasions are already in Linux
+
+269
+00:24:13,670 --> 00:24:18,419
+而且也许在Windows中也已经
+and maybe already in Windows also in
+addition though this
+
+270
+00:24:18,419 --> 00:24:22,380
+在相当聪明的尼克斯上，因为您当然要拥有多个
+on fairly intelligent Knicks because of
+course you're going to have multiple
+
+271
+00:24:22,380 --> 00:24:25,769
+想要通过网络接口卡玩此游戏的应用程序等
+applications that want to play this game
+with a network interface card and so
+
+272
+00:24:25,769 --> 00:24:30,390
+现代的NIC实际上知道如何与多个不同的线索对话，因此您
+modern NICs actually know about talking
+to multiple distinct cues so that you
+
+273
+00:24:30,390 --> 00:24:33,870
+可以有多个应用程序，每个应用程序都有自己的线索和尼克
+can have multiple applications each with
+its own set of cues and the the Nick
+
+274
+00:24:33,870 --> 00:24:41,460
+知道所以它确实需要修改很多东西好吗
+knows about so it did it has required
+modification of a lot of things okay
+
+275
+00:24:41,460 --> 00:24:50,309
+所以第一步是上校绕过的想法第二步甚至更聪明
+so sort of step one is is Colonel bypass
+idea step two is even cleverer next and
+
+276
+00:24:50,309 --> 00:24:54,919
+现在我们开始进入目前尚未广泛使用的硬件
+now we're starting to get into hardware
+that is not in wide use of the moment
+
+277
+00:24:54,919 --> 00:25:03,110
+您可以从商业上购买它，但是默认情况下不是该RDMA方案
+you can buy it commercially but it's not
+the default is this RDMA scheme which is
+
+278
+00:25:03,110 --> 00:25:18,600
+远程直接内存访问，这是一种特殊的网络
+remote direct memory access and here
+this is sort of special kind of network
+
+279
+00:25:18,600 --> 00:25:28,470
+支持远程的接口卡支持我们的DMA，因此现在我们有了RDM 
+interface cards that support remote
+support our DMA so now we have an RDM a
+
+280
+00:25:28,470 --> 00:25:35,480
+脖子两边都要这些
+neck both sides have to have these
+
+281
+00:25:35,570 --> 00:25:39,899
+特殊的网络接口卡，所以我在画这些是通过电缆连接的
+special network interface cards so I'm
+drawing these is connected by a cable in
+
+282
+00:25:39,899 --> 00:25:47,480
+事实上，这里总是有一个开关，可以连接许多不同的
+fact always there's a switch here that
+has connections to many different
+
+283
+00:25:47,480 --> 00:25:52,110
+服务器，并允许任何服务器与任何服务器对话，所以我们有这些RDMA 
+servers and allows any server to talk to
+any server okay so we have these RDMA
+
+284
+00:25:52,110 --> 00:25:56,820
+脖子，我们再次得到了应用程序和应用程序协助
+necks and we had again we have the
+applications and application assist
+
+285
+00:25:56,820 --> 00:26:06,559
+内存，尽管应用程序实际上可以发送一条特殊消息
+memory and now though the application
+can essentially send a special message
+
+286
+00:26:06,559 --> 00:26:13,620
+通过询问，所以我们在源主机上有一个应用程序
+through the neck that asks so we have a
+an application on the source host and
+
+287
+00:26:13,620 --> 00:26:18,750
+也许我们不会将其称为目标主机可以发送特殊
+maybe we wouldn't call this the
+destination host can send a special
+
+288
+00:26:18,750 --> 00:26:24,899
+消息通过我们的DMA系统通知该网络接口卡
+message through the our DMA system that
+tells this network interface card to
+
+289
+00:26:24,899 --> 00:26:30,450
+直接读取或写入一个字节的内存，可能是一个缓存行
+directly read or write a byte some bytes
+of memory probably a cache line of
+
+290
+00:26:30,450 --> 00:26:33,990
+目标应用程序地址空间中的内存
+memory in
+the target applications address space
+
+291
+00:26:33,990 --> 00:26:38,220
+直接，因此网络接口控制器上的硬件和软件正在执行
+directly so hardware and software on the
+network interface controller are doing a
+
+292
+00:26:38,220 --> 00:26:41,820
+读取和写入读取或写入应用程序目标应用程序内存
+read and write read or write of the
+application target applications memory
+
+293
+00:26:41,820 --> 00:26:47,700
+直接，然后我们在这里进行了某种请求，导致读取
+directly and then so we have a sort of
+request going here that causes the read
+
+294
+00:26:47,700 --> 00:26:55,340
+或写入，然后将结果发送回另外两个传入队列
+or write and then sending the result
+back to really two other incoming queue
+
+295
+00:26:55,340 --> 00:27:01,230
+在源应用程序上，与此有关的很酷的事情是，这台计算机的
+on the source application and the cool
+thing about this is that this computer's
+
+296
+00:27:01,230 --> 00:27:06,450
+该应用程序的CPU对读取或写入数据一无所知
+the CPU this application didn't know
+anything about the read or write the
+
+297
+00:27:06,450 --> 00:27:12,000
+读取或写入完全在网络接口卡的固件中执行
+read or write is executed completely in
+firmware in the network interface card
+
+298
+00:27:12,000 --> 00:27:15,330
+因此它不是没有中断，应用程序不必考虑
+so it's not there's no interrupts here
+the application didn't have to think
+
+299
+00:27:15,330 --> 00:27:18,929
+关于请求或仅考虑答复网络接口卡
+about the request or think about
+replying network interface card just
+
+300
+00:27:18,929 --> 00:27:22,879
+读取或写入内存，并将结果发送回源应用程序
+reads or writes a memory and sends a
+result back to the source application
+
+301
+00:27:22,879 --> 00:27:27,990
+而这是您所需要做的所有事情中低得多的开销方法
+and this is much much lower overhead way
+of getting at of all you need to do is
+
+302
+00:27:27,990 --> 00:27:32,490
+读取或写入目标应用程序RAM中的内存和东西，这是一个
+read or write memory and stuff in the
+RAM of the target application this is a
+
+303
+00:27:32,490 --> 00:27:37,769
+简单的读写方式比发送PC呼叫快得多
+much faster way of doing a simple read
+or write than sending in our PC call
+
+304
+00:27:37,769 --> 00:27:46,379
+即使使用魔术内核绕过网络，这还是一个问题，这是否意味着
+even with magic kernel bypass networking
+it's a question does this mean that
+
+305
+00:27:46,379 --> 00:27:54,389
+可能一直需要内核绕过才能完全起作用，您知道我不知道
+already may always require kernel bypass
+to work at all you know I don't know the
+
+306
+00:27:54,389 --> 00:27:59,250
+对此的回答我想我只听说过它与内核结合使用
+answer to that I think I've only ever
+heard it used in conjunction with kernel
+
+307
+00:27:59,250 --> 00:28:04,080
+绕过库兹，你知道对这一切感兴趣的人或
+bypass cuz you know the people who are
+interested in any of this or are
+
+308
+00:28:04,080 --> 00:28:10,190
+对它感兴趣只是为了获得出色的性能，我认为您会浪费
+interested in it only for tremendous
+performance and I think you would waste
+
+309
+00:28:10,190 --> 00:28:14,279
+你丢了很多表演，我猜你丢了很多
+you throw away a lot of the performance
+I'm guessing you throw away a lot of the
+
+310
+00:28:14,279 --> 00:28:22,259
+如果您必须通过内核发送请求，则可以提高性能
+performance win if you had to send the
+requests through the kernel okay another
+
+311
+00:28:22,259 --> 00:28:34,410
+问题记录TCP软件的TCP支持顺序的问题
+question that the the question notes
+TCP software's TCP supports in order
+
+312
+00:28:34,410 --> 00:28:38,970
+交付重复检测以及许多其他出色的性能
+delivery duplicate detection and a lot
+of other excellent properties which you
+
+313
+00:28:38,970 --> 00:28:44,070
+实际需要，因此如果此设置实际上将非常尴尬
+actually need and so it would actually
+be extremely awkward if this setup
+
+314
+00:28:44,070 --> 00:28:50,700
+牺牲了可靠的交货或按订单交货等等答案
+sacrificed reliable delivery or in order
+delivery and so the answer the question
+
+315
+00:28:50,700 --> 00:28:56,460
+实际上，这些是DMA NIC运行它们自己可靠的顺序协议， 
+is actually these are DMA NICs run their
+own reliable sequenced protocol that's
+
+316
+00:28:56,460 --> 00:29:02,790
+像TCP，虽然不是脖子之间的TCP，所以当您询问已经
+like TCP although not TCP between the
+necks and so when you ask your already
+
+317
+00:29:02,790 --> 00:29:08,010
+是阅读或书写的脖子，它将使您保持传输状态，直到您
+am a neck to do a read or write it'll
+keep you transmitting until if the you
+
+318
+00:29:08,010 --> 00:29:10,530
+知道请求是否丢失，并保证意思直到它得到
+know if the request is lost and keep
+reassurance meaning till it gets a
+
+319
+00:29:10,530 --> 00:29:15,540
+响应，它实际上告诉原始软件做了请求
+response and it actually tells the
+originating software did the request
+
+320
+00:29:15,540 --> 00:29:20,220
+成功与否，所以您最终会得到认可，是的，您
+succeed or not so you get an
+acknowledgment back finally so yeah you
+
+321
+00:29:20,220 --> 00:29:25,710
+知道实际上必须牺牲大多数TCP是好的属性
+know in fact have to sacrifice
+most of TCP is good properties now this
+
+322
+00:29:25,710 --> 00:29:32,010
+东西只能在本地网络上工作，我不相信我们的DMA是
+stuff only works over a local network I
+don't believe our DMA would be
+
+323
+00:29:32,010 --> 00:29:38,940
+令人满意，就像在遥远的数据中心之间，所以所有这些都需要进行调整
+satisfactory like between distant data
+centers so there's all tuned up for very
+
+324
+00:29:38,940 --> 00:29:47,970
+低速的光线访问，可以说是
+low speed of light access okay a
+particular piece of jargon that the
+
+325
+00:29:47,970 --> 00:29:57,870
+纸张使用是我们DMA的一方面，而这基本上就是我刚刚
+paper uses is one-sided our DMA and
+that's basically what I've just
+
+326
+00:29:57,870 --> 00:30:02,700
+当应用程序使用我们的DMA读取或写入另一个的内存时提到
+mentioned when application uses our DMA
+to read or write the memory of another
+
+327
+00:30:02,700 --> 00:30:13,230
+那是我们DMA现在的一个站点，事实上，服务器场使用DMA在RPC中发送消息
+that's one site our DMA now in fact farm
+uses our DMA to send messages in an RPC
+
+328
+00:30:13,230 --> 00:30:18,300
+像协议，因此实际上有时场直接读取我们DMA的一面
+like protocol so in fact sometimes farm
+directly reads with one sided our DMA
+
+329
+00:30:18,300 --> 00:30:23,820
+但有时场使用我们的DMA的目的是将一条消息附加到
+but sometimes what farm is using our DMA
+for is to append a message to an
+
+330
+00:30:23,820 --> 00:30:27,810
+目标内部的传入消息队列，因此有时
+incoming message queue inside the target
+so sometimes what the what the
+
+331
+00:30:27,810 --> 00:30:33,450
+很好，实际上总是在写，而场实际上正在使用我们的DMA 
+well actually always with writes what
+farm is actually doing is using our DMA
+
+332
+00:30:33,450 --> 00:30:40,470
+编写以将新消息附加到目标中的传入队列中
+to write to append a new message to an
+incoming queue in the target which the
+
+333
+00:30:40,470 --> 00:30:45,179
+目标将拉动，因为这里没有人会打断目标
+target will pull since there's nobody
+interrupts here the way target
+
+334
+00:30:45,179 --> 00:30:49,529
+这样的消息的目的地知道我收到的消息的方式
+the way the destination of a message
+like this knows I got the messages that
+
+335
+00:30:49,529 --> 00:30:53,609
+定期检查这些键队列和内存之一，以查看我如何
+periodically checks one of these keys
+queues and memory to see how have I
+
+336
+00:30:53,609 --> 00:30:58,080
+收到任何人的最新消息，好吧，一旦我做完，MA只是为了
+gotten a recent message from anyone
+okay so once I did already MA is just to
+
+337
+00:30:58,080 --> 00:31:02,219
+读取或写入，但使用DMA发送消息或将消息追加到消息后
+read or write but using our DMA to send
+a message or append either to a message
+
+338
+00:31:02,219 --> 00:31:06,389
+队列或日志，有时场会附加消息或日志
+queue or to a log
+sometimes farm appends messages or log
+
+339
+00:31:06,389 --> 00:31:11,429
+日志和另一台服务器上的条目也使用我们的DMA，您知道此内存
+entries to a log and another server also
+uses our DMA and you know this memory
+
+340
+00:31:11,429 --> 00:31:17,249
+被写入的都是非易失性的，因此所有消息
+that's being written into is all
+non-volatile so all of it the message
+
+341
+00:31:17,249 --> 00:31:24,749
+如果发生电源故障，则将所有数据排队写入磁盘
+queues it's all written to disk if
+there's a power failure the performance
+
+342
+00:31:24,749 --> 00:31:34,169
+图2显示了您可以减少DMA读取的一千万次
+of this is the figure 2 shows that you
+can get 10 million small our DMA reads
+
+343
+00:31:34,169 --> 00:31:40,739
+并每秒写入，这比您发送的速度快得多
+and writes per second which is fantastic
+far far faster than you can send
+
+344
+00:31:40,739 --> 00:31:46,139
+消息，例如使用TCP的计算机以及使用DMA执行简单操作的延迟
+messages like our pcs using TCP and the
+latency of using our DMA to do a simple
+
+345
+00:31:46,139 --> 00:31:54,029
+读或写大约是5微秒，所以这又很短5 
+read or write is about 5 microseconds so
+again this is you know very very short 5
+
+346
+00:31:54,029 --> 00:31:59,789
+微秒，这比访问您自己的本地内存要慢，但是
+microseconds is it's slower than
+accessing your own local memory but it's
+
+347
+00:31:59,789 --> 00:32:05,629
+比人们在网络中做的其他任何事情都快，所以这有点像
+faster than sort of anything else people
+do in networks ok so this is sort of a
+
+348
+00:32:05,629 --> 00:32:10,080
+承诺不久前就会出现这种神话般的DMA技术
+promise there's this fabulous our DMA
+technology that came out a while ago
+
+349
+00:32:10,080 --> 00:32:15,599
+人们在农场要剥削，你知道最酷的可能
+that at the farm people wanted to
+exploit you know the coolest possible
+
+350
+00:32:15,599 --> 00:32:20,820
+您可以想象的事情是使用我们的DMA一个符号
+thing that you could imagine doing with
+this is using our DMA one sign it
+
+351
+00:32:20,820 --> 00:32:26,190
+直接拥有所有理由已经是理由权利
+already am a reason rights to directly
+do all the reason writes a records
+
+352
+00:32:26,190 --> 00:32:29,789
+存储在数据库服务器内存中，所以如果我们能够
+stored in database servers memory so
+wouldn't be fantastic if we could just
+
+353
+00:32:29,789 --> 00:32:34,889
+从不与数据库服务器CPU或软件对话，而只是获取那些
+never talk to the database server CPU or
+software but just get at the data that
+
+354
+00:32:34,889 --> 00:32:40,739
+我们需要您在5微秒内使用直接单侧DMA弹出
+we need you know in five microseconds a
+pop using direct one-sided our DMA
+
+355
+00:32:40,739 --> 00:32:45,749
+ Reiser写道，从某种意义上说，本文是关于您的，您知道您从那里开始
+Reiser writes so in a sense this paper
+is about you know you you start there
+
+356
+00:32:45,749 --> 00:32:53,009
+您实际上需要做什么才能构建有用的东西
+what do you have to do to actually build
+something useful so an interesting
+
+357
+00:32:53,009 --> 00:32:58,410
+顺便问一下，您实际上可以实施交易吗
+question by the way is could you in fact
+implement transactions
+
+358
+00:32:58,410 --> 00:33:03,540
+使用单面RDMA，您知道我们想要读取或写入数据的任何信息
+using one-sided RDMA that is you know
+anything we wanted to read or write data
+
+359
+00:33:03,540 --> 00:33:10,110
+在服务器中，唯一的用途可能是而且永远不会实际发送具有以下内容的消息
+in server the only use already may and
+never actually send messages that have
+
+360
+00:33:10,110 --> 00:33:16,830
+由服务器软件解释是值得考虑的
+to be interpreted by the server software
+it's worth thinking about
+
+361
+00:33:16,830 --> 00:33:22,650
+从某种意义上说，农场正在用否回答该问题，因为那不是
+in a sense farm is answering that
+question with a no because that's not
+
+362
+00:33:22,650 --> 00:33:28,110
+农场的运作方式确实如此，但绝对值得思考
+really how farm works but but it is
+absolutely worth thinking how come
+
+363
+00:33:28,110 --> 00:33:37,620
+纯粹的单面RDMA无法正常工作，因此使用方面的挑战
+pure one-sided RDMA couldn't be made to
+work alright so the challenges to using
+
+364
+00:33:37,620 --> 00:33:46,890
+具有复制和分片功能的事务系统中的DMA 
+our DMA in a transactional system that
+has replication and sharding so that
+
+365
+00:33:46,890 --> 00:33:50,460
+那就是我们面临的挑战是如何结合已经完成的交易
+that's the challenge we have is how to
+combine already made with transactions
+
+366
+00:33:50,460 --> 00:33:54,360
+图表和复制，因为您需要分片和事务
+charting and replication because you
+need to have sharding and transactions
+
+367
+00:33:54,360 --> 00:33:59,760
+复制以拥有非常有用的数据库系统，事实证明，所有
+replication to have a seriously useful
+database system it turns out that all
+
+368
+00:33:59,760 --> 00:34:04,320
+到目前为止，我们进行交易复制所需的协议
+the protocols we've seen so far for
+doing transactions replication require
+
+369
+00:34:04,320 --> 00:34:11,668
+服务器必须积极参与服务器软件的参与
+active participation by the server
+software that is the server has to be in
+
+370
+00:34:11,668 --> 00:34:15,149
+到目前为止，我们已经看到的所有协议服务器都在积极参与帮助
+
+371
+00:34:15,150 --> 00:34:21,270
+客户端可以读取或写入数据，例如在两阶段中
+the clients get at read or write the
+data so for example in the two-phase
+
+372
+00:34:21,270 --> 00:34:25,800
+提交方案，我们已经看到服务器必须做一些事情，例如决定是否
+commit schemes we've seen the server has
+to do things like decide whether a
+
+373
+00:34:25,800 --> 00:34:31,530
+记录被锁定，如果它不能走，则将其设置在正确的位置上，这是不清楚的
+record is locked and if it's not walk
+set the lock on it right it's not clear
+
+374
+00:34:31,530 --> 00:34:37,350
+您如何使用我们的DMA来做到这一点，服务器必须执行扳手中的操作
+how you could do that with our DMA the
+server has to do things like in spanner
+
+375
+00:34:37,350 --> 00:34:40,469
+您知道所有这些版本都是服务器在考虑的
+you know there's all these versions it
+was the server that was thinking about
+
+376
+00:34:40,469 --> 00:34:45,359
+如果我们分两阶段进行交易，如何类似地查找最新版本
+
+377
+00:34:45,360 --> 00:34:48,000
+在服务器上提交数据不仅仅是数据
+commit
+data on the server it's not just data
+
+378
+00:34:48,000 --> 00:34:52,500
+有已提交的数据有已写入但尚未提交的数据
+there's committed data there's data
+that's been written but hasn't committed
+
+379
+00:34:52,500 --> 00:34:58,520
+传统上，一遍又一遍地是服务器来确定数据是否
+yet and again traditionally it's the
+server that sorts out whether data
+
+380
+00:34:58,520 --> 00:35:01,950
+最近提交的数据已经提交，这是为了保护
+recently updated data is committed yet
+and that's to sort of protect the
+
+381
+00:35:01,950 --> 00:35:06,840
+您知道的客户阻止他们查看已锁定或尚未锁定的数据
+clients from you know prevent them from
+seeing data that's locked or not yet
+
+382
+00:35:06,840 --> 00:35:10,590
+知道是坚定的，这意味着没有聪明
+known to be committed and what that
+means is that without some clever
+
+383
+00:35:10,590 --> 00:35:15,420
+认为RDMA或单方面使用我们的DME 
+thought
+RDMA or one-sided pure use of our DME
+
+384
+00:35:15,420 --> 00:35:21,069
+单面RDMA似乎并不立即与事务兼容
+one-sided RDMA doesn't seem to be
+immediately compatible with transactions
+
+385
+00:35:21,069 --> 00:35:29,319
+和复制，甚至是服务器场，而服务器场确实使用单面读取来获取
+and replication and indeed farm while
+farm does use one-sided it reads to get
+
+386
+00:35:29,319 --> 00:35:34,990
+直接从数据库中的数据中删除它不能使用单面权限
+out directly at data in the database it
+is not not able to use one-sided rights
+
+387
+00:35:34,990 --> 00:35:46,690
+修改数据还可以，所以这使我们可以乐观地控制并发
+to modify the data okay so this leads us
+to optimistic concurrency control it
+
+388
+00:35:46,690 --> 00:35:59,410
+事实证明，从某种意义上说，主要技巧是服务器场用来允许它们都使用RDMA 
+turns out that the main trick in a sense
+that farm uses to allow it both use RDMA
+
+389
+00:35:59,410 --> 00:36:05,859
+并通过使用乐观并发控制来获得交易，因此，如果您
+and get transactions is by using
+optimistic concurrency control so if you
+
+390
+00:36:05,859 --> 00:36:14,770
+还记得我之前提到的并发控制方案
+remember I mentioned earlier that
+concurrency control schemes are kind of
+
+391
+00:36:14,770 --> 00:36:18,809
+分为两大类
+divided into two broad categories
+
+392
+00:36:18,960 --> 00:36:28,359
+悲观和乐观悲观方案使用锁，其想法是
+pessimistic and optimistic pessimistic
+schemes use locks and the idea is that
+
+393
+00:36:28,359 --> 00:36:32,410
+如果您有一笔交易要先读取或写入一些数据
+if you have a transaction that's gonna
+read or write some data before you can
+
+394
+00:36:32,410 --> 00:36:36,730
+读取或写入数据或完全查看它必须获得一个锁并且必须
+read or write the data or look at it at
+all it must acquire a lock and it must
+
+395
+00:36:36,730 --> 00:36:45,339
+等待锁定，因此您了解了例如两阶段锁定
+wait for the lock and so you read about
+two-phase locking for example in that
+
+396
+00:36:45,339 --> 00:36:50,859
+从633读取数据，因此在使用数据之前，必须先锁定数据并按住
+reading from 633 so before you use data
+you have to lock it and you hold the
+
+397
+00:36:50,859 --> 00:36:54,730
+锁定整个交易期间，并且仅在交易
+lock for the entire duration of the
+transaction and only if the transaction
+
+398
+00:36:54,730 --> 00:37:01,240
+提交或中止您是否释放锁，并且是否存在冲突，因为
+commits or aborts do you release the
+lock and if there's conflicts because
+
+399
+00:37:01,240 --> 00:37:06,760
+两个事务想要同时写入相同的数据，或者一个事务想要
+two transactions want to write the same
+data at the same time or one wants to
+
+400
+00:37:06,760 --> 00:37:10,390
+阅读，一个怪物正确，他们不能同时做到其中之一
+read and one that monster right they
+can't do it at the same time one of them
+
+401
+00:37:10,390 --> 00:37:13,630
+必须阻止或除向您发送一些数据的交易以外的所有交易
+has to block or all but one of the
+transactions that went to you some data
+
+402
+00:37:13,630 --> 00:37:17,920
+错过了一个等待释放锁的块，当然，这个锁
+missed a block wait for the lock to be
+released um and of course this locking
+
+403
+00:37:17,920 --> 00:37:21,910
+方案是必须锁定数据并且必须有人保留的事实
+scheme is the fact that the data has to
+be locked and that somebody has to keep
+
+404
+00:37:21,910 --> 00:37:27,000
+跟踪谁拥有锁以及何时释放锁等
+track of who owns the lock and when the
+lock is released etcetera
+
+405
+00:37:27,619 --> 00:37:33,329
+这是使我们的DMA产生一件事的原因，目前尚不清楚如何进行版权保护或
+this is one thing that makes our DMA
+it's not clear how you can do rights or
+
+406
+00:37:33,329 --> 00:37:37,500
+甚至在锁定方案中使用DMA进行读取，因为有人必须执行
+even reads using our DMA in a locking
+scheme because somebody has to enforce
+
+407
+00:37:37,500 --> 00:37:42,359
+锁，我对此有点暂定，因为我怀疑
+the locks I'm being a little tentative
+about this because I suspect that with
+
+408
+00:37:42,359 --> 00:37:49,460
+更加智能的DMA NIC，可以支持更广泛的操作，例如
+more clever our DMA NICs that could
+support a wider range of operations like
+
+409
+00:37:49,460 --> 00:37:54,029
+原子测试并设置您有一天可能能够执行
+atomic test and set
+you might someday be able to do a
+
+410
+00:37:54,029 --> 00:38:02,849
+纯单侧RDMA的锁定方案，但是服务器场做不到，那么什么服务器场
+locking scheme with pure one-sided RDMA
+but farm doesn't do it okay so what farm
+
+411
+00:38:02,849 --> 00:38:08,190
+实际上用作一种乐观方案，在这里，您可以
+actually uses as an optimistic scheme
+and here in an optimistic scheme you can
+
+412
+00:38:08,190 --> 00:38:18,660
+使用至少可以读取而不锁定的内容，而只是读取不想要的数据
+use at least you can read without
+locking you just read the data you don't
+
+413
+00:38:18,660 --> 00:38:21,809
+知道是否允许您读取数据或是否有人在
+know yet whether you are allowed to read
+the data or whether somebody else is in
+
+414
+00:38:21,809 --> 00:38:25,500
+修改它或您只读取数据的模型中间
+the model middle of modifying it or
+anything you just read the data and a
+
+415
+00:38:25,500 --> 00:38:30,809
+交易会使用它所发生的一切，而您也不会
+transaction it uses what it whatever it
+happens to be and you also don't
+
+416
+00:38:30,809 --> 00:38:35,940
+直接以乐观方案写入数据，而不是缓冲数据，以便您
+directly write the data in optimistic
+schemes instead you buffered so you
+
+417
+00:38:35,940 --> 00:38:41,539
+缓冲区在本地和客户端中写入，直到事务最终结束并且
+buffer writes locally and in the client
+until the transaction finally ends and
+
+418
+00:38:41,539 --> 00:38:46,200
+然后当事务最终完成时，您想尝试提交
+then when the transaction finally
+finishes and you want to try to commit
+
+419
+00:38:46,200 --> 00:38:56,359
+它有一个验证阶段，即所谓的验证阶段
+it there's a validate what's called a
+validation stage in which the
+
+420
+00:38:56,359 --> 00:39:00,839
+交易处理系统试图找出是否是实际原因
+transaction processing system tries to
+figure out whether the actual reason
+
+421
+00:39:00,839 --> 00:39:04,799
+您所做的权利与可序列化性是一致的
+rights you did were consistent with
+serializability that is they try to
+
+422
+00:39:04,799 --> 00:39:07,799
+找出哦，有人在我阅读数据时写数据，如果他们
+figure out oh was somebody writing the
+data while I was reading it and if they
+
+423
+00:39:07,799 --> 00:39:10,680
+小男孩，我们无法进行此交易，因为
+were boy
+we can't commit this transaction because
+
+424
+00:39:10,680 --> 00:39:18,450
+它使用垃圾而不是一致的读取值进行计算，因此如果
+it computed with garbage instead of
+consistent read values and so if the
+
+425
+00:39:18,450 --> 00:39:24,150
+验证成功，则提交，如果验证失败，则提交
+validation succeeds then you commit and
+if the validation doesn't succeed if you
+
+426
+00:39:24,150 --> 00:39:26,910
+在您尝试使用其他数据时发现其他人弄乱了数据
+detect somebody else was messing with
+the data while you were trying to use it
+
+427
+00:39:26,910 --> 00:39:33,630
+在终止时，这意味着如果您正在阅读或写作时有冲突
+at abort so that means that if there's
+conflicts if you're reading or writing
+
+428
+00:39:33,630 --> 00:39:38,780
+数据和其他一些事务也在同时修改
+data and some other transactions also
+modifying at the same time
+
+429
+00:39:38,780 --> 00:39:43,290
+乐观方案在那时会中止，因为计算已经
+optimistic schemes abort at that point
+because the computation is already
+
+430
+00:39:43,290 --> 00:39:47,880
+在提交点错误，即您已经读取了损坏数据
+incorrect at the commit point that is
+you already read the damage data you
+
+431
+00:39:47,880 --> 00:39:52,290
+不应该阅读，所以没有办法例如阻止您知道
+weren't supposed to read so there's no
+way to for example block you know until
+
+432
+00:39:52,290 --> 00:39:56,130
+事情还好，相反交易已经有点
+things are okay
+instead the transactions already kind of
+
+433
+00:39:56,130 --> 00:40:03,750
+中毒了，只能中止并且可以尝试一下，以便农场使用
+poisoned and just has to abort and
+possibly be try okay so farm uses
+
+434
+00:40:03,750 --> 00:40:08,309
+乐观，因为他希望能够使用单面RDMA来读取
+optimistic because he wants to be able
+to use one-sided RDMA to just read
+
+435
+00:40:08,309 --> 00:40:16,470
+不管那里有什么很快，所以这个设计真的是由于使用
+whatever's there very quickly so this
+this design was really forced by use of
+
+436
+00:40:16,470 --> 00:40:26,400
+我们的DMA，通常是用于乐观并发控制的OCC的缩写
+our DMA this is often abbreviated OCC
+for optimistic concurrency control all
+
+437
+00:40:26,400 --> 00:40:28,890
+对，然后有趣的事情是乐观并发控制协议
+right and then the interesting thing an
+optimistic concurrency control protocols
+
+438
+00:40:28,890 --> 00:40:33,569
+验证的工作原理您如何实际检测到其他人
+is how validation works how do you
+actually detect that somebody else was
+
+439
+00:40:33,569 --> 00:40:38,099
+在尝试使用数据时编写数据，这实际上主要是
+writing the data while you were trying
+to use it and that's actually mainly
+
+440
+00:40:38,099 --> 00:40:42,420
+将会是我在本讲课其余部分谈论的内容
+gonna be what I talked about in the rest
+of this lecture and just again though
+
+441
+00:40:42,420 --> 00:40:47,190
+只是将其退回设计的顶层，这是在做什么
+just to retire this back to the top
+level of the design what this is doing
+
+442
+00:40:47,190 --> 00:40:56,099
+对于Farm来说，读取可以使用单面RDMA，因为因此
+for farm is that the reads can use
+one-sided RDMA because and therefore be
+
+443
+00:40:56,099 --> 00:41:07,650
+速度非常快，因为我们稍后要检查读取是否还好
+extremely fast because we're gonna check
+later whether the reads were okay all
+
+444
+00:41:07,650 --> 00:41:16,589
+正确的农场研究原型，不支持续集
+right farms a research prototype it
+doesn't support things like sequel it
+
+445
+00:41:16,589 --> 00:41:23,849
+支持用于交易的相当简单的API，这仅仅是为了
+supports a fairly simple API for
+transactions this is the API just to
+
+446
+00:41:23,849 --> 00:41:29,099
+让您了解交易代码的实际外观，如果您
+give you a tease for what a transaction
+code might actually look like if you
+
+447
+00:41:29,099 --> 00:41:32,520
+进行交易时，必须清除交易开始，因为我们
+have a transaction it's gotta to clear
+the start of the transaction because we
+
+448
+00:41:32,520 --> 00:41:36,690
+需要说哦，这组特定的原因权利需要作为一种
+need to say oh this particular set of
+Reason rights needs to occur as a
+
+449
+00:41:36,690 --> 00:41:43,170
+完成交易，代码通过调用TX create声明新交易
+complete transaction the code declares a
+new transaction by calling TX create
+
+450
+00:41:43,170 --> 00:41:47,640
+我认为从2014年起
+this is all laid out by the way in the
+paper I think from 2014 a slightly
+
+451
+00:41:47,640 --> 00:41:53,120
+同一作者的较早论文，您创建了一个新交易，然后
+earlier paper by the same authors
+you create a new transaction and then
+
+452
+00:41:53,120 --> 00:42:02,360
+您必须明确读取这些函数才能读取对象，并且必须提供一个
+you explicitly read those functions to
+read objects and you have to supply an
+
+453
+00:42:02,360 --> 00:42:08,420
+对象标识符OID，指示您要读取的对象，然后您会得到
+object identifier an OID indicating what
+object you want to read then you get
+
+454
+00:42:08,420 --> 00:42:12,200
+返回一些对象，您可以在本地内存中修改该对象，而我们没有
+back some object and you can modify the
+object in local memory and we didn't
+
+455
+00:42:12,200 --> 00:42:16,790
+写它，你有它的副本，你已经从服务器读取了TX 
+write it you have a copy of it that
+you've read from the server the TX read
+
+456
+00:42:16,790 --> 00:42:22,450
+从服务器返回，所以您知道您可能会增加对象中的某些字段
+back from the server so you know you
+might increment some field in the object
+
+457
+00:42:22,450 --> 00:42:30,980
+然后当您想更新对象时，就一次又一次地调用此TX 
+and then when you want to update an
+object you call this TX right and again
+
+458
+00:42:30,980 --> 00:42:37,070
+您给它提供对象ID和新的对象内容，最后在
+you give it the object ID and the new
+object contents and finally when you're
+
+459
+00:42:37,070 --> 00:42:41,090
+通过所有这些，您必须告诉助手执行此操作
+through with all of this you've got to
+tell the assistant to commit this
+
+460
+00:42:41,090 --> 00:42:46,310
+交易实际上会进行验证，如果交易成功，则会导致
+transaction actually do validation and
+if it succeeds cause the rights to
+
+461
+00:42:46,310 --> 00:42:53,000
+真正生效并可见，您将此提交例程称为
+really take effect and be visible and
+you call this commit routine the
+
+462
+00:42:53,000 --> 00:42:56,350
+社区团队在图4中运行了很多东西，我们将讨论
+community team runs a whole bunch of
+stuff in figure 4 which we'll talk about
+
+463
+00:42:56,350 --> 00:43:02,330
+并返回此正常值，需要告知应用程序哦
+and it returns this okay value and it's
+required to tell the application oh did
+
+464
+00:43:02,330 --> 00:43:07,370
+提交成功还是被中止了，所以我们需要返回这个好的返回
+the commit succeed or was it aborted so
+we need the return this okay return
+
+465
+00:43:07,370 --> 00:43:13,220
+值，您知道正确地表明交易成功了，好吧
+valued you know correctly indicate by
+the transaction succeeded okay there's
+
+466
+00:43:13,220 --> 00:43:20,210
+一些问题是一个问题，因为如果存在争用问题，OCC将中止
+some questions one is question since OCC
+aborts if there's contention question is
+
+467
+00:43:20,210 --> 00:43:25,850
+重试是否涉及指数回退，否则似乎
+whether retries involve exponential
+back-off because otherwise it seems like
+
+468
+00:43:25,850 --> 00:43:32,990
+如果您只是立即尝试，并且有很多交易
+if you just instantly be tried and that
+there were a lot of transactions all
+
+469
+00:43:32,990 --> 00:43:36,050
+试图在同一时间更新所有相同值
+trying to update the same value at the
+same time they'd all aboard they'd all
+
+470
+00:43:36,050 --> 00:43:40,700
+重试并浪费大量时间，我不知道该问题的答案
+retry and waste a lot of time and I
+don't know the answer to that question I
+
+471
+00:43:40,700 --> 00:43:44,240
+不记得看到他们在论文中提到指数回退了，但是
+don't remember seeing them mentioning
+exponential back-off in the paper but it
+
+472
+00:43:44,240 --> 00:43:49,550
+重试之间的延迟和增加的意义很大
+would make a huge amount of sense to
+delay between retries and to increase
+
+473
+00:43:49,550 --> 00:43:56,260
+延迟给某人成功的机会很像
+the delay to give somebody a chance of
+succeeding this is much like the
+
+474
+00:43:56,260 --> 00:44:04,080
+筏子的随机化收集了坦纳的另一个问题是农场
+randomization of the raft collects
+Tanner's another question is the farm
+
+475
+00:44:04,080 --> 00:44:09,030
+ API在本质上更接近无后继数据库，是的，您知道这是一种
+API closer in spirit to a no sequel
+database yeah you know that's one way of
+
+476
+00:44:09,030 --> 00:44:15,869
+查看它确实没有任何花哨的查询内容，例如
+viewing it it really that it doesn't
+have any of the fancy query stuff like
+
+477
+00:44:15,869 --> 00:44:20,490
+例如加入续集，它实际上是一种非常低级的
+joins for example that sequel has it's
+really a very low-level kind of
+
+478
+00:44:20,490 --> 00:44:27,119
+读写接口以及事务支持，因此您可以对其进行排序
+readwrite interface plus the transaction
+support so you you can sort of view it
+
+479
+00:44:27,119 --> 00:44:36,570
+作为没有续集的数据库，也许可以进行交易，这就是
+as a no sequel database maybe with with
+transactions all right this is what a
+
+480
+00:44:36,570 --> 00:44:41,880
+事务看起来像这些都是库创建的
+transaction looks like and these are all
+these are library calls created
+
+481
+00:44:41,880 --> 00:44:46,500
+读/写提交提交作为一种实际运行的复杂的写调用
+read/write commit commit as a sort of
+complex write recall that actually runs
+
+482
+00:44:46,500 --> 00:44:52,200
+事务协调器代码首先是两阶段提交的罕见变体
+the transaction coordinator code first
+what a rare variant of two-phase commit
+
+483
+00:44:52,200 --> 00:44:59,100
+在图四中描述的只是重复说
+this described in figure four just
+repeat that the while the recall goes
+
+484
+00:44:59,100 --> 00:45:04,109
+关闭并实际上在本地读取相关服务器的正确调用
+off and actually reads the relevant
+server the right call just locally
+
+485
+00:45:04,109 --> 00:45:10,560
+然后缓冲新的修改对象，并且仅在提交时对象
+buffers then the new the modified object
+and it's only in commit that the objects
+
+486
+00:45:10,560 --> 00:45:17,790
+发送到服务器，这些对象ID实际上是
+are sent to the servers these object IDs
+are actually compound identifiers for
+
+487
+00:45:17,790 --> 00:45:25,530
+对象，它们包含两个部分，一个是识别区域，即
+objects and they contain two parts one
+is the identify a region which is that
+
+488
+00:45:25,530 --> 00:45:29,460
+所有服务器的所有内存均分为这些区域，并且
+all the memory of all the servers is
+split up into these regions and the
+
+489
+00:45:29,460 --> 00:45:34,619
+配置管理器跟踪哪些服务器复制哪个区域
+configuration manager sort of tracks
+which servers replicate which region
+
+490
+00:45:34,619 --> 00:45:40,980
+号码，所以这里有一个原因号码，然后您就知道了
+number so there's a reason number in
+here and then and then you you know you
+
+491
+00:45:40,980 --> 00:45:44,609
+客户端可以在表中查找给定的当前主数据库和备份数据库
+client can look up in a table the
+current primary and backups for a given
+
+492
+00:45:44,609 --> 00:45:47,940
+区域编号，然后有一个地址，例如直接存储器
+region number and then there's an
+address such as the straight memory
+
+493
+00:45:47,940 --> 00:45:55,470
+该区域内的地址，因此客户使用原因编号来选择
+address within that region and so the
+client uses the reason number to pick
+
+494
+00:45:55,470 --> 00:46:00,000
+与备份中的主要对象进行对话，然后将地址移交给我们的DMA 
+the primary in the backup to talk to and
+then it hands the address to the our DMA
+
+495
+00:46:00,000 --> 00:46:05,310
+ NIC并告诉它外观，请阅读此地址以获取此地址
+NIC and tells it look please read at
+this address in order to get fetch this
+
+496
+00:46:05,310 --> 00:46:07,760
+宾语
+object
+
+497
+00:46:11,700 --> 00:46:17,920
+好吧，我们必须避免的另一个细节是看一下
+alright another piece of detail we have
+to get out of the way is to look at the
+
+498
+00:46:17,920 --> 00:46:29,770
+服务器内存布局我在任何一台服务器中，都有很多东西
+server memory layout I'm in any one
+server there's a bunch of stuff in
+
+499
+00:46:29,770 --> 00:46:37,630
+内存，所以一部分就是服务器在其内存中是否有
+memory so one part is that the server
+has in its memory its if it's it's
+
+500
+00:46:37,630 --> 00:46:41,860
+复制一个或多个区域时，它具有实际区域，或者是什么原因
+replicating one or more regions it has
+the actual regions and or what a reason
+
+501
+00:46:41,860 --> 00:46:47,140
+包含一大堆这些对象，每个对象都有很多
+contains is a whole bunch of these
+objects and each object there's a lot of
+
+502
+00:46:47,140 --> 00:46:58,810
+坐在内存中的对象每个对象中都有一个标头，其中包含
+objects objects sitting in memory each
+object has in it a header which contains
+
+503
+00:46:58,810 --> 00:47:03,070
+版本号，所以这些是版本化的对象，但仅每个对象
+the version number so these are
+versioned objects but each object only
+
+504
+00:47:03,070 --> 00:47:13,630
+一次有一个版本，所以这是版本号，高位表示
+has one version at a time so this is
+version number and in the high bit let
+
+505
+00:47:13,630 --> 00:47:17,680
+我在这里再试一次，每个版本号的高位是一个锁定标志，所以在
+me try again here and the high bit of
+each version number is a lock flag so in
+
+506
+00:47:17,680 --> 00:47:21,940
+对象的标头有一个锁定标志和高位，然后是一个版本
+the header of an object there's a lock
+flag and the high bit and then a version
+
+507
+00:47:21,940 --> 00:47:29,800
+编号，然后是对象的实际数据，因此每个对象
+number in a little bit and then the
+actual data of the object so each object
+
+508
+00:47:29,800 --> 00:47:33,640
+具有相同的服务器内存，具有相同的布局，高位有锁定位
+has the same servers memory it's the
+same layout a lock bit in the high bit
+
+509
+00:47:33,640 --> 00:47:39,000
+和当前版本号，每次系统写入时
+and the current version number a little
+bit and every time the system writes
+
+510
+00:47:39,000 --> 00:47:42,790
+修改对象会增加版本号，让我们看看
+modifies an object it increases the
+version number and let's see how the
+
+511
+00:47:42,790 --> 00:47:47,710
+几分钟后还会在服务器的内存中使用锁定位
+lock bits are used in a couple minutes
+in addition in the server's memory there
+
+512
+00:47:47,710 --> 00:47:58,060
+是一对提示队列的消息队列，并在其中每隔一台计算机记录一个
+are pairs of cue pairs of message queues
+and logs one for every other computer in
+
+513
+00:47:58,060 --> 00:48:09,040
+系统，这意味着您知道在服务器中是否还有其他四台服务器
+the system so that means that you know
+if there's four other servers in the
+
+514
+00:48:09,040 --> 00:48:12,720
+系统正在运行，或者是否有四个服务器在运行
+system that are running or if there's
+four servers that are running
+
+515
+00:48:12,720 --> 00:48:18,640
+事务中将有四个日志存储在内存中
+transactions there's going to be four
+logs sitting in memory that can be
+
+516
+00:48:18,640 --> 00:48:23,220
+随我们的DMA附加到其他每台服务器上，这意味着
+appended to with our DMA one for each of
+the other servers and that means that
+
+517
+00:48:23,220 --> 00:48:27,130
+每台其他计算机都可以运行一个事务，这意味着
+one for each of the other computers can
+run transactions so that means that the
+
+518
+00:48:27,130 --> 00:48:33,310
+交易代码在您身上运行，所以您知道其中的数量是
+transaction code running on you know so
+number of them you know it's the
+
+519
+00:48:33,310 --> 00:48:39,160
+交易代码在计算机上运行到它想与该服务器对话的时间，以及
+transaction code running on computer to
+when it wants to talk to this server and
+
+520
+00:48:39,160 --> 00:48:45,280
+附加到它的日志中，并看到它实际上将附加到服务器二
+append to its log which as well see it's
+actually going to append to server twos
+
+521
+00:48:45,280 --> 00:48:49,930
+登录此服务器的内存，因此浮动的队列总数为N平方
+log in this servers memory so there's a
+total N squared of these queues floating
+
+522
+00:48:49,930 --> 00:48:56,440
+在每个服务器的内存中，似乎确实存在
+around in in in each servers memory and
+it certainly seems like there's actually
+
+523
+00:48:56,440 --> 00:49:03,330
+一组原本应该是我的日志将是非易失性的，然后
+one set of logs which are meant to be I
+would non-volatile and then also
+
+524
+00:49:03,330 --> 00:49:09,070
+可能是一组单独的消息队列，仅用于更多的RPC 
+possibly a separate set of message
+queues which are used just for more RPC
+
+525
+00:49:09,070 --> 00:49:14,320
+就像再次通信，每个服务器一个，一个队列消息传入
+like communication again one in each
+server one queue message incoming
+
+526
+00:49:14,320 --> 00:49:28,240
+通过我们的DMA写入的每其他服务器的消息多维数据集实际上可以正常写入
+message cube per other server written
+with our DMA writes all right actually
+
+527
+00:49:28,240 --> 00:49:33,040
+接下来要谈的是论文的四年级
+the next thing to talk about is a year
+four in the paper
+
+528
+00:49:33,040 --> 00:49:46,480
+这是第4英尺，这说明了场使用的occ提交协议和
+this is feet four and this explains the
+occ commit protocol that farm uses and
+
+529
+00:49:46,480 --> 00:49:51,190
+我要一步一步地完成所有步骤，实际上首先
+I'm gonna go through mostly steps one by
+one and actually to to begin with I'm
+
+530
+00:49:51,190 --> 00:49:55,420
+只会把重点放在这并发控制部分
+gonna focus only on the concurrency
+control part of this it turns out these
+
+531
+00:49:55,420 --> 00:50:01,840
+步骤还执行复制以及实现可序列化的事务，但是
+steps also do replication as well as
+implement serializable transactions but
+
+532
+00:50:01,840 --> 00:50:07,990
+稍后我们将讨论复制以实现容错功能
+we'll talk about the replication for
+fault tolerance a little bit later okay
+
+533
+00:50:07,990 --> 00:50:11,440
+所以发生的第一件事是执行阶段，这就是TX读取
+so the first thing that happens is the
+execute phase and this is the TX reads
+
+534
+00:50:11,440 --> 00:50:17,050
+然后TX写原因写客户事务正在做，所以每个
+and TX writes the reason writes that the
+client transaction is doing and so each
+
+535
+00:50:17,050 --> 00:50:21,190
+这些箭头在这里意味着事务在计算机C上运行
+of these arrows here what this means is
+that the transaction runs on computer C
+
+536
+00:50:21,190 --> 00:50:26,320
+当需要阅读某些东西时
+and when
+needs to read something it uses
+
+537
+00:50:26,320 --> 00:50:31,990
+单侧RDMA，我们只需从相关的主服务器内存中读取它即可
+one-sided RDMA we to simply read it out
+of the relevant primary servers memory
+
+538
+00:50:31,990 --> 00:50:37,450
+所以我们在这里得到的是主备份主备份主备份为三个
+so what we got here was a primary backup
+primary backup primary backup for three
+
+539
+00:50:37,450 --> 00:50:42,370
+不同的分片，我们正在想象我们的交易从
+different shards and we're imagining
+that our transaction read something from
+
+540
+00:50:42,370 --> 00:50:47,740
+这些碎片中的每个碎片都使用单向RDMA的一个对象，这意味着
+one object from each of these shards
+using one-sided RDMA reason that means
+
+541
+00:50:47,740 --> 00:50:54,670
+每五个微秒都快得令人眼花so乱，所以客户端可以读取所有内容
+these blindingly fast five microseconds
+each okay so the client reads everything
+
+542
+00:50:54,670 --> 00:50:58,360
+它需要读取事务，也要写入任何内容
+it needs to read for the transaction
+also anything that's going to write it
+
+543
+00:50:58,360 --> 00:51:04,330
+首先读取并且必须执行此读取必须首先读取，因为它需要
+first reads and it has to do it do this
+read has to first read because it needs
+
+544
+00:51:04,330 --> 00:51:08,830
+获取版本号初始版本号就可以了
+to get the version number
+the initial version number all right so
+
+545
+00:51:08,830 --> 00:51:14,290
+这是执行阶段，然后在事务调用TX时提交以指示
+that's the execute phase then when the
+transaction calls TX commits to indicate
+
+546
+00:51:14,290 --> 00:51:21,220
+它完全完成了您知道的TX commit调用上的库
+that it's totally done the library on
+the you know the TX commit call on on
+
+547
+00:51:21,220 --> 00:51:26,410
+客户端充当事务协调器并运行整个协议
+the client acts as a transaction
+coordinator and runs this whole protocol
+
+548
+00:51:26,410 --> 00:51:35,910
+这是两阶段提交的一种精心设计的版本，第一阶段是
+which is a kind of elaborate version of
+two-phase commit the first phase and
+
+549
+00:51:35,910 --> 00:51:40,060
+这是根据消息轮数来描述的，因此交易协调员
+that's described in terms of rounds of
+messages so the transaction coordinator
+
+550
+00:51:40,060 --> 00:51:43,660
+发送一堆LOC消息，等待它们回复然后验证
+sends a bunch of LOC messages and wait
+for them to reply and then validate
+
+551
+00:51:43,660 --> 00:51:48,250
+消息和所有回复的浪费，因此提交的第一阶段
+messages and waste for the all the
+replies so the first phase in the commit
+
+552
+00:51:48,250 --> 00:51:55,060
+协议是此阶段客户端发送的锁定费用
+protocol is the lock fees in this phase
+what the client is sending is it sends
+
+553
+00:51:55,060 --> 00:52:02,410
+对于每个主对象，对于客户端的每个对象，对象的标识
+to each primary the identity of the
+object in for each object for clients
+
+554
+00:52:02,410 --> 00:52:06,610
+并需要将更新的对象发送到相关的主对象，因此它
+written and needs to send that updated
+object to the relevant primary so it
+
+555
+00:52:06,610 --> 00:52:15,160
+将更新后的对象作为主对象发送为新对象
+sends the updated objects the primary
+and as an as a new log entry in the
+
+556
+00:52:15,160 --> 00:52:20,380
+您为此客户端知道的主要日志，因此该客户端确实已在滥用
+primaries log you know for this client
+so the client really abusing already
+
+557
+00:52:20,380 --> 00:52:27,220
+附加到主日志中的对象，它的附加对象是
+made to append to the primaries log and
+what it's appending is the object ID of
+
+558
+00:52:27,220 --> 00:52:30,820
+对象的命令要写入客户端的版本号
+the writ of the object wants to write
+the version number that the client
+
+559
+00:52:30,820 --> 00:52:36,270
+读取对象和新值时的初始读取
+initially read when it read the object
+and the new value
+
+560
+00:52:36,270 --> 00:52:42,270
+因此，它将您的电话号码和新值的对象附加到
+so it appends the object of yours number
+and new value to the primary logon for
+
+561
+00:52:42,270 --> 00:52:48,960
+它在其中写入对象的主要负责人，所以我
+the primary beach of the charge that
+it's written an object in so these I
+
+562
+00:52:48,960 --> 00:52:53,460
+猜猜这是怎么回事，这笔交易写了两个不同的
+guess what's going on here is that the
+this transaction wrote two different
+
+563
+00:52:53,460 --> 00:52:57,630
+在主对象上一个对象，在主对象上另一个对象则知道何时完成此操作
+objects one on primary one and the other
+on primary to know when this is done
+
+564
+00:52:57,630 --> 00:53:05,280
+当交易协调员恢复正常时，现在这些
+when the transaction coordinator gets
+back the well alright so now the these
+
+565
+00:53:05,280 --> 00:53:09,420
+新的日志记录位于主数据库的主日志中
+new log records are sitting in the logs
+of the primaries the primary though has
+
+566
+00:53:09,420 --> 00:53:14,370
+实际主动处理这些日志条目，因为它需要检查和
+to actually actively process these log
+entries because it needs to check and
+
+567
+00:53:14,370 --> 00:53:18,560
+他们会进行一些涉及验证的检查，以查看
+they sort of do a number of checks
+involved with validation to see if the
+
+568
+00:53:18,560 --> 00:53:23,160
+如果此主要对象是事务的一部分，则可以允许提交，因此
+if this primary is part of the
+transaction can be allowed to commit so
+
+569
+00:53:23,160 --> 00:53:30,480
+在这一点上，我们必须等待每个主数据库轮询此客户端日志
+at this point we have to wait for each
+primary to to poll the this clients log
+
+570
+00:53:30,480 --> 00:53:34,320
+在主内存中，看到有一个新的日志条目并处理该新日志
+in the primaries memory see that there's
+a new log entry and process that new log
+
+571
+00:53:34,320 --> 00:53:40,710
+条目，然后发送是或否的投票，以表明是否愿意
+entry and then send a yes-or-no vote to
+say whether it is or is not willing to
+
+572
+00:53:40,710 --> 00:53:46,280
+做好交易的一部分，那么主要交易者在交易时会做什么
+do its part of the transaction all right
+so what does the primary do when it's
+
+573
+00:53:46,280 --> 00:53:56,430
+轮询循环首先查看来自客户端的传入锁定日志条目，如果
+polling loop sees that an incoming lock
+log entry from a client first of all if
+
+574
+00:53:56,430 --> 00:54:02,040
+具有对象ID的对象当前被阻止，则主要对象
+that object with the object ID is
+currently blocked then the primary
+
+575
+00:54:02,040 --> 00:54:07,500
+拒绝此锁定消息，并使用RDMA将消息发送回客户端
+rejects this lock message and sends back
+a message to the client using RDMA
+
+576
+00:54:07,500 --> 00:54:11,790
+说不，不允许这项交易进行，我投票否， 
+saying no that this transaction cannot
+be allowed to proceed I'm voting no and
+
+577
+00:54:11,790 --> 00:54:14,940
+两阶段提交，这将导致事务协调器中止
+two-phase commit and that will cause the
+transaction coordinator to abort the
+
+578
+00:54:14,940 --> 00:54:21,030
+交易，另一个未锁定，则主要交易的下一步是
+transaction and the other is not locked
+then the next thing the primary does is
+
+579
+00:54:21,030 --> 00:54:24,150
+检查它检查的版本号，以确保该版本号
+check the version numbers it checks to
+make sure that the version number that
+
+580
+00:54:24,150 --> 00:54:28,430
+客户端发送的是最初读取的客户端的版本号是
+the client sent it that is the version
+number of the client originally read is
+
+581
+00:54:28,430 --> 00:54:34,290
+保持不变，如果版本号更改，则表示
+unchanged and if the version numbers
+changed that means that between when our
+
+582
+00:54:34,290 --> 00:54:38,760
+事务读取并且当它写入时，如果
+transaction read and when it wrote
+somebody else wrote the object if the
+
+583
+00:54:38,760 --> 00:54:41,790
+版本号已更改，因此版本号再次更改了
+version numbers changed and so the
+version numbers changed again the
+
+584
+00:54:41,790 --> 00:54:47,040
+主服务器将回答“否”，并禁止继续进行交易，但如果
+primary will respond no and forbid the
+transaction from continuing but if the
+
+585
+00:54:47,040 --> 00:54:50,840
+版本号与未设置的锁相同
+version number is the same in the lock
+that's not set
+
+586
+00:54:51,080 --> 00:55:00,480
+而主服务器将设置锁定，并向
+and the primary will set the lock and
+return a positive response back to the
+
+587
+00:55:00,480 --> 00:55:08,160
+客户端，因为主服务器的多线程在多个CPU上运行
+client now because the primary's
+multi-threaded running on multiple CPUs
+
+588
+00:55:08,160 --> 00:55:13,800
+可能还有其他事务，可能还有其他CPU在读取其他
+and there may be other transactions
+there may be other CPUs reading other
+
+589
+00:55:13,800 --> 00:55:18,900
+来自其他客户端的传入日志提示同时在同一主服务器上
+incoming log cues from other clients at
+the same time on the same primary there
+
+590
+00:55:18,900 --> 00:55:23,490
+可能是不同交易之间的竞赛或锁定了时钟记录
+may be races between different
+transactions or lock the clock record
+
+591
+00:55:23,490 --> 00:55:29,640
+尝试修改同一对象的来自不同事务的处理，因此
+processing from different transactions
+trying to modify the same object so the
+
+592
+00:55:29,640 --> 00:55:33,600
+主要实际上使用原子指令进行比较和交换
+primary actually uses an atomic
+instruction a compare and swap
+
+593
+00:55:33,600 --> 00:55:42,030
+指令以检查版本号并锁定并设置
+instruction in order to both check check
+the version number and lock and set the
+
+594
+00:55:42,030 --> 00:55:46,920
+将那个版本号锁定为原子操作，这就是原因
+lock a bit on that version number as an
+atomic operation and this is the reason
+
+595
+00:55:46,920 --> 00:55:49,770
+为什么它的锁必须在版本号的高位，以便
+why the lock of it has to be in the high
+bits of the version number so that a
+
+596
+00:55:49,770 --> 00:55:57,000
+一条指令可以对版本号和锁进行比较和交换
+single instruction can do a compare and
+swap on the version number and the lock
+
+597
+00:55:57,000 --> 00:56:05,160
+现在好一点要注意的是，如果对象已经锁定
+bit okay now one thing to note is that
+if the objects already locked
+
+598
+00:56:05,160 --> 00:56:09,000
+没有阻塞，没有等待锁释放的主要时间
+there's no blocking there's no waiting
+for the lock to be released the primary
+
+599
+00:56:09,000 --> 00:56:15,060
+只是发回一个知道是否有其他交易将其锁定好了
+simply sends back a know if some other
+transaction has it locked alright any
+
+600
+00:56:15,060 --> 00:56:23,760
+关于委员会的锁定费的问题可以追溯到趋势中
+questions about the lock fees of of
+Committee all right back in the trend
+
+601
+00:56:23,760 --> 00:56:26,520
+负责代理其交易协调员的客户
+head in the client which is acting his
+transaction coordinator it waits for
+
+602
+00:56:26,520 --> 00:56:31,950
+分片中所有原语的响应，因此对于每个
+responses from all the primaries from
+the primaries of the shard so for every
+
+603
+00:56:31,950 --> 00:56:37,050
+如果交易中有人需要，则拒绝交易
+object that the transaction modified if
+any of them say no if they need them
+
+604
+00:56:37,050 --> 00:56:39,840
+拒绝交易，然后交易协调员中止整个交易
+reject the transaction then the
+transaction coordinator aborts the whole
+
+605
+00:56:39,840 --> 00:56:43,920
+交易并实际上向所有主要机构发出消息说我
+transaction and actually sends out
+messages to all the primaries saying I
+
+606
+00:56:43,920 --> 00:56:48,990
+改变了主意，我毕竟不想做这个交易，但是如果他们
+changed my mind I don't want to commit
+this transaction after all but if they
+
+607
+00:56:48,990 --> 00:56:54,600
+所有主要答案都回答是，然后交易
+all answered yes of all the primaries
+answer yes then the transaction
+
+608
+00:56:54,600 --> 00:57:00,000
+协调员认为这决定了交易实际上可以提交，但是
+coordinator thinks that decides that the
+transaction can actually commit but the
+
+609
+00:57:00,000 --> 00:57:02,820
+初选当然不知道他们是否都投了赞成票
+primaries of course don't know whether
+they all voted yes
+
+610
+00:57:02,820 --> 00:57:07,980
+还是不这样，交易协调员必须通知每个球首要
+or not so the transaction coordinator
+has to notify every ball the primary so
+
+611
+00:57:07,980 --> 00:57:14,660
+是的，每个人都投票赞成，所以请确实做到这一点以及
+yes deed everybody voted yes so please
+do actually commit this and the way the
+
+612
+00:57:14,660 --> 00:57:20,640
+客户端这样做是通过将另一条记录附加到主服务器的日志中
+client does this is by appending another
+record to the logs of the primaries for
+
+613
+00:57:20,640 --> 00:57:26,450
+这次每个修改的对象都是提交备份记录，它是挂起的
+each modified object this time it's a
+commit backup record that it's a pending
+
+614
+00:57:26,450 --> 00:57:33,720
+这次是交易协调员，很抱歉我确实提交了
+and the this time the transaction
+coordinator I'm sorry I did commit
+
+615
+00:57:33,720 --> 00:57:37,170
+我正在跳过有效性的主节点，现在我没有谈论备份
+primary I'm skipping over valide didn't
+commit backup for now I'll talk about
+
+616
+00:57:37,170 --> 00:57:42,030
+那些以后，所以暂时忽略那些事务协调员
+those later so just ignore those for the
+moment the transaction coordinator goes
+
+617
+00:57:42,030 --> 00:57:47,340
+继续提交主笔，将笔主要提交到每个主笔日志的笔
+on to commit primary sends pens that
+commit primary to each primaries log and
+
+618
+00:57:47,340 --> 00:57:51,710
+事务协调器只需要等待硬件RDMA 
+the transaction coordinator only has to
+wait for the hardware RDMA
+
+619
+00:57:51,710 --> 00:57:58,440
+确认它不必等待主要的实际处理
+acknowledgments it doesn't have to wait
+for the primary just actually process
+
+620
+00:57:58,440 --> 00:58:02,910
+该日志记录了事务协调器，它一旦出现
+the log record the transaction
+coordinator it turns out as soon as it
+
+621
+00:58:02,910 --> 00:58:08,760
+从任何一个原语中得到一个确认，它可以返回是
+gets a single acknowledgment from any of
+the primaries it can return yes the okay
+
+622
+00:58:08,760 --> 00:58:12,950
+等于表示交易六的交易的真实性
+equals true to the transactions
+signifying that the transaction six
+
+623
+00:58:12,950 --> 00:58:20,100
+成功之后，还有另一个阶段
+succeeded and then there's another stage
+later on where the once the transaction
+
+624
+00:58:20,100 --> 00:58:24,360
+协调员知道每个主要人员都知道交易已协调
+coordinator knows that every primary
+knows that the transaction coordinated
+
+625
+00:58:24,360 --> 00:58:30,630
+提交，您可以告诉所有主数据库，他们可以丢弃所有日志
+committed you can tell all the primaries
+that they can discard all the log
+
+626
+00:58:30,630 --> 00:58:37,800
+这项交易的输入现在好了，还有最后一件事
+entries for this transaction okay now
+there's one last thing that has to
+
+627
+00:58:37,800 --> 00:58:42,410
+发生在看原木的原木民意调查长的
+happen the primaries which are looking
+at the logs their polling the Long's
+
+628
+00:58:42,410 --> 00:58:46,830
+他们会注意到在某个时候有一个提交主记录，然后
+they'll notice that there's a commit
+primary record at some point and then on
+
+629
+00:58:46,830 --> 00:58:53,100
+接收提交主日志条目的主数据库将知道它
+the primary that receives the commit
+primary log entry will it knows that it
+
+630
+00:58:53,100 --> 00:58:59,430
+之前已经锁定了该对象，并且该对象必须仍然被锁定，因此
+had locked that object previously and
+that the object must still be locked so
+
+631
+00:58:59,430 --> 00:59:03,420
+主要对象将要做的是使用新的对象更新其内存中的对象
+what the primary will do is update the
+object in its memory with the new
+
+632
+00:59:03,420 --> 00:59:07,500
+以前在锁定消息中发送的内容，我正在增加
+contents that were previously sent in
+the lock message I'm increment the
+
+633
+00:59:07,500 --> 00:59:11,130
+与该对象关联的版本号，最后清除上的锁定位
+version number associated with that
+object and finally clear the lock bit on
+
+634
+00:59:11,130 --> 00:59:16,190
+该对象，这意味着它是主要对象
+that object and what that means is that
+as soon as a primary
+
+635
+00:59:16,190 --> 00:59:21,740
+接收并处理提交主要日志消息，因为它清除了
+receives and processes a commit primary
+log message it may since it clears the
+
+636
+00:59:21,740 --> 00:59:27,079
+锁定一点并更新数据，很可能将此新数据公开给其他人
+lock a bit and updates the data it may
+well expose this new data to other
+
+637
+00:59:27,079 --> 00:59:30,920
+交易之后的其他交易都可以免费使用
+transactions other transactions after
+this point are free to use it are free
+
+638
+00:59:30,920 --> 00:59:40,720
+使用它的新值和新版本号的对象，我要
+to use the object with its new value and
+new version number all right I'm gonna
+
+639
+00:59:40,720 --> 00:59:46,520
+在开始考虑之前，先对机械提出任何问题的例子
+do an example any questions about the
+machinery before I start thinking about
+
+640
+00:59:46,520 --> 00:59:55,520
+一个例子随时可以问问题，那么一个例子怎么样
+an example feel free to ask questions
+any time alright so how about an example
+
+641
+00:59:55,520 --> 01:00:02,089
+假设我们有两个事务，事务一和事务二， 
+let's suppose we have two transactions
+transaction one and transaction two and
+
+642
+01:00:02,089 --> 01:00:09,800
+他们俩都想做同一件事，只是想增加XX是
+they're both trying to do the same thing
+they both just wanna increment X X is
+
+643
+01:00:09,800 --> 01:00:18,050
+对象坐在一些服务器内存中，所以我们两个
+the object sitting off in some servers
+memory so so both we got two
+
+644
+01:00:18,050 --> 01:00:21,050
+在我们实际调查之前，正在运行的事务
+transactions running running through
+this before we look into what actually
+
+645
+01:00:21,050 --> 01:00:26,420
+碰巧我们应该提醒自己什么是
+happens we should remind ourselves what
+the valid possibilities are for the
+
+646
+01:00:26,420 --> 01:00:32,300
+这样的结果就可以保证可序列化服务器场
+outcomes so and that's all about
+serializability farm guaranteed
+
+647
+01:00:32,300 --> 01:00:35,690
+序列化功能，这意味着无论服务器场实际做什么
+serialize ability so that means that
+whatever farm actually does it has to be
+
+648
+01:00:35,690 --> 01:00:40,220
+相当于一次执行这两个事务中的某个事务，因此
+equivalent to some one at a time
+execution of these two transactions so
+
+649
+01:00:40,220 --> 01:00:44,660
+我们可以看到，如果t1运行了，那么您将看到结果，然后严格
+we're allowed to see was the results you
+would see if t1 ran and then strictly
+
+650
+01:00:44,660 --> 01:00:50,270
+之后t2运行，或者我们可以看到如果t2运行并且随后可能发生的结果
+afterwards t2 ran or we can see the
+results that could ensue if t2 ran and
+
+651
+01:00:50,270 --> 01:00:57,230
+然后t1运行，这是现在唯一的可能性，事实上场是
+then t1 run those are the only
+possibilities now in fact farm is
+
+652
+01:00:57,230 --> 01:01:01,579
+有权中止交易，因此我们还必须考虑可能性
+entitled to abort a transaction so we
+also have to consider the possibility
+
+653
+01:01:01,579 --> 01:01:06,410
+这两个交易之一中止了，或者实际上他们都中止了我，因为
+that one of the two transactions aborted
+or indeed that they both aborted I since
+
+654
+01:01:06,410 --> 01:01:09,980
+他们都在做同一件事，但有一定的对称性
+they're doing both doing the same thing
+there's a certain amount of symmetry
+
+655
+01:01:09,980 --> 01:01:18,410
+在这里，一种可能性是他们俩都承诺，这意味着有两种
+here so one possibility is that they
+both committed and that means two
+
+656
+01:01:18,410 --> 01:01:24,940
+发生增量，因此有一个合法的可能性，即X等于2并且
+increments happen so one legal
+possibilities that X is equal to 2 and
+
+657
+01:01:25,359 --> 01:01:30,390
+无论是TX，还是必须同意事物是否
+both then the TX
+it has to agree with whether things a
+
+658
+01:01:30,390 --> 01:01:40,170
+位，中止或提交，以便两个事务都需要返回CTX提交
+bit or aborted or committed so that both
+transactions need to CTX commit returned
+
+659
+01:01:40,170 --> 01:01:46,950
+在这种情况下，确实如此，另一种可能性是，其中只有一笔交易
+true in this case another possibility is
+that only one of them transactions
+
+660
+01:01:46,950 --> 01:01:52,830
+提交，另一个终止，然后我们只想看到一个真实的
+committed and the other aborted and then
+we want to see only one true and the
+
+661
+01:01:52,830 --> 01:01:58,619
+其他错误和另一种可能性，也许他们都放弃了我们不认为
+other false and another possibilities
+maybe they both aborted we don't think
+
+662
+01:01:58,619 --> 01:02:03,720
+这可能会发生，但实际上是合法的，因此X不变
+this could necessarily happen but it's
+actually legal so that X isn't changed
+
+663
+01:02:03,720 --> 01:02:09,109
+我们希望双方都能从
+and we want both to get false back from
+
+664
+01:02:09,650 --> 01:02:18,859
+ TX commit，所以我们最好不要看到除了这三个选项以外的任何东西
+TX commit so we better better not see
+anything other than these three options
+
+665
+01:02:21,230 --> 01:02:29,089
+好的，所以当然会发生什么取决于时间，所以我要
+all right so of course what happens
+depends on the timing so I'm going to
+
+666
+01:02:31,550 --> 01:02:35,849
+集成了提交协议可以尽早使用的各种不同方式
+integrate out various different ways
+that the commit protocol could in early
+
+667
+01:02:35,849 --> 01:02:41,760
+即使是为了方便起见，我也方便地提醒您实际的提交
+even for convenience I have a handy
+reminder of what the actual commit
+
+668
+01:02:41,760 --> 01:02:51,930
+协议在这里，所以一种可能性是它们准确地按步运行
+protocol is here so one possibility is
+that they run exactly in lockstep they
+
+669
+01:02:51,930 --> 01:02:57,810
+都在同一时间发送他们的所有消息他们都在同一时间阅读
+both send all their messages at the same
+time they both read at the same time I'm
+
+670
+01:02:57,810 --> 01:03:00,810
+假设如果X和X同时读取，则X起始为零
+going to assume that X starts out as
+zero if they both read at the same time
+
+671
+01:03:00,810 --> 01:03:05,040
+我们将看到零，我想他们都在
+that we're going to see zero I assume
+they both sent out lakh messages at the
+
+672
+01:03:05,040 --> 01:03:07,430
+同时
+same time
+
+673
+01:03:08,660 --> 01:03:11,720
+实际上，它们在日志消息中附带的值为“一”，因为
+and indeed they accompany their log
+messages with the value one since
+
+674
+01:03:11,720 --> 01:03:16,309
+他们在上面加1，如果他们走路的话就提交，说是
+they're adding 1 to it and that if they
+commit if they walk messages say yes
+
+675
+01:03:16,309 --> 01:03:25,579
+那么如果他们两个都同时提交，他们就会这样做，如果这是
+then they would if they did both commit
+at the same time so if if this is the
+
+676
+01:03:25,579 --> 01:03:30,549
+场景将会发生什么，为什么
+scenario what's going to happen and why
+
+677
+01:03:31,690 --> 01:03:33,750
+您
+you
+
+678
+01:03:34,650 --> 01:03:39,960
+他们喜欢举手示意并猜测危险
+they like to raise their hand and hazard
+a guess
+
+679
+01:03:48,420 --> 01:03:52,480
+嗯，这是一个很好的领域，因为这是单方面的读不能
+well that's really good field to be
+since that's a one-sided read can't
+
+680
+01:03:52,480 --> 01:03:59,920
+可能失败，他们俩都会向所有对象发送实际上相同的步行消息
+possibly fail they're both gonna send in
+fact identical walk messages to whatever
+
+681
+01:03:59,920 --> 01:04:06,130
+主要持有对象X，我都发送相同的版本号，但一个版本
+primary holds object X and I both send
+the same version number but a version
+
+682
+01:04:06,130 --> 01:04:10,860
+他们读取的数字和相同的值，因此原色将记录为
+number they read and the same value so
+the primaries gonna see to log meant to
+
+683
+01:04:10,860 --> 01:04:16,930
+在两个不同的传入日志中记录消息，假设它们正在运行
+log messages in two different incoming
+logs assuming these are running on
+
+684
+01:04:16,930 --> 01:04:25,660
+不同的客户，现在到底发生了什么，由我们自己决定
+different clients and exactly what
+happens now is slightly left up to our
+
+685
+01:04:25,660 --> 01:04:29,920
+本文的想象力，但我认为这两个传入的日志消息可能是
+imagination by the paper but I think the
+two incoming log messages could be
+
+686
+01:04:29,920 --> 01:04:35,410
+在主节点上的不同内核上并行处理，但关键
+processed in parallel on different cores
+on the primary but the critical
+
+687
+01:04:35,410 --> 01:04:41,550
+主要的指令是原子测试，并且完全设置或比较并交换
+instruction of the primary is the atomic
+test and set or compare and swap exactly
+
+688
+01:04:41,550 --> 01:04:46,570
+某人的志愿者，其中一个将得到比较和交换的答案
+somebody's volunteer the answer that one
+of them will get to the compare and swap
+
+689
+01:04:46,570 --> 01:04:53,800
+指令优先，无论哪个核心，我猜比较和交换指令
+instruction first and whichever core I
+guess the compare and swap instruction
+
+690
+01:04:53,800 --> 01:05:00,640
+首先，它将在该对象版本上设置锁定位，然后观察
+first it'll set the lock bit on that
+objects version and will observe the
+
+691
+01:05:00,640 --> 01:05:04,990
+锁没有事先设置，每个人都执行原子
+lock a bit wasn't previously set which
+everyone executes the atomic
+
+692
+01:05:04,990 --> 01:05:08,890
+比较和交换秒将观察已经设置的锁定，我的意思是他是
+compare-and-swap second will observe the
+lock that's already set I mean he's the
+
+693
+01:05:08,890 --> 01:05:13,900
+两者之一将返回是，另外两个将失败锁定，请观察
+one of the two will return yes and the
+other two will fail the lock observe the
+
+694
+01:05:13,900 --> 01:05:19,450
+锁已经设置为未成熟否，您知道它是对称的，我只是要
+lock is already set immature no and you
+know it for symmetry I'm just going to
+
+695
+01:05:19,450 --> 01:05:25,900
+假设向主数据库的事务发送了否，则该事务向
+imagine that transaction to the primary
+sends back a no so the transaction to
+
+696
+01:05:25,900 --> 01:05:32,110
+使用客户端代码将中止事务1我已经获得了锁，并返回了yes 
+use client code will abort transaction 1
+I've got the lock got a yes back and it
+
+697
+01:05:32,110 --> 01:05:38,109
+实际上会在主要对象实际获得时提交
+will actually commit when it come
+it's when the primary actually gets the
+
+698
+01:05:38,109 --> 01:05:41,109
+提交消息，它将安装更新的对象
+commit message it'll install the updated
+object
+
+699
+01:05:41,109 --> 01:05:46,119
+你知道增量来清除锁定位增量版本并返回
+you know increments to to clear the lock
+bit increment the version and return
+
+700
+01:05:46,119 --> 01:05:55,750
+是的，这会说是正确的，因为其他主要学生发回了我， 
+true this is gonna say true because the
+other primary sent back I know that
+
+701
+01:05:55,750 --> 01:06:00,760
+表示TX提交将在此处返回false，最终值为x 
+means that TX commits gonna return false
+here and the final value would be x
+
+702
+01:06:00,760 --> 01:06:06,400
+等于那是我们允许的结果之一，但当然不是唯一的结果
+equals one that was one of our allowed
+outcomes but of course it's not the only
+
+703
+01:06:06,400 --> 01:06:16,060
+对此有任何疑问，如如何播放或广泛执行
+in are leaving any questions about how
+this played out or wide executed the way
+
+704
+01:06:16,060 --> 01:06:18,300
+它做了
+it did
+
+705
+01:06:19,890 --> 01:06:25,930
+好吧，所以还有其他可能的交织，怎么样
+okay so there's other possible
+interleavings so how about how about
+
+706
+01:06:25,930 --> 01:06:33,780
+让我们想象一下交易2首先执行拍子
+this one let's imagine that transaction
+2 does the beat first
+
+707
+01:06:33,780 --> 01:06:39,430
+她对读取的内容并发与否与事务无关紧要
+she doesn't really matter what the reads
+are concurrent or not then transaction
+
+708
+01:06:39,430 --> 01:06:43,090
+一个人不读，然后交易进行得更快一点，它得到了
+one doesn't read and then transaction
+went a little bit faster and it gets its
+
+709
+01:06:43,090 --> 01:06:50,610
+锁定消息并回复，然后返回提交，然后再提交
+lock message in and a reply and gets a
+commit back and then afterwards
+
+710
+01:06:50,610 --> 01:06:58,060
+事务二再次执行并在可能的情况下发送锁定消息
+transaction two gets going again and
+sends a lock message in if it could
+
+711
+01:06:58,060 --> 01:07:03,630
+提交，所以这次会发生什么
+commit so what happens this time
+
+712
+01:07:16,690 --> 01:07:22,670
+这个法律专员会成功吗，因为没有理由
+well is this law commissioner is gonna
+be succeed because there's no reason to
+
+713
+01:07:22,670 --> 01:07:26,780
+相信设置了锁定位，因为第二个锁定消息没有
+believe there's a lock bit is set
+because the second lock message hasn't
+
+714
+01:07:26,780 --> 01:07:31,160
+即使是已发送的消息，我们也会将锁定设置为该提交的提交消息
+even been sent message we'll set the
+lock the commit message this commit
+
+715
+01:07:31,160 --> 01:07:35,630
+主消息实际上应该稍微清除锁定，以便锁定位为
+primary message should actually clear
+the lock a bit so the lock bit will be
+
+716
+01:07:35,630 --> 01:07:49,609
+在t2普查时清除，将其锁定条目插入到主日志中，因此这
+clear by the time t2 census inserts its
+lock entry in primaries log so this the
+
+717
+01:07:49,609 --> 01:07:54,020
+主用户此时看不到锁定设置，是的，所以有人
+primary won't see the lock a bit set at
+this point yeah so somebody's
+
+718
+01:07:54,020 --> 01:08:00,140
+自愿要求该主要人员看到的是版本号，因此
+volunteered that what this primary will
+see is that the version number so the
+
+719
+01:08:00,140 --> 01:08:03,380
+锁定消息中包含交易原始版本号
+the lock message contains the version
+number the transaction to originally
+
+720
+01:08:03,380 --> 01:08:08,660
+读，所以主要的要等一会，因为提交主要
+read and so the primary is gonna see
+wait a minute this since commit primary
+
+721
+01:08:08,660 --> 01:08:12,980
+版本号的增量，主要版本会看到该版本
+increments of version number the the
+primary is gonna see that the version
+
+722
+01:08:12,980 --> 01:08:16,100
+数字是错误的，现在实际对象上的数字更高，所以它是
+number is wrong there's numbers now
+higher on the real object and so it's
+
+723
+01:08:16,100 --> 01:08:24,350
+实际上会发回一个无回应给协调员和协调员
+actually gonna send back a a no response
+to the coordinator and the coordinator
+
+724
+01:08:24,350 --> 01:08:29,420
+将中止此交易，我们将再次获得x等于1 
+is gonna abort this transaction and
+again we're gonna get x equals 1 one of
+
+725
+01:08:29,420 --> 01:08:35,988
+交易返回true，另一个返回false，与最终结果相同
+the transactions return true the other
+returned false which is the same final
+
+726
+01:08:35,988 --> 01:08:44,258
+结果与以前一样，并且允许对此有任何疑问
+
+727
+01:08:44,259 --> 01:08:51,380
+稍微不同的情况就好像并且实际上可以
+slightly different scenario would be as
+if and actually okay the slightly
+
+728
+01:08:51,380 --> 01:08:54,880
+我会想到的另一种情况是提交
+different scenario I was gonna think of
+think of was one in which the commit
+
+729
+01:08:54,880 --> 01:08:59,870
+信息被盗，它发生在此锁定之后，这与
+message was stole it happened after this
+lock this is essentially the same as the
+
+730
+01:08:59,870 --> 01:09:05,750
+此事务在此事务中设置了锁的第一种情况
+first scenario in which this transaction
+got the lock set in this transaction
+
+731
+01:09:05,750 --> 01:09:18,488
+观察到的锁好吧，每个人的最后一个场景让我们假设
+observed lock okay
+everyone one last scenario let's suppose
+
+732
+01:09:18,488 --> 01:09:21,939
+我们看到这个
+we see this
+
+733
+01:09:32,180 --> 01:09:37,149
+这次会发生什么[音乐] 
+what's going to happen this time
+[Music]
+
+734
+01:09:47,689 --> 01:09:53,309
+是的，当然有人会给出正确的答案
+
+735
+01:09:53,310 --> 01:09:56,340
+通过，因为在第一笔交易中没有争用
+through because there's no contention in
+the first transaction the second
+
+736
+01:09:56,340 --> 01:10:02,100
+事务在读取X时实际上会看到新的版本号为
+transaction when it goes to read X will
+actually see the new version number as
+
+737
+01:10:02,100 --> 01:10:07,710
+通过在主数据库上的提交主要处理增加，因此它将看到
+incremented by the commit primary
+processing on the primary so it'll see
+
+738
+01:10:07,710 --> 01:10:11,760
+新版本号不会设置的锁，因此当它转到
+the new version number the lock that
+won't be set and so then when it goes to
+
+739
+01:10:11,760 --> 01:10:19,140
+将其锁定日志条目发送到锁定了处理代码的主锁
+send its lock log entry to the primary
+lock lock that locked processing code in
+
+740
+01:10:19,140 --> 01:10:23,340
+主要公司的锁没有设置和版本是一样的不是这是
+the primary Co the locks not set and the
+version is the same hasn't this is the
+
+741
+01:10:23,340 --> 01:10:26,460
+最新版本及其所有我想提交的内容，因此，我们
+latest version and it all I want to
+commit and so for this the outcome we're
+
+742
+01:10:26,460 --> 01:10:31,290
+会看到x等于2，因为这不仅读取了新版本um 
+gonna see is x equals 2 because this
+read not only read the new version um
+
+743
+01:10:31,290 --> 01:10:40,490
+但实际上读取的是一个新值，因此在这里是不正确的， 
+but actually read the new value which
+was one so this is incorrect here and
+
+744
+01:10:40,490 --> 01:10:51,080
+对TX commit的两次调用都将为true是，正确的是x等于2 
+both calls to TX commit will be true yes
+that's right succeed it with x equals 2
+
+745
+01:10:51,080 --> 01:10:56,970
+好的，所以您知道这在这种情况下确实可以解决
+all right so you know this happened to
+work out in these cases the intuition
+
+746
+01:10:56,970 --> 01:11:03,180
+为什么乐观并发控制提供了可序列化性的原因
+behind why optimistic concurrency
+control provides serializability why it
+
+747
+01:11:03,180 --> 01:11:09,810
+为什么它基本上检查确实发生的执行与
+why it basically checks that the
+execution that did happen is the same as
+
+748
+01:11:09,810 --> 01:11:15,690
+一次执行一个人的直觉本质上是，如果没有
+a one at a time execution essentially
+the intuition is that if there was no
+
+749
+01:11:15,690 --> 01:11:19,110
+发生冲突的交易，则版本号和锁定位将不具有
+conflicting transaction then the version
+numbers and the lock bits won't have
+
+750
+01:11:19,110 --> 01:11:23,760
+如果没有其他人将这些对象弄乱了，那就改变了，你知道我会看到相同的
+changed if nobody else is messing with
+these objects you know I'll see the same
+
+751
+01:11:23,760 --> 01:11:27,690
+交易结束时的版本号，就像我们初次阅读时一样
+version numbers at the end of the
+transaction as we did when we first read
+
+752
+01:11:27,690 --> 01:11:32,190
+对象，而如果我们之间的交易发生冲突
+the object whereas if there is a
+conflicting transaction between when we
+
+753
+01:11:32,190 --> 01:11:37,780
+读取对象，当我们尝试进行更改时，该冲突
+read the object and when we try to
+commit a change and that conflicting
+
+754
+01:11:37,780 --> 01:11:43,810
+修改了一些东西，如果它真的开始提交了，我们将看到一个新的
+modified something then if it actually
+started to commit we will see a new
+
+755
+01:11:43,810 --> 01:11:48,850
+版本号或锁定位设置，以便比较版本号
+version number or a lock a bit set so
+the comparison of the version numbers
+
+756
+01:11:48,850 --> 01:11:51,190
+并在第一次读取对象与最终读取之间锁定位
+and lock bits between when you first
+read the object and when you finally
+
+757
+01:11:51,190 --> 01:11:56,370
+提交，它可以告诉您是否有其他其他提交到对象中
+commit it kind of tells you whether some
+other commits to the objects snuck in
+
+758
+01:11:56,370 --> 01:12:03,940
+当您正确使用它们时，您知道这里要记住的很酷的事情
+while you were using them all right and
+you know the cool thing to remember here
+
+759
+01:12:03,940 --> 01:12:11,140
+就是这样允许我们使用这种乐观模式进行读取
+is that this allowed us to do the reads
+the use of this optimistic schema which
+
+760
+01:12:11,140 --> 01:12:15,310
+实际上，仅当我们第一次使用允许我们执行以下操作的数据时，我们才真正检查锁
+we don't actually check the locks only
+when we first use the data allowed us to
+
+761
+01:12:15,310 --> 01:12:20,470
+使用这个非常快的一侧已经可以读取数据并
+use this extremely fast one sided
+already ma reads to read the data and
+
+762
+01:12:20,470 --> 01:12:28,210
+可以取得高性能，所以到目前为止，我在没有验证的情况下对此进行了解释， 
+get high performance ok so the way I've
+explained it so far without validate and
+
+763
+01:12:28,210 --> 01:12:34,600
+没有提交备份是系统工作的方式，但是正如我所看到的，validate是
+without commit back up is the way the
+system works but as I see validate is
+
+764
+01:12:34,600 --> 01:12:41,560
+仅读取对象但不写入并提交的一种优化
+sort of an optimization for just reading
+an object but not writing it and commit
+
+765
+01:12:41,560 --> 01:12:46,180
+作为容错计划的一部分，我想我会
+back up as part of the scheme for fault
+tolerance I think I'm gonna a few
+
+766
+01:12:46,180 --> 01:12:52,900
+我们要讲的几分钟是关于验证，所以验证阶段是
+minutes we have left I want to talk
+about validate so the validate stage is
+
+767
+01:12:52,900 --> 01:12:57,610
+这是一种用于处理我们只能由
+it's an optimization for to treat
+objects that we're only read by the
+
+768
+01:12:57,610 --> 01:13:00,880
+交易，而且我还没有写信，如果
+transaction and I'm not written and it's
+going to be particularly interesting if
+
+769
+01:13:00,880 --> 01:13:05,920
+这是一个直接的只读事务，它没有进行任何修改，您知道
+it's a straight read-only transaction
+that modified nothing and you know the
+
+770
+01:13:05,920 --> 01:13:11,290
+最优化的是，交易协调员可以
+optimization is that it's going to be
+that the transaction coordinator can
+
+771
+01:13:11,290 --> 01:13:15,460
+用非常快的单面读取而不是单面执行验证
+execute the validate with a one-sided
+read that's extremely fast rather than
+
+772
+01:13:15,460 --> 01:13:20,140
+不得不在日志上放一些东西并等待主要的人看到我们的日志
+having to put something on a log and
+wait for the primary to see our log
+
+773
+01:13:20,140 --> 01:13:24,700
+进入并考虑它，这样可以验证单面B将是
+entry and think about it so this
+validates one-sided B is going to be
+
+774
+01:13:24,700 --> 01:13:28,990
+快得多，它将本质上替换仅用于对象的锁
+much much faster it's gonna essentially
+replace lock for objects that would only
+
+775
+01:13:28,990 --> 01:13:32,100
+读起来会更快
+read it's gonna be much faster
+
+776
+01:13:35,210 --> 01:13:41,900
+基本上这里发生的是验证操作是
+basically what's going on here is that
+the what what the validate does is the
+
+777
+01:13:41,900 --> 01:13:46,610
+事务协调器refetch是对象标头，因此您知道
+transaction coordinator refetch is the
+object header so you know it would have
+
+778
+01:13:46,610 --> 01:13:51,380
+在执行阶段读取对象时，说一个对象
+read an object say this object in the
+execute phase when it's committing it
+
+779
+01:13:51,380 --> 01:13:56,900
+而不是发送锁定消息，而是获取对象命中标头并检查
+instead of sending a lock message it be
+fetches the object hit header and checks
+
+780
+01:13:56,900 --> 01:14:01,940
+现在的版本号是否与第一次时的版本号相同
+whether the version number now is the
+same as the version number when it first
+
+781
+01:14:01,940 --> 01:14:10,070
+读取对象，它还会检查它的锁是否清楚，所以这就是
+read the object and it also checks if
+the lock of it is clear so so that's how
+
+782
+01:14:10,070 --> 01:14:12,110
+它可以正常工作，而不是设置锁定消息
+it works
+so instead of setting a lock message
+
+783
+01:14:12,110 --> 01:14:17,990
+发送此验证消息对于只读操作应该要快得多，因此
+send this validate message should be
+much faster for a read-only operation so
+
+784
+01:14:17,990 --> 01:14:23,660
+让我提出另一个交易示例并运行它的工作方式
+let me put up another transaction
+example and run through it how it works
+
+785
+01:14:23,660 --> 01:14:32,630
+假设x和y最初为0，如果X相等，则有两个事务t1 
+let's suppose x and y are initially 0 we
+have two transactions t1 if X is equal
+
+786
+01:14:32,630 --> 01:14:43,870
+归零，则y等于1，T 2表示Y是否为零
+to zero set y equal one and T two says
+if Y is zero
+
+787
+01:14:44,670 --> 01:14:51,579
+说x等于1，但这绝对是对强项的经典检验
+said x equals one but this is a
+absolutely classic test for strong
+
+788
+01:14:51,579 --> 01:15:00,820
+一致性，如果执行是可序列化的，它将是t1 
+consistency if the execution is
+serializable it's going to be either t1
+
+789
+01:15:00,820 --> 01:15:07,030
+然后是t2或t2和t1 
+then t2 or t2 and t1 it's got to get to
+see any you know corrected
+
+790
+01:15:07,030 --> 01:15:10,900
+实现必须获得相同的结果，一次运行一次
+implementation has to get the same
+results it's running them one at a time
+
+791
+01:15:10,900 --> 01:15:18,909
+如果运行T 1然后运行t2，则y等于1，x等于0，因为
+if you run T 1 and then t2 you're gonna
+get y equals 1 and x equals 0 because
+
+792
+01:15:18,909 --> 01:15:22,329
+第二个if语句Y已经为1，第二个if语句不起作用
+the second if statement Y is already 1
+the second if statement won't do
+
+793
+01:15:22,329 --> 01:15:31,050
+任何东西，对称地，这将使您x等于1，y等于0且
+anything and symmetrically this will
+give you x equals 1 and y equals 0 and
+
+794
+01:15:31,050 --> 01:15:36,489
+事实证明，如果您都放弃了，则x等于0 y等于0 
+it turns out that if you if they both
+abort you can get x equals 0 y equals 0
+
+795
+01:15:36,489 --> 01:15:45,010
+但是绝对不允许您得到的是x等于1 y等于1那是
+but what you are absolutely not allowed
+to get is x equals 1 y equals 1 that's
+
+796
+01:15:45,010 --> 01:15:47,340
+不允许
+not allowed
+
+797
+01:15:48,269 --> 01:15:56,409
+好的，所以我们正在寻找如何将其用作测试，看看会发生什么
+ok so we're looking for how I'm going to
+use this as a test see what happens with
+
+798
+01:15:56,409 --> 01:16:04,989
+验证，我们再次假设这两个事务执行得最多， 
+validate and again we're gonna suppose
+these two transactions execute most so
+
+799
+01:16:04,989 --> 01:16:11,530
+很明显，他们绝对同时执行它，而且吃掉了
+obvious cases they execute it absolutely
+at the same time and it eat that's the
+
+800
+01:16:11,530 --> 01:16:21,659
+这是最困难的情况，因为我们读过X遇见Y 
+that's the hardest case okay so as we
+have read of X meet Y
+
+801
+01:16:27,719 --> 01:16:35,250
+为什么，因为我们写了它并锁定了，为什么在这里我在这里锁定了X 
+why because we wrote it and lock why
+here I sort of lock X here but since now
+
+802
+01:16:35,250 --> 01:16:39,000
+我们正在使用这种只读的验证优化功能，这意味着该操作必须
+we're using this read-only a validation
+optimization that means this one has to
+
+803
+01:16:39,000 --> 01:16:43,560
+验证为什么这个必须验证X您知道它是红色的X但没有写
+validate why this one has to validate X
+you know it's a red X but didn't write
+
+804
+01:16:43,560 --> 01:16:47,010
+所以它会更快地验证它，也许会提交
+it so it's going to validate it much
+quicker and maybe it's going to commit
+
+805
+01:16:47,010 --> 01:16:53,160
+也许是，所以问题是我们是否按照我的描述使用了此验证
+and maybe it's and so the question is if
+we use this validate as I described it
+
+806
+01:16:53,160 --> 01:16:56,610
+只是检查版本号并锁定，但没有版本号
+that just checks the version number and
+lock but haven't the version number
+
+807
+01:16:56,610 --> 01:17:03,560
+锁没有改变但没有设置，我们会得到一个正确的答案
+hasn't changed in the lock but isn't set
+will we get a a correct answer
+
+808
+01:17:22,599 --> 01:17:29,469
+并且实际上没有两个验证都会因为两个失败而失败
+and no actually both the validation is
+gonna fail for both because when these
+
+809
+01:17:29,469 --> 01:17:33,489
+ LOC消息是由相关的主要对象处理的，它们导致LOC 
+LOC messages were processed by the
+relevant primaries they cause the LOC a
+
+810
+01:17:33,489 --> 01:17:38,710
+最初只是被设置的原因大概是清除锁定的原因
+bit just to be set initially presumably
+the the reason okay did a cleared lock
+
+811
+01:17:38,710 --> 01:17:44,949
+ bin，但是当客户进行单方面验证时， 
+bin but when we come to validate even
+though the client is doing the one-sided
+
+812
+01:17:44,949 --> 01:17:50,860
+读取X＆Y的对象标头后，将看到由设置的锁定位
+read of the object header for X&Y it's
+gonna see the lock bit that was set by
+
+813
+01:17:50,860 --> 01:17:54,900
+这些锁定请求的处理
+the processing of these lock requests
+
+814
+01:17:55,320 --> 01:17:59,800
+因此，他们俩都将看到仅在对象上设置的锁定位
+and so they're both gonna see the lock
+bits set on the object that they merely
+
+815
+01:17:59,800 --> 01:18:08,289
+读取，它们都将中止，并且X和Y都不会被修改，因此
+read and they're both going to abort and
+neither X nor Y will be modified and so
+
+816
+01:18:08,289 --> 01:18:12,429
+那是有人注意到的正确法律结果之一
+that was one of the legal outcomes
+that's right somebody somebody notice
+
+817
+01:18:12,429 --> 01:18:19,570
+确实，这两个验证当然都会失败，有时
+this indeed both validates will fail
+another of course sometimes that a
+
+818
+01:18:19,570 --> 01:18:27,519
+交易可以通过，这确实可以解决
+transaction can go through and here's a
+scenario in which it does work out
+
+819
+01:18:27,519 --> 01:18:33,840
+这是交易之一，验证更快
+this was transaction one is a little
+faster validates
+
+820
+01:18:43,830 --> 01:18:50,680
+好吧，所以交易会发生什么快一点
+all right so what's going to happen a
+transaction one is a little bit faster
+
+821
+01:18:50,680 --> 01:19:07,120
+所以这次验证将成功，因为什么都没发生
+so this time it's validates gonna
+succeed because nothing has happened to
+
+822
+01:19:07,120 --> 01:19:12,670
+事务1何时读取它与它何时验证之间的X大概是锁
+X between when transaction 1 read it and
+when it validated so presumably the lock
+
+823
+01:19:12,670 --> 01:19:15,790
+也顺利通过，因为这里也没有人修改Y 
+also went through without any trouble
+because nobody's modified Y here either
+
+824
+01:19:15,790 --> 01:19:21,520
+所以主要对此回答是肯定的，单面阅读显示没有变化
+so the primary answered yes for this the
+one-sided read revealed an unchanged
+
+825
+01:19:21,520 --> 01:19:26,890
+版本号和锁定位在此处，因此事务一可以提交，它将
+version number and lock bit here and so
+transaction one can commit and it will
+
+826
+01:19:26,890 --> 01:19:32,440
+已经增加了Y，但是如果这是主要
+have incremented Y but by this point if
+this is the order when the primary
+
+827
+01:19:32,440 --> 01:19:38,740
+当主进程是X的锁时，进程实际上就是这个
+process is this actually when the
+primary process is lock of X this will
+
+828
+01:19:38,740 --> 01:19:43,840
+也没有问题，因为当
+also go through with no problem because
+nobody's modified X when the primary for
+
+829
+01:19:43,840 --> 01:19:51,460
+ Y抱歉，当客户端运行时，Y为Y处理验证
+Y processes the validate for Y though
+it's I'm sorry when the client running
+
+830
+01:19:51,460 --> 01:19:57,400
+事务2 refetch是版本号y解锁的
+transaction two refetch is the version
+number unlocked it for y it's either
+
+831
+01:19:57,400 --> 01:20:02,050
+会真正看到这取决于委员会是否在提交时进行
+gonna see this really depends on whether
+the committee's happen if the commit
+
+832
+01:20:02,050 --> 01:20:05,320
+尚未发生这个有效的a将看到锁定位已设置，因为它
+hasn't happened yet this valid a will
+see that the lock bit is set because it
+
+833
+01:20:05,320 --> 01:20:09,640
+如果已经发生提交，则将其设置回此处，然后将其锁定位
+was set back here if the commit has
+happened already then the lock bit of
+
+834
+01:20:09,640 --> 01:20:13,270
+会很清楚，但这可以验证单面阅读器会看到不同的结果
+will be clear but this validate
+one-sided reader will see a different
+
+835
+01:20:13,270 --> 01:20:18,910
+版本号比最初看到的要多，这需要有人
+version number than was originally seen
+and it needs somebody it's just this
+
+836
+01:20:18,910 --> 01:20:23,280
+回答，这样一个人就会提交，这样一个事务就会提交， 
+answer so one will commit so that
+transaction one will commit and
+
+837
+01:20:23,280 --> 01:20:27,460
+交易将终止，尽管我没有时间说话
+transaction to will abort
+and although I don't have time to talk
+
+838
+01:20:27,460 --> 01:20:31,300
+关于它，如果有直接的只读事务，那么就没有
+about it here if there's a straight
+read-only transaction then there doesn't
+
+839
+01:20:31,300 --> 01:20:35,290
+需要是一个锁定阶段，而不必是纯粹的提交阶段
+need to be a locking phase and there
+doesn't need to be a commit phase pure
+
+840
+01:20:35,290 --> 01:20:39,670
+只读交易只需阅读盲读即可完成
+read-only transactions can be done with
+just just reading blind reads for the
+
+841
+01:20:39,670 --> 01:20:42,360
+读取对不起的单面RDMA读取
+reads
+sorry one-sided RDMA reads for the reads
+
+842
+01:20:42,360 --> 01:20:46,240
+一方面我已经阅读了验证信息，所以它们非常快
+one-sided already me reads for the
+validates and so they're extremely fast
+
+843
+01:20:46,240 --> 01:20:52,300
+只读事务是，不需要任何工作， 
+read-only transactions are and don't
+require any work any attention by the
+
+844
+01:20:52,300 --> 01:20:58,080
+服务器如此，这是您知道的核心
+server
+so and this is at the heart you know
+
+845
+01:20:58,080 --> 01:21:04,070
+趋势这些阅读，尽管关于农场的一切都非常
+trends these reads and indeed though
+everything about farm is very
+
+846
+01:21:04,070 --> 01:21:09,630
+简化-部分由于我们的DMA，并且使用OCC，因为它基本上是
+streamlined - partially due to our DMA
+and it uses OCC because it's basically
+
+847
+01:21:09,630 --> 01:21:15,720
+为了能够在不检查锁的情况下进行读取，有一个
+forced to in order to be able to do
+reads without checking locks there are a
+
+848
+01:21:15,720 --> 01:21:18,930
+尽管事实证明乐观的并发控制确实很少
+few brown downsides though it turns out
+optimistic concurrency control really
+
+849
+01:21:18,930 --> 01:21:23,070
+如果冲突相对较少，那么冲突最有效
+works best if there's relatively few
+conflicts if there's conflicts all the
+
+850
+01:21:23,070 --> 01:21:27,570
+时间到了，交易将不得不进行，有一个你知道的
+time then transactions will have to
+board and there's a you know a bunch of
+
+851
+01:21:27,570 --> 01:21:31,950
+我已经提到过的其他限制，例如数据场都必须适合
+other restrictions I already mentioned
+like on farm like the data must all fit
+
+852
+01:21:31,950 --> 01:21:35,190
+在RAM和所有计算机中必须表示相同的数据中心
+in the RAM and all the computers must
+mean that the same data center
+
+853
+01:21:35,190 --> 01:21:41,670
+尽管如此，这在当时还是被认为是非常令人惊讶的
+nevertheless this was viewed at the time
+and still as just a very surprisingly
+
+854
+01:21:41,670 --> 01:21:48,060
+高速执行分布式事务的速度比
+high-speed implementation of distributed
+transactions like just much faster than
+
+855
+01:21:48,060 --> 01:21:54,630
+任何在生产中使用的系统，的确，硬件涉及
+any system in sort of in production use
+and it's true that Hardware involves a
+
+856
+01:21:54,630 --> 01:21:58,020
+有点异国情调，实际上取决于这种非易失性Ram方案， 
+little bit exotic and really depends on
+this non-volatile Ram scheme and it
+
+857
+01:21:58,020 --> 01:22:04,460
+取决于这些特殊的RDMA NIC，而现在还不那么普遍
+depends on these special RDMA NICs and
+those are not particularly pervasive now
+
+858
+01:22:04,460 --> 01:22:09,540
+但是您可以，但是可以得到它们，并且具有这样的性能，似乎很可能
+but you do but you can get them and with
+performance like this it seems likely
+
+859
+01:22:09,540 --> 01:22:14,520
+他们将同时在观看并且已经在我身上最终将变得非常普遍
+that they'll both in viewing and already
+me will eventually be pretty pervasive
+
+860
+01:22:14,520 --> 01:22:19,710
+在数据中心中，以便人们可以玩这类游戏，这就是我的全部
+in data centers so that people can play
+these kind of games and that's all I
+
+861
+01:22:19,710 --> 01:22:26,270
+必须说关于农场的问题，如果有人有，如果没有，很高兴提出任何疑问
+have to say about farm happy to take any
+questions if anybody has some and if not
+
+862
+01:22:26,270 --> 01:22:31,320
+下周我会再见到你，也许你很高兴知道
+I'll see you next week with a spark
+which is you may be happy to know
+
+863
+01:22:31,320 --> 01:22:35,620
+绝对不是我听到大家再见的交易
+absolutely not about transactions I
+heard everyone bye-bye
+
+864
+01:22:35,620 --> 01:22:38,500
+ [音乐] 
+[Music]
+
