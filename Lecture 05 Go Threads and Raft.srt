@@ -1,0 +1,5173 @@
+1
+00:00:00,520 --> 00:00:06,220
+嘿，TAS将就并发性进行演讲，并且基本上
+hey the TAS are going to be giving a
+lecture on concurrency and go basically
+
+2
+00:00:06,220 --> 00:00:10,510
+本讲座将充满设计模式和实用技巧， 
+this lecture is going to be full of
+design patterns and practical tips to
+
+3
+00:00:10,510 --> 00:00:15,490
+帮助您进行实验，我们将简要介绍代码存储模型
+help you with the labs we're going to be
+covering briefly the code memory model
+
+4
+00:00:15,490 --> 00:00:18,820
+我们读完之后的阅读，然后大部分的演讲都在谈论
+the reading which we went over and then
+spend most of the lecture talking about
+
+5
+00:00:18,820 --> 00:00:22,660
+并发原语，并发模式，以及如何做
+concurrency primitives and go
+concurrency patterns and go how you do
+
+6
+00:00:22,660 --> 00:00:26,230
+您需要在实验室中做的事情，然后最后我们将讨论
+things that you will need to do in the
+labs and then finally we'll talk through
+
+7
+00:00:26,230 --> 00:00:29,410
+一些调试技巧和技术，并向您展示一些有趣的工具
+some debugging tips and techniques and
+show you some interesting tools that you
+
+8
+00:00:29,410 --> 00:00:34,570
+可能想在调试实验室时使用，因此在运行中非常简短地使用内存
+might want to use when debugging the
+labs so very briefly on the go memory
+
+9
+00:00:34,570 --> 00:00:38,829
+以读数为模型，为什么我们要很好地分配此读数，目标是
+model on the reading so why did we
+assign this reading well the goal was to
+
+10
+00:00:38,829 --> 00:00:43,149
+给您一些编写线程代码的正确方法的具体示例，以及
+give you some concrete examples of
+correct ways to write threaded code and
+
+11
+00:00:43,149 --> 00:00:46,360
+因此，像文档后半部分中的文档中有一些示例
+go so the document like in the second
+half of the document has some examples
+
+12
+00:00:46,360 --> 00:00:51,130
+破解代码和不正确的代码以及它可能如何出错所以一件事
+of crack code and an incorrect code and
+how it can go wrong so one thing you
+
+13
+00:00:51,130 --> 00:00:54,790
+可能已经在文档的早期注意到它说如果您需要阅读和
+might have noticed in the document is
+early on it says if you need to read and
+
+14
+00:00:54,790 --> 00:00:58,590
+了解这一点，您太聪明了，我们认为这是个好建议，因此
+understand this you're being too clever
+and we think that that's good advice so
+
+15
+00:00:58,590 --> 00:01:03,309
+专注于如何编写正确的代码，不要过多地关注之前发生的事情
+focus on how to write correct code don't
+focus way too much on the happens before
+
+16
+00:01:03,309 --> 00:01:06,819
+关系并能够推理出为什么不正确的代码不正确
+relation and being able to reason about
+exactly why incorrect code is incorrect
+
+17
+00:01:06,819 --> 00:01:09,369
+就像我们不在乎，我们只想能够编写正确的代码， 
+like we don't really care we just want
+to be able to write correct code and
+
+18
+00:01:09,369 --> 00:01:13,959
+称它为一天讲课中出现的一个问题
+call it a day
+one question that came up in the lecture
+
+19
+00:01:13,959 --> 00:01:18,459
+问题就像谈论与性能相关的goroutines 
+questions was like talking about
+goroutines in relation to performance
+
+20
+00:01:18,459 --> 00:01:22,479
+所以我们只想说goroutine和一般
+and so we just wanted to say that
+goroutines and like in general
+
+21
+00:01:22,479 --> 00:01:26,799
+并发有多种不同的原因，而我们使用的原因
+concurrency can be used for a couple
+different reasons and the reason we use
+
+22
+00:01:26,799 --> 00:01:30,909
+实验室中的并发并不一定像我们
+concurrency in the labs is not
+necessarily for performance like we're
+
+23
+00:01:30,909 --> 00:01:34,840
+不要在单台机器上使用多个内核进行并行处理
+not going for parallelism using multiple
+cores on a single machine in order to be
+
+24
+00:01:34,840 --> 00:01:38,109
+能够在CPU并发性上做更多的工作为我们带来了其他好处
+able to do more work on the CPU
+concurrency gets us something else
+
+25
+00:01:38,109 --> 00:01:42,639
+除了通过并行性实现性能之外，它还可以使我们成为更好的专家Civet ii 
+besides performance through parallelism
+it can get us better expert Civet ii
+
+26
+00:01:42,639 --> 00:01:46,419
+就像我们想写下一些想法，恰好是写下来
+like we want to write down some ideas
+and it happens to be that writing down
+
+27
+00:01:46,419 --> 00:01:51,399
+使用线程的代码是表达这些想法的一种干净方法，因此
+code that uses threads is a clean way of
+expressing those ideas and so the
+
+28
+00:01:51,399 --> 00:01:55,929
+得出的结论是，当您在实验2和更高版本中使用线程时，请勿尝试
+takeaway from that is when you use
+threads in lab 2 and Beyond don't try to
+
+29
+00:01:55,929 --> 00:01:59,169
+做一些您想提高性能（特别是CPU）时可能要做的事情
+do fancy things you might do if you're
+going for performance especially CPU
+
+30
+00:01:59,169 --> 00:02:02,439
+像我们不关心做的事情，例如使用细粒度锁定
+performance like we don't care to do
+things like using fine-grained locking
+
+31
+00:02:02,439 --> 00:02:08,348
+或其他技术基本上使用了易于使用的代码
+or other techniques use basically write
+code that's easy to reason about use big
+
+32
+00:02:08,348 --> 00:02:12,340
+锁来保护较大的关键部分，就像不用担心
+locks to protect large critical sections
+and just like don't worry about
+
+33
+00:02:12,340 --> 00:02:16,410
+ CPU性能意义上的性能
+performance in the sense of CPU
+performance
+
+34
+00:02:16,540 --> 00:02:20,360
+这就是我们要说的有关内存模型和花费的全部信息
+so with that that's all we're going to
+say about the memory model and spend
+
+35
+00:02:20,360 --> 00:02:25,580
+本讲座的大部分内容仅讨论go代码和并发模式，以及
+most of this lecture just talking about
+go code and go concurrency patterns and
+
+36
+00:02:25,580 --> 00:02:28,640
+当我们浏览这些示例时，请随时询问有关什么是什么的任何问题。 
+as we go through these examples feel
+free to ask any questions about what's
+
+37
+00:02:28,640 --> 00:02:32,750
+在屏幕上或您可能会想到的其他任何东西上，所以我将开始
+on the screen or anything else you might
+think about so I'm going to start off
+
+38
+00:02:32,750 --> 00:02:37,879
+谈论并发原语，所以首先要做的是关闭
+talking about concurrency primitives and
+go so the first thing is closures this
+
+39
+00:02:37,879 --> 00:02:41,870
+在实验室中几乎肯定会有帮助，这是
+is something that will almost certainly
+be helpful in the labs and this is
+
+40
+00:02:41,870 --> 00:02:46,430
+与go例程相关，所以这是屏幕上的示例程序，以及
+related to go routines so here's this
+example program on the screen and what
+
+41
+00:02:46,430 --> 00:02:50,239
+它确实是主函数声明了一堆变量，然后产生这个变量
+it does is the main function declares a
+bunch of variables and then spawns this
+
+42
+00:02:50,239 --> 00:02:53,390
+使用go语句在这里进行例行检查，我们注意到得分
+go routine in here with this go
+statement and we noticed that the score
+
+43
+00:02:53,390 --> 00:02:57,650
+例程不将其作为参数调用定义的某些函数
+routine is not taking it as an argument
+a function call to some function defined
+
+44
+00:02:57,650 --> 00:03:01,400
+其他地方，但是这个匿名函数只是在这里定义的，所以这是一个
+elsewhere but this anonymous function
+just defined in line here so this is a
+
+45
+00:03:01,400 --> 00:03:04,760
+方便的模式，这被称为闭包，与此有关的一件整洁的事情是
+handy pattern this is something called a
+closure and one neat thing about this is
+
+46
+00:03:04,760 --> 00:03:08,480
+此处定义的函数可以引用来自
+that this function that's defined here
+can refer to variables from the
+
+47
+00:03:08,480 --> 00:03:12,709
+封闭范围，例如，此功能可以使该变量
+enclosing scope so for example this
+function can mutate this variable a
+
+48
+00:03:12,709 --> 00:03:19,549
+是在这里定义的，或者是在这里定义的这个体重组
+that's defined up here or refer to this
+weight group that's defined up here so
+
+49
+00:03:19,549 --> 00:03:24,139
+如果我们运行此示例，它会执行您认为的操作
+if we go run this example it does what
+you think it does
+
+50
+00:03:24,139 --> 00:03:29,419
+重量组点在这里完成让我们继续主线程到此为止
+the weight group dot done here let's the
+main thread continue past this point it
+
+51
+00:03:29,419 --> 00:03:32,329
+打印出该变量，该变量已被并发运行
+prints out this variable which has been
+mutated by this concurrently running
+
+52
+00:03:32,329 --> 00:03:38,690
+在此重量发生之前完成的线程，因此这是一种有用的模式
+thread that finished before this weight
+happened so this is a useful pattern to
+
+53
+00:03:38,690 --> 00:03:46,549
+能够像我们这样指出的原因是因为您可能
+be able to use one like the reason we're
+pointing this out is because you might
+
+54
+00:03:46,549 --> 00:03:50,090
+在您的实验室中具有类似于以下代码的代码
+have code that looks like this in your
+labs very similar to the previous
+
+55
+00:03:50,090 --> 00:03:53,630
+例子，除了这是在循环中产生一堆线程的代码
+example except this is code that is
+spawning a bunch of threads in a loop
+
+56
+00:03:53,630 --> 00:03:58,280
+例如，这在您要并行发送我们的个人计算机时非常有用
+this is useful for example when you want
+to send our pcs in parallel right so
+
+57
+00:03:58,280 --> 00:04:02,540
+就像在实验二中，如果您有候选人要投票
+like in lab two if you have a candidate
+asking for votes you want to ask for
+
+58
+00:04:02,540 --> 00:04:06,169
+来自所有关注者的并行投票，而不是一个又一个的投票，因为RPC 
+votes from all the followers in parallel
+not one after the other because the RPC
+
+59
+00:04:06,169 --> 00:04:09,470
+是一项封锁作业，可能需要一些时间，或者类似的领导者可能
+is a blocking operation that might take
+some time or similarly the leader might
+
+60
+00:04:09,470 --> 00:04:12,470
+希望将附加条目发送给要并行执行的所有关注者
+want to send append entries to all the
+followers you want to do it in parallel
+
+61
+00:04:12,470 --> 00:04:17,060
+不是串联的，所以线程是表达此想法的一种干净方法，因此您
+not in series and so threads are a clean
+way to express this idea and so you
+
+62
+00:04:17,060 --> 00:04:20,630
+在for循环中，您的代码可能看起来像这样
+might have code that looks kind of like
+this at a high level in a for loop you
+
+63
+00:04:20,630 --> 00:04:24,860
+产生一堆go例程这里要注意的一件事是
+spawn a bunch of go routines one thing
+to be careful about here this is
+
+64
+00:04:24,860 --> 00:04:27,460
+在上一讲中已经讨论过的东西
+something that was talked about in a
+previous lecture
+
+65
+00:04:27,460 --> 00:04:33,250
+是标识符捕获，goroutines和外部标识符的突变
+is identifier capture and goroutines and
+mutation of that identifier in the outer
+
+66
+00:04:33,250 --> 00:04:37,000
+范围，所以我们在这里看到我们的眼睛被这个突变了
+scope so we see here that we have this
+eye that's being mutated by this for
+
+67
+00:04:37,000 --> 00:04:41,440
+循环，然后我们想在平方根和方法中使用该值
+loop and then we want to use that value
+inside the square root een and the way
+
+68
+00:04:41,440 --> 00:04:44,740
+我们这样做就像编写此代码的正确方法是传递此值
+we do that like the correct way of
+writing this code is to pass this value
+
+69
+00:04:44,740 --> 00:04:49,300
+我作为该函数和该函数的参数，也可以将其重命名为X 
+I as an argument to this function and
+this function or you can rename it to X
+
+70
+00:04:49,300 --> 00:04:53,220
+在这里，然后使用里面的值，所以如果我们运行此程序
+inside here and then use the value
+inside and so if we run this program
+
+71
+00:04:53,220 --> 00:04:57,039
+所以在这里我有点想发送PC的东西实际上只是打印的东西
+so here I've kind of stubbed out to send
+our PC thing was actually just prints
+
+72
+00:04:57,039 --> 00:05:01,449
+出来的索引，我可能就像跟随者尝试发送一个索引的索引
+out the index this I might be like the
+index of the follower trying to send an
+
+73
+00:05:01,449 --> 00:05:06,130
+ RPC到这里以某种顺序打印数字0到4，所以这就是
+RPC to here prints out the numbers 0
+through 4 in some order so this is what
+
+74
+00:05:06,130 --> 00:05:09,639
+我们希望像将PC发送给所有关注者那样，向我们展示您的原因
+we want like send our PCs to all the
+followers the reason we're showing you
+
+75
+00:05:09,639 --> 00:05:13,750
+这段代码是因为这段代码有些变化，看起来非常相似
+this code is because there's a variation
+of this code which looks really similar
+
+76
+00:05:13,750 --> 00:05:16,539
+也许直觉上您可能会认为它做对了，但实际上
+and maybe intuitively you might think it
+does the right thing but in fact it
+
+77
+00:05:16,539 --> 00:05:21,520
+并非如此，在此代码中唯一更改的是我们摆脱了
+doesn't so in this code the only thing
+that's changed is we've gotten rid of
+
+78
+00:05:21,520 --> 00:05:26,440
+在这里，我们明确地传递了这个论点，相反，我们让我
+this argument here that we're explicitly
+passing and instead we're letting this I
+
+79
+00:05:26,440 --> 00:05:30,250
+从外部观察镜指向眼睛，所以您可能会认为
+refer to the eye from the outer scope so
+you might think that when you run this
+
+80
+00:05:30,250 --> 00:05:35,849
+它执行相同的操作，但实际上在此特定运行中它已打印4 5 5 5 5 
+it does the same thing but in fact in
+this particular run it printed 4 5 5 5 5
+
+81
+00:05:35,849 --> 00:05:41,500
+所以这样做会做错事，原因是我正在
+so this would do the wrong thing and the
+reason for this is that this I is being
+
+82
+00:05:41,500 --> 00:05:45,190
+被这个外部范围和这个go例程实际结束的时间所改变
+mutated by this outer scope and by the
+time this go routine ends up actually
+
+83
+00:05:45,190 --> 00:05:49,599
+很好地执行此行，for循环已经更改了I的值，因此
+executing this line well the for loop
+has already changed the value of I so
+
+84
+00:05:49,599 --> 00:05:54,940
+这不会做正确的事情，因此，如果您正在生成goroutine，那么在较高的层次上
+this doesn't do the right thing so at a
+high level if you're spawning goroutines
+
+85
+00:05:54,940 --> 00:06:00,460
+只需确保在此处使用此模式，一切都会
+in a loop just make sure that you use
+this pattern here and everything will
+
+86
+00:06:00,460 --> 00:06:05,080
+处理有关此问题的任何问题，所以就像一个小陷阱，但是
+work right any questions about that
+so it's just like a small gotcha but
+
+87
+00:06:05,080 --> 00:06:07,180
+我们在办公时间内已经看过很多次了，所以我只想
+we've seen this a whole bunch of times
+in office hours so I just wanted to
+
+88
+00:06:07,180 --> 00:06:13,419
+指出这一点没关系，所以转到其他可能需要的模式
+point this out all right so moving on to
+other patterns that you might want to
+
+89
+00:06:13,419 --> 00:06:19,300
+经常在您的代码中使用您想要定期执行某项操作的代码
+use in your code oftentimes you want
+code that periodically does something a
+
+90
+00:06:19,300 --> 00:06:24,729
+一种非常简单的方法是拥有一个无限的独立函数
+very simple way to do that is to have a
+separate function that in an infinite
+
+91
+00:06:24,729 --> 00:06:29,470
+在这种情况下，循环会执行某些操作，我们只是打印出刻度，然后使用它
+loop does something in this case we're
+just printing out tick and then use this
+
+92
+00:06:29,470 --> 00:06:34,419
+时间点睡眠，等待一定的时间，所以非常简单的模式
+time dot sleep to wait for a certain
+amount of time so very simple pattern
+
+93
+00:06:34,419 --> 00:06:36,070
+在这里，您不需要任何比
+here
+you don't need anything fancier than
+
+94
+00:06:36,070 --> 00:06:39,270
+定期做某事
+this to do something periodically
+
+95
+00:06:41,400 --> 00:06:44,980
+您可能想要的一种修改是您想要做某事
+one modification of this that you might
+want is you want to do something
+
+96
+00:06:44,980 --> 00:06:49,270
+定期直到发生某件事，例如您可能要启动一个
+periodically until something happens for
+example you might want to start up a
+
+97
+00:06:49,270 --> 00:06:54,850
+在这里漂流，然后定期发送心跳，但是当我们将点击
+raft here and then periodically send
+heartbeats but when we call dot kill on
+
+98
+00:06:54,850 --> 00:06:58,180
+您要实际关闭所有这些goroutine的筏实例，因此您
+the raft instance you want to actually
+shut down all these goroutines so you
+
+99
+00:06:58,180 --> 00:07:01,780
+不要让所有这些随机goroutine仍在后台运行，因此
+don't have all these random goroutines
+still running in the background and so
+
+100
+00:07:01,780 --> 00:07:08,200
+模式看起来像这样，您有一个goroutine，它将
+the pattern for that looks something
+like this you have a goroutine that will
+
+101
+00:07:08,200 --> 00:07:13,240
+无限循环运行并执行某些操作，然后稍等片刻，然后
+run in an infinite loop and do something
+and then wait for a little bit and then
+
+102
+00:07:13,240 --> 00:07:16,570
+您可以在任何控制线程之间共享一个共享变量
+you can just have a shared variable
+between whatever control thread is going
+
+103
+00:07:16,570 --> 00:07:20,170
+决定这个goroutine是否应该死，所以在这个例子中
+to decide whether this goroutine should
+die or not so in this example we have
+
+104
+00:07:20,170 --> 00:07:23,560
+这个变量完成了，这是一个全局变量，主要是等待
+this variable done that's a global
+variable and what main does is it waits
+
+105
+00:07:23,560 --> 00:07:28,630
+一会儿，并完成设置为true，在此例行程序中
+for awhile and sets done to true and in
+this go routine that's ticking and doing
+
+106
+00:07:28,630 --> 00:07:32,650
+定期工作，我们只是检查完成的值，如果完成设置
+work periodically we're just checking
+the value of done and if done is set
+
+107
+00:07:32,650 --> 00:07:38,110
+然后我们终止平方根eeen，因为完成是共享变量
+then we terminate the square-root eeen
+and here since done is a shared variable
+
+108
+00:07:38,110 --> 00:07:41,680
+被多个线程变异并读取时，我们需要确保
+being mutated and read by multiple
+threads we need to make sure that we
+
+109
+00:07:41,680 --> 00:07:45,940
+用锁保护它的使用，以便该静音不法分子可以将其静音
+guard the use of this with a lock so
+that's where this mute outlaw can mute
+
+110
+00:07:45,940 --> 00:07:50,200
+它解锁是出于您实际可以编写的实验目的
+it unlock comes in for the purpose of
+the labs you can actually write
+
+111
+00:07:50,200 --> 00:07:55,480
+比这简单一些的东西，所以我们在您的射频上杀死了这种方法
+something a little bit simpler than this
+so we have this method RF killed on your
+
+112
+00:07:55,480 --> 00:07:58,480
+筏实例，所以您可能会有看起来像这样的代码
+raft instance so you might have code
+that looks a little bit more like this
+
+113
+00:07:58,480 --> 00:08:02,680
+所以当您被包裹时，实例还没死，您想定期做一些
+so while you're wrapped instance is not
+dead you want to periodically do some
+
+114
+00:08:02,680 --> 00:08:13,800
+处理到目前为止的任何问题，是的
+work any questions about that so far
+yeah question
+
+115
+00:08:21,779 --> 00:08:30,249
+确实使用了通道的锁定机制使得它可以
+does using the locking mechanisms for
+channels make it so that any right
+
+116
+00:08:30,249 --> 00:08:36,159
+阻碍任何变量，并且击剑运动员将观察到那些功能
+stunts any variables and those functions
+are to be observed by the fencer would
+
+117
+00:08:36,159 --> 00:08:41,219
+您需要跨渠道发送完成
+you need to send done across the channel
+
+118
+00:08:41,759 --> 00:08:45,670
+好吧，让我尝试简化一下问题，我认为问题是
+okay so let me try to simplify the
+question a bit I think the question is
+
+119
+00:08:45,670 --> 00:08:51,370
+您需要在这里使用锁吗？您可以改用通道吗？ 
+do you need to use locks here can you
+use channels instead and R and can you
+
+120
+00:08:51,370 --> 00:08:53,680
+不使用锁而逃脱，就像什么之间没有什么区别
+get away with not using locks and like
+what's the difference between nothing
+
+121
+00:08:53,680 --> 00:09:08,620
+与通道与锁的对比，基本上是您要问的，我认为
+versus channels vs locks is that
+basically what you're asking I think the
+
+122
+00:09:08,620 --> 00:09:12,910
+问题是这样做完成了吗，不需要跨通道发送吗
+question is this done does it not need
+to be sent across a channel does just
+
+123
+00:09:12,910 --> 00:09:18,009
+使用这些锁确保此处的读取遵守线程执行的写入
+using these locks ensure that this read
+here observes the write done by a thread
+
+124
+00:09:18,009 --> 00:09:23,889
+好吧，如果您想确保交叉，答案基本上是肯定的
+okay so the answer is yes basically at a
+high level if you want to ensure cross
+
+125
+00:09:23,889 --> 00:09:27,430
+线程通信确保您使用go同步原语
+thread communication make sure you use
+go synchronization primitives whether
+
+126
+00:09:27,430 --> 00:09:33,370
+它是通道或锁以及条件变量，因此在这里由于使用
+it's channels or locks and condition
+variables and so here because of the use
+
+127
+00:09:33,370 --> 00:09:38,350
+此线程写入完成后，并解锁下一个锁
+of locks after this thread writes done
+and does unlock the next lock that
+
+128
+00:09:38,350 --> 00:09:42,879
+发生的情况可以确保在此之前观察之前完成的写入
+happens is guaranteed to observe the
+writes done before that before this
+
+129
+00:09:42,879 --> 00:09:46,360
+解锁发生了，所以您发生了写入，然后发生了解锁
+unlock happened so you have this write
+happened and this unlock happened then
+
+130
+00:09:46,360 --> 00:09:49,779
+这些锁之一发生，然后保证可以完成下一个
+one of these locks happens and then the
+next done will be guaranteed to observe
+
+131
+00:09:49,779 --> 00:09:55,589
+真正的问题
+that write of true question
+
+132
+00:10:02,750 --> 00:10:07,370
+在这个特定的代码中，这是一个很好的问题，没关系，但是
+that's a good question in this
+particular code it doesn't matter but it
+
+133
+00:10:07,370 --> 00:10:10,910
+这样做会更清洁，所以问题是为什么我们不这样做
+would be cleaner to do it so the
+question is why don't we do mu dot
+
+134
+00:10:10,910 --> 00:10:16,160
+返回之前在这里解锁，答案就在这里，再也不会像
+unlock here before returning and the
+answer is in here there's no more like
+
+135
+00:10:16,160 --> 00:10:18,830
+该程序已完成，因此实际上并不重要，但是您
+the program's done so it doesn't
+actually end up mattering but you're
+
+136
+00:10:18,830 --> 00:10:23,570
+对，就像我们一般希望确保在我们解锁之前
+right that like in general we would want
+to ensure that we unlock before we
+
+137
+00:10:23,570 --> 00:10:27,580
+返回是的，谢谢指出
+return yeah thanks for pointing that out
+
+138
+00:10:41,529 --> 00:10:44,930
+所以我不能完全确定问题是什么，但也许可以
+so I'm not sure entirely what the
+question is but maybe something like can
+
+139
+00:10:44,930 --> 00:11:00,740
+这两个都同时获得了锁，是这个问题，我们将
+both of these acquire the lock at the
+same time is that the question and we'll
+
+140
+00:11:00,740 --> 00:11:04,580
+稍等片刻，然后在更高层次上更多地讨论锁
+talk a little bit more about locks in
+just a moment but at a high level the
+
+141
+00:11:04,580 --> 00:11:09,589
+锁的语义是该锁是由某人持有还是不由某人持有
+semantics of a lock are the lock is
+either held by somebody or not held by
+
+142
+00:11:09,589 --> 00:11:12,860
+某人，如果不是某人持有，则有人呼叫锁定他们
+somebody and if it's not held by
+somebody then if someone calls lock they
+
+143
+00:11:12,860 --> 00:11:17,000
+有机会获得锁，如果他们在打电话之前解锁了其他人
+have the chance to acquire the lock and
+if before they call unlock somebody else
+
+144
+00:11:17,000 --> 00:11:20,959
+调用锁定其他线程将被阻塞，直到解锁发生，然后
+calls lock that other thread is going to
+be blocked until the unlock happens then
+
+145
+00:11:20,959 --> 00:11:25,000
+锁又是自由的，因此在锁和解锁之间处于较高的水平
+the lock is free again so at a high
+level between the lock and the unlock
+
+146
+00:11:25,000 --> 00:11:29,149
+对于任何特定的锁，例如只有一个线程可以执行的锁
+for any particular lock like any only a
+single thread can be executing what's
+
+147
+00:11:29,149 --> 00:11:35,029
+称为锁定和解锁区域之间的任何其他关键区域
+called a critical section between the
+lock and unlock regions any other
+
+148
+00:11:35,029 --> 00:11:37,420
+问题
+questions
+
+149
+00:12:02,899 --> 00:12:08,009
+因此，问题与计时相关，例如您将完成设置为true时， 
+so the question is related to timing
+like when you set done equals true and
+
+150
+00:12:08,009 --> 00:12:11,970
+那么您就无法像实时的那样解锁实时性
+then you unlock you have no guarantee in
+terms of real time like when periodic
+
+151
+00:12:11,970 --> 00:12:14,639
+将最终被安排并遵守此权利，并最终
+will end up being scheduled and observe
+this right and actually end up
+
+152
+00:12:14,639 --> 00:12:19,380
+终止，所以是的，如果您想真正确保定期
+terminating and so yes if you want to
+mean to actually ensure that periodic
+
+153
+00:12:19,380 --> 00:12:22,769
+已经出于某些特定原因退出了，那么您可以编写一些代码
+has exited for some particular reason
+then you could write some code that
+
+154
+00:12:22,769 --> 00:12:25,740
+从定期确认回传，但在此
+communicates back from periodic
+acknowledging this but in this
+
+155
+00:12:25,740 --> 00:12:28,560
+就像我们在这里睡觉的唯一原因那样的特殊情况
+particular case like the only reason we
+have the sleep here is just to
+
+156
+00:12:28,560 --> 00:12:37,319
+证明这里的睡眠只是为了证明tick的打印
+demonstrate that the sleep here is just
+to demonstrate that tick prints for a
+
+157
+00:12:37,319 --> 00:12:41,040
+然后定期取消它，因为它在之前停止打印
+while and then periodic as indeed cancel
+it because it stops being printed before
+
+158
+00:12:41,040 --> 00:12:45,660
+我得到了我的shell提示，通常来说，这些背景很多
+I get my shell prompt back and in
+general for a lot of these background
+
+159
+00:12:45,660 --> 00:12:48,180
+像您这样的线程只能说您想杀死它们，没关系
+threads like you can just say that you
+want to kill them and it doesn't matter
+
+160
+00:12:48,180 --> 00:12:51,329
+如果他们在1秒钟或2秒内被杀死，或者准确地说是
+if they're killed within 1 second or
+within 2 seconds or one exactly go
+
+161
+00:12:51,329 --> 00:12:54,839
+安排它，因为此线程将仅遵守此完成权
+schedules it because this thread is
+going to just observe this right to done
+
+162
+00:12:54,839 --> 00:12:58,380
+然后退出，不再执行任何操作，这并不重要，另外
+and then exit do no more works it
+doesn't really matter and also another
+
+163
+00:12:58,380 --> 00:13:02,160
+进行中的事情是，如果您生成了一堆goo例程，则其中一个是主要的
+thing in go is that if you spawn a bunch
+of goo routines one of them is the main
+
+164
+00:13:02,160 --> 00:13:06,510
+在这里进行例行检查，方法是，如果主要的例行检查
+go routine this one here and the way go
+works is that if the main goroutine
+
+165
+00:13:06,510 --> 00:13:11,779
+退出，整个程序终止，所有执行例程终止
+exits the whole program terminates and
+all go routines are terminated
+
+166
+00:13:27,950 --> 00:13:32,340
+这是一个很好的问题，所以我认为问题就像是为什么
+that's a great question okay so I think
+the question is something like why do
+
+167
+00:13:32,340 --> 00:13:36,300
+您根本需要锁，就像可以删除所有锁，然后喜欢
+you need locks at all like can you just
+delete all the locks and then like
+
+168
+00:13:36,300 --> 00:13:39,780
+看这段代码，看起来好吧main在某个时候做了对的权利
+looking at this code it looks like okay
+main does a right to true at some point
+
+169
+00:13:39,780 --> 00:13:43,020
+定期重复阅读它，因此在某个时候应该观察到这一点
+and periodic is repeatedly reading it so
+at some point it should observe this
+
+170
+00:13:43,020 --> 00:13:48,090
+读得好，事实证明，这就是为什么要去拥有这种奇特的记忆
+read right well it turns out that like
+this is why go has this fancy memory
+
+171
+00:13:48,090 --> 00:13:51,000
+模型，您就可以在联系之前进行所有操作
+model and you have this whole thing on
+that happens before relation the
+
+172
+00:13:51,000 --> 00:13:55,890
+允许编译器采用此代码并发出一种低级计算机
+compiler is allowed to take this code
+and emit a kind of low-level machine
+
+173
+00:13:55,890 --> 00:13:58,080
+所做的代码与您的直觉代码有所不同
+code that does something a little bit
+different than what you intuitively
+
+174
+00:13:58,080 --> 00:14:02,640
+想法会在这里发生，之后我们可以离线详细讨论
+thought would happen here and we can
+talk about that in detail offline after
+
+175
+00:14:02,640 --> 00:14:07,110
+上课和上课时间，但总的来说，我认为你可以
+the lecture and office hours but at a
+high level I think one rule you can
+
+176
+00:14:07,110 --> 00:14:10,710
+如果您有权访问共享变量，并且希望能够
+follow is if you have accesses to shared
+variables and you want to be able to
+
+177
+00:14:10,710 --> 00:14:14,460
+跨不同线程观察它们，您需要先保持锁定
+observe them across different threads
+you need to be holding a lock before you
+
+178
+00:14:14,460 --> 00:14:18,270
+在这种情况下，我可以读取或写入这些共享变量
+read or write those shared variables in
+this particular case I think the go
+
+179
+00:14:18,270 --> 00:14:21,540
+将允许编译器对此进行优化，以提升完成的读取率
+compiler would be allowed to optimize
+this to like lift the read of done
+
+180
+00:14:21,540 --> 00:14:27,390
+在四个之外，因此请一次读取此共享变量，如果完成则为false 
+outside the four so read this shared
+variable once and then if done is false
+
+181
+00:14:27,390 --> 00:14:32,580
+然后设置像使内部成为无限循环，因为像现在这样
+then set like make the inside be an
+infinite loop because like now the way
+
+182
+00:14:32,580 --> 00:14:35,820
+这个线程是写的，它没有使用同步原语，没有
+this thread is written it had uses no
+synchronization primitives there's no
+
+183
+00:14:35,820 --> 00:14:39,150
+互斥锁锁定或解锁没有通道发送或接收，因此实际上不是
+mutex lock or unlock no channel sends or
+receives and so it's actually not
+
+184
+00:14:39,150 --> 00:14:43,190
+保证观察到其他同时运行的线程所做的任何变异
+guaranteed to observe any mutations done
+by other concurrently running threads
+
+185
+00:14:43,190 --> 00:14:47,730
+如果您看广场，我实际上喜欢编写一个特定的go程序
+and if you look on Piazza I've actually
+like written a particular go program
+
+186
+00:14:47,730 --> 00:14:50,940
+以非直观的方式进行了优化，例如它将生成执行以下操作的代码： 
+that is optimized in the unintuitive way
+like it'll produce code that does an
+
+187
+00:14:50,940 --> 00:14:54,390
+无限循环，即使您看起来像它一样，您可能会认为
+infinite loop even though looking at it
+like you might think that oh the obvious
+
+188
+00:14:54,390 --> 00:15:00,030
+编译此代码的方式会产生某些终止的信息，因此
+way to compile this code will produce
+something that terminates yeah so the
+
+189
+00:15:00,030 --> 00:15:04,560
+内存模型非常漂亮，很难思考为什么
+memory model is pretty fancy and it's
+really hard to think about why exactly
+
+190
+00:15:04,560 --> 00:15:08,880
+错误的程序是错误的，但是如果您遵循一些通用规则，例如
+incorrect programs are incorrect but if
+you follow some general rules like whole
+
+191
+00:15:08,880 --> 00:15:11,520
+在更改共享变量之前先进行阻塞，然后您可以避免思考
+blocks before you mutate shared
+variables then you can avoid thinking
+
+192
+00:15:11,520 --> 00:15:14,990
+关于这些令人讨厌的问题
+about some of these nasty issues
+
+193
+00:15:15,290 --> 00:15:21,680
+任何其他问题都好，让我们现在再讨论一下互斥锁
+any other questions all right so let's
+talk a little bit more about mutexes now
+
+194
+00:15:21,680 --> 00:15:28,200
+所以为什么每当有并发请求时，互斥量都很高
+so why do you need mutex is at a high
+level whenever you have concurrent
+
+195
+00:15:28,200 --> 00:15:32,819
+通过不同的线程访问某些共享数据，以确保
+access but by different threads to some
+shared data you want to ensure that
+
+196
+00:15:32,819 --> 00:15:38,669
+该数据的读取和写入是原子的，因此这是程序的一个示例， 
+reads and writes of that data are atomic
+so here's one example of program that
+
+197
+00:15:38,669 --> 00:15:40,949
+声明一个计数器，然后产生一个goroutine 
+declares a counter and then spawns a
+goroutine
+
+198
+00:15:40,949 --> 00:15:44,339
+实际上会产生一千个go例程，每个例程都会更新计数器值， 
+actually spawns a thousand go routines
+that each update the counter value and
+
+199
+00:15:44,339 --> 00:15:48,209
+将其增加一个，您可能会认为当我
+increment it by one and you might think
+that looking at this intuitively when I
+
+200
+00:15:48,209 --> 00:15:51,929
+最后打印出计数器的值，它应该打印一千，但是
+print out the value of the counter at
+the end it should print a thousand but
+
+201
+00:15:51,929 --> 00:15:55,589
+事实证明，在这种情况下，我们错过了一些更新
+it turns out that we missed some of the
+updates here and in this particular case
+
+202
+00:15:55,589 --> 00:16:03,059
+它只打印了947，所以这里发生的是此更新不是
+it only printed 947 so what's going on
+here is that this update here is not
+
+203
+00:16:03,059 --> 00:16:06,749
+受到任何方式的真正保护，因此这些同时运行的线程可以读取
+really protected in any way and so these
+threads running concurrently can read
+
+204
+00:16:06,749 --> 00:16:11,669
+计数器的值并更新它和破坏其他线程的更新
+the value of counter and update it and
+clobber other threads updates of this
+
+205
+00:16:11,669 --> 00:16:16,109
+像基本上这样的值，我们要确保这里的整个部分都发生
+value like basically we want to ensure
+that this entire section here happens
+
+206
+00:16:16,109 --> 00:16:22,439
+因此，使代码块自动运行的方式是
+atomically and so the way you make
+blocks of code run atomically are by
+
+207
+00:16:22,439 --> 00:16:29,039
+使用锁，因此在此代码示例中，我们修复了此错误，我们创建了一个锁
+using locks and so in this code example
+we've fixed this bug we create a lock
+
+208
+00:16:29,039 --> 00:16:33,389
+然后所有这些修改该计数器值的go例程都首先抢占了
+and then all these go routines that
+modify this counter value first grab the
+
+209
+00:16:33,389 --> 00:16:37,799
+锁定，然后更新计数器值，然后解锁，我们看到我们正在使用
+lock then update the counter value and
+then unlock and we see that we're using
+
+210
+00:16:37,799 --> 00:16:42,989
+这个defer关键字在这里的作用与将其放置的基本相同
+this defer keyword here what this does
+is basically the same as putting this
+
+211
+00:16:42,989 --> 00:16:47,519
+代码在这里，所以我们抓住一个锁进行一些更新，然后解锁延后只是一个不错的选择
+code down here so we grab a lock do some
+update then unlock defer is just a nice
+
+212
+00:16:47,519 --> 00:16:53,339
+记住这样做的方式，您可能会忘记以后写解锁，因此
+way of remembering to do this you might
+forget to write the unlock later and so
+
+213
+00:16:53,339 --> 00:16:56,909
+ defer所做的是，您可以将其视为计划将其运行在
+what defer does is it you can think of
+it as like scheduling this to run at the
+
+214
+00:16:56,909 --> 00:17:00,689
+当前函数体的结尾，所以这是一个非常常见的模式
+end of the current function body and so
+this is a really common pattern you'll
+
+215
+00:17:00,689 --> 00:17:05,398
+例如在实验室的RPC处理程序中查看，因此RPC处理程序通常会
+see for example in your RPC handlers for
+the lab so oftentimes RPC handlers will
+
+216
+00:17:05,398 --> 00:17:10,378
+在RAF结构和其他结构上操纵读写数据
+manipulate either read or write data on
+the RAF structure right and those
+
+217
+00:17:10,378 --> 00:17:13,918
+更新应与其他同时发生的更新同步，并且
+
+218
+00:17:13,919 --> 00:17:17,039
+所以通常RPC句柄的模式就像抢锁
+so oftentimes the pattern for RPC
+handles would be like grab the lock
+
+219
+00:17:17,039 --> 00:17:26,929
+不同的解锁，然后在内部做一些工作，以便我们可以查看是否运行此代码
+differ unlock and then go do some work
+inside so we can see if we run this code
+
+220
+00:17:26,929 --> 00:17:30,960
+它产生了预期的结果，所以它打印出一千，而我们还没有
+it produces the expected results so it
+prints out a thousand and we haven't
+
+221
+00:17:30,960 --> 00:17:36,000
+丢失了这些更新中的任何一个，因此在较高级别上锁或互斥锁可以做什么
+lost any of these updates and so what at
+a high level what a lock or a mutex can
+
+222
+00:17:36,000 --> 00:17:40,379
+这样做是为了确保在我们称为关键代码区域内相互排斥
+do is guarantee mutual exclusion for a
+region of code which we call a critical
+
+223
+00:17:40,379 --> 00:17:43,740
+部分，因此在这里这是关键部分，它可以确保
+section so in here this is the critical
+section and it ensures that none of
+
+224
+00:17:43,740 --> 00:17:46,260
+这些关键部分与
+these critical sections execute
+concurrently with
+
+225
+00:17:46,260 --> 00:17:51,350
+他们都被序列化的问题一个接一个地发生
+ones they're all serialized happened one
+after another question
+
+226
+00:18:00,600 --> 00:18:04,270
+是的，所以这是一个很好的观察，但实际上不是
+yes so this is a good observation this
+particular could is actually not
+
+227
+00:18:04,270 --> 00:18:07,390
+保证产生一千个取决于线程调度如何结束
+guaranteed to produce a thousand
+depending on how thread scheduling end
+
+228
+00:18:07,390 --> 00:18:10,960
+最终会发生，因为青少年的平均意思是等待一个
+up ends up happening because all the
+mean guru teen does is it waits for one
+
+229
+00:18:10,960 --> 00:18:14,080
+秒，它是任意时间单位，然后打印出
+second which is some arbitrary unit of
+time and then it prints out the value of
+
+230
+00:18:14,080 --> 00:18:17,530
+计数器，我只想让这个例子尽可能简单
+the counter I just want to keep this
+example as simple as possible a
+
+231
+00:18:17,530 --> 00:18:20,590
+不同的方式来编写此代码，可以保证打印出一千
+different way to write this code that
+would be guaranteed to print a thousand
+
+232
+00:18:20,590 --> 00:18:24,370
+将使主要goroutine等待所有这千个线程完成
+would be to have the main goroutine wait
+for all these thousand threads to finish
+
+233
+00:18:24,370 --> 00:18:26,890
+因此您可以使用权重组进行此操作，但我们不想
+so you could do this using a weight
+group for example but we didn't want to
+
+234
+00:18:26,890 --> 00:18:29,830
+将两个同步原语（例如权重组和互斥体）放在同一位置
+put two synchronization primitives like
+weight groups and mutex is in the same
+
+235
+00:18:29,830 --> 00:18:33,100
+示例，这就是为什么我们使用此代码在技术上是不正确的，但是我
+example so that's why we're at this code
+that is like technically incorrect but I
+
+236
+00:18:33,100 --> 00:18:43,420
+认为它仍然显示出锁定其他任何问题的观点，因此
+think it still demonstrates the point of
+locks any other questions great so at a
+
+237
+00:18:43,420 --> 00:18:46,930
+您可以想到的锁级别很高，就像您抓住了变异的锁一样
+very high level you can think of locks
+is like you grab the lock you mutate the
+
+238
+00:18:46,930 --> 00:18:52,270
+共享数据，然后您将其解锁，因此此模式始终可以正常工作
+shared data and then you unlock so does
+this pattern always work well turns out
+
+239
+00:18:52,270 --> 00:18:58,750
+这就像是思考锁的有用起点，但是
+that that's like a useful starting point
+for how to think about locks but it's
+
+240
+00:18:58,750 --> 00:19:03,490
+并不是完整的故事，所以这是一些不适合屏幕显示的代码
+not really the complete story so here's
+some code this doesn't fit on the screen
+
+241
+00:19:03,490 --> 00:19:06,550
+但我会向您解释，我们可以滚动浏览它基本上实现了
+but I'll explain it to you we can scroll
+through it it basically implements a
+
+242
+00:19:06,550 --> 00:19:10,150
+高水平的银行，所以我有爱丽丝和鲍勃，他们都从一些
+bank at a high level so I have Alice and
+Bob who both start out with some
+
+243
+00:19:10,150 --> 00:19:14,410
+余额，然后我跟踪总余额（例如总金额）是多少
+balances and then I keep track of what
+the total balances like the total amount
+
+244
+00:19:14,410 --> 00:19:18,010
+存入我的银行的钱，然后我将去做一些日常工作
+of money I store in my bank and then I'm
+going to spawn to go routines that will
+
+245
+00:19:18,010 --> 00:19:21,700
+在我们的爱丽丝和鲍勃之间来回转账，所以这个女孩
+transfer money back and forth between
+our Alice and Bob so this one girl
+
+246
+00:19:21,700 --> 00:19:26,470
+例行程序，一千次将减少爱丽丝的一遍并将其发送给鲍勃
+routine that a thousand times will
+reduce one from Alice and send it to Bob
+
+247
+00:19:26,470 --> 00:19:30,130
+并发运行，我有另一个循环去循环
+and concurrently running I have this
+other go routine that in a loop will
+
+248
+00:19:30,130 --> 00:19:35,350
+从Bob减少一个并将其发送给Alice，注意我这里有这个互斥锁
+reduce one from Bob and send it to Alice
+and notice that I have this mutex here
+
+249
+00:19:35,350 --> 00:19:39,520
+每当我操纵这两个不同
+and whenever I manipulate these shared
+variables between these two different
+
+250
+00:19:39,520 --> 00:19:42,180
+线程，我总是锁定互斥锁，这
+threads
+I'm always locking the mutex and this
+
+251
+00:19:42,180 --> 00:19:49,240
+仅在正确锁定此锁的情况下才会进行更新，因此此代码正确吗
+update only happens while this lock is
+held right and so is this code correct
+
+252
+00:19:49,240 --> 00:19:55,120
+或不正确，实际上并没有一个简单的答案
+or incorrect there actually isn't really
+a straightforward answer to that
+
+253
+00:19:55,120 --> 00:19:59,710
+问题取决于我的银行的语义是什么样的行为
+question it depends on like what are the
+semantics of my bank like what behavior
+
+254
+00:19:59,710 --> 00:20:04,270
+我期望如此，所以我将在这里介绍另一个线程，我将其称为
+do I expect so I'm going to introduce
+another thread here I'll call this one
+
+255
+00:20:04,270 --> 00:20:07,540
+审核线程，这是我偶尔要做的
+the audit thread and what this is going
+to do is every once in a while I'll
+
+256
+00:20:07,540 --> 00:20:10,840
+检查它，检查我银行中所有帐户的总和，并确保
+check it check the sum of all the
+accounts in my bank and make sure that
+
+257
+00:20:10,840 --> 00:20:13,110
+总和与开始时的相同
+the sum is the same as what it started
+out as
+
+258
+00:20:13,110 --> 00:20:15,900
+如果我只允许在我的银行内进行转帐，请右键单击
+right click if I only allow transfers
+within my bank the total amount should
+
+259
+00:20:15,900 --> 00:20:20,130
+永远不会改变，所以现在给定另一个线程，那么它所做的就是抓住
+never change so now given this other
+thread so what this does is it grabs the
+
+260
+00:20:20,130 --> 00:20:24,330
+然后将锁汇总为Alice Plus Bob，并将其与总数进行比较（如果有） 
+lock then sums up Alice Plus Bob and
+compares it to the total and if it
+
+261
+00:20:24,330 --> 00:20:27,480
+不匹配，则表示尽管我观察到一些违规行为， 
+doesn't match then it says that though
+I've observed some violation that my
+
+262
+00:20:27,480 --> 00:20:36,510
+总的来说，如果我运行此代码，则不再是应该的，我实际上看到
+total is no longer what it should be if
+I run this code I actually see that a
+
+263
+00:20:36,510 --> 00:20:39,720
+这个并发运行的线程的整个时间
+whole bunch of times
+this concurrently running thread does
+
+264
+00:20:39,720 --> 00:20:43,710
+确实观察到Alice Plus Bob不等于总和，所以
+indeed observe that Alice Plus Bob is
+not equal to the overall sum so what
+
+265
+00:20:43,710 --> 00:20:47,910
+在这里出错了，就像我们在每次访问时都遵循基本规则
+went wrong here like we're following our
+basic rule of whenever we're accessing
+
+266
+00:20:47,910 --> 00:20:52,320
+线程之间共享的数据我们抓住了一个锁，这确实是事实， 
+data that's shared between threads we
+grab a lock it is indeed true that no
+
+267
+00:20:52,320 --> 00:21:15,540
+这些共享变量的更新发生在未完全持有锁的情况下，因此
+updates to these shared variables happen
+while the lock is not held exactly so
+
+268
+00:21:15,540 --> 00:21:19,559
+让我重复一遍，让每个人都听到我们在此的意图
+let me repeat that for everybody to hear
+what we intended here was for this
+
+269
+00:21:19,559 --> 00:21:23,520
+减少和增加是原子发生的，而不是我们结束的结果
+decrement and increment to happen
+atomically but instead of what we ended
+
+270
+00:21:23,520 --> 00:21:27,120
+写的是原子递减然后递增的代码
+up writing was code that decrement
+atomically and then increments
+
+271
+00:21:27,120 --> 00:21:30,960
+从原子上讲，因此在此特定代码中实际上就像我们不会赔钱
+atomically and so in this particular
+code actually like we won't lose money
+
+272
+00:21:30,960 --> 00:21:34,020
+从长远来看，如果我们让这些线程运行，然后等到它们
+in the long term like if we let these
+threads run and then wait till they
+
+273
+00:21:34,020 --> 00:21:37,830
+完成，然后检查总数，它的确会是刚开始时的样子，但是
+finish and then check the total it will
+indeed be what it started out as but
+
+274
+00:21:37,830 --> 00:21:41,850
+由于这些完整的代码块不是原子的，因此它们正在运行
+while these are running since this
+entire block of code is not atomic we
+
+275
+00:21:41,850 --> 00:21:46,890
+可以暂时观察这些违规行为，因此在更高层次上应该
+can temporarily observe these violations
+and so at a higher level the way should
+
+276
+00:21:46,890 --> 00:21:51,660
+考虑锁定不只是锁定可以保护对共享的访问
+think about locking is not just like
+locks are to protect access to shared
+
+277
+00:21:51,660 --> 00:21:55,950
+数据，但是锁是为了保护您拥有一些共享数据的不变量
+data but locks are meant to protect
+invariants you have some shared data
+
+278
+00:21:55,950 --> 00:21:58,770
+可能会被多个人访问，并且存在一些保留的属性
+that multiple people might access and
+there's some properties that hold on
+
+279
+00:21:58,770 --> 00:22:02,669
+像这里这样的共享数据，我是程序员决定我想要的
+that shared data like for example here I
+is the programmer decided that I want
+
+280
+00:22:02,669 --> 00:22:05,760
+爱丽丝（Alice）和鲍勃（Bob）的这个属性应该等于某个常数，并且应该
+this property that alice + Bob should
+equal some constant and that should
+
+281
+00:22:05,760 --> 00:22:09,240
+总是这样，我希望保留该财产，但事实可能是这样
+always be that way I want that property
+to hold but then it may be the case that
+
+282
+00:22:09,240 --> 00:22:12,390
+同时运行的不同线程正在对此数据进行更改，并且
+different threads running concurrently
+are making changes to this data and
+
+283
+00:22:12,390 --> 00:22:16,650
+当我递减时可能会像这里一样暂时打破这里的不变式
+might temporarily break this invariant
+here right like here when I decrement
+
+284
+00:22:16,650 --> 00:22:20,760
+从Alice那里临时得到的总和Alice Plus Bob改变了，但是
+from Alice temporarily the sum Alice
+Plus Bob has changed but then this
+
+285
+00:22:20,760 --> 00:22:25,230
+线程最终会在此处恢复此不变式，因此锁旨在
+thread eventually ends up restoring this
+invariant here and so locks are meant to
+
+286
+00:22:25,230 --> 00:22:27,950
+保护并在高水平上变化，您将抓住一把锁，然后您
+protect and vary
+at a high level you grab a lock then you
+
+287
+00:22:27,950 --> 00:22:31,370
+做一些可能会暂时打破不变性的工作，但随后您恢复了
+do some work that might temporarily
+break the invariant but then you restore
+
+288
+00:22:31,370 --> 00:22:34,279
+释放锁之前的不变式，因此没有人可以观察到这些
+the invariant before you release the
+lock so nobody can observe these in
+
+289
+00:22:34,279 --> 00:22:38,450
+进度更新，因此编写此代码的正确方法是实际拥有
+progress updates and so the correct way
+to write this code is to actually have
+
+290
+00:22:38,450 --> 00:22:41,809
+少使用锁和解锁，我们有锁，然后我们要做很多工作
+less use of lock and unlock
+we have lock then we do a bunch of work
+
+291
+00:22:41,809 --> 00:22:48,259
+然后我们解锁，当您运行此代码时，我们不再看到像这样的打印输出
+and then we unlock and when you run this
+code we see no more printouts like this
+
+292
+00:22:48,259 --> 00:22:52,490
+我们从来没有这个审核线程，请注意总数不是
+that we never have this audit thread
+observe that the total is not what it
+
+293
+00:22:52,490 --> 00:22:58,970
+应该没事，所以这是思考锁定某种情况的正确方法
+should be all right so that's the right
+way to think about locking at kind of a
+
+294
+00:22:58,970 --> 00:23:02,299
+高水平的您可以考虑一下，确保每次
+high level you can think about it as
+make sure you grab locks when every
+
+295
+00:23:02,299 --> 00:23:06,769
+像这样访问共享数据是一个规则，但是另一个重要规则是锁
+access shared data like that is a rule
+but another important rule is locks
+
+296
+00:23:06,769 --> 00:23:10,789
+保护不变量，因此抢一把锁以某种可能的方式操纵事物
+protect invariants so grab a lock
+manipulate things in a way that might
+
+297
+00:23:10,789 --> 00:23:15,490
+打破不变式，但随后将其还原，然后释放锁
+break the invariants but restore them
+afterwards and then release the lock
+
+298
+00:23:15,490 --> 00:23:19,279
+您可以考虑的另一种方法是锁可以使代码区域原子化
+another way you can think about it is
+locks can make regions of code atomic
+
+299
+00:23:19,279 --> 00:23:26,059
+不只是单个语句或共享变量的单个更新
+not just like single statements or
+single updates to shared variables any
+
+300
+00:23:26,059 --> 00:23:32,840
+关于这个伟大的问题，所以我们将要讨论的下一个同步原语
+questions about that great so the next
+synchronization primitive we're going to
+
+301
+00:23:32,840 --> 00:23:37,070
+谈论它称为条件变量，这似乎是
+talk about it something called condition
+variables and this is it seems like
+
+302
+00:23:37,070 --> 00:23:39,379
+实验室之一引起了我们的困惑
+there's been a source of confusion from
+lab one where we mentioned condition
+
+303
+00:23:39,379 --> 00:23:41,600
+变量，但并没有完全解释它们，因此我们将花一些时间
+variables but didn't quite explain them
+so we're going to take the time to
+
+304
+00:23:41,600 --> 00:23:45,470
+现在向您解释它们，我们将在一个示例的背景下进行说明
+explain them to you now and we're going
+to do that in the context of an example
+
+305
+00:23:45,470 --> 00:23:51,110
+你们应该都熟悉点票，所以请记住在实验2a中
+that you should all be familiar with
+counting votes so remember in lab 2a you
+
+306
+00:23:51,110 --> 00:23:54,889
+有这种模式，只要拉夫·皮埃尔（Raph Pierre）成为候选人， 
+have this pattern where whenever Raph
+Pierre becomes a candidate it wants to
+
+307
+00:23:54,889 --> 00:23:58,879
+发出投票请求，要求所有追随者，最终追随者
+send out vote requests all of its
+followers and eventually the followers
+
+308
+00:23:58,879 --> 00:24:02,870
+回到候选人那里，对候选人说“是”或“不” 
+come back to the candidate and say yes
+or no like whether or not the candidate
+
+309
+00:24:02,870 --> 00:24:06,679
+获得投票权，我们编写此代码的一种方法是让候选人进入
+got the vote right and one way we could
+write this code is have the candidate in
+
+310
+00:24:06,679 --> 00:24:10,580
+连环问皮埃尔第一号车第二号为第三号，依此类推，但
+serial ask Pierre number one car number
+two for number three and so on but
+
+311
+00:24:10,580 --> 00:24:14,090
+那是不好的权利，因为我们希望候选人同时询问所有同龄人
+that's bad right because we want the
+candidate ask all the peers in parallel
+
+312
+00:24:14,090 --> 00:24:17,029
+因此它可以在可能的情况下快速赢得选举，然后还有其他一些
+so it can quickly win the election when
+possible and then there's some other
+
+313
+00:24:17,029 --> 00:24:21,409
+那里的复杂性，例如当我们并行询问所有同伴时，我们不想
+complexities there like when we ask all
+the peers in parallel we don't want to
+
+314
+00:24:21,409 --> 00:24:24,289
+等一下，让我们在所有人下定决心之前得到所有人的回应
+wait so we get a response from all of
+them before making up our mind right
+
+315
+00:24:24,289 --> 00:24:27,769
+因为如果候选人获得像这样的多数票，则无需等待
+because if a candidate gets a majority
+of votes like it doesn't need to wait
+
+316
+00:24:27,769 --> 00:24:31,490
+直到收到其他人的回音，所以这段代码有点复杂
+till it hears back from everybody else
+so this code is kind of complicated in
+
+317
+00:24:31,490 --> 00:24:37,039
+有些方法，所以这是该投票的残酷版本
+some ways and so here here's a kind of
+stubbed out version of what that vote
+
+318
+00:24:37,039 --> 00:24:40,250
+计数代码可能看起来需要一点基础架构
+counting code might look like
+with a little bit of infrastructure to
+
+319
+00:24:40,250 --> 00:24:43,399
+使其实际运行，因此这里具有设置计数的平均goroutine 
+make it actually run and so here have
+this mean goroutine that sets count
+
+320
+00:24:43,399 --> 00:24:47,570
+就像我的赞成票数为零并完成为零
+which is like the number of yes votes I
+got to zero and finish to zero finished
+
+321
+00:24:47,570 --> 00:24:50,779
+作为我总共收到的回复数，想法是我想发送
+as the number of responses I've gotten
+in total and the idea is I want to send
+
+322
+00:24:50,779 --> 00:24:54,409
+并行发出投票请求，并跟踪我有多少个赞成票以及如何
+out vote requests in parallel and keep
+track of how many yeses I've got and how
+
+323
+00:24:54,409 --> 00:24:58,250
+我得到了很多回复，然后一旦我知道我是否赢了
+many responses I've gotten in general
+and then once I know whether I've won
+
+324
+00:24:58,250 --> 00:25:01,940
+选举还是我知道我输了选举，那么我可以确定
+the election or whether I know that I've
+lost the election then I can determine
+
+325
+00:25:01,940 --> 00:25:05,179
+然后继续前进，就像真正的筏代码一样，您实际上可以执行所需的任何操作
+that and move on and like the real raft
+code you actually do whatever you need
+
+326
+00:25:05,179 --> 00:25:10,039
+做完之后，不要升任领导者或降职为跟随者
+to do don't step up to a leader or to
+step down to a follower after you have
+
+327
+00:25:10,039 --> 00:25:15,049
+结果，所以在这里看这段代码，我将并行执行
+the result from this and so looking at
+this code here I'm going to in parallel
+
+328
+00:25:15,049 --> 00:25:18,740
+旋转说我有十个同伴并行生成十个goroutine 
+spun say I have ten peers in parallel
+spawn ten goroutines
+
+329
+00:25:18,740 --> 00:25:23,269
+在这里，我在此关闭此链接，我要做的是请求投票，然后如果我
+here I pass in this closure here and I'm
+gonna do is request a vote and then if I
+
+330
+00:25:23,269 --> 00:25:26,630
+得到投票，我将计数加一，然后我还将
+get the vote I'm going to increment the
+count by one and then I'm also going to
+
+331
+00:25:26,630 --> 00:25:30,230
+将这个完成加一，所以像这样，是的，这是总数
+increment this finished by one so like
+this is a number of yeses this is total
+
+332
+00:25:30,230 --> 00:25:34,309
+我得到的答复数量，然后在主执行例程的此处之外进行
+number of responses I've gotten and then
+outside here in the main go routine what
+
+333
+00:25:34,309 --> 00:25:36,860
+我正在做的是跟踪这种情况我正在等待这种情况
+I'm doing is keeping track of this
+condition I'm waiting for this condition
+
+334
+00:25:36,860 --> 00:25:40,490
+要成为事实，要么我有足够的赞成票赢得了选举，要么
+to become true that either I have enough
+yes votes that I've won the election or
+
+335
+00:25:40,490 --> 00:25:44,210
+我已经收到足够多的同龄人的回音，我知道自己迷路了，所以我只是
+I've heard back from enough peers and I
+know that I've lost and so I'm just
+
+336
+00:25:44,210 --> 00:25:49,429
+进入循环检查以查看并等待直到计数大于或
+going to in a in a loop check to see and
+wait until count is greater than or
+
+337
+00:25:49,429 --> 00:25:53,330
+等于五或等到完成等于十，然后
+equal to five or wait until finished is
+equal to ten and then after that's the
+
+338
+00:25:53,330 --> 00:25:56,840
+情况下，我可以确定自己丢失了一个驱动器，那么有人看到了吗
+case I can either determine that I've
+lost drive one so does anybody see any
+
+339
+00:25:56,840 --> 00:26:03,130
+鉴于我们刚才讨论的互斥锁，此代码存在问题是
+problems with this code given what we
+just talked about about mutexes yes
+
+340
+00:26:04,770 --> 00:26:07,990
+是的，Countin完全没有受到保护
+yeah exactly
+countin finished aren't protected by
+
+341
+00:26:07,990 --> 00:26:13,420
+互斥锁，因此我们当然需要在此处修复的一件事是
+mutexes so one thing we certainly need
+to fix here is that whenever we have
+
+342
+00:26:13,420 --> 00:26:17,500
+共享变量，我们需要使用新的税收来保护访问权限，因此这不是
+shared variables we need to protect
+access with new taxes and so that's not
+
+343
+00:26:17,500 --> 00:26:23,110
+太糟糕了，无法在这里修复我声明了每个人都可以访问的互斥量，然后
+too bad to fix here I declare mutex
+that's accessible by everybody and then
+
+344
+00:26:23,110 --> 00:26:27,550
+在执行例行程序时，我将并行启动以请求投票
+in the go routines I'm launching in
+parallel to request votes I'm going to
+
+345
+00:26:27,550 --> 00:26:30,940
+这个模式在这里非常重要，我要先请求一个
+and this this pattern here is pretty
+important I'm going to first request a
+
+346
+00:26:30,940 --> 00:26:34,420
+在不握锁的情况下进行投票，然后在穿上之后要抓住
+vote while I'm not holding the lock and
+then after wear that I'm going to grab
+
+347
+00:26:34,420 --> 00:26:40,330
+锁定，然后更新这些共享变量，然后在外部
+the lock and then update these shared
+variables and then outside I have the
+
+348
+00:26:40,330 --> 00:26:43,780
+与以前相同的模式，除了我确保阅读之间可以锁定和解锁
+same patterns as before except I make
+sure to lock and unlock between reading
+
+349
+00:26:43,780 --> 00:26:48,280
+这些共享变量，所以在无限循环中，我抓住了锁并检查是否
+these shared variables so in an infinite
+loop I grab the lock and check to see if
+
+350
+00:26:48,280 --> 00:26:51,760
+选举的结果已经决定了这一点，如果不是，我就是
+the results of the election have been
+determined by this point and if not I'm
+
+351
+00:26:51,760 --> 00:26:57,820
+将继续在这个无限循环中运行，否则我将解锁并执行
+going to keep running in this infinite
+loop otherwise I'll unlock and then do
+
+352
+00:26:57,820 --> 00:27:09,430
+我需要在这里以外做些什么，所以如果我运行此示例，那似乎
+what I need to do outside of here and so
+if I run this example whoops it seems to
+
+353
+00:27:09,430 --> 00:27:14,770
+工作，这实际上就像是正确的实现，它做对了
+work and this is actually like a correct
+implementation it does the right thing
+
+354
+00:27:14,770 --> 00:27:18,370
+但是它有一些问题，所以任何人都可以认识到这个问题
+but there's some problems with it so can
+anybody recognize any problems with this
+
+355
+00:27:18,370 --> 00:27:26,430
+实现我会给你一个提示，这段代码并不像它可能的那么好
+implementation I'll give you a hint this
+code is not as nice as it could be
+
+356
+00:27:32,410 --> 00:27:37,070
+所以不太会等到正确的时间
+so not quite it's going to wait for
+exactly the right amount of time the
+
+357
+00:27:37,070 --> 00:27:41,870
+这里的问题是它正忙于等待它的工作处于非常紧密的循环中
+issue here is that it's busy waiting
+what it's doing is in a very tight loop
+
+358
+00:27:41,870 --> 00:27:45,710
+它正在抓锁，检查这种情况解锁抓握此锁
+it's grabbing the lock checking this
+condition unlocking grabbing this lock
+
+359
+00:27:45,710 --> 00:27:49,430
+检查此条件解锁，它将消耗一个CPU的100％CPU 
+checking this condition unlocking and
+it's going to burn up 100% CPU on one
+
+360
+00:27:49,430 --> 00:27:54,020
+核心，因此此代码是正确的，但是就像在较高级别
+core while it's doing this so this code
+is correct but it's like at a high level
+
+361
+00:27:54,020 --> 00:27:57,620
+在实验室中，我们不关心CPU效率之类的效率
+we don't care about efficiency like CPU
+efficiency for the purpose of the labs
+
+362
+00:27:57,620 --> 00:28:01,250
+但是，如果您使用的是一个内核的100％，则实际上可能会减慢速度
+but if you're using a hundred percent of
+one core you might actually slow down
+
+363
+00:28:01,250 --> 00:28:05,120
+程序的其余部分足够多，以至于无法取得进展，所以这就是为什么
+the rest of your program enough that it
+won't make progress and so that's why
+
+364
+00:28:05,120 --> 00:28:08,570
+这种模式很糟糕，我们正在消耗100％的CPU等待
+this pattern is bad that we're burning
+up a hundred percent CPU waiting for
+
+365
+00:28:08,570 --> 00:28:12,110
+有一定条件成为正确的权利，所以任何人对我们如何有任何想法
+some condition to become true right so
+does anybody have any ideas for how we
+
+366
+00:28:12,110 --> 00:28:18,770
+可以解决这个问题，所以这是一个简单的解决方案
+could fix this so here's one simple
+solution
+
+367
+00:28:18,770 --> 00:28:25,280
+我将更改一行代码，仅在此处添加50 
+I will change a single line of code all
+I've added here is wait for 50
+
+368
+00:28:25,280 --> 00:28:30,560
+毫秒，所以这是该程序的正确转换
+milliseconds and so this is a correct
+transformation of that program and it
+
+369
+00:28:30,560 --> 00:28:33,620
+似乎可以解决问题，就像我快要烧一百
+kind of seems to solve the problem right
+like before I was burning up a hundred
+
+370
+00:28:33,620 --> 00:28:37,580
+现在我每隔50毫秒只唤醒一次CPU百分比
+percent CPU now only once every 50
+milliseconds I'm going to briefly wake
+
+371
+00:28:37,580 --> 00:28:40,220
+起来检查这种情况，然后回去睡觉
+up check this condition and go back to
+sleep
+
+372
+00:28:40,220 --> 00:28:46,310
+如果它不成立，那么这基本上就像一个可行的解决方案
+if it doesn't hold and so this is like
+basically a working solution any
+
+373
+00:28:46,310 --> 00:28:53,210
+问题，所以这种排序有效，但您应该始终注意一件事
+questions so this kind of sorta works
+but one thing you should always be aware
+
+374
+00:28:53,210 --> 00:28:58,370
+每当您编写代码时，魔术常数就会变为50毫秒
+of whenever you write code is magic
+constants why is this 50 milliseconds
+
+375
+00:28:58,370 --> 00:29:01,280
+为什么不使用其他数字，例如您的任意数字
+why not a different number like whenever
+you have an arbitrary number in your
+
+376
+00:29:01,280 --> 00:29:04,640
+编码，这表明您正在做的事情不太正确或不正确
+code it's a sign that you're doing
+something that's not quite right or not
+
+377
+00:29:04,640 --> 00:29:08,240
+相当干净，所以事实证明存在并发
+quite as clean as it could be and so it
+turns out that there's a concurrency
+
+378
+00:29:08,240 --> 00:29:12,800
+旨在解决这个问题的原语，我正在运行一些线程
+primitive designed to solve exactly this
+problem of I have some threads running
+
+379
+00:29:12,800 --> 00:29:17,060
+同时更新一些共享数据，然后我有另一个
+concurrently that are making updates to
+some shared data and then I have another
+
+380
+00:29:17,060 --> 00:29:21,080
+正在等待某些属性的线程，该共享数据上的某些条件
+thread that's waiting for some property
+some condition on that shared data to
+
+381
+00:29:21,080 --> 00:29:24,170
+变为真，直到该条件变为真，线程才进入
+become true and until that condition
+becomes true the thread is just going to
+
+382
+00:29:24,170 --> 00:29:28,250
+等等，有一个专门用来解决这个问题的工具，那是一个工具
+wait there's a tool designed exactly to
+solve this problem and that's a tool
+
+383
+00:29:28,250 --> 00:29:36,980
+称为条件变量，而您使用条件变量的方式是
+called a condition variable and the way
+you use a condition variable is the
+
+384
+00:29:36,980 --> 00:29:40,790
+模式基本上看起来像这样，所以我们已经锁定了较早的条件
+pattern basically looks like this so we
+have our lock from earlier condition
+
+385
+00:29:40,790 --> 00:29:46,729
+变量与锁相关联，所以我们有一些共享数据，还有一些锁
+variables are associated with locks so
+we have some shared data some a lock
+
+386
+00:29:46,729 --> 00:29:49,999
+保护共享数据，然后我们有这个条件变量
+that protects that shared data and then
+we have this condition variable that is
+
+387
+00:29:49,999 --> 00:29:53,149
+在初始化时给定了一个指向锁的指针，我们将使用它
+given a pointer to the lock when it's
+initialized and we're going to use this
+
+388
+00:29:53,149 --> 00:29:56,659
+条件变量，用于在特定条件下进行协调
+condition variable for kind of
+coordinating when a certain condition
+
+389
+00:29:56,659 --> 00:30:02,059
+共享数据上的一些属性变为真时，以及我们修改的方式
+some property on that shared data when
+that becomes true and the way we modify
+
+390
+00:30:02,059 --> 00:30:07,339
+我们的代码就像我们有两个地方一样，我们正在对该数据进行更改， 
+our code is like we have two places one
+we're making changes to that data which
+
+391
+00:30:07,339 --> 00:30:10,309
+可能使条件变为真，然后我们在另一个地方
+might make the condition become true and
+then we have another place where we're
+
+392
+00:30:10,309 --> 00:30:14,210
+等待该条件变为真，并且通常的模式是
+waiting for that condition to become
+true and the general pattern is whenever
+
+393
+00:30:14,210 --> 00:30:20,719
+我们做一些改变数据的事情，我们称之为行为广播，我们这样做
+we do something that changes the data we
+call a conduct broadcast and we do this
+
+394
+00:30:20,719 --> 00:30:24,080
+按住锁，然后在另一边等待
+while holding the lock and then on the
+other side where we're waiting for some
+
+395
+00:30:24,080 --> 00:30:28,669
+在共享数据变为真的条件下，我们称之为点等待，等等
+condition on that share data to become
+true we call con dot wait and so what
+
+396
+00:30:28,669 --> 00:30:32,059
+这确实就像让我们考虑一下平均线程中会发生什么
+this does is like let's think about what
+happens in the mean thread for a moment
+
+397
+00:30:32,059 --> 00:30:36,169
+主线程抓住锁，如果它是假的，则检查此条件
+the main thread grabs the lock it checks
+this condition suppose it's false it
+
+398
+00:30:36,169 --> 00:30:40,489
+调用con dot等一下，这会是原子的，您可以想到它
+calls con dot wait what this will do is
+it will atomically you can think of it
+
+399
+00:30:40,489 --> 00:30:44,359
+因为它将释放锁，以便让其他人获得进步，并且它将
+as it'll release the lock in order to
+let other people make progress and it'll
+
+400
+00:30:44,359 --> 00:30:48,799
+添加它的线程，就像将其添加到正在等待的人的类似列表中
+add its thread like it'll add itself to
+a like list of people who are waiting on
+
+401
+00:30:48,799 --> 00:30:52,789
+此条件变量，然后并发这些线程之一可能
+this condition variable then
+concurrently one of these threads might
+
+402
+00:30:52,789 --> 00:30:56,719
+可以在投票后获得锁，然后进行操纵
+be able to acquire the lock after it's
+gotten a vote and then it manipulates
+
+403
+00:30:56,719 --> 00:31:00,769
+这些变量，然后调用进行广播，这是做什么的
+these variables and then it calls
+conduct broadcast what that does is it
+
+404
+00:31:00,769 --> 00:31:05,119
+唤醒等待条件变量的人，因此一旦
+wakes up whoever's waiting on the
+condition variable and so once this
+
+405
+00:31:05,119 --> 00:31:10,700
+线程解锁互斥锁，这是我们想要的，因为它从等待返回
+thread unlocks the mutex this one what
+do we want as it's returning from wait
+
+406
+00:31:10,700 --> 00:31:15,080
+我们将重新获取互斥锁，然后返回到此for循环的顶部
+we'll reacquire the mutex and then
+return to the top of this for loop which
+
+407
+00:31:15,080 --> 00:31:20,539
+正在检查这种情况，因此无论谁在等待，此广播都会唤醒
+is checking this condition so this
+broadcast wakes up whoever's waiting at
+
+408
+00:31:20,539 --> 00:31:27,349
+这样的等待，这样可以避免一定时间点套
+this wait and so this avoids having to
+have that time dot sleeve for some
+
+409
+00:31:27,349 --> 00:31:30,589
+像这个线程那样等待某个条件的任意时间
+arbitrary amount of time like this
+thread that's waiting for some condition
+
+410
+00:31:30,589 --> 00:31:34,519
+只有在某些变化可能使之成为现实的时候醒悟
+to become true only gets woken up when
+something changes that might make that
+
+411
+00:31:34,519 --> 00:31:37,580
+条件变为真，就像如果您考虑这些线程， 
+condition become true right like if you
+think about these threads if they're
+
+412
+00:31:37,580 --> 00:31:42,200
+非常慢，他们很长一段时间都不会叫出conned out广播
+very slow and they don't call conned out
+broadcast for a long time this one will
+
+413
+00:31:42,200 --> 00:31:44,839
+只是在等待，这不会像定期唤醒并检查一些
+just be waiting it won't be like
+periodically waking up and checking some
+
+414
+00:31:44,839 --> 00:31:48,499
+不能改变的状况，因为没有其他人操纵他们的
+condition that can't have changed
+because nobody else manipulated their
+
+415
+00:31:48,499 --> 00:31:55,269
+共享数据，所以对此模式有任何疑问吗
+shared data so any questions about this
+pattern yeah
+
+416
+00:32:16,160 --> 00:32:19,130
+所以这是一个很好的问题，我认为您指的是所谓的
+so that's a great question I think
+you're referring to something called the
+
+417
+00:32:19,130 --> 00:32:23,180
+丢失的唤醒问题，这是操作系统中的主题，我们不会谈论
+lost wake up problem and this is a topic
+in operating systems and we won't talk
+
+418
+00:32:23,180 --> 00:32:26,600
+关于它的细节，现在可以在演讲后随意问我，但是很高
+about it in detail now there feel free
+to ask me after lecture but at a high
+
+419
+00:32:26,600 --> 00:32:29,360
+级别，您可以避免在
+level you can avoid funny race
+conditions that might happen between
+
+420
+00:32:29,360 --> 00:32:32,720
+等待并按照我在此处显示的特定模式进行广播，然后
+wait and broadcast by following the
+particular pattern I'm showing here and
+
+421
+00:32:32,720 --> 00:32:36,650
+稍后，我将向您展示此模式的抽象版本
+I'll show you an abstracted version of
+this pattern in a moment basically the
+
+422
+00:32:36,650 --> 00:32:41,180
+模式是针对可能进行更改以改变结果的那一面
+pattern is for the side that might make
+changes that will change the outcome of
+
+423
+00:32:41,180 --> 00:32:47,390
+您总是锁定条件测试然后处理数据然后调用广播
+the condition test you always lock then
+manipulate the data then call broadcast
+
+424
+00:32:47,390 --> 00:32:51,140
+然后呼叫解锁，因此必须在按住时呼叫广播
+and call unlock afterwards so the
+broadcast must be called while holding
+
+425
+00:32:51,140 --> 00:32:55,490
+同样，当您检查状况时，您会抓住锁，然后
+the lock similarly when you're checking
+the condition you grab the lock then
+
+426
+00:32:55,490 --> 00:32:59,480
+您总是先循环检查条件，然后再检查内部条件
+you're always checking the condition in
+a loop and then inside so when that
+
+427
+00:32:59,480 --> 00:33:03,590
+条件为假，请致电Condit等待，仅在您持有时调用
+condition is false you call Condit wait
+this is only called while you're holding
+
+428
+00:33:03,590 --> 00:33:07,520
+锁，并且原子地释放锁和诸如put之类的时间表
+the lock and it atomically releases the
+lock and kind of schedule like puts
+
+429
+00:33:07,520 --> 00:33:12,140
+本身在等待线程的列表中，然后等待返回，如我们所愿
+itself in a list of waiting threads and
+then as waits returning so as we like
+
+430
+00:33:12,140 --> 00:33:15,080
+从此等待调用返回，然后返回到此for循环的顶部，它将
+return from this wait call and then go
+back to the top of this for loop it will
+
+431
+00:33:15,080 --> 00:33:18,320
+重新获取锁，以便仅在持有锁的同时进行此检查，并且
+reacquire the lock so this check will
+only happen while holding the lock and
+
+432
+00:33:18,320 --> 00:33:21,620
+那么在此之外，我们仍然在这里拥有锁，我们在
+then so outside of this we still have
+the lock here and we unlock after we're
+
+433
+00:33:21,620 --> 00:33:26,180
+完成了我们在这里需要做的所有事情，这种模式看起来像
+done doing whatever we need to do here
+at a high level this pattern looks like
+
+434
+00:33:26,180 --> 00:33:29,780
+这样我们就有一个线程或一些线程在做一些
+this so we have one thread or some
+number of threads doing something that
+
+435
+00:33:29,780 --> 00:33:33,530
+可能会影响病情，因此他们将要抢一把锁
+might affect the condition so they're
+going to grab a lock do the thing call
+
+436
+00:33:33,530 --> 00:33:37,340
+广播，然后调用解锁，另一方面，我们有一些线程
+broadcast then call unlock and on the
+other side we have some thread that's
+
+437
+00:33:37,340 --> 00:33:40,460
+等待某种条件成真，那里的模式看起来像我们
+waiting for some condition to become
+true the pattern there it looks like we
+
+438
+00:33:40,460 --> 00:33:44,900
+在条件为假的情况下在一段时间的循环中抓住锁，然后我们等待，如此
+grab the lock then in a while loop while
+the condition is false we wait and so
+
+439
+00:33:44,900 --> 00:33:48,290
+那么我们知道当我们经过这个while循环时，条件为真， 
+then we know that when we get past this
+while loop now the condition is true and
+
+440
+00:33:48,290 --> 00:33:51,560
+我们拿着锁，我们可以做任何我们需要做的事，然后
+we're holding the lock and we can do
+whatever we need to do here and then
+
+441
+00:33:51,560 --> 00:33:55,790
+最后我们称之为解锁，以便我们讨论所有可能出错的地方
+finally we call unlock so we can talk
+about all the things that might go wrong
+
+442
+00:33:55,790 --> 00:33:59,150
+如果您有兴趣，但如果违反了这些规则之一，例如课后
+if you violate one of these rules like
+after lecture if you're interested but
+
+443
+00:33:59,150 --> 00:34:02,000
+如果您遵循这种模式，那么就不需要处理
+at a high level if you follow this
+pattern then you won't need to deal with
+
+444
+00:34:02,000 --> 00:34:07,690
+这些问题，所以对此有任何疑问
+those issues so any questions about that
+
+445
+00:34:08,889 --> 00:34:11,889
+是的
+yeah
+
+446
+00:34:14,050 --> 00:34:17,989
+所以这是一个很大的问题，何时使用广播以及何时使用
+so that's a great question
+when do you use broadcast versus when do
+
+447
+00:34:17,989 --> 00:34:21,319
+使用信号，以便交谈有三种方法，一种是等待
+
+448
+00:34:21,320 --> 00:34:25,460
+等待端，然后在另一端，您可以使用信号或广播， 
+waiting side and then on the other side
+you can use signal or broadcast and the
+
+449
+00:34:25,460 --> 00:34:30,110
+这些的语义是信号等待，就像一个线程一样唤醒一个侍者
+semantics of those are signal wait wakes
+up exactly one waiter like one thread
+
+450
+00:34:30,110 --> 00:34:32,810
+可能正在等待，而广播唤醒了所有人
+that may be waiting
+whereas broadcast wakes up everybody
+
+451
+00:34:32,810 --> 00:34:35,570
+谁在等待，他们都会伸出援手，就像他们都将尽力争取法律。 
+who's waiting and they'll all reach out
+like they'll all try to grab the law can
+
+452
+00:34:35,570 --> 00:34:38,780
+重新检查条件，只有其中一个会继续，因为只有一个
+recheck the condition and only one of
+them will proceed because only one a
+
+453
+00:34:38,780 --> 00:34:42,170
+他会把门锁小一点直到它超过这一点
+little he'll door lock until it gets
+past this point I think for the purpose
+
+454
+00:34:42,170 --> 00:34:45,590
+如果遵循此模式，则此类的所有人始终使用广播，从不使用信号
+of this class always use broadcast never
+use signal if you follow this pattern
+
+455
+00:34:45,590 --> 00:34:48,739
+就像不使用信号并始终使用广播一样，您的代码也可以正常工作
+and just like don't use signal and
+always use broadcast your code will work
+
+456
+00:34:48,739 --> 00:34:54,049
+我认为您可以将信号视为提高效率的工具，我们
+
+457
+00:34:54,050 --> 00:34:57,170
+对此，我并不真正在意实验室中的CPU效率水平
+don't really care about that level of
+CPU efficiency in the labs for this
+
+458
+00:34:57,170 --> 00:34:59,350
+类
+class
+
+459
+00:35:00,280 --> 00:35:07,880
+好的，还有更多问题，所以我们将在围棋方面讨论最后一个主题
+any more questions ok so the final topic
+we're going to cover in terms of go
+
+460
+00:35:07,880 --> 00:35:12,620
+并发原语是通道，所以两个高级通道就像一个队列
+concurrency primitives is channels so
+two high level channels are like a queue
+
+461
+00:35:12,620 --> 00:35:18,250
+像同步原语，但它们的行为不像
+like synchronization primitive but they
+don't behave quite like cues in the
+
+462
+00:35:18,250 --> 00:35:23,780
+直觉的感觉，就像我认为有人想到渠道一样
+intuitive sense like I think some people
+think of channels is like there's this
+
+463
+00:35:23,780 --> 00:35:26,840
+数据结构，我们可以坚持下去，最终将有人
+data structure we can sticks that stick
+things in and eventually someone will
+
+464
+00:35:26,840 --> 00:35:31,190
+撤消这些东西，但实际上渠道没有排队能力
+pull those things out but in fact
+channels have no queuing capacity they
+
+465
+00:35:31,190 --> 00:35:36,530
+没有内部存储，基本上，如果需要，通道是同步的
+have no internal storage basically
+channels are synchronous if you have to
+
+466
+00:35:36,530 --> 00:35:39,350
+如果有人尝试去在频道上发送和接收的例程
+go routines that are going to send and
+receive on a channel if someone tries to
+
+467
+00:35:39,350 --> 00:35:43,190
+在没有人接收该线程的情况下在通道上发送消息，直到阻塞
+send on the channel while nobody's
+receiving that thread will block until
+
+468
+00:35:43,190 --> 00:35:47,660
+有人准备好接收，并在那时同步交换
+somebody's ready to receive and at that
+point synchronously it will exchange
+
+469
+00:35:47,660 --> 00:35:51,740
+那个数据传给接收者，如果另一个方向相同
+that data over to the receiver and the
+same is true the other direction if
+
+470
+00:35:51,740 --> 00:35:54,920
+有人试图从某个频道接收，而没有人发送，该接收将会
+someone tries to receive from a channel
+while nobody's sending that receive will
+
+471
+00:35:54,920 --> 00:35:58,310
+阻塞，直到有另一个goroutine要在频道上发送，并且
+block until there's another goroutine
+that's about to send on the channel and
+
+472
+00:35:58,310 --> 00:36:01,970
+发送将同步发生，所以这是一个小演示程序， 
+that send will happen synchronously so
+here's a little demo program that
+
+473
+00:36:01,970 --> 00:36:06,440
+在这里演示这一点，我有一个我声明的频道，然后生成一个go 
+demonstrates this here I have a I
+declare channel and then I spawn a go
+
+474
+00:36:06,440 --> 00:36:11,600
+例程，等待一秒钟，然后发送，然后从通道接收
+routine that waits for a second and then
+sent and then receives from a channel
+
+475
+00:36:11,600 --> 00:36:16,640
+然后在我的主要女孩子例程中，我跟踪时间，然后发送
+and then in my main girl routine I keep
+track of the time then I send on the
+
+476
+00:36:16,640 --> 00:36:19,370
+通道，所以我只是将一些虚拟数据放入通道中，然后我将
+channel so I just put some dummy data
+into the channel and then I'm going to
+
+477
+00:36:19,370 --> 00:36:22,900
+打印发送多长时间
+print out how long the send took
+
+478
+00:36:25,569 --> 00:36:31,579
+如果您将渠道视为具有内部存储容量的线索，则可能
+and if you think of channels as cues
+with internal storage capacity you might
+
+479
+00:36:31,579 --> 00:36:35,299
+认为这件事完成得非常快，但这不是渠道的运作方式
+think of this thing as completing very
+fast but that's not how channels work
+
+480
+00:36:35,299 --> 00:36:39,740
+该发送将被阻止，直到发生接收和发生
+this send is going to block until this
+receive happens and this one happened
+
+481
+00:36:39,740 --> 00:36:42,950
+直到这一秒过去了，所以从这里到这里
+till this one second is the elapsed and
+so from here to here
+
+482
+00:36:42,950 --> 00:36:48,319
+实际上，我们在主流程中被阻塞了一秒钟
+we're actually blocked in the main goo
+routine for one whole second alright so
+
+483
+00:36:48,319 --> 00:36:51,680
+不要将通道视为队列，而是将其视为同步
+don't think of channels as queues think
+of them as this synchronous like the
+
+484
+00:36:51,680 --> 00:36:55,180
+同步通讯机制
+synchronous communication mechanism
+
+485
+00:36:55,420 --> 00:36:59,660
+另一个使这一点很明显的例子是在这里，我们有一个goroutine 
+another example that'll make this really
+obvious is here we have a goroutine that
+
+486
+00:36:59,660 --> 00:37:02,690
+创建一个频道，然后在该频道上发送并尝试从中接收
+creates a channel then sends on the
+channel and tries receiving from it
+
+487
+00:37:02,690 --> 00:37:05,150
+当我尝试运行此程序时，没人知道会发生什么
+doesn't anybody know what'll happen when
+I try running this
+
+488
+00:37:05,150 --> 00:37:10,510
+我认为文件名可能会把它丢掉
+I think the file name might give it away
+
+489
+00:37:15,880 --> 00:37:19,640
+是的，发送将一直阻塞，直到有人准备接收，但是
+yeah exactly the send is going to block
+till somebody's ready to receive but
+
+490
+00:37:19,640 --> 00:37:24,200
+没有接收器，如果您所有的人都去实际检测到这种情况
+there is no receiver and go actually
+detects this condition if all your
+
+491
+00:37:24,200 --> 00:37:27,619
+线程正在将其休眠以发送文本，这是一个死锁条件，实际上
+threads are sleeping it to text this is
+a deadlock condition and it'll actually
+
+492
+00:37:27,619 --> 00:37:31,430
+崩溃，但如果有其他线程，您可能会有更多细微的错误
+crash but you can have more subtle bugs
+where if you have some other thread like
+
+493
+00:37:31,430 --> 00:37:38,660
+如果我生成了您知道for循环的go例程，就不要做某事
+off doing something if I spawn this go
+routine that you know for loop does
+
+494
+00:37:38,660 --> 00:37:44,059
+什么都没有，我尝试再次运行该程序，现在它进入了死锁检测器
+nothing and I try running this program
+again now it goes deadlock detector
+
+495
+00:37:44,059 --> 00:37:46,609
+不会注意到所有线程都没有使用任何东西，就像有一个
+won't notice that all threads are not
+doing any use will work like there's one
+
+496
+00:37:46,609 --> 00:37:50,000
+线程正在运行，只是这从未收到，我们可以通过查看
+thread running it's just this is never
+receiving and we can tell by looking at
+
+497
+00:37:50,000 --> 00:37:54,920
+这个程序，它永远不会终止，但在这里看起来就像挂着一样
+this program that it'll never terminate
+but here it just looks like it hangs so
+
+498
+00:37:54,920 --> 00:37:58,670
+如果您不小心使用频道，则可以在这些地方找到这些细微的错误
+if you're not careful with channels you
+can get these subtle bugs where you have
+
+499
+00:37:58,670 --> 00:38:07,670
+结果是X的两倍，是的，完全没有任何人在发送数据
+double X as a result yeah yeah exactly
+there's no data nobody's sending on this
+
+500
+00:38:07,670 --> 00:38:11,770
+频道，所以这将在这里阻塞，永远不会到达这条线
+channel so this is gonna block here it's
+never gonna get to this line
+
+501
+00:38:19,470 --> 00:38:23,760
+是的，因此您所指出的渠道实际上不能仅在
+yeah so channels as you pointed out
+can't really be used just within a
+
+502
+00:38:23,760 --> 00:38:27,270
+单个goroutine并没有任何意义，因为为了发送或发送
+single goroutine it doesn't really make
+sense because in order to send or in
+
+503
+00:38:27,270 --> 00:38:30,780
+为了接收，必须有另一个go例程在执行相反的操作
+order to receive there has to be another
+go routine doing the opposite action at
+
+504
+00:38:30,780 --> 00:38:34,080
+同时，所以如果没有的话，你将永远受阻，然后
+the same time so if there isn't you're
+just gonna block forever and then that
+
+505
+00:38:34,080 --> 00:38:44,400
+ ch，但线程将不再做任何有用的工作，是的，等待接收
+chant but thread will no longer do any
+useful work yeah sans wait for receives
+
+506
+00:38:44,400 --> 00:38:47,070
+收到等待迹象，并且一旦同时发生
+receives wait for signs and it happens
+synchronously once there's both the
+
+507
+00:38:47,070 --> 00:38:54,570
+发送者和接收者表示我到目前为止所谈论的内容是无缓冲的
+sender and receiver present what I
+talked about so far is unbuffered
+
+508
+00:38:54,570 --> 00:38:57,630
+我本来要避免谈论缓冲通道，因为那里
+channels I was going to avoid talking
+about buffered channels because there
+
+509
+00:38:57,630 --> 00:39:00,600
+很少有问题对于解决如此缓冲的问题实际上有用
+are very few problems that they're
+actually useful for solving so buffered
+
+510
+00:39:00,600 --> 00:39:07,350
+频道可以容纳一定的容量，然后您就可以想到它了，因为它只是切换
+channels can take in a capacity and then
+you can think of it as it's just switch
+
+511
+00:39:07,350 --> 00:39:11,850
+这就是这个程序的容量为1的缓冲通道
+this to so here's a buffered channel
+with a capacity of one this program does
+
+512
+00:39:11,850 --> 00:39:16,740
+终止是因为缓冲的通道就像它们有一些内部存储
+terminate because buffered channels are
+like they have some internal storage
+
+513
+00:39:16,740 --> 00:39:20,520
+空间，直到该空间填满为止，发送不会阻塞，因为它们可以
+space and until that space fills up
+sends are non blocking because they can
+
+514
+00:39:20,520 --> 00:39:23,700
+只需将数据放入内部存储空间即可，但一旦通道
+just put that data in the internal
+storage space but once the channel does
+
+515
+00:39:23,700 --> 00:39:28,050
+填满，那么它的行为就像修女缓冲通道
+fill up then it does behave like a nun
+buffer channel in the sense that further
+
+516
+00:39:28,050 --> 00:39:34,320
+发送将一直阻塞，直到在通道中有接收空间为止，但是我认为
+sends will block until there's a receive
+to make space in the channel but I think
+
+517
+00:39:34,320 --> 00:39:37,020
+在较高的层次上，我们应该避免缓冲通道，因为它们基本上不会
+at a high level we should avoid buffered
+channels because they basically don't
+
+518
+00:39:37,020 --> 00:39:40,650
+解决任何问题，另一条路径和其他应该考虑的事情是
+solve any problems and another path and
+other things should be thinking about is
+
+519
+00:39:40,650 --> 00:39:43,260
+每当你在这里编造任意数字来使你的
+whenever you to make up arbitrary
+numbers like this one here to make your
+
+520
+00:39:43,260 --> 00:39:48,020
+代码工作，您可能做错了是的
+code work you're probably doing
+something wrong yeah
+
+521
+00:40:00,509 --> 00:40:04,029
+所以我认为这是一个关于术语的问题
+so I think this is a question about
+terminology like what exactly does
+
+522
+00:40:04,029 --> 00:40:06,700
+死锁意味着该死锁是一个死锁，像是的，这算作一个死锁
+deadlock mean into this count as a
+deadlock like yes this counts as a
+
+523
+00:40:06,700 --> 00:40:10,299
+死锁就像没有有用的进展将在这里这样，这些线程是
+deadlock like no useful progress will be
+made here like this these threads are
+
+524
+00:40:10,299 --> 00:40:16,839
+永远困扰着其他任何问题，那么我们的频道
+just stuck forever
+any other questions so what our channel
+
+525
+00:40:16,839 --> 00:40:20,200
+我认为渠道对一小部分事情很有用，例如
+is useful for I think channels are
+useful for a small set of things like
+
+526
+00:40:20,200 --> 00:40:25,329
+例如，我认为对于生产者消费者队列，诸如此类的情况
+for example I think for producer
+consumer queues sort of situations like
+
+527
+00:40:25,329 --> 00:40:28,269
+在这里，我有一个制作频道的程序，它产生了一堆
+here I have a program that makes a
+channel and this spawns a bunch of
+
+528
+00:40:28,269 --> 00:40:31,059
+ goroutine会做一些工作，例如说他们正在竞争
+goroutines that are going to be doing
+some work like say they're competing
+
+529
+00:40:31,059 --> 00:40:34,719
+产生一些数据的结果，我有很多这样的例程
+some result in producing some data and I
+have a bunch of these go routines
+
+530
+00:40:34,719 --> 00:40:37,989
+并行运行，我想收集所有传入的数据， 
+running in parallel and I want to
+collect all that data as it comes in and
+
+531
+00:40:37,989 --> 00:40:40,569
+用它做一些事情，所以这就像等待一样
+do something with it
+so this do work thing just like waits
+
+532
+00:40:40,569 --> 00:40:43,839
+并产生一个随机数，在主goroutine中，我将
+for a bit and produces a random number
+and in the main goroutine I'm going to
+
+533
+00:40:43,839 --> 00:40:47,769
+不断在此频道上接收并打印出来，因为这是对
+continuously receive on this channel and
+print it out like this is a great use of
+
+534
+00:40:47,769 --> 00:40:52,630
+渠道渠道的另一个很好的用途是实现类似于
+channels another good use of channels is
+to achieve something similar to what
+
+535
+00:40:52,630 --> 00:40:57,519
+等待组这样做而不是使用等待组，因为我想产生一堆
+wait groups do so rather than use a wait
+group suppose I want to spawn a bunch of
+
+536
+00:40:57,519 --> 00:41:01,150
+线程，直到他们都完成某件事为止，一种方法是
+threads and wait till they're all done
+doing something one way to do that is to
+
+537
+00:41:01,150 --> 00:41:04,390
+创建一个通道，然后生成一堆线程，然后知道有多少
+create a channel and then I spawn a
+bunch of threads and know how many
+
+538
+00:41:04,390 --> 00:41:07,809
+我生成的线程，因此将在此处创建五个goroutine 
+threads I've spawned so five goroutines
+created here they're going to do
+
+539
+00:41:07,809 --> 00:41:11,619
+内容，然后在完成后在此频道上发送，然后在主要
+something and then send on this channel
+when they're done and then in the main
+
+540
+00:41:11,619 --> 00:41:15,400
+去例行程序，我可以从那个频道收到相同的次数， 
+go routine I can just receive from that
+channel the same number of times and
+
+541
+00:41:15,400 --> 00:41:19,619
+这与等待组具有相同的效果
+this has the same effect as a wait group
+
+542
+00:41:22,840 --> 00:41:33,660
+这样的问题到底是什么问题
+so question so what exactly is the
+question
+
+543
+00:41:33,840 --> 00:41:36,939
+ [音乐] 
+[Music]
+
+544
+00:41:37,510 --> 00:41:41,630
+所以这里的问题是，您是否可以使用容量为5的缓冲通道
+so the question is here could you use a
+buffered channel with a capacity of five
+
+545
+00:41:41,630 --> 00:41:45,470
+因为您正在等待五个收件我认为在这种情况下
+because you're waiting for five receives
+I think in this particular case yes that
+
+546
+00:41:45,470 --> 00:41:49,280
+会产生相同的效果，但我认为没有真正理由
+would have the equivalent effect but I
+think there's not really a reason to do
+
+547
+00:41:49,280 --> 00:41:52,220
+我认为在您的代码中
+that
+and I think at a high level in your code
+
+548
+00:41:52,220 --> 00:41:55,490
+您应该避免使用缓冲通道，甚至避免使用通道，除非您
+you should avoid buffer channels and
+also maybe even channels unless you
+
+549
+00:41:55,490 --> 00:42:08,000
+认真思考自己在做什么，所以我认为一个体重组是什么
+think very hard about what you're doing
+yeah so what is a weight group I think
+
+550
+00:42:08,000 --> 00:42:11,830
+我们在之前的讲座中谈到了这一点，今天我简短地谈到了
+we covered this in a previous lecture
+and I talked about it very briefly today
+
+551
+00:42:11,830 --> 00:42:18,950
+但是我有一个重量组的例子，所以重量组是一个
+but I do have an example of weight
+groups so a weight group is a yet
+
+552
+00:42:18,950 --> 00:42:21,680
+ go在sync包中提供的另一个同步原语和
+another synchronization primitive
+provided by go in the sync package and
+
+553
+00:42:21,680 --> 00:42:25,700
+就像他的名字所宣传的那样，它可以让您等待某个
+it kind of does what his name advertises
+like it lets you wait for a certain
+
+554
+00:42:25,700 --> 00:42:29,120
+工作方式的线程数是您调用权重组点添加
+number of threads to be done the way it
+works is you call weight group dot add
+
+555
+00:42:29,120 --> 00:42:33,470
+这基本上会增加一些内部计数器，然后当您调用
+and that basically increments some
+internal counter and then when you call
+
+556
+00:42:33,470 --> 00:42:38,360
+权重组点权重，它等待完成的次数已与广告调用了多次
+weight group dot weight it waits till
+done has been called as many times as ad
+
+557
+00:42:38,360 --> 00:42:43,940
+被调用，因此该代码与我刚刚向您展示的代码基本相同
+was called so this code is basically the
+same as the code I just showed you that
+
+558
+00:42:43,940 --> 00:42:47,120
+使用了一个频道，除了使用权重组，它们具有完全相同的
+was using a channel except this is using
+weight group they have the exact same
+
+559
+00:42:47,120 --> 00:42:52,390
+效果你可以使用一个
+effect you can use either one yeah
+
+560
+00:43:01,940 --> 00:43:06,740
+所以这里的问题是关于比赛条件，我想如果
+so the question here is about race
+conditions I think like what happens if
+
+561
+00:43:06,740 --> 00:43:11,460
+此广告在发生这种重量或其他事情之前发生的速度不够快
+this ad doesn't happen fast enough
+before this weight happens or something
+
+562
+00:43:11,460 --> 00:43:15,750
+像这样好，所以请注意这里的模式是称重组
+like that well so here notice that the
+pattern here is we call weight group
+
+563
+00:43:15,750 --> 00:43:21,240
+ go例程之外的数据，并且在生成该go例程之前被调用
+data outside of this go routine and it's
+called before spawning this go routine
+
+564
+00:43:21,240 --> 00:43:26,910
+所以首先发生，然后发生，所以我们永远不会遇到这种情况
+so this happens first this happens next
+and so we'll never have the situation
+
+565
+00:43:26,910 --> 00:43:51,450
+我们做完了这个广告，就发生在这个特定的例行程序之后
+we're done happens after this ad happens
+for this particular routine how's this
+
+566
+00:43:51,450 --> 00:43:55,500
+由编译器实现，我现在不再讨论
+implemented by the compiler and I will
+not talk about that now but talk to me
+
+567
+00:43:55,500 --> 00:43:59,220
+下课后或上班时间，但我认为像您这样的目的班
+after class or in office hours but I
+think for the purposes class like you
+
+568
+00:43:59,220 --> 00:44:04,650
+需要了解这些事情的API而不是正确的实现等等
+need to know the API for these things
+not the implementation all right and so
+
+569
+00:44:04,650 --> 00:44:12,330
+我认为基本上这是我正在进行的所有并发原语，所以最后
+I think that's basically all I have on
+go concurrency primitives so one final
+
+570
+00:44:12,330 --> 00:44:15,390
+思想是在诸如此类的渠道上对像我这样的特定事物有好处
+thought is on channels like channels are
+good for a specific set of things like I
+
+571
+00:44:15,390 --> 00:44:17,910
+只是向您显示了生产者消费者队列或喜欢实施某些东西
+just showed you the producer consumer
+queue or like implementing something
+
+572
+00:44:17,910 --> 00:44:21,420
+像重量组，但我认为当您尝试与他们做更奇特的事情时
+like weight groups but I think when you
+try to do fancier things with them like
+
+573
+00:44:21,420 --> 00:44:25,620
+如果您想说像踢另一个可能正在或可能不等待的跑步程序
+if you want to say like kick another go
+routine that may or may not be waiting
+
+574
+00:44:25,620 --> 00:44:28,650
+对于您来说就像被唤醒一样，这与频道有关
+for you to be like woken up that's a
+kind of tricky thing to do with channels
+
+575
+00:44:28,650 --> 00:44:31,560
+还有很多其他方法可以让他们跟自己开枪
+there's also a bunch of other ways to
+shoot yourself in the foot with them I'm
+
+576
+00:44:31,560 --> 00:44:35,190
+避免向您展示带有频道的错误代码示例，因为
+going to avoid showing you examples of
+bad code with channels just because it's
+
+577
+00:44:35,190 --> 00:44:39,330
+看不见有用，但我个人大部分时间避免使用渠道，并且
+not useful to see but I personally avoid
+using channels for the most part and
+
+578
+00:44:39,330 --> 00:44:43,380
+只需使用共享内存和互斥锁以及条件变量，然后设置和
+just use shared memory and mutexes and
+condition variables and set and I
+
+579
+00:44:43,380 --> 00:44:48,000
+亲自找到那些更容易推理的东西，所以可以随时使用
+personally find those much easier to
+reason about so feel free to use
+
+580
+00:44:48,000 --> 00:44:51,030
+有意义的渠道，但如果有什么事情看起来特别尴尬， 
+channels for when they make sense but if
+anything looks especially awkward to do
+
+581
+00:44:51,030 --> 00:44:53,700
+使用诸如互斥和条件变量之类的通道，它们可能是
+with channels like just use mutexes and
+condition variables and they're probably
+
+582
+00:44:53,700 --> 00:44:56,930
+是更好的工具
+a better tool yeah
+
+583
+00:45:02,599 --> 00:45:06,089
+所以问题在于这种生产者-消费者模式之间的差异
+so the question is with the difference
+between this producer-consumer pattern
+
+584
+00:45:06,089 --> 00:45:09,660
+在线程安全的FIFO中，我认为它们和您一样
+here in a thread-safe FIFO I think
+they're kind of equivalent like you
+
+585
+00:45:09,660 --> 00:45:14,240
+可以使用线程安全的FIFO做到这一点，基本上这就是
+could do this with the thread-safe FIFO
+and it like that is basically what a
+
+586
+00:45:14,240 --> 00:45:37,140
+如果您正在Indy中排队，那么缓冲通道就差不多
+like buffered channel is roughly if
+you're in queueing things in Indy
+
+587
+00:45:37,140 --> 00:45:40,289
+排队之类的事情，如果您希望此行结束并让该线程执行
+queueing things like if you want this
+line to finish and have this thread go
+
+588
+00:45:40,289 --> 00:45:43,829
+当数据排在队列而不是这个女孩那里时做其他事情
+do something else while that data sits
+there in a queue rather than this girl
+
+589
+00:45:43,829 --> 00:45:48,960
+例程等待发送它，那么缓冲的通道可能有意义，但是我
+routine waiting to send it then a
+buffered channel might make sense but I
+
+590
+00:45:48,960 --> 00:45:53,849
+认为至少在生活中不会有这样的模式，所以
+think at least in the lives you will not
+have a pattern like that all right so
+
+591
+00:45:53,849 --> 00:46:05,630
+下一步Fabian会谈论更快速相关的内容，您需要这个吗
+next Fabian's going to talk about more
+rapidly related stuff do you need this
+
+592
+00:46:13,630 --> 00:46:24,709
+好吧，你们都能听到我的声音吗，是的，所以基本上
+all right can you all hear me is this
+working yeah all right so yeah basically
+
+593
+00:46:24,709 --> 00:46:29,449
+我将向您展示我们通常在人们的木筏中看到的两个错误
+I'm going to show you two bugs that we
+commonly see in people's raft
+
+594
+00:46:29,449 --> 00:46:32,899
+实现中有很多很常见的错误，但我只是
+implementations there's a lot of bugs
+that are pretty common but I'm just
+
+595
+00:46:32,899 --> 00:46:38,869
+将重点放在其中的两个上，因此在第一个示例中，我们有点开始
+going to focus on two of them so in this
+first example we sort of have a start of
+
+596
+00:46:38,869 --> 00:46:43,069
+筏式实现，就像您可能会看到的
+a raft implementation for that's sort of
+like what you might see for to a just
+
+597
+00:46:43,069 --> 00:46:48,019
+一个人的开始，所以在我们的木筏状态下，我们主要
+the beginnings of one
+so in our raft state we have primarily
+
+598
+00:46:48,019 --> 00:46:52,219
+筏墩的当前状态，是跟随者候选者还是领导者，以及
+the current status of the raft pier
+either follower candidate or leader and
+
+599
+00:46:52,219 --> 00:46:55,519
+我们有这两个状态变量来跟踪当前术语
+we have these two state variables that
+were keeping track of the current term
+
+600
+00:46:55,519 --> 00:47:01,159
+以及我们在当前任期内投票支持的人，所以我希望我们重点关注
+and who we voted for in the current term
+so I'm I want us to focus though on
+
+601
+00:47:01,159 --> 00:47:07,699
+这两个功能会尝试选举和呼叫请求投票，因此在我们看来
+these two functions attempt election and
+call request vote so in a temptin we're
+
+602
+00:47:07,699 --> 00:47:13,339
+只是将我们的状态设置为候选项，以增加我们当前的选票
+just going to set our state to candidate
+increment our current term vote for
+
+603
+00:47:13,339 --> 00:47:17,449
+自己，然后开始向所有筏友发送请求投票
+ourselves and then start sending out
+request votes to all of our raft peers
+
+604
+00:47:17,449 --> 00:47:23,719
+因此，这类似于Anish展示了我们所处的某些模式
+and so this is similar to some of the
+patterns that Anish showed where we're
+
+605
+00:47:23,719 --> 00:47:28,339
+将遍历我们的同伴，然后分别进行每个例程
+going to loop through our peers and then
+for each one in a go routines separately
+
+606
+00:47:28,339 --> 00:47:32,599
+调用此呼叫请求投票功能，以实际向该对象发送RPC 
+call this call request vote function in
+order to actually send an RPC to that
+
+607
+00:47:32,599 --> 00:47:36,829
+同行很好，所以在通话请求投票中
+peer
+alright so in call request vote we're
+
+608
+00:47:36,829 --> 00:47:42,649
+将为我们的请求Ville RPC调用获取锁准备参数
+going to acquire the lock prepare
+arguments for our request Ville RPC call
+
+609
+00:47:42,649 --> 00:47:47,689
+通过将其设置为当前术语，然后实际执行RPC 
+based on by setting it to the current
+term and then actually perform the RPC
+
+610
+00:47:47,689 --> 00:47:54,079
+打电话到这里，最后根据回应，我们会回覆这个
+call over here and finally based on the
+response we will reply back to this this
+
+611
+00:47:54,079 --> 00:47:56,929
+尝试选举功能和最终尝试选举功能
+attempt election function and the
+attempt election function eventually
+
+612
+00:47:56,929 --> 00:48:00,139
+应该汇总一下选票，看看它是否获得多数票，并且可以
+should tally up the votes to see if it
+got a majority of the votes and can
+
+613
+00:48:00,139 --> 00:48:06,439
+成为领导者，那么当我们运行此代码时会发生什么，因此理论上我们会
+become leader so what happens when we
+run this code so in theory what we might
+
+614
+00:48:06,439 --> 00:48:10,099
+预计会发生四点，所以将会有一些代码
+expect to happen is four so there's
+going to be some code that's going to
+
+615
+00:48:10,099 --> 00:48:13,959
+生成一些图形矛，然后尝试尝试对它们进行选举， 
+spawn a few graph spears and actually
+try to attempt elections on them and
+
+616
+00:48:13,959 --> 00:48:19,609
+应该发生的是，我们只是开始从其他同行那里收集选票， 
+what should happen are we just start
+collecting votes from other peers and
+
+617
+00:48:19,609 --> 00:48:21,650
+那么我们实际上并不会理清他们
+then we're not actually going to tally
+them up
+
+618
+00:48:21,650 --> 00:48:26,029
+但希望没有奇怪的地方出问题，但实际上会发生什么
+but hopefully nothing weird goes wrong
+but actually something is going to go
+
+619
+00:48:26,029 --> 00:48:31,579
+错误在这里，我们实际上激活了死锁检测器，并以某种方式我们
+wrong here and we actually activated
+goes deadlock detector and somehow we
+
+620
+00:48:31,579 --> 00:48:37,400
+陷入僵局，让我们看看现在发生了什么，让我们专注于发生了什么
+ran into a deadlock so let's see what
+happened for now let's focus on what's
+
+621
+00:48:37,400 --> 00:48:42,769
+服务器为零，因此服务器为零，表示开始尝试
+going on with the server zero so server
+zero it says it starts attempting an
+
+622
+00:48:42,769 --> 00:48:47,029
+刚开始尝试选举功能的第一学期的选举
+election at term one that's just
+starting the attempt election function
+
+623
+00:48:47,029 --> 00:48:50,749
+它将获取锁集，其中一些集用于执行
+it will acquire the lock set some of the
+set some stuff up for performing the
+
+624
+00:48:50,749 --> 00:48:59,599
+选择然后解锁，然后它将发出请求投票RPC-服务器
+election and then unlock then it's going
+to send out a request vote RPC - server
+
+625
+00:48:59,599 --> 00:49:05,150
+ -它完成了对请求RPC的处理，因此我们只是
+- it finishes processing that request
+vote RPC over here so we're just
+
+626
+00:49:05,150 --> 00:49:09,799
+在我们实际发出RPC之前和之后进行打印，然后再进行打印
+printing right before and after we
+actually send out the RPC and then it
+
+627
+00:49:09,799 --> 00:49:14,089
+发送一个请求投票RPC-服务器一，但是在那之后我们再也没有
+sends out a request vote RPC - server
+one but after that it never we never
+
+628
+00:49:14,089 --> 00:49:18,849
+实际上看到它完成了发送请求投票RPC的操作，因此它实际上被卡住了
+actually see it finish sending the
+request vote RPC so it's actually stuck
+
+629
+00:49:18,849 --> 00:49:24,319
+在此函数调用中，现在等待服务器1的RPC响应
+in this function call waiting for the
+RPC response from server 1 all right now
+
+630
+00:49:24,319 --> 00:49:27,920
+让我们看看每个人在做什么，这几乎是同一件事
+let's look at what's everyone's doing so
+it's it's pretty much the same thing it
+
+631
+00:49:27,920 --> 00:49:32,869
+发送请求投票，我收到一台服务器，该服务器成功完成
+sends a request vote I received a server
+to that that succeeds it finishes
+
+632
+00:49:32,869 --> 00:49:36,349
+处理该请求投票来自服务器2的响应，然后发送
+processing that request vote the
+response from server 2 then it sends
+
+633
+00:49:36,349 --> 00:49:41,989
+ RPC为零，现在实际发生的是0＆1，正在等待
+this RPC to zero and now what's actually
+happening is 0 & 1 are sort of waiting
+
+634
+00:49:41,989 --> 00:49:45,559
+对于彼此的RPC响应，他们都发出了RPC调用，但没有
+for the RPC responses from each other
+they both sent out an RPC call but not
+
+635
+00:49:45,559 --> 00:49:50,269
+尚未得到回应，这实际上是我们的原因
+yet got the response yet and that's
+actually sort of the cause of our
+
+636
+00:49:50,269 --> 00:49:54,890
+死锁，所以我们死锁的真正原因是因为我们
+deadlock so really what's the reason
+that we're dead locking is because we're
+
+637
+00:49:54,890 --> 00:49:59,809
+通过核心请求投票中的RPC调用来保持此锁
+holding this lock through our RPC calls
+over here in the core requests vote
+
+638
+00:49:59,809 --> 00:50:04,999
+函数，我们获取与筏同伴关联的互斥体，并且仅在
+function we acquire our mutex associated
+with our raft peer and we only unlock at
+
+639
+00:50:04,999 --> 00:50:07,819
+该函数的结尾，因此在整个函数中，我们将
+the end of this function so throughout
+this entire function we're holding the
+
+640
+00:50:07,819 --> 00:50:17,239
+锁定，包括当我们尝试与我们的同伴联系以进行投票时以及随后的时间
+lock including when we try to contact
+our peer to get the vote and later when
+
+641
+00:50:17,239 --> 00:50:24,499
+我们处理此请求投票RPC，实际上我们只会在
+we handle this request vote RPC we
+actually only see it at the beginning of
+
+642
+00:50:24,499 --> 00:50:28,160
+此函数在处理程序中，我们也在尝试获取锁，但我们从未
+this function in the handler we're also
+trying to acquire the lock but we never
+
+643
+00:50:28,160 --> 00:50:31,579
+实际上成功地获得了锁，因此只需多一点
+actually succeed in acquiring the lock
+so just to make this a little bit more
+
+644
+00:50:31,579 --> 00:50:35,420
+清除操作顺序
+clear the the sort of order of
+operations
+
+645
+00:50:35,420 --> 00:50:42,710
+正在发生在呼叫请求表决服务器零首先要获取
+is happening is in call request vote
+server zero is first going to acquire
+
+646
+00:50:42,710 --> 00:50:51,040
+锁定，然后将RPC调用发送到服务器一，然后同时
+the lock and send an RPC call to server
+one and then simultaneously and
+
+647
+00:50:51,040 --> 00:50:54,319
+单独的服务器将要执行相同的操作，它将进入其呼叫
+separately server one is going to do the
+same thing it's going to enter its call
+
+648
+00:50:54,319 --> 00:51:01,809
+请求投票功能获取锁并将此RPC调用发送到服务器零
+request vote function acquire the lock
+and send this RPC call to server zero
+
+649
+00:51:01,809 --> 00:51:07,220
+现在在他们试图获取的服务器零处理程序和服务器一个处理程序中
+now in server zeros handler and server
+ones handler they're trying to acquire
+
+650
+00:51:07,220 --> 00:51:11,990
+锁，但是他们不能，因为他们已经在获取锁了， 
+the lock but they can't because they
+already are acquiring the lock and
+
+651
+00:51:11,990 --> 00:51:15,319
+试图互相发送RPC调用，这实际上是
+trying to send the RPC call to each
+other and that that's actually what's
+
+652
+00:51:15,319 --> 00:51:21,440
+导致出现僵局的情况，因此要解决此问题，基本上我们希望您不要
+leading to the deadlock situation so to
+solve this basically we want you to not
+
+653
+00:51:21,440 --> 00:51:27,710
+通过RPC调用来保持锁定，这实际上是解决此问题的方法
+hold locks through RPC calls and that's
+the solution to this problem in fact we
+
+654
+00:51:27,710 --> 00:51:32,210
+根本不需要这里的锁，而是在需要时尝试读取当前术语
+don't need the lock here at all instead
+of trying to read the current term when
+
+655
+00:51:32,210 --> 00:51:38,319
+我们输入此呼叫请求表决功能，可以在此处将其作为参数传递
+we enter this call request vote function
+we can pass this as an argument here
+
+656
+00:51:38,319 --> 00:51:44,720
+保留我们在这次尝试选举中较早获得锁的期限
+save the term when we had acquired the
+lock earlier in this attempt election
+
+657
+00:51:44,720 --> 00:51:48,890
+并将其作为变量传递给调用请求投票，因此实际上
+and just passed this as a as a variable
+to call request vote so that actually
+
+658
+00:51:48,890 --> 00:51:55,730
+消除了在呼叫请求投票中完全获取锁定的需要
+removes the need to acquire the lock at
+all in call request vote alternatively
+
+659
+00:51:55,730 --> 00:51:59,569
+我们可以在准备参数时锁定，然后在解锁之前
+we could lock while we're preparing the
+arguments and then unlock before
+
+660
+00:51:59,569 --> 00:52:04,250
+实际执行呼叫，然后如果我们需要处理回复，我们可以
+actually performing the call and then if
+we need to to process the reply we could
+
+661
+00:52:04,250 --> 00:52:08,059
+之后再次锁定，因此只需确保在解锁之前将其解锁
+lock again afterwards so it's just make
+sure to unlock before making it
+
+662
+00:52:08,059 --> 00:52:14,750
+显然会打电话，然后如果您需要的话，您可以再次获取锁，所以现在如果
+obviously call and then if you need to
+you can acquire the lock again so now if
+
+663
+00:52:14,750 --> 00:52:21,559
+然后我保存了它，因此它仍在激活死锁检测器，但是
+I save this then so it's still
+activating the deadlock detector but
+
+664
+00:52:21,559 --> 00:52:25,490
+那实际上只是因为我们最后什么也没做，但是现在
+that's actually just because we're not
+doing anything at the end but now it's
+
+665
+00:52:25,490 --> 00:52:28,309
+实际工作中，我们已完成对请求的发送
+actually working
+we finished sending the request votes on
+
+666
+00:52:28,309 --> 00:52:32,690
+双方，我们要完成的所有操作都完成了
+both sides and all the operations that
+we wanted to complete are complete all
+
+667
+00:52:32,690 --> 00:52:37,150
+对这个例子有任何疑问
+right any questions about this example
+
+668
+00:52:42,180 --> 00:52:47,579
+是的，不是这样的，所以您在准备时可能需要使用锁
+yeah so not it's sort of so you might
+need to use locks when you are preparing
+
+669
+00:52:47,579 --> 00:52:50,630
+参数或处理响应，但是是的，您不应该锁定
+the arguments or processing the response
+but yeah you shouldn't hold a lock
+
+670
+00:52:50,630 --> 00:52:54,420
+在等待其他对等方响应时通过RPC调用
+through the RPC call while you're
+waiting for the other peer to respond
+
+671
+00:52:54,420 --> 00:52:58,170
+实际上，除了死锁之外，还有另一个原因
+and there's actually another reason to
+that in addition to deadlock the other
+
+672
+00:52:58,170 --> 00:53:03,480
+问题是，在某些测试中，我们将有些不可靠
+problem is that in some tests we're
+going to sort of have this unreliable
+
+673
+00:53:03,480 --> 00:53:08,099
+网络可能会使您的某些RPC消息延迟约50 
+network that could delay some of your
+RPC messages potentially by like 50
+
+674
+00:53:08,099 --> 00:53:13,950
+毫秒，在这种情况下，如果您通过RPC调用持有该锁，则
+milliseconds and in that case if you
+hold the lock through an RPC call then
+
+675
+00:53:13,950 --> 00:53:17,730
+在这50毫秒内尝试执行的任何其他操作都不会
+any other operation that you try to do
+during that 50 milliseconds won't be
+
+676
+00:53:17,730 --> 00:53:22,230
+能够完成直到收到RPC响应，这是另一个问题
+able to complete until that RPC response
+is received so that that's another issue
+
+677
+00:53:22,230 --> 00:53:25,770
+如果您持有多头可能会碰到，所以两者都会使事情变得更多
+that you might run into if you hold the
+long so it's both to make things more
+
+678
+00:53:25,770 --> 00:53:30,380
+高效并避免这些潜在的僵局情况
+efficient and to avoid these potential
+deadlock situations
+
+679
+00:53:37,400 --> 00:53:45,290
+好的，再举一个例子，那就是再次使用类似的草稿
+all right so just one more example this
+is again using a similar draft
+
+680
+00:53:45,290 --> 00:53:48,320
+实施，因此在筏状态下，我们将继续跟踪
+implementation so again in our raft
+state we're going to be keeping track of
+
+681
+00:53:48,320 --> 00:53:52,820
+是否更充分的候选人领导，然后这两个状态变量
+whether a fuller candidate leader and
+then also these two state variables in
+
+682
+00:53:52,820 --> 00:53:57,590
+这个例子我想让你专注于这个尝试选举功能，所以现在我们已经
+this example I want you to focus on this
+attempt election function so now we've
+
+683
+00:53:57,590 --> 00:54:02,000
+首先实现了我刚刚向您展示的将术语存储在此处的更改， 
+first implemented the change that I just
+showed you to store the term here and
+
+684
+00:54:02,000 --> 00:54:06,800
+将其作为变量传递给我们的函数，该函数收集请求票，但
+pass it as a variable to our function
+that collects the request votes but
+
+685
+00:54:06,800 --> 00:54:10,850
+此外，我们还实现了一些功能以汇总选票，因此
+additionally we've implemented some
+functionality to add up the votes so
+
+686
+00:54:10,850 --> 00:54:16,250
+我们要做的是创建一个局部变量来计算票数
+what we'll do is we'll create a local
+variable to count the votes and whenever
+
+687
+00:54:16,250 --> 00:54:19,040
+如果没有投票，我们将投票
+we get a vote if the vote was not
+granted
+
+688
+00:54:19,040 --> 00:54:22,820
+我们将立即从处理船的执行例行程序返回
+we'll return immediately from this go
+routine where we're processing the boat
+
+689
+00:54:22,820 --> 00:54:28,520
+否则，我们将在将此共享本地变量编辑为
+otherwise we'll acquire the lock before
+editing this shared local variable to
+
+690
+00:54:28,520 --> 00:54:32,480
+算一票，然后如果我们没有获得多数票， 
+count up the votes and then if we did
+not get a majority of the votes will
+
+691
+00:54:32,480 --> 00:54:38,990
+立即返回，否则我们将使自己成为领导者，例如
+return immediately otherwise we'll make
+ourselves the leader so as with the
+
+692
+00:54:38,990 --> 00:54:43,880
+另一个例子，我的意思是最初，如果你看着这个，如果我看着这个， 
+other example I mean initially if you
+look at this if I look at this like it
+
+693
+00:54:43,880 --> 00:54:50,540
+看起来很合理，但让我们看看是否有任何问题可以解决，所以这
+seems reasonable but let's see if
+anything can go wrong all right so this
+
+694
+00:54:50,540 --> 00:54:54,860
+是一次运行的日志输出，您可能会注意到的一件事是，我们已经
+is the log output from one run and one
+thing you might notice is that we've
+
+695
+00:54:54,860 --> 00:54:59,660
+实际上在同一任期内选举了两名领导人，因此服务器为零
+actually elected two leaders on the same
+term so server zero
+
+696
+00:54:59,660 --> 00:55:06,860
+它被选为第二学期的领导者，而服务器一也做得很好
+it was elected made itself a leader on
+term two and server one did as well it's
+
+697
+00:55:06,860 --> 00:55:09,740
+可以按不同的条件选举一位领导人，但是在这里
+okay to have a leader elected on
+different terms but here where we have
+
+698
+00:55:09,740 --> 00:55:13,250
+一个人认为永远都不会发生，所以这是怎么做到的
+one on the same term that that should
+never happen alright so how did this
+
+699
+00:55:13,250 --> 00:55:18,710
+实际上出现了，所以让我们从顶部开始，从服务器零开始
+actually come up so let's start from the
+top so at the beginning server zero
+
+700
+00:55:18,710 --> 00:55:23,600
+实际上在第一学期就进行了一次大选而不是第二届大选
+actually attempted an election at term
+one not turn two and it got its votes
+
+701
+00:55:23,600 --> 00:55:28,400
+来自其他两个同行，但出于任何原因也许是因为
+from both of the other peers but for
+whatever reason perhaps because those
+
+702
+00:55:28,400 --> 00:55:34,660
+那些同行的回复消息被延迟了，实际上并没有处理
+reply messages from those peers were
+delayed it didn't actually process its
+
+703
+00:55:34,660 --> 00:55:40,400
+处理这些选票，直到稍后和之间，例如
+process those votes until later and in
+between receiving it like in between
+
+704
+00:55:40,400 --> 00:55:45,230
+尝试选举并完成选举服务器的工作也决定
+attempting the election and finishing
+the election server one also decided to
+
+705
+00:55:45,230 --> 00:55:49,880
+尝试选举，也许是因为服务器零延迟了所以
+attempt an election perhaps because
+because of server zero was delayed so
+
+706
+00:55:49,880 --> 00:55:52,730
+很多服务器可能实际上遇到了选举超时
+much server one might
+actually ran into the election timeout
+
+707
+00:55:52,730 --> 00:55:57,710
+然后开始自己的选举，并在第二学期开始选举，因为它不能
+and then started its own election and it
+started it on term 2 because it couldn't
+
+708
+00:55:57,710 --> 00:56:01,820
+之所以被称为1，是因为它已经在第1项中对服务器0进行了投票
+have been termed 1 because it already
+voted for server 0 on on term 1 over
+
+709
+00:56:01,820 --> 00:56:08,180
+在这里好，然后服务器1发送自己的
+here
+okay so then server 1 sends out its own
+
+710
+00:56:08,180 --> 00:56:14,120
+请求在第2学期投票2个服务器2和0，现在我们看到该服务器2个投票
+request votes 2 servers 2 and 0 at term
+2 and now we see that server two votes
+
+711
+00:56:14,120 --> 00:56:18,050
+对于服务器1来说很好，但是服务器0也对服务器1投票，这实际上是
+for server 1 that's fine but server 0
+also votes for server 1 this is actually
+
+712
+00:56:18,050 --> 00:56:25,850
+也很好，因为服务器一正在要求服务器0投票以获得更高的期限，并且
+also fine because server one is asking
+server 0 for a vote on a higher term and
+
+713
+00:56:25,850 --> 00:56:33,350
+所以服务器0应该做的是，如果您从规格中记住它应该设置其
+so what server 0 should do is if you
+remember from the spec it should set its
+
+714
+00:56:33,350 --> 00:56:37,400
+术语2中的RPC消息请求中该术语的当前术语
+current term to that term in the request
+for RPC message to term 2 and also
+
+715
+00:56:37,400 --> 00:56:43,100
+最后将自己恢复为关注者而不是候选人，所以真正的
+revert itself to a follower instead of a
+candidate alright finally so the real
+
+716
+00:56:43,100 --> 00:56:47,450
+问题是在这行服务器0，虽然它确实足够
+problem is that on this line where
+server 0 although it really got enough
+
+717
+00:56:47,450 --> 00:56:53,240
+在第1届会议上投票，使自己成为第一个任期的领导者-所以一个
+votes on term 1 it made itself a leader
+on term - so the reason so one
+
+718
+00:56:53,240 --> 00:56:57,830
+解释为什么发生这种情况的原因是，在我们设置
+explanation for why this is happening is
+because in between where we set up the
+
+719
+00:56:57,830 --> 00:57:02,950
+选举我们的选举尝试以及实际处理选票的地方
+election our attempt for the election
+and where we actually process the votes
+
+720
+00:57:02,950 --> 00:57:07,220
+在这种情况下，我们正在投票支持其他一些事情
+some other things are happening input in
+this case we're actually voting for
+
+721
+00:57:07,220 --> 00:57:12,680
+中间有其他人，所以我们不再在第一学期以为我们
+someone else in between and so we're no
+longer on term 1 where we thought we
+
+722
+00:57:12,680 --> 00:57:17,350
+开始选举，我们现在是第二学期，所以我们只需要仔细检查一下
+started the election we're now on term 2
+and so we just need a double check that
+
+723
+00:57:17,350 --> 00:57:21,350
+因为我们在执行RPC调用时没有锁，这是
+because we don't have the lock while
+we're performing the RPC calls which is
+
+724
+00:57:21,350 --> 00:57:24,740
+由于其自身的原因很重要，现在某些事情可能已经改变，我们需要
+important for its own reasons now some
+things might have changed and we need to
+
+725
+00:57:24,740 --> 00:57:28,880
+当我们将自己设置为
+double check that what we assume is true
+when we're setting ourselves to the
+
+726
+00:57:28,880 --> 00:57:34,010
+领导者仍然是真实的，因此有一种解决方法，有几种不同的方法
+leader is still true so one way to solve
+this that there's a few different ways
+
+727
+00:57:34,010 --> 00:57:36,830
+喜欢解决这个问题，就像您可以想象不投票给别人
+like to solve this like you could
+imagine not voting for others while
+
+728
+00:57:36,830 --> 00:57:39,950
+我们正在尝试选举，但在这种情况下，最简单的
+we're in the middle of attempting an
+election but in this case the simplest
+
+729
+00:57:39,950 --> 00:57:45,170
+至少在此实现中解决此问题的方法是仔细检查
+way to solve this at least in this
+implementation is to just double check
+
+730
+00:57:45,170 --> 00:57:48,020
+我们仍然处于同一任期，我们仍然是我们没有的候选人
+that we're still on the same term and
+we're still a candidate we haven't
+
+731
+00:57:48,020 --> 00:57:52,250
+恢复为关注者，所以实际上我想向您展示的一件事是
+reverted to a follower so actually one
+thing I want to show you is if we do
+
+732
+00:57:52,250 --> 00:58:00,530
+在这里打印出我们的状态，然后我们确实看到服务器0成为关注者，但是
+print out our state over here then we do
+see that server 0 became a follower but
+
+733
+00:58:00,530 --> 00:58:04,250
+它仍然是这条线上的领导者
+it's still setting itself to a leader on
+this line
+
+734
+00:58:04,250 --> 00:58:10,640
+所以是的，我们可以检查一下，如果我们不是候选人或当前
+so yeah we can just check for that if
+we're not a candidate or the current
+
+735
+00:58:10,640 --> 00:58:14,660
+任期与我们开始选举的任期不符，那么我们就
+term doesn't match the term which we
+started the election then let's just
+
+736
+00:58:14,660 --> 00:58:20,600
+退出，如果我们这样做，那么每个人都将成为领导者，我们
+quit and if we do that then
+so everyone becomes a leader and we
+
+737
+00:58:20,600 --> 00:58:27,040
+永远不要停止超过零成为领导者，所以问题解决了任何问题，是的
+never cease over zero become leader so
+the problem solved any question yeah
+
+738
+00:58:28,630 --> 00:58:35,240
+是的，我想我会的，因为如果该词是
+yeah I think I think that would I
+because we would not if the term is
+
+739
+00:58:35,240 --> 00:58:40,310
+现在比实际上更高，这可能还不够，因为我们可能
+higher now than actually no it would it
+might not be sufficient because we might
+
+740
+00:58:40,310 --> 00:58:44,780
+尝试了另一次选举，这取决于您的实现，但这是
+have attempted another election it
+depends on your implementation but it's
+
+741
+00:58:44,780 --> 00:58:49,630
+可能您可能曾尝试过更高的选举
+possible that you could have attempted
+another election on a higher term
+
+742
+00:58:49,630 --> 00:58:52,910
+事后我们都知道那是一回事，是的，那不是
+afterwards all we know that's the same
+thing right yeah it would not be
+
+743
+00:58:52,910 --> 00:58:56,570
+仅检查状态就足够了，但是如果您仅检查状态，我认为您是对的
+sufficient to only check the state but I
+think you're right if you only check the
+
+744
+00:58:56,570 --> 00:59:09,890
+任期，那么其他任何问题都足够了，是的， 
+term then it is sufficient all right any
+other questions all right so yeah that's
+
+745
+00:59:09,890 --> 00:59:14,210
+对于这一部分，她将向您展示更多实际调试的示例
+it for this part she's going to show you
+some more examples of actually debugging
+
+746
+00:59:14,210 --> 00:59:18,280
+其中一些实施草案
+some of these draft implementations
+
+747
+00:59:34,039 --> 00:59:40,220
+嗨，大家都能听到我吗
+hi can you all hear me yeah
+
+748
+00:59:52,870 --> 00:59:56,290
+不是吗
+is it not
+
+749
+01:00:06,800 --> 01:00:17,760
+好吧，所以在我的部分中，我将引导您完成我的工作，但是如果您有
+okay so in my section I'm gonna walk you
+through how I would be but if you have
+
+750
+01:00:17,760 --> 01:00:24,150
+就像您的粗略实现中的错误，所以我准备了一些百家乐
+like a bug in your rough implementation
+so I prepare a couple of baccara good
+
+751
+01:00:24,150 --> 01:00:33,050
+我只是试着引导你通过它，所以首先我要面对我
+and I just try to walk you through it so
+first I'm gonna go into my face
+
+752
+01:00:33,050 --> 01:00:52,350
+ Bucky的实现，如果我在这里运行测试，那么对于这一点，它不会
+Bucky implementation and if I run the
+test here so for this one it doesn't
+
+753
+01:00:52,350 --> 01:01:00,390
+打印任何刚开始的东西，它将永远在这里，让我们
+print anything it just gets started and
+it's gonna be here forever and let's
+
+754
+01:01:00,390 --> 01:01:03,120
+假设我不知道为什么会发生
+assume that I have no idea why there's
+happening
+
+755
+01:01:03,120 --> 01:01:13,140
+我想发现的第一件事是它从哪里开始，我们
+the first thing that I want to find out
+is where it gets started and we we do
+
+756
+01:01:13,140 --> 01:01:21,330
+对于printf有一个很好的工具，但是如果要转到停止代码中
+have a good tool for that which printf
+but in the stop code if you go to
+
+757
+01:01:21,330 --> 01:01:28,470
+ youtube go我们有一个名为printf的函数，这只是一个不错的包装器
+youtube go we have a function called the
+printf this is just a nice wrapper
+
+758
+01:01:28,470 --> 01:01:36,600
+调试器能够启用或禁用
+around the block cleaners with the
+debugger able to enable or disable the
+
+759
+01:01:36,600 --> 01:01:46,980
+锁定消息，以便启用该功能，然后返回到我的图表，这样
+locking messages so I'm gonna enable
+that and go back to my graph okay so
+
+760
+01:01:46,980 --> 01:01:54,800
+首先，当我什么时候有什么事情发生时，我
+first of all when i when when there
+there's something that's but happening I
+
+761
+01:01:54,800 --> 01:02:08,220
+总是去检查代码是否真的初始化了图形服务器，所以这里
+always go check if the code actually
+actually initialize graph server so here
+
+762
+01:02:08,220 --> 01:02:11,180
+我就打扫
+I'll just clean
+
+763
+01:02:20,730 --> 01:02:31,420
+好吧，所以如果我再次运行测试，那么现在我知道有三个
+okay so here if I run the test again
+then now I know that there are three
+
+764
+01:02:31,420 --> 01:02:43,180
+神初始化的服务器，所以这个文件还可以，但是好像没有地方
+servers that God he initialized so this
+files is okay but like there's nowhere
+
+765
+01:02:43,180 --> 01:02:48,579
+弓在哪里发生，所以我会更深入地了解引擎盖
+where the bow is happening so I'll just
+go deeper into the hood just to find
+
+766
+01:02:48,579 --> 01:02:55,690
+它卡住了，所以现在如果您看到代码，我们称领导者为a 
+where it gets stuck so now if you see
+the code we are calling the leader a
+
+767
+01:02:55,690 --> 01:03:06,099
+技术选举，所以我要去做那个功能，只是为了让我更快
+tech election so I'm gonna go to that
+function and just to make faster I'll
+
+768
+01:03:06,099 --> 01:03:11,099
+尝试检查是否开始一些迭代
+try to check if it kicks off some
+iteration
+
+769
+01:03:21,770 --> 01:03:31,340
+那部分还好，所以我们现在尝试在这里进行选举，我将
+that part still fine so we we try to go
+for now here we are in the election I'll
+
+770
+01:03:31,340 --> 01:03:41,410
+看看是否存在，因此我们实际上将请求语音发送到其他一些服务器
+see if there's so we actually send the
+request voice to some other servers
+
+771
+01:04:00,320 --> 01:04:04,670
+现在我们有点想知道客人在哪里，因为这不是
+now we kind of have like more idea of
+where guests are because it's not
+
+772
+01:04:04,670 --> 01:04:11,360
+打印一些遗憾的开始选举没有发送请求
+printing that some sorry that kicks off
+the election are not sending the request
+
+773
+01:04:11,360 --> 01:04:21,500
+这样的话，所以我会回去给她看一下我一直在尝试的客户
+words so I would go back for her just to
+see where customers like I always tried
+
+774
+01:04:21,500 --> 01:04:29,270
+如果我们调用某些函数aye-aye，则为此处
+here prin if if we call some function
+aye-aye
+
+775
+01:04:29,270 --> 01:04:37,660
+如果它确实进入了功能，我总是会抖抖，所以现在我要
+I was always double shake if it actually
+go into the function so now I'm going to
+
+776
+01:04:37,660 --> 01:04:45,640
+说这项服务是在选举开始时
+say that this service is at the start of
+the election
+
+777
+01:04:50,200 --> 01:05:02,829
+这样行得通，所以现在我们有了一个想法，就像盒子应该在这里和
+and that works so now we have an idea of
+like the box should be between here and
+
+778
+01:05:02,829 --> 01:05:12,640
+在这里，所以我们试图最小化导致错误的代码范围
+here so we are trying to minimize the
+scope of the code that's causing the bug
+
+779
+01:05:14,410 --> 01:05:19,059
+假设我在这里钉东西
+let's say if I pin something here
+
+780
+01:05:28,300 --> 01:05:41,380
+它确实没有到达那里，所以我将其向上移动，假设这里仍然没有
+and it does it doesn't get there so I
+move it up let's say here still not
+
+781
+01:05:41,380 --> 01:05:43,620
+那里
+there
+
+782
+01:05:48,540 --> 01:06:02,090
+现在它在那里了，所以这个功能可能有错误，我去检查一下
+now it's there so the bug is probably in
+this function and I just go check so
+
+783
+01:06:02,090 --> 01:06:08,600
+这里的问题是我试图获取我实际拥有的锁
+here the problem is that I'm trying to
+acquire a lock where I actually do have
+
+784
+01:06:08,600 --> 01:06:16,460
+锁，这将是一天的时间，所以这就是我将找到他们的第一个错误的方式
+the lock so it's gonna be a day long so
+that's how I will find their first bug
+
+785
+01:06:16,460 --> 01:06:28,670
+使用D打印机，使用printf很好，因为您可以
+using the D printers and it's it's nice
+to use the printf because you can like
+
+786
+01:06:29,000 --> 01:06:38,970
+只需关闭调试打印，并在我们的审核中获得良好的测试输出
+just turn off the debugging print and
+have a nice test output with our audit
+
+787
+01:06:38,970 --> 01:06:47,250
+调试是否需要它，这就是我将其使用得足够深以尝试喜欢的方式
+debugging if you want it so that's how I
+would use it deep enough to try to like
+
+788
+01:06:47,250 --> 01:06:54,810
+处理代码中的错误，对于此示例，实际上还有另一个技巧
+handle a bug in your code and for this
+example there's actually another trick
+
+789
+01:06:54,810 --> 01:07:04,710
+帮助您找到这种死锁，因此，如果您按Ctrl +反斜杠，您可以
+to help you find this kind of deadlock
+so if you press ctrl + backslash you can
+
+790
+01:07:04,710 --> 01:07:13,140
+看到在瓶子里，但是我按下左键就像控制和反斜杠一样
+see in the bottle but bottom left that I
+press like control and backslash this
+
+791
+01:07:13,140 --> 01:07:17,630
+该命令今天将发出退出信号
+this command will send a signal quit
+today
+
+792
+01:07:17,630 --> 01:07:26,370
+进入程序，默认情况下它将处理测验信号并退出所有程序
+go program and by default it will
+handles the the quiz signal and quit all
+
+793
+01:07:26,370 --> 01:07:41,370
+ go例程和打印音频达到了堆栈速率，所以现在像Chico 
+the go routines and print audio strike
+the stack rates so now this like Chico
+
+794
+01:07:41,370 --> 01:07:47,520
+像这样被碰到这里，然后会有一对
+up here like this way it gets touched
+and then there are gonna be a couple
+
+795
+01:07:47,520 --> 01:07:52,280
+在这里打印功能
+functions printing here
+
+796
+01:07:55,780 --> 01:08:01,450
+只是试图通过所有的痕迹
+just trying to go through all the traces
+
+797
+01:08:07,480 --> 01:08:14,080
+是的，因此实际上表明导致问题的功能是
+yes so it's actually showing that the
+function that's causing the problem is
+
+798
+01:08:14,080 --> 01:08:20,439
+求职者的封面，所以这是您必须找出另一天的权重
+the cover to candidate so that's another
+weight you've to find out where the day
+
+799
+01:08:20,439 --> 01:08:31,229
+锁是我可以删除所有这一切
+locks are I can remove all this
+
+800
+01:08:43,109 --> 01:08:51,569
+现在它起作用了，所以这是我要讲的第二个例子
+and now it works so that's the first
+example that I want to go through second
+
+801
+01:08:51,569 --> 01:08:57,000
+在提交实验室之前，您想要做的事情是
+thing that you want it you want to do
+before you submit your labs is to turn
+
+802
+01:08:57,000 --> 01:09:03,270
+当您进行测试时，种族标志会打开
+the race
+flag on when you do the test the way to
+
+803
+01:09:03,270 --> 01:09:18,139
+这样做只是为了增加-赛前-腹股沟，在这里，因为我的工具
+do that is just to add - race before
+- groin and here because my implement
+
+804
+01:09:18,139 --> 01:09:22,529
+实施没有任何研究，所以它不会告诉你任何事情
+implementation doesn't have any research
+so it's not going to tell you anything
+
+805
+01:09:22,529 --> 01:09:29,609
+但是请注意这一点，因为它不能证明您没有
+but this just be careful about this
+because it's not a proof that you don't
+
+806
+01:09:29,609 --> 01:09:42,689
+真的有什么是它无法为您检测到种族我将要跑步
+have any really it's just that it cannot
+detect races for you I'm going to run
+
+807
+01:09:42,689 --> 01:09:47,999
+再次使用相同的命令并带有红色标记，但是现在这实际上有风险
+
+808
+01:09:48,000 --> 01:10:00,389
+在我的实现中进行，所以会大吼大叫您
+going on in my implementation so it's
+gonna yell at you that there's some
+
+809
+01:10:00,389 --> 01:10:06,290
+代码中的交付
+deliveries going on in your code
+
+810
+01:10:08,000 --> 01:10:20,130
+我退出了，让我们看看警告有多么有用，所以我要
+I'm quitting that and let's see like how
+useful is the warning are so I'm gonna
+
+811
+01:10:20,130 --> 01:10:25,820
+转到我的第二个实现
+go to my second implementation with
+
+812
+01:10:27,830 --> 01:10:35,389
+罗斯科（Rothko）和这里
+Rothko and here
+
+813
+01:10:37,030 --> 01:10:48,020
+让我们看一下这场比赛，它告诉我们在比赛进行中
+let's look at this race so it's telling
+us that there's a wheat going on at the
+
+814
+01:10:48,020 --> 01:10:54,680
+ 103行，我要去那行，所以
+line
+103 I'm going to that line so this the
+
+815
+01:10:54,680 --> 01:11:20,330
+大概在星期四这里有小麦，还有一条正确的线12 
+wheat on probably Thursday here and
+there's also a right line for 12 which
+
+816
+01:11:20,330 --> 01:11:27,820
+是星期四吗
+is Thursday so
+
+817
+01:11:38,310 --> 01:11:48,900
+我要再次进入这条线，现在我们有点知道
+I'm going to this line again
+and now we kind of know that this this
+
+818
+01:11:48,900 --> 01:11:56,220
+辐射受到锁的保护，因此风险飞快地要我们和
+radiation is protected by a lock so the
+risk flies actually wanting us and
+
+819
+01:11:56,220 --> 01:12:05,100
+帮助我们找出答案，但是在这个数据库上，我们有了假货
+helping us to find out but on on this
+database that we have so the fake it's
+
+820
+01:12:05,100 --> 01:12:23,090
+只需将其锁定并解锁即可解决问题
+gonna be just you lock this and unlock
+it and that should solve the problem
+
+821
+01:12:28,050 --> 01:12:35,220
+所以在这个地方，我们有点知道如何进行基本的调试
+so at this place we kind of know how to
+basic like do some basic debugging does
+
+822
+01:12:35,220 --> 01:12:46,050
+任何人都有任何问题，不好吧，所以我要去第三个
+anyone have any question no okay yeah so
+I'm going to go to the third one which
+
+823
+01:12:46,050 --> 01:13:01,440
+我将要测试运行情况将更加困难
+is going to be more difficult to find
+about I'm going to test the run the
+
+824
+01:13:01,440 --> 01:13:10,170
+中心，现在我实际上已经有一些调试消息了
+centers and now I am I actually have
+some debugging messages in there already
+
+825
+01:13:10,170 --> 01:13:20,100
+只是看到我还有一条带有测试动作的调试消息
+and just see that I also have a
+debugging message with the test action
+
+826
+01:13:20,100 --> 01:13:34,140
+如果您参加考试，可能需要考虑做一些事情
+there's something you might want to
+consider doing if you go into the test
+
+827
+01:13:34,140 --> 01:13:38,330
+夹在这里
+clip here
+
+828
+01:13:42,989 --> 01:13:49,920
+您可以看到测试将如何运行，然后执行一些操作
+you can just see how the test would run
+and then there are some actions that the
+
+829
+01:13:49,920 --> 01:13:58,160
+测试剪辑将使您的代码失败，通常这样做是一个好主意
+test clip is gonna do to make your code
+fail and it's usually a good idea to
+
+830
+01:13:58,160 --> 01:14:07,410
+打印出实际调试消息中该操作发生的位置，以便您
+print out where that action is happening
+in your actual debugging message so you
+
+831
+01:14:07,410 --> 01:14:18,210
+可以猜测正在发生的情况，例如在哪个阶段发生错误
+can guess what is happening like where
+the bug is happening in which phase of
+
+832
+01:14:18,210 --> 01:14:27,330
+测试是否有意义，所以现在好像我在第一种情况下做得很好
+the test if that make sense so now it's
+like I was doing fine in the first case
+
+833
+01:14:27,330 --> 01:14:37,260
+我通过了我通过了失败，但是我使他们的第二层失败了，在这里
+I passed I passed the fail but I'm
+failing their second tiers and here the
+
+834
+01:14:37,260 --> 01:14:46,950
+测试部分要找到一个，所以我要通过此测试，直到
+Test section is to found one as a little
+one so I'm passing this the test until
+
+835
+01:14:46,950 --> 01:14:57,030
+这个，如果你去的话，我实际上一直在等到领导者两个重新加入为止
+this and if you go to I'm actually
+passing until the leader two rejoins so
+
+836
+01:14:57,030 --> 01:15:09,860
+这可以使您对测试的工作方式有一个很好的了解，并且可以帮助您
+this can give you a nice idea of how the
+test is working and just to help you
+
+837
+01:15:09,860 --> 01:15:21,090
+有一个更好的例子，因为束缚在您的代码中，所以现在让我们看一下
+have a better case as where the bondage
+is in your code so now let's look at the
+
+838
+01:15:21,090 --> 01:15:24,440
+调试信息
+debugging messages
+
+839
+01:15:32,179 --> 01:15:40,489
+所以至少当我们参加礼仪仪式时，它变成了追随者，我们
+so it's least it seems like when liturgy
+we joined it becomes a follower and we
+
+840
+01:15:40,489 --> 01:15:46,880
+有一个新的领导者，对我来说看起来不错，我们可能
+have a new leader
+so that looks fine to me and we probably
+
+841
+01:15:46,880 --> 01:16:00,920
+需要更多的调试消息，而不仅仅是它们的状态更改，所以我要
+need more debugging messages instead of
+just their state changes so I am going
+
+842
+01:16:00,920 --> 01:16:08,540
+再加上我的第一种情况，即当一个人成为领导者时
+to add some more my first case that when
+one becomes a leader it might not be
+
+843
+01:16:08,540 --> 01:16:17,469
+做你应该正确做的领导者，这样我们就被卡住了
+doing what a leader should you correctly
+so we got stuck
+
+844
+01:16:23,769 --> 01:16:30,010
+所以您可能会在我们覆盖它之后，因为最终我有了一个例行检查程序
+so you might could after we cover it as
+eventually there I have a go routine
+
+845
+01:16:30,010 --> 01:16:34,989
+呼叫操作负责人，那里只有站立习惯CD 
+call operate leader
+there's just standing habit CD all set
+
+846
+01:16:34,989 --> 01:16:54,219
+到音频服务器，所以我要在这里打印一些东西说高兴-欢呼
+to the audio servers so I'm gonna print
+some stuff here saying happy - cheers
+
+847
+01:16:54,219 --> 01:16:56,550
+远
+away
+
+848
+01:17:20,850 --> 01:17:33,120
+为了变得稳定，它将第一个快乐发送给每台服务器，还有一个仍然
+so to become solidary it sends the the
+first happy to each server and one still
+
+849
+01:17:33,120 --> 01:17:39,530
+试图给新领导者带来快乐
+tries to send happy to the new leader
+
+850
+01:17:41,000 --> 01:17:54,720
+然后一个人成为追随者，所以现在看来​​这不是问题
+and then one becomes a follower so this
+doesn't look like to be a problem now
+
+851
+01:17:54,720 --> 01:18:01,010
+我要检查其他服务是否正确习惯了
+I'm gonna check if the other service
+receive habit correctly
+
+852
+01:19:25,659 --> 01:19:37,350
+它正在消失，我试图完成这一点，所以要成为领导者
+it's taking away with I'm trying to
+finish this yeah so to becomes a leader
+
+853
+01:19:37,350 --> 01:19:54,719
+发送高价，但没人收到习惯表格-所以如果我去同一个
+to sends high bid but no one receive a
+habit form - so if I go to the same
+
+854
+01:19:54,719 --> 01:20:03,810
+我实际上是在RPC大厅持有法律的观点树，这就是
+opinion tree I actually hold the law to
+the RPC Hall which is the problem that
+
+855
+01:20:03,810 --> 01:20:10,780
+ Fabian在上一节中进行了讨论，这就是我需要解决的问题
+Fabian went to in the last section so
+that's that's the problem that I need to
+
+856
+01:20:10,780 --> 01:20:22,050
+解决，所以我应该在这里做很多
+fix so what I should do is to a lot here
+
+857
+01:20:23,969 --> 01:20:28,800
+接着
+and then
+
+858
+01:20:33,730 --> 01:20:39,540
+再次锁定在这里，那应该工作
+lock again here and that should work
+
+859
+01:20:47,190 --> 01:20:58,410
+我们通过，然后在测试时可能需要做几件事
+we pass and then there are couple things
+that you might want to do when you test
+
+860
+01:20:58,410 --> 01:21:09,560
+您的粗略实现，因此实际上是在其中运行测试的脚本
+your rough implementation so that's
+actually script to run the test in
+
+861
+01:21:09,560 --> 01:21:18,570
+帝国，我可以向您展示如何使用该蠕变
+imperial and I can show you how I how we
+can use how we can use it this creep is
+
+862
+01:21:18,570 --> 01:21:27,180
+在内部同伴的支持下，有人对此提出了意见，这就是我们
+in the inner peer support some someone
+make a point about it and here's how we
+
+863
+01:21:27,180 --> 01:21:36,380
+可以使用该脚本，因此您可以在运行脚本时指定测试编号
+can use the script so you run the script
+specify the number of the test
+
+864
+01:21:36,380 --> 01:21:44,190
+我个人确实很喜欢1000，但这取决于您的喜好
+personally I do like a 1000 but that
+depends on your preference this is the
+
+865
+01:21:44,190 --> 01:21:49,290
+您想同时运行测试的课程数量，然后是
+number of course that you wanna run the
+test at the same time and then here's
+
+866
+01:21:49,290 --> 01:21:56,989
+测试，如果您运行脚本，则
+the test and if you run the script then
+
+867
+01:21:59,480 --> 01:22:09,330
+如果您向您证明这就像我们已经运行了四个测试，那么到目前为止，所有测试都工作正常
+if you show you that's like we have run
+four tests so far all are working fine
+
+868
+01:22:09,330 --> 01:22:17,239
+它会一直这样下去，这就是我调试的方式
+and it's gonna keep going like that so
+that's how I would go about debugging
+
+869
+01:22:17,239 --> 01:22:22,260
+粗略的实施，欢迎您在上班时间上班
+rough implementation and you are all
+welcome to come to office hours when you
+
+870
+01:22:22,260 --> 01:22:24,650
+需要帮忙
+need help
+
