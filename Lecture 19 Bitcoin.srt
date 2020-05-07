@@ -1,0 +1,3803 @@
+1
+00:00:00,860 --> 00:00:05,120
+好吧，我们在中间
+okay so we're in the middle of
+
+2
+00:00:05,629 --> 00:00:11,639
+解释了比特币的设计，我已经开始想要
+explaining Bitcoin design and I've
+gotten to the point of ask of wanting
+
+3
+00:00:11,639 --> 00:00:24,060
+可以在全球范围内发布所有交易的记录，好的， 
+there to be a global published record of
+all the transactions all right okay and
+
+4
+00:00:24,060 --> 00:00:29,550
+这是与证书要求非常相似的要求
+this is this requirement is very similar
+to the requirement for certificate
+
+5
+00:00:29,550 --> 00:00:34,170
+上周的透明度，解决方案让人想起
+transparency from last week and the
+solution is somewhat reminiscent
+
+6
+00:00:34,170 --> 00:00:40,230
+尽管比证书透明性解决方案更复杂， 
+although more sophisticated then
+certificate transparency solution and a
+
+7
+00:00:40,230 --> 00:00:46,020
+我们想要一个公共日志的名称，通常也称为公共分类帐，好吧
+name we want a public log this is often
+also called a public ledger okay so how
+
+8
+00:00:46,020 --> 00:00:49,980
+我们是否要建立自己的公共分类帐，以便每个人都同意
+are we going to build ourselves a public
+ledger so that everybody agrees on all
+
+9
+00:00:49,980 --> 00:00:53,190
+已经发生的交易以及他们达成共识后的交易
+the transactions that have already
+happened and further when they agree on
+
+10
+00:00:53,190 --> 00:00:59,940
+交易的顺序，因为如果Y尝试将硬币发送给Z和
+the order of the transactions because if
+Y tries to send this coin to both Z and
+
+11
+00:00:59,940 --> 00:01:02,850
+ Q同时您知道我们希望第一个获胜
+Q at the same time you know we want the
+first one to win and the second one to
+
+12
+00:01:02,850 --> 00:01:06,060
+不管耶林是谁想要的
+be ignored
+whatever Yellin which one want which
+
+13
+00:01:06,060 --> 00:01:10,860
+事务是第一位的，第二位是第二位的，应该忽略
+transaction was came first and which
+came second and should be ignored okay
+
+14
+00:01:10,860 --> 00:01:17,960
+那么如何制作分类帐，这是一个坏主意
+so how to make a ledger so here's a bad
+idea
+
+15
+00:01:19,100 --> 00:01:23,670
+好主意实际上最简单的主意就是挑选一个人
+well a good idea actually have the most
+simplest idea is to just pick somebody
+
+16
+00:01:23,670 --> 00:01:27,810
+每个人都信任并请某人为您维护分类帐的人
+who everybody trusts and have that
+somebody maintain the ledger for you
+
+17
+00:01:27,810 --> 00:01:31,320
+每次您要进行交易时，您都告诉受信任实体
+every time you want to do transaction
+you tell the trusted entity what the
+
+18
+00:01:31,320 --> 00:01:35,130
+交易是它只是积累日志，并愿意提供该副本
+transaction is it just accumulates a log
+and it's willing to give a copy of that
+
+19
+00:01:35,130 --> 00:01:38,930
+登录到任何人，以便任何人都可以检查它，看看是否已经花费了硬币，并且
+log to anyone so anyone can inspect it
+and see if coins already been spent and
+
+20
+00:01:38,930 --> 00:01:44,369
+这实际上是一个好主意，如果可以的话，您应该
+that actually is a good idea and if you
+could possibly do it you should for
+
+21
+00:01:44,369 --> 00:01:47,820
+比特币设计师拒绝这个显而易见的各种原因
+various reasons the Bitcoin designers
+rejected this very obvious
+
+22
+00:01:47,820 --> 00:01:54,060
+简单明了的想法，根本原因是在一个大型系统中
+straightforward idea and the fundamental
+reason is that in a big system in a
+
+23
+00:01:54,060 --> 00:02:00,090
+在全球体系中，不可能有任何一个人人都信任的实体
+worldwide system there's unlikely to be
+any single entity that everyone trusts
+
+24
+00:02:00,090 --> 00:02:05,729
+而且确实是值得信赖的，例如，没有腐败的员工
+and that is indeed trustworthy and has
+no corrupt employees for example and in
+
+25
+00:02:05,729 --> 00:02:09,209
+您所知道的全球体系意味着我们无法拥有您所知道的美国
+a global system you know that means that
+we can't have the United States you know
+
+26
+00:02:09,209 --> 00:02:12,390
+政府，我是值得信赖的实体，因为
+government
+I'm the trusted entity because there's
+
+27
+00:02:12,390 --> 00:02:15,240
+世界上许多政府不一定信任美联储
+plenty of governments in the world to
+don't necessarily trust the United
+
+28
+00:02:15,240 --> 00:02:20,070
+对于任何其他单个政府而言，州也是如此，因此对于
+States similarly for any other
+individual government so really for a
+
+29
+00:02:20,070 --> 00:02:24,990
+全球体系，没有，这很容易与拥有
+global system there's no it's it's easy
+to argue against the idea of having a
+
+30
+00:02:24,990 --> 00:02:29,430
+单一的中央受信任实体，所以我们也要离开
+single central trusted entity so that
+leaves us way as well we want to run the
+
+31
+00:02:29,430 --> 00:02:36,360
+系统构成了一个由互不信任的参与者组成的系统
+system make a system that's built out of
+mutually untrusting participants where
+
+32
+00:02:36,360 --> 00:02:43,740
+我们可以幸免于难，因为参与者知道，所以这是一个
+we can survive malice by you know by
+their participants okay so here's a
+
+33
+00:02:43,740 --> 00:02:50,610
+这是一种不好的可能性，让我们让任何人建立一个
+here's a bad possibility let's just let
+anybody let's build a system on which
+
+34
+00:02:50,610 --> 00:02:54,570
+任何人都可以加入，这样一来就会有成千上万的计算机可以通话
+anybody can join so it's gonna have
+thousands maybe if computers will call
+
+35
+00:02:54,570 --> 00:02:56,880
+他们同行，他们分散在整个互联网上
+them peers they're scattered all over
+the Internet
+
+36
+00:02:56,880 --> 00:03:03,210
+他们每个人都将为我们的新产品运行该软件
+and each one of them is going to be
+running the software to for our new
+
+37
+00:03:03,210 --> 00:03:10,590
+任何时候有人想要进行新交易（例如Y）的加密货币系统
+cryptocurrency system anytime somebody
+wants to have a new transaction like Y
+
+38
+00:03:10,590 --> 00:03:21,510
+想要将硬币发送给ZY洪水，他们的新交易发送他们的新
+wants to send a coin to Z Y floods their
+new transaction sends their new
+
+39
+00:03:21,510 --> 00:03:26,670
+交易给所有同行直接发送给他们或其他设计是
+transaction to all the peers to send
+them directly or another design which is
+
+40
+00:03:26,670 --> 00:03:30,030
+实际上，比特币使用的是Y向一对夫妇发送新交易
+actually what Bitcoin uses is that Y
+sends a new transaction to a couple the
+
+41
+00:03:30,030 --> 00:03:38,280
+对等方，然后对等方通过单个TCP链接提供给
+peers and then the peers afford it sort
+of over individual TCP links to the
+
+42
+00:03:38,280 --> 00:03:41,459
+整个系统的其余部分，因此在每笔交易中最终都被发送给所有人
+entire rest of the system so in every
+transaction ends up being sent to all
+
+43
+00:03:41,459 --> 00:03:46,350
+同伴和同伴他们想要做的是他们每个人都保持一个
+the peers and the peers what they're
+trying to do is each of them maintain a
+
+44
+00:03:46,350 --> 00:03:50,730
+所有交易日志的完整副本，而我们真正想要的是
+complete copy of the log of all
+transactions and what we really want is
+
+45
+00:03:50,730 --> 00:03:56,850
+对于所有对等方，所有诚实的对等方都将其事务日志用作
+for all the peers used all the honest
+peers for their transaction logs to be
+
+46
+00:03:56,850 --> 00:04:01,140
+相同，他们会同意存在哪些交易，并且同样重要
+identical they'll agree on which
+transactions exist and just as important
+
+47
+00:04:01,140 --> 00:04:05,580
+这些交易的顺序，那么我们如何安排所有这些同行
+on the order of those transactions so
+how can we arrange for all these peers
+
+48
+00:04:05,580 --> 00:04:11,400
+最终处理它们登录的标题事务
+to end up processing the heading
+transactions they're logs in the same
+
+49
+00:04:11,400 --> 00:04:16,680
+订单当然记得为什么可能将交易发送给了您知道的Z 
+order remember of course why may have
+sent the transaction to Z you know to
+
+50
+00:04:16,680 --> 00:04:22,320
+这些同伴并同时将其交易发送给Q到其他一组
+these peers and at the same time sent
+its transaction to Q to some other set
+
+51
+00:04:22,320 --> 00:04:30,630
+的同行，我们要确保尽管同行最终以
+of peers and we want to make sure that
+despite that the peers end up with the
+
+52
+00:04:30,630 --> 00:04:36,450
+即使Y试图好好对待，我对相同的日志也一样，但实际上我不
+same with identical logs even if Y is
+trying to treat well I actually don't
+
+53
+00:04:36,450 --> 00:04:43,920
+知道如何设计这种可能性，您可以想象的是同行
+know how to design this one possibility
+that you can imagine is that the peers
+
+54
+00:04:43,920 --> 00:04:48,030
+会以某种方式彼此谈论每项新交易以及每项新交易
+would somehow talk to each other about
+each new transaction and for each new
+
+55
+00:04:48,030 --> 00:04:54,440
+日志中的插槽将对应填充该插槽的事务进行投票，然后
+slot in the log would vote on what
+transaction should fill that slot and
+
+56
+00:04:54,440 --> 00:04:58,110
+拥有您所知道的多数，因为他们可能会合理地不同意
+have the majority you know since they
+may disagree legitimately if they
+
+57
+00:04:58,110 --> 00:05:02,040
+收到了不同的交易，我们有一个多数规则，说我们
+received different transactions we have
+a majority rule that says well we're
+
+58
+00:05:02,040 --> 00:05:05,970
+所有的同龄人都会看所有的票和交易
+gonna all the peers are gonna look at
+all the votes and the transaction that
+
+59
+00:05:05,970 --> 00:05:09,630
+得票最多的是将在日志的下一个插槽中投票的投票，然后
+gets the most votes is the one that will
+go in the next slot in the log and then
+
+60
+00:05:09,630 --> 00:05:15,020
+他们将在下一张幻灯片上再次投票， 
+they'll vote again on the next slide and
+
+61
+00:05:15,620 --> 00:05:19,440
+你知道也许你可以使这个工作，你必须知道谁
+you know maybe you could get this to
+work you'd have to know who all the
+
+62
+00:05:19,440 --> 00:05:22,530
+其他同伴是为了知道您占多数，而不必知道如何
+other peers are in order to know what a
+majority is you don't have to know how
+
+63
+00:05:22,530 --> 00:05:27,000
+有很多同龄人，您真的想确保您永远不要数任何
+many peers there are and you really want
+to make sure that you never count any
+
+64
+00:05:27,000 --> 00:05:33,240
+会多次出现，但实际上在像比特币这样的完全开放的系统中
+peer more than once but in a completely
+open system like Bitcoin actually we
+
+65
+00:05:33,240 --> 00:05:36,480
+无法做任何一件我们不知道有多少参与者的事情
+can't do either of those things we don't
+know how many participants there are in
+
+66
+00:05:36,480 --> 00:05:41,010
+比特币以及数字随着人们的同行一直在变化
+Bitcoin and furthermore the number
+changes all the time as people peers
+
+67
+00:05:41,010 --> 00:05:44,790
+加入并离开系统，所以我们不知道有多少同伴，所以我们也不知道
+join and leave the system so we don't
+know how many peers are so we don't know
+
+68
+00:05:44,790 --> 00:05:50,370
+此外，大多数人将无法可靠地计算选票
+what a majority would be furthermore we
+don't have a way to reliably count votes
+
+69
+00:05:50,370 --> 00:05:56,060
+这样即使假定是可取的，每个参与者也只能获得一票
+such that each participant only gets one
+vote even assuming that was desirable
+
+70
+00:05:56,060 --> 00:06:03,090
+例如，所以我们不能使用IP地址来决定它的不同票数
+for example so we can't use IP addresses
+in order to decide it's distinct votes
+
+71
+00:06:03,090 --> 00:06:07,380
+我们不能说每个IP地址获得一票或最多一票，因为
+we can't say well each IP address gets
+one vote or at most one vote because it
+
+72
+00:06:07,380 --> 00:06:12,900
+事实证明，伪造IP地址或闯入IP地址非常容易
+turns out to be extremely easy to either
+forge I P addresses or by breaking into
+
+73
+00:06:12,900 --> 00:06:18,479
+人们的计算机可以累积成千上万的真实计算机
+people's computers to accumulate tens of
+thousands of real computers that you can
+
+74
+00:06:18,479 --> 00:06:24,890
+控制，您当然可以让他们全都对您的投票
+control and you of course would you can
+get them all to vote on your
+
+75
+00:06:25,840 --> 00:06:29,630
+您可以让他们所有人在系统中投票，以便攻击者可能
+and you can get them all to vote in the
+system so an attacker could probably
+
+76
+00:06:29,630 --> 00:06:34,250
+相对容易地以某种方式积累多数选票
+accumulate a majority of votes
+relatively easily in a sort of
+
+77
+00:06:34,250 --> 00:06:38,750
+这样简单的设计，如果攻击者可以获得大部分
+straightforward design like this and if
+an attacker can can get a majority of
+
+78
+00:06:38,750 --> 00:06:47,600
+投票，然后它可以使用多数票来说不同的话
+the votes then it can use this majority
+to sit to sort of say different things
+
+79
+00:06:47,600 --> 00:06:53,720
+冲突的事物，但每次都占大多数，所以Z是否要询问系统
+conflicting things but with the majority
+each time so if Z asks the system oh you
+
+80
+00:06:53,720 --> 00:06:59,510
+知道先进行两次交易中的哪一项，因为您知道
+know with which which of the two
+transactions came first cuz you know
+
+81
+00:06:59,510 --> 00:07:03,889
+记住那个问题，担心的是y要花双倍的钱
+that remember the problem were worried
+about is that y is gonna double spend
+
+82
+00:07:03,889 --> 00:07:09,590
+一些硬币，所以它将花费相同的硬币-Q希望您相信
+some coin so it's gonna spend the same
+coin - Q wants you to believe that and
+
+83
+00:07:09,590 --> 00:07:15,290
+它会将相同的Q的硬币发送给Z和1c以便相信
+it's gonna send that same Q's coin to Z
+and 1c to believe that so maybe when Q
+
+84
+00:07:15,290 --> 00:07:19,310
+询问下一个要记录攻击者控制的多数的下一个事务是什么
+asks what's the next transaction to log
+the majority controlled by the attacker
+
+85
+00:07:19,310 --> 00:07:22,970
+可以说哦，您知道明智地转移到Q是日志中的下一个，并且
+can say oh you know wise transfer to Q
+is the very next one in the log and that
+
+86
+00:07:22,970 --> 00:07:28,520
+在此交易之前出现，并且当Z询问攻击者多数会
+comes before this transaction and when Z
+asks maybe the attackers majority will
+
+87
+00:07:28,520 --> 00:07:33,140
+说好，您知道转账Z在前，而另一笔交易到Q 
+say well you know the transfer Z comes
+first and this other transaction to Q
+
+88
+00:07:33,140 --> 00:07:40,570
+位居第二，这意味着攻击者可以将q + Z欺骗为X 
+comes second and that would mean the
+attacker can trick q + Z into X into
+
+89
+00:07:40,570 --> 00:07:48,110
+接受同一笔硬币，这是双花，这是一场灾难，因此，如果没有
+accepting the same coin that's a double
+spend and that's a disaster so without
+
+90
+00:07:48,110 --> 00:07:52,580
+一些非常聪明的主意，很难建立一个开放的系统
+some very clever idea it's very hard to
+build an open system
+
+91
+00:07:52,580 --> 00:07:56,479
+你知道没有受控的会员很难建立一个开放的
+you know without a controlled
+memberships very hard to build an open
+
+92
+00:07:56,479 --> 00:08:06,289
+您拥有可靠的投票系统的系统，但实际上比特币不太可靠
+system in which you have reliable voting
+okay but in fact Bitcoin doesn't quite
+
+93
+00:08:06,289 --> 00:08:13,190
+使用投票，但尽管如此，它还是设法解决了如何获得投票的问题
+use voting but it nevertheless manages
+to solve this problem of how to get
+
+94
+00:08:13,190 --> 00:08:18,260
+尽管恶意，但在一个总账上达成协议，所以这是比特币
+agreement on a single ledger
+despite malice so this is the Bitcoin
+
+95
+00:08:18,260 --> 00:08:20,530
+区块链
+blockchain
+
+96
+00:08:26,379 --> 00:08:31,900
+在这一点上，有很多差异链系统，所以实际上
+and at this point there's a lot of diff
+chain systems out there so actually I'm
+
+97
+00:08:31,900 --> 00:08:36,940
+甚至不确定该术语指的是什么区块链，但我只是在谈论
+not even sure what blockchain as a term
+refers to but I'm only talking about
+
+98
+00:08:36,940 --> 00:08:43,570
+比特币现在还可以，所以目标是我们希望在一次交易中达成协议
+Bitcoin right now okay so the goal is we
+want agreement on a single transaction
+
+99
+00:08:43,570 --> 00:08:50,980
+再次登录，因为我们要防止重复支出，这是我们要
+log again because we want to prevent
+double spending and this we're going to
+
+100
+00:08:50,980 --> 00:08:55,840
+建立比特币可以构建包含所有内容的区块链
+be building Bitcoin builds this thing
+called the blockchain that contains all
+
+101
+00:08:55,840 --> 00:09:00,820
+所有硬币上的交易，所以它是一个单一的单个区块链
+the transactions on all the coins so
+it's a single a single blockchain that
+
+102
+00:09:00,820 --> 00:09:06,630
+与先前的系统一样，再次描述系统中的所有交易
+describes all the transactions in the
+system again as with the previous system
+
+103
+00:09:06,630 --> 00:09:10,920
+将会有很多同行，所以我们仍然有这种覆盖网络
+there's going to be many peers so we
+still have this kind of overlay network
+
+104
+00:09:10,920 --> 00:09:18,280
+看来每个对等体都在构建日志的副本和完整的副本
+appears each peer is kind of building a
+copy of the log and a complete copy of
+
+105
+00:09:18,280 --> 00:09:25,450
+交易记录在自己的内存中，我们不知道他们有多少个同s 
+the transaction log in its own memory
+and we don't know how many peers they
+
+106
+00:09:25,450 --> 00:09:30,220
+是或有多少人，但它们构成了其中一种
+are or how many there are who they are
+but they form a sort of in one of these
+
+107
+00:09:30,220 --> 00:09:35,230
+覆盖网络发现有TCP连接，并且任何时候对等方都能听到
+overlay networks spotted with TCP
+connections and anytime a peer hears
+
+108
+00:09:35,230 --> 00:09:39,640
+有关新交易的信息，例如当Y要向其提交付款交易时
+about a new transaction like when Y
+wants to submit a payment transaction to
+
+109
+00:09:39,640 --> 00:09:43,780
+ Z或Q，它将发送给一个或多个同级，而同级将淹没
+Z or Q it's gonna send it to one or more
+peers and that peers gonna flood the
+
+110
+00:09:43,780 --> 00:09:50,170
+整个系统上的事务，日志的建立方式， 
+transaction over the whole system the
+way the log is built up the way that
+
+111
+00:09:50,170 --> 00:09:54,550
+建立区块链是因为每个对等方都积累交易并
+blockchain is built up is that each of
+the peers accumulates transactions and
+
+112
+00:09:54,550 --> 00:10:01,240
+ PAC将许多交易成千上万个块，然后是
+PACs many transactions thousands into a
+block and then it's entire new blocks of
+
+113
+00:10:01,240 --> 00:10:06,670
+通过淹没新块再次真正添加到分类账的交易
+transactions that are really appended to
+the ledger again by flooding new blocks
+
+114
+00:10:06,670 --> 00:10:10,540
+整个系统，因此至少在理论上每个同伴都可以看到每个新事物
+over the whole system so that at least
+in theory every peer sees every new
+
+115
+00:10:10,540 --> 00:10:19,150
+区块链，因此区块链模型区块链由区块构成
+blocks so the blockchain model
+blockchains consists of blocks what each
+
+116
+00:10:19,150 --> 00:10:31,260
+块看起来像是上一个块的哈希，有点像我的
+block looks like is the hash of the
+previous block it's a bit like my
+
+117
+00:10:32,829 --> 00:10:36,559
+先前的交易中断交易系统，因此我们拥有
+previous transaction broken transaction
+system so we have the hash of the
+
+118
+00:10:36,559 --> 00:10:44,179
+前一个区块，例如前一个区块的加密哈希，有一组
+previous block like cryptographic hash
+of the previous block there's a set of
+
+119
+00:10:44,179 --> 00:10:51,259
+交易，所以这些都是您的个人跨度，您知道为什么要付款
+transactions so these are individual
+spans from you know why is trying to pay
+
+120
+00:10:51,259 --> 00:10:56,420
+排队或碰巧发生几百
+queue or whatever it happens to be a
+couple hundred of whole thousand
+
+121
+00:10:56,420 --> 00:11:00,050
+个人交易，每笔交易实际上和我一样
+individual transactions and each
+transaction is actually much as I
+
+122
+00:11:00,050 --> 00:11:06,110
+在它具有该硬币的先前交易的哈希值之前进行了描述
+described before it has the hash of the
+previous transaction for that coin which
+
+123
+00:11:06,110 --> 00:11:10,490
+通常会在先前的区块中存在
+is going to exist in a previous block
+typically it has deprived a signature by
+
+124
+00:11:10,490 --> 00:11:14,990
+该硬币的先前所有者的私钥，它是的公钥
+the private key of the previous owner of
+that coin and it is the public key of
+
+125
+00:11:14,990 --> 00:11:20,059
+新的所有者，因此该交易可以从以下原因转移资金： 
+the new owner so this transaction would
+have that transfers money from why the
+
+126
+00:11:20,059 --> 00:11:27,619
+队列将包含Hugh的公钥和带有明智私钥的签名
+queue would contain Hugh's public key
+and a signature by with wise private key
+
+127
+00:11:27,619 --> 00:11:34,160
+加上先前区块中先前交易的杂凑，以及这些
+plus a hash of a previous transaction in
+a previous block as well as these
+
+128
+00:11:34,160 --> 00:11:39,889
+交易中有一个随机数，稍后我将讨论
+transactions there's a nonce
+which I'll talk about in a moment it's
+
+129
+00:11:39,889 --> 00:11:49,459
+只是一个32位数字，然后是当前时间，大致是系统的方式
+just a 32-bit number and then the
+current time roughly the way the system
+
+130
+00:11:49,459 --> 00:11:53,959
+起作用的是，同行积累了新的交易，大约每10个
+works is that the peers accumulate new
+transactions and roughly every 10
+
+131
+00:11:53,959 --> 00:11:58,100
+分钟，其中一个产生一个新块，该块应该是后继块
+minutes one of them produces a new block
+that should be the successor block
+
+132
+00:11:58,100 --> 00:12:01,730
+包含所有已发送到系统中的所有交易
+containing all the transactions that
+have been sort of sent into the system
+
+133
+00:12:01,730 --> 00:12:08,800
+从上一个区块创建以来的十分钟内
+in the ten minutes roughly since the
+previous block was created and if you're
+
+134
+00:12:08,800 --> 00:12:14,089
+如果有人告诉您他们要付给您比特币，那么在您接受之前
+if somebody tells you they're paying you
+Bitcoin then before you accept that
+
+135
+00:12:14,089 --> 00:12:18,410
+他们确实做到了，您需要观察区块链的发展，而您
+they've really done it you need to watch
+the blockchain as it evolves and you
+
+136
+00:12:18,410 --> 00:12:21,139
+知道区块新区块无处不在，所以区块链是
+know blocks new blocks are signs
+everywhere so the blockchain is quite
+
+137
+00:12:21,139 --> 00:12:26,089
+公开，如果您认为有人声称已经付款，则需要观看
+public if you think somebody claims to
+have paid you you need to watch the
+
+138
+00:12:26,089 --> 00:12:32,110
+区块链，直到您看到一个包含交易的新区块
+blockchain until you see a new block
+that contains the transaction that
+
+139
+00:12:32,110 --> 00:12:37,819
+您期望声称自己寄钱给您的人以及您的
+you're expecting from the person that
+claimed to sent you money and with your
+
+140
+00:12:37,819 --> 00:12:42,579
+在他们看来有效的公钥，您知道正确签名了吧
+public key at them that looks a valid
+you know correctly signed okay so
+
+141
+00:12:42,579 --> 00:12:52,009
+每个人每个人都必须注意区块链向所有人付款
+everybody everybody has to watch the
+blockchain for payments to them all
+
+142
+00:12:52,009 --> 00:12:57,620
+正确，那么谁创建了每个块，这个创建新块的动作称为
+right so who creates each block this
+action of creating a new block is called
+
+143
+00:12:57,620 --> 00:13:02,540
+采矿和用于生产新区块的技术通常也称为
+mining and the technique that's used to
+produce a new block is often also called
+
+144
+00:13:02,540 --> 00:13:08,059
+从某种意义上说，工作量证明需要大量的CPU时间才能产生
+proof of work in the sense that it
+requires a lot of CPU time to produce a
+
+145
+00:13:08,059 --> 00:13:12,050
+新块，因此生产新块实质上证明了您
+new block and so the production of a new
+block essentially proves that you
+
+146
+00:13:12,050 --> 00:13:18,170
+控制真正的实时CPU，您不只是在虚假的情况下挖掘新块
+control a real live CPU and you're not
+just mining new blocks on a fake
+
+147
+00:13:18,170 --> 00:13:25,269
+电脑新块
+computer the new block
+
+148
+00:13:25,960 --> 00:13:32,650
+为了在散列时有效的新块必须具有一定的数量
+in order to be valid a new block when
+you hash it has to have a certain number
+
+149
+00:13:32,650 --> 00:13:39,070
+当然，如果您只取块的哈希值开头的零
+of zeros at the beginning of the hash of
+the block now of course if you just take
+
+150
+00:13:39,070 --> 00:13:43,270
+一堆任意交易，然后对它进行加密哈希
+a bunch of arbitrary transactions and
+you do a cryptographic hash on it it's
+
+151
+00:13:43,270 --> 00:13:48,580
+几乎无论什么数据的散列都不会具有更多的散列
+highly unlikely that the hash of some
+just whatever data is gonna have more
+
+152
+00:13:48,580 --> 00:13:54,880
+加密散列开头的数字不能超过一，二或三个零
+than one or two or three zeros at the
+beginning of the cryptographic hash
+
+153
+00:13:54,880 --> 00:14:02,320
+但是，正在挖掘区块的计算机可以在此处放置它喜欢的任何值
+however the computer that's mining the
+block can put any value it likes here
+
+154
+00:14:02,320 --> 00:14:07,240
+为了打结，所以采矿计算机所做的就是尝试不同的方法
+for the knots and so what the mining
+computers do is that they try different
+
+155
+00:14:07,240 --> 00:14:11,080
+通过随机数的不同随机值选择一个随机数
+by different random values for the nonce
+just pick one with a random number
+
+156
+00:14:11,080 --> 00:14:14,890
+生成器，将其粘贴在他们试图挖掘的块的副本中， 
+generator that'll stick it in there copy
+of the block they're trying to mine and
+
+157
+00:14:14,890 --> 00:14:16,480
+然后他们将在块上计算哈希
+then they'll compute the hash on the
+block
+
+158
+00:14:16,480 --> 00:14:20,740
+他们将检查哈希中有多少个零和多少个前导零
+and they'll check how many zeros how
+many leading zeros are in the hash with
+
+159
+00:14:20,740 --> 00:14:24,550
+这个特殊的结是否足以应付零，我不知道有多少
+this particular knots if it's enough
+leading zeros I don't know how many it
+
+160
+00:14:24,550 --> 00:14:28,839
+是，但是如果足够，您知道大约几十个
+is but it's you know sort of on the
+order of dozens if there's enough
+
+161
+00:14:28,839 --> 00:14:34,600
+前导零，这是一个有效的矿，一个有效的区块，以及任何同位
+leading zeros and it's a valid mine a
+valid block and the whatever peer it was
+
+162
+00:14:34,600 --> 00:14:38,709
+发现该现时导致块哈希具有很多前导零
+that found this nonce that caused the
+block hash to have lots of leading zeros
+
+163
+00:14:38,709 --> 00:14:43,330
+可以在网络上泛滥成灾，您知道所有事情都是平等的
+can flood this block over the network
+and you know all that's being equal
+
+164
+00:14:43,330 --> 00:14:51,070
+那将是新的下一个区块和链，但通常是
+that'll be the new next block and the
+chain but typically the the hash of the
+
+165
+00:14:51,070 --> 00:14:55,270
+与任何给定的随机数一起阻塞，您知道将没有足够的前导零，并且
+block with any given nonce you know
+won't have enough leading zeros and the
+
+166
+00:14:55,270 --> 00:14:59,350
+挖掘同伴将不得不尝试另一个随机数，另一个随机随机数继续做
+mining the peer will have to try another
+nonce another random nonce keep doing
+
+167
+00:14:59,350 --> 00:15:03,850
+直到得到一个足够散列的散列哈希
+that until it gets uh a block that
+hashes to a hash with enough leading
+
+168
+00:15:03,850 --> 00:15:07,630
+零，所以这会占用大量CPU时间，哦，你知道这是随机的
+zeros and so this takes a lot of CPU
+time it takes oh you know it's a random
+
+169
+00:15:07,630 --> 00:15:13,930
+处理，但系统已经过调整，且零的数量
+process but the system is sort of tuned
+and the number of zeros that are
+
+170
+00:15:13,930 --> 00:15:19,720
+设置必须存在于块的散列的开头，以便它
+required to exist at the beginning of
+the hash of the block is set so that it
+
+171
+00:15:19,720 --> 00:15:23,800
+与所有不同的同行大约需要十分钟的时间
+takes about ten minutes you know with
+all the different peers hundreds of
+
+172
+00:15:23,800 --> 00:15:28,000
+那里有成千上万的人在进行比特币的平均挖矿
+thousands appears out there who are
+doing Bitcoin mining the average amount
+
+173
+00:15:28,000 --> 00:15:33,459
+在他们中的第一个找到一个具有
+of time before the first one of them
+finds a nonce for a block that has
+
+174
+00:15:33,459 --> 00:15:38,640
+足够的喂零点设置为十分钟
+enough feeding zeros is set up to be ten
+minutes
+
+175
+00:15:38,640 --> 00:15:46,120
+好的，所以请问同or或新同how如何发现其他同to来
+okay so question how do peers or new
+peers discover other peers to
+
+176
+00:15:46,120 --> 00:15:50,320
+是的，这是一个很好的问题，所以这有点参考
+communicate with yeah it's a great
+question so this is sort of a reference
+
+177
+00:15:50,320 --> 00:15:57,399
+到这个比特币对等网络中，如果我是新对等，你知道我已经安装了一个
+to the this network of Bitcoin peers if
+I'm a new peer you know I've install a
+
+178
+00:15:57,399 --> 00:16:00,790
+新计算机，我在计算机上安装了比特币软件，我想要
+new computer I get Bitcoin software
+installed on my my computer and I want
+
+179
+00:16:00,790 --> 00:16:06,880
+加入比特币网络，我如何知道与谁交谈以及如何知道
+to join the Bitcoin network how do I
+know who to talk to and how do I know
+
+180
+00:16:06,880 --> 00:16:11,350
+好吧，答案很简单，那就是比特币软件具有
+well so the straightforward answer to
+that is that the Bitcoin software has
+
+181
+00:16:11,350 --> 00:16:17,769
+内置在一大堆当前对等方的IP地址上，因此您的
+built into it on the IP addresses of a
+whole bunch of current peers and so your
+
+182
+00:16:17,769 --> 00:16:21,760
+第一次将软件启动到二进制源时，无论
+software when you first fire it up into
+the binary the source whatever the
+
+183
+00:16:21,760 --> 00:16:25,480
+您知道的比特币软件拥有大量IP地址，并且您尝试
+Bitcoin software you know has a whole
+bunch of IP addresses and you try to
+
+184
+00:16:25,480 --> 00:16:32,170
+与现有的对等方建立TCP连接，如果一切顺利，您将
+make TCP connections to those existing
+peers and if all goes well you'll be
+
+185
+00:16:32,170 --> 00:16:34,899
+能够连接到他们，你会说我是新手，请给我一份
+able to connect to them and you'll say
+look I'm new please give me a copy of
+
+186
+00:16:34,899 --> 00:16:40,110
+现在存在的区块链，他们将向您发送当前的区块团队
+the blockchain as it exists now and
+they'll send you the current block team
+
+187
+00:16:40,110 --> 00:16:46,180
+现在大约有几百个千兆字节，这就是
+which is about a couple hundred
+gigabytes right now so that's if all
+
+188
+00:16:46,180 --> 00:16:52,240
+如果一切不顺利，一切都会顺利进行，那么您可能会遇到诸如
+goes well if all doesn't go well then
+you may run into problems like for
+
+189
+00:16:52,240 --> 00:16:56,529
+例如，如果您的软件副本已经被恶意修改， 
+example if your copy of the software has
+been modified by somebody malicious to
+
+190
+00:16:56,529 --> 00:17:02,829
+列出了一个由攻击者或
+have a list of IP addresses that are all
+controlled by the attacker or the
+
+191
+00:17:02,829 --> 00:17:07,240
+攻击者控制着您的计算机网络，因此无论您尝试使用谁
+attacker controls your computer network
+so that regardless of who you try to
+
+192
+00:17:07,240 --> 00:17:11,679
+连接到您最终实际上是在与攻击者的机器对话
+connect to you end up actually talking
+to the attackers machines it may be that
+
+193
+00:17:11,679 --> 00:17:17,799
+攻击者正在运行，您知道他们自己的隔离网络，并且您知道
+the attacker is running you know their
+own isolated network and that you know
+
+194
+00:17:17,799 --> 00:17:21,069
+您认为您新安装的软件认为它已经建立了许多连接
+you think your newly installed software
+thinks it's made a bunch of connections
+
+195
+00:17:21,069 --> 00:17:25,780
+比特币知道，但是在这种情况下，它们都是攻击者节点
+the Bitcoin knows but whoops they're all
+attackers nodes in that case a
+
+196
+00:17:25,780 --> 00:17:29,020
+您将获得的区块链将受到攻击者的监控
+blockchain you'll get will be watching
+controlled by the attacker
+
+197
+00:17:29,020 --> 00:17:36,429
+而且您很可能会遇到麻烦，并且您知道其中有一种选择
+and you may well you will be in trouble
+and you know there's pick one of some
+
+198
+00:17:36,429 --> 00:17:44,540
+对此的辩护可能是他的主要能力
+defenses against this may be the main
+well he
+
+199
+00:17:44,540 --> 00:17:50,680
+加载了正确的比特币软件内置了正确的比特币软件
+loaded correct Bitcoin software the
+correct Bitcoin software has built-in
+
+200
+00:17:50,680 --> 00:17:54,800
+区块链中最近区块的哈希值，这意味着如果您
+hashes of recent blocks in the
+blockchain and that means that if you
+
+201
+00:17:54,800 --> 00:17:59,540
+至少在您运行适当的比特币软件中连接到一些攻击者
+connect to some attackers in your
+running proper Bitcoin software at least
+
+202
+00:17:59,540 --> 00:18:07,100
+巴赫金必须从盒子中的第一个但又有数千个方块开始
+the Bakhtin has to start with the first
+however many thousand blocks in the box
+
+203
+00:18:07,100 --> 00:18:11,210
+如果下载它，它必须是正确的绝对错误的软件，由修改
+beam have to be correct if you download
+it absolutely wrong software modified by
+
+204
+00:18:11,210 --> 00:18:16,970
+攻击者，那么比特币就无能为力，那么这就是
+the attacker then there's just nothing
+Bitcoin can do to help you then this is
+
+205
+00:18:16,970 --> 00:18:20,990
+我不一定听说过的系统潜在漏洞
+a potential weakness in the system I
+haven't necessarily heard of anybody
+
+206
+00:18:20,990 --> 00:18:28,150
+利用这一点，但这绝对是要考虑的事情
+exploiting this but it's definitely
+something to think about
+
+207
+00:18:28,150 --> 00:18:34,370
+好回到采矿好，所以如果你想创建一个新的块，你必须找到一个
+ok back to mining ok so the if you want
+to create a new block you gotta find a
+
+208
+00:18:34,370 --> 00:18:40,280
+导致您尝试生成新块的随机数导致哈希具有
+nonce that causes the new block you're
+trying to produce causes hash to have
+
+209
+00:18:40,280 --> 00:18:47,030
+对于单个机器，很多前导零都知道您需要花费多少时间
+lots of leading zeros for an individual
+machine you know the amount of time for
+
+210
+00:18:47,030 --> 00:18:50,930
+一台普通的计算机来查找满足此要求的随机数
+an individual ordinary computer to find
+a nonce that satisfies this requirement
+
+211
+00:18:50,930 --> 00:18:57,620
+至少要花一个月的CPU时间，但是有很多
+is like at least in a months of CPU time
+but there's a very large number of
+
+212
+00:18:57,620 --> 00:19:01,340
+比特币矿工在那里，所以即使他们中的任何一个都需要很
+Bitcoin miners out there and so even
+though any one of them would take a very
+
+213
+00:19:01,340 --> 00:19:05,960
+很长时间才能找到新的街区，或者我们真正关心的是
+long time to find a new block or we
+really care about is the time for the
+
+214
+00:19:05,960 --> 00:19:09,200
+他们中的第一个找到一个街区，因为他们都在做这种排序
+very first one of them to find a block
+and since they're all making these sort
+
+215
+00:19:09,200 --> 00:19:17,330
+随机数的随机数之一，其中一个会找到一个满足的随机数
+of random choices of nonce one of them
+is gonna find a a nonce that fulfills
+
+216
+00:19:17,330 --> 00:19:22,520
+需求相对较快，而比特币的数量会调整
+the requirements relatively soon and the
+number a Bitcoin adjusts the number of
+
+217
+00:19:22,520 --> 00:19:29,720
+响应新块的速度，在哈希中前导所需的前导零
+leading required leading zeros in the
+hash in response to how fast new blocks
+
+218
+00:19:29,720 --> 00:19:33,910
+似乎正在出现，所以如果新块出现的速度比
+seemed to be appearing and so if new
+blocks are appearing much faster than
+
+219
+00:19:33,910 --> 00:19:38,300
+每10分钟一次，比特币将自动增加
+once every 10 minutes Bitcoin will
+automatically increase the number of
+
+220
+00:19:38,300 --> 00:19:41,900
+所需的前导零，这将使其变得更加困难
+leading zeros that's required and
+that'll make it correspondingly harder
+
+221
+00:19:41,900 --> 00:19:47,270
+并花费更长的时间让矿工找到一个新的区块Nana区块当然是
+and take longer for the miners to find a
+a new block Nana blocks are of course
+
+222
+00:19:47,270 --> 00:19:50,570
+在持续的时间内到达速度比每10分钟慢
+arriving slower than every 10 minutes
+over a sustained period of time then
+
+223
+00:19:50,570 --> 00:19:54,230
+比特币将调整哈希中所需的前导零的数量为
+Bitcoin will adjust the required number
+of leading zeroes in the hash to be
+
+224
+00:19:54,230 --> 00:19:57,580
+更小，这意味着它会更快更容易
+smaller and that means it'll be easier
+quicker
+
+225
+00:19:57,580 --> 00:20:04,360
+找到适合您的一种自适应方案的模块
+to find you blocks to the sort of an
+adaptive scheme there to us blocks to
+
+226
+00:20:04,360 --> 00:20:09,539
+新的盒子每十分钟运行一次，大约可以了，所以这是
+new boxes show up run once every ten
+minutes roughly okay so this is the
+
+227
+00:20:09,539 --> 00:20:17,619
+工作量证明方案，这本质上是一种解决方案，并且全部
+proof-of-work scheme and this is
+essentially a solution and all in a
+
+228
+00:20:17,619 --> 00:20:23,019
+几分钟前我提到的那个投票问题的有趣方式
+funny way to the that voting problem I
+mentioned a few minutes ago where you
+
+229
+00:20:23,019 --> 00:20:28,389
+我真的无法进行某些练习，因为我们不确定
+can't really have some practice I have
+majority votes because we're not sure
+
+230
+00:20:28,389 --> 00:20:32,590
+参与者是谁或有多少人，因为人们可能会
+who the participants are or how many
+there are because people may sort of
+
+231
+00:20:32,590 --> 00:20:39,249
+创建伪造的计算机伪造的IP地址，无论您要在这里使用什么
+create fake computers fake IP addresses
+whatever it will here you have to use
+
+232
+00:20:39,249 --> 00:20:44,919
+ CPU时间是一种无法按顺序伪造的真实资源
+CPU time which is a sort of real
+resource that cannot be faked in order
+
+233
+00:20:44,919 --> 00:20:50,169
+贡献一个新的块，这意味着你知道，虽然这不是一个真正的
+to contribute a new block and that means
+that um you know while it's not really a
+
+234
+00:20:50,169 --> 00:20:57,190
+表决方案，其本质上是从中获得新的障碍
+voting scheme the what it's essentially
+doing is the new block gets to come from
+
+235
+00:20:57,190 --> 00:21:03,279
+对涉及的不同计算机做出反应性随机选择
+a reactively random choice over the
+different computers that are involved in
+
+236
+00:21:03,279 --> 00:21:10,840
+在挖矿中，所以这种方案是一种随机的加密方式
+in mining so this scheme is it's a sort
+of a random sort of cryptographically
+
+237
+00:21:10,840 --> 00:21:15,489
+合理的随机选择过程，让谁可以选择下一个
+reasonably strong random selection
+process for who gets to choose the next
+
+238
+00:21:15,489 --> 00:21:19,869
+阻止，因此，如果攻击者数量很少，则极不可能
+block and so if there's a small number
+of attackers they're highly unlikely to
+
+239
+00:21:19,869 --> 00:21:25,090
+通过此过程选择，以便现在贡献下一个区块
+be selected by this process in order to
+contribute the next block now what that
+
+240
+00:21:25,090 --> 00:21:28,899
+意思是，如果大多数参与者或大多数CPU能力
+means is that if most of the
+participants or most of the CPU power in
+
+241
+00:21:28,899 --> 00:21:34,119
+该系统是由非恶意人员控制的，那么大多数新
+the system is controlled by non
+malicious people then most of the new
+
+242
+00:21:34,119 --> 00:21:37,929
+非恶意用户会发现这些阻止，这不是立即的
+blocks will be found by non malicious
+people and that's not an immediate
+
+243
+00:21:37,929 --> 00:21:44,529
+双重支出的解决方案，但我们会看到这是实现
+solution to double spending but we'll
+see that it that it's the key to the
+
+244
+00:21:44,529 --> 00:21:52,049
+双花防御好吗
+double spending defense okay
+
+245
+00:21:52,630 --> 00:21:59,800
+好吧，让我们回到我们的例子，我们有一个区块链，也许
+all right so let's go back to our
+example we have a blockchain that maybe
+
+246
+00:21:59,800 --> 00:22:06,310
+看起来我们目前封锁了五点钟的罚款
+looks like we currently block five
+o'clock fine has been published to
+
+247
+00:22:06,310 --> 00:22:14,710
+每个人-他们所有的同龄人都在努力挖掘潜在的区块6 
+everybody the mmm them all the peers are
+working on mining a potential block six
+
+248
+00:22:14,710 --> 00:22:21,430
+而且我们不知道会发生什么，因为矿工还在
+and we don't know what's going to be yet
+because because the miners are still
+
+249
+00:22:21,430 --> 00:22:24,850
+致力于寻找结，但您知道我们知道它有一堆
+working on finding about knots but you
+know we know that it has a bunch of
+
+250
+00:22:24,850 --> 00:22:30,640
+如果此时您为什么知道广播为什么说付款，那么交易很好
+transactions in it well if at this point
+why broadcasts you know say it's payment
+
+251
+00:22:30,640 --> 00:22:35,650
+到Z井，矿工已经在这个区块上工作了，所以明智的新方法
+to Z well the the miner is already
+working on this block so wise new
+
+252
+00:22:35,650 --> 00:22:38,110
+交易，即使它发出了，所以现在可能不会
+transaction and even if it sends it out
+so now probably not going to be
+
+253
+00:22:38,110 --> 00:22:42,160
+目前已经考虑合并到该区块中，但是所有矿工都将
+incorporated in the block has been
+currently mind but all the miners will
+
+254
+00:22:42,160 --> 00:22:46,690
+保留这种新事务并在一侧以及其中一个缓冲时
+kind of keep this new transaction and a
+buffer on the side and when one of them
+
+255
+00:22:46,690 --> 00:22:53,650
+确实找到了第6块的新块，然后将合并明智的交易
+does find a new block for block 6 then
+wise transaction will be incorporated
+
+256
+00:22:53,650 --> 00:23:01,140
+一旦有人想到了方框7，便开始尝试开采第7块
+into the attempts to mine block seven as
+soon as somebody does mind box seven
+
+257
+00:23:01,140 --> 00:23:14,470
+这个Y箭头Z实际上将在区块链中，所以一个
+this Y arrow Z will actually be really
+in the blockchain alright so so one
+
+258
+00:23:14,470 --> 00:23:20,140
+问题是可能会有两个不同的继任者走六个吗
+question is could there be two different
+successors to walk six could there be
+
+259
+00:23:20,140 --> 00:23:31,600
+诸如第7块和第7块的素数对，是什么阻止了这种结构
+sort of a block seven and a block seven
+prime right what prevents this structure
+
+260
+00:23:31,600 --> 00:23:35,140
+从产生，当然，我们对此感兴趣的原因是，如果
+from arising and of course the reason
+why we're interested in this is that if
+
+261
+00:23:35,140 --> 00:23:38,910
+然后结构就会出现
+the structure could arise then
+
+262
+00:23:39,240 --> 00:23:46,920
+那么这两个也许是七个素数B七个双重素数，然后这两个不同的b7 
+then these two maybe seven prime B seven
+double prime then these two different b7
+
+263
+00:23:46,920 --> 00:23:51,690
+ s对b6的两个不同的连续继承者可能与Y的转移不同
+s two different successive successors to
+b6 might have different transfers from Y
+
+264
+00:23:51,690 --> 00:23:57,540
+因此，如果您只知道b7质数，就会想到为什么要支付它的比特币
+and so if you were aware of just b7
+prime you'd think why paid it's Bitcoin
+
+265
+00:23:57,540 --> 00:24:01,920
+看看您是否只是b7质数的素数，您将完全单击
+to see if you were we're only a b7 prime
+prime you this would click a totally
+
+266
+00:24:01,920 --> 00:24:07,440
+来自广泛急性的合法付款我的问题是可以有两个不同
+legitimate payment from wide acute my
+question is can there be two different
+
+267
+00:24:07,440 --> 00:24:14,370
+一个区块的后继者，答案是肯定的，实际上
+successors to a block it turns out the
+answer is yes and it's actually does
+
+268
+00:24:14,370 --> 00:24:18,780
+相当频繁地发生，原因是你知道
+happen reasonably frequently and the
+reason is that there's you know
+
+269
+00:24:18,780 --> 00:24:24,330
+数以千计的同行在那里挖矿，试图找到继任者来阻止
+thousands of peers out there Mining away
+trying to find the successors to block
+
+270
+00:24:24,330 --> 00:24:29,100
+六，他们可能正在开采，这是您知道要尝试生产的
+six and they're likely mining it's you
+know trying to produce somewhat
+
+271
+00:24:29,100 --> 00:24:32,040
+不同的区块，其中包含不同的交易集，因此很容易
+different blocks with different sets of
+transactions in them so it's easy to
+
+272
+00:24:32,040 --> 00:24:37,110
+想象一种情况，在这种情况下，您知道的一些同行碰巧看到了
+imagine a situation in which some of the
+peers you know they happen to see just
+
+273
+00:24:37,110 --> 00:24:40,200
+因为交易通过网络碰巧看到的方式
+because of the way the transactions move
+through the network they happen to see
+
+274
+00:24:40,200 --> 00:24:44,040
+为什么先将其转移到Z并合并以阻止其开采
+why it's transferred to Z first and
+incorporated in to block their mining
+
+275
+00:24:44,040 --> 00:24:49,650
+和其他您知道的同类产品，但它们的版本相同
+and other peers you know for sort of the
+same successors but the their version of
+
+276
+00:24:49,650 --> 00:24:53,340
+他们作为六位继承人的采矿区块恰好看到了这一点
+the block their mining as a successor to
+six just happen to have seen this
+
+277
+00:24:53,340 --> 00:24:57,150
+交易优先，并将其包含在区块中，以便我们轻松获得不同
+transaction first and included that in
+the block so we can easily get different
+
+278
+00:24:57,150 --> 00:25:01,200
+试图以产生不同继任者的方式工作的矿工是六个
+miners trying to work in a way trying to
+produce different successors to be six
+
+279
+00:25:01,200 --> 00:25:06,809
+如果其中两个碰巧发现一个随机数满足
+if two of them happen to find a nonce
+that satisfies the leading zeros in the
+
+280
+00:25:06,809 --> 00:25:11,700
+哈希规则同时意味着我们有两个不同的肿瘤块
+hash rule at the same time that means we
+have two different blocks to tumor
+
+281
+00:25:11,700 --> 00:25:17,309
+同时产生的完全有效的区块，它们都将发送
+totally valid blocks produced at the
+same time and they're both going to send
+
+282
+00:25:17,309 --> 00:25:20,970
+这些被封锁到网络中，他们会看到您知道
+those blocks out into the network and
+they'll be seeing that you know on
+
+283
+00:25:20,970 --> 00:25:25,080
+所有其他同龄人大约在同一时间，所以很容易这样
+roughly the same time by all the other
+peers so it could easily be the case
+
+284
+00:25:25,080 --> 00:25:34,470
+可能出现两个不同的两个截然不同的第六个继承者，并且
+that two different two quite different
+successors to block six may arise and
+
+285
+00:25:34,470 --> 00:25:37,160
+这叫做叉子
+it's called the fork
+
+286
+00:25:40,940 --> 00:25:46,110
+因此，我们对Forks发生的事情非常感兴趣，因为这可以并且
+and so we're very interested in what
+happens to Forks because this can and
+
+287
+00:25:46,110 --> 00:25:53,430
+确实出现了最直接的规则，那就是任何同龄人看到
+does arise well the most immediate rule
+is that as soon as any peer sees a
+
+288
+00:25:53,430 --> 00:25:59,010
+接班人哦，您知道所有同龄人都在试图开采一个接班人来阻止六个
+successor oh you know all the peers are
+trying to mine a successor to block six
+
+289
+00:25:59,010 --> 00:26:05,040
+他们中的任何一个人比以往任何时候都更快地看到了新的继任者
+as soon as than ever any of them any of
+them sees a new successor block be
+
+290
+00:26:05,040 --> 00:26:08,280
+从成功挖矿的同伴那里涌来
+flooded from some peer that did
+successfully mine
+
+291
+00:26:08,280 --> 00:26:12,810
+它会停止处理六个，然后立即切换到尝试
+it'll stop working on six and
+immediately switch to trying to work on
+
+292
+00:26:12,810 --> 00:26:19,590
+ b737的继任者，因此最初每个同行都看到其继任者
+a successor from b737 so initially every
+peer as soon as it sees a successor
+
+293
+00:26:19,590 --> 00:26:24,120
+块切换到为该后继块挖掘一个后继者，因此在此
+block switches to mining a successor for
+that successor block so in this
+
+294
+00:26:24,120 --> 00:26:28,290
+某些同行会首先看到b7 Prime，然后开始研究
+situation some of the peers will see b7
+Prime first and start working on a
+
+295
+00:26:28,290 --> 00:26:33,120
+继任者然后其他同行将开始我的工作，将看到b7 prime prime for 
+successor to that then other peers will
+start mine will see b7 prime prime for
+
+296
+00:26:33,120 --> 00:26:37,110
+这只是取决于您知道他们首先会看到什么，如果这些
+it's just depending on you know what
+they happen to see first if the if these
+
+297
+00:26:37,110 --> 00:26:40,710
+两个人同时被开采，他们将开始为
+two are mined at the same time and
+they'll start working on a successor to
+
+298
+00:26:40,710 --> 00:26:45,840
+ b7素数素数，所以现在我们得到了一些同行的努力，以扩展它
+b7 prime prime so now we got some of the
+peers working on sort of extending this
+
+299
+00:26:45,840 --> 00:26:51,360
+分叉在区块链中，其他同行正在努力扩展此分叉
+fork in the blockchain and the other
+peers working on extending this fork in
+
+300
+00:26:51,360 --> 00:27:08,550
+区块链，但是另一个关键规则是，如果有人
+the blockchain however another critical
+rule is that if a if somebody's mining
+
+301
+00:27:08,550 --> 00:27:14,760
+离开尝试制作这些区块之一的步骤，它会看到一个新区块
+away on this trying to make one of these
+blocks and it sees a new block for a
+
+302
+00:27:14,760 --> 00:27:21,540
+比任何人都在扩展这个叉子的更长的叉子
+different fork that's longer then
+anybody working on extending this fork
+
+303
+00:27:21,540 --> 00:27:27,150
+将切换为扩展此更长的分叉，因此这是软件中的规则
+will switch to extending this longer
+fork so that's a rule in the software
+
+304
+00:27:27,150 --> 00:27:33,000
+每个人都应该偏爱最长的链条，所以至少在最初，如果
+that everybody is supposed to favor the
+longest chain so at least initially if
+
+305
+00:27:33,000 --> 00:27:38,220
+我们有一些同龄人在一个叉子和另一个叉子上挖掘一种方式， 
+we have some of the peers mining a way
+on one fork and the other and there's
+
+306
+00:27:38,220 --> 00:27:42,780
+相同的长度，而另一个在另一个叉子上挖掘，结果发现方差
+the same length and others mining on the
+other fork it turns out the variance in
+
+307
+00:27:42,780 --> 00:27:47,420
+产生有效的结需要多长时间
+how long it takes to produce a valid
+knots is pretty high
+
+308
+00:27:47,420 --> 00:27:53,180
+因此，即使有两个挖叉的同等数量的挖矿者， 
+so it's even if there's equal number of
+peers mining both Forks it's highly
+
+309
+00:27:53,180 --> 00:27:58,340
+他们中的一个可能会比另一个更先找到继任者
+likely that one of them will find a
+successor significantly before the other
+
+310
+00:27:58,340 --> 00:28:02,660
+因此，此后继者将被淹没到
+and so this successor will be flooded to
+a bunch of nodes appears that were
+
+311
+00:28:02,660 --> 00:28:07,190
+在这个继任者上工作，他们都会切换到更长的Fork，所以
+working on this successor and they'll
+all switch to the longer Fork and so
+
+312
+00:28:07,190 --> 00:28:16,070
+这意味着这里存在某种不对称性，导致我们
+that means that there's sort of an
+asymmetry here that causes us a slight
+
+313
+00:28:16,070 --> 00:28:21,170
+你知道这个Fork itza是否在未成年人之前被未成年人延伸了
+you know with if this Fork itza gets
+extended by the minor slightly before
+
+314
+00:28:21,170 --> 00:28:26,240
+这把叉子，然后将矿工签到这把叉子上
+this fork then that'll contract miners
+over onto this fork it'll be more and
+
+315
+00:28:26,240 --> 00:28:32,120
+更多的矿工在这把叉子上开采，因此将发现更多的新区块， 
+more miners mining on this Fork and so
+the new blocks will be found more and
+
+316
+00:28:32,120 --> 00:28:36,110
+胜利叉上的速度更快，因此有一种强化趋势
+more rapidly on the winning fork so
+there's a tendency sort of reinforced
+
+317
+00:28:36,110 --> 00:28:42,020
+成功的时间越长，一旦所有
+success that's the longer fork gets
+longer and pretty soon once all the
+
+318
+00:28:42,020 --> 00:28:44,930
+矿工们听说过这个更长的叉子，没有人会离开这个
+miners have heard about this longer fork
+nobody will be left the mining on this
+
+319
+00:28:44,930 --> 00:28:49,580
+分叉，每个人都会忽略它，每个人只会对待这个最长的时间
+fork everybody will ignore it and
+everybody will only treat this longest
+
+320
+00:28:49,580 --> 00:29:00,620
+像真正的链子一样叉，所以这很可能
+fork as the real as the real chain okay
+so this is it's highly likely that one
+
+321
+00:29:00,620 --> 00:29:06,800
+其中有一个叉子，两个叉子之一将首先看到一个x块
+of the there's a fork that one of the
+two Forks will see an x-block first will
+
+322
+00:29:06,800 --> 00:29:10,220
+每个人都更长的时间，所有的同龄人都将转向挖掘它， 
+be longer everybody all the peers will
+switch to mining on it and that
+
+323
+00:29:10,220 --> 00:29:15,530
+每个人都会很快同意，其中一个当然是最长的叉子
+everybody will rapidly agree that one of
+the other is the longest fork of course
+
+324
+00:29:15,530 --> 00:29:21,890
+您通常知道大部分趋势中废弃的叉子上的交易
+the transactions on the abandoned fork
+you know usually most of the trend
+
+325
+00:29:21,890 --> 00:29:26,960
+通常，这两个竞争博客的内容非常相似
+usually these two competing blogs have
+you know pretty much pretty similar set
+
+326
+00:29:26,960 --> 00:29:30,470
+交易，但这里很可能会进行一些交易， 
+of transactions but there may well be
+transact a few transactions here that
+
+327
+00:29:30,470 --> 00:29:34,130
+不在那里，当然，如果有人尝试这样做会花费或
+were not there and certainly if
+somebody's trying that will spend or but
+
+328
+00:29:34,130 --> 00:29:37,280
+如果废弃的叉中有未发生的交易
+if there are transactions in the
+abandoned fork that didn't happen also
+
+329
+00:29:37,280 --> 00:29:42,350
+成为赢家，那么这些交易他们就消失了
+to be in the winning fork then these
+transactions they just go away there's
+
+330
+00:29:42,350 --> 00:29:47,200
+没有尝试在区块链系统本身中尝试继承这些
+no attempt in the sort of blockchain
+system itself to try to carry over these
+
+331
+00:29:47,200 --> 00:29:52,460
+现在使用它进行交易，或者没有尝试直接合并
+transactions now with it or there's no
+attempt to kind of directly merge the
+
+332
+00:29:52,460 --> 00:29:56,360
+实际上，现在有两个分叉，您知道是否看不到您的交易出现
+two forks now in fact you know if you
+don't see your transaction show up you
+
+333
+00:29:56,360 --> 00:30:00,880
+也许发布它，你知道，因为区块链是
+maybe issue it
+and you know because the blockchain is
+
+334
+00:30:00,880 --> 00:30:04,210
+公开表明您的交易需要放心
+public it'll become apparent that your
+transaction needs to be reassured
+
+335
+00:30:04,210 --> 00:30:10,870
+因为它并没有更多地包含在获胜的叉子中，但是它也是
+because it wasn't incorporated more in
+the winning fork however it is also the
+
+336
+00:30:10,870 --> 00:30:17,320
+在很短的时间内，这些交易都在
+case that for a brief period of time
+both of these transactions were in the
+
+337
+00:30:17,320 --> 00:30:23,050
+区块链是正确的，因此在很短的时间内， 
+blockchain right so for a brief period
+of time there was a double spending of
+
+338
+00:30:23,050 --> 00:30:29,530
+明智的硬币在区块链中，你知道这就像一个
+wise coin in the blockchain and that you
+know that's like a little bit of a
+
+339
+00:30:29,530 --> 00:30:32,020
+危险情况事实上，您知道这是一个极其危险的情况
+dangerous situation in fact you know
+it's an extremely dangerous situation
+
+340
+00:30:32,020 --> 00:30:35,710
+正确，因为整个要点是避免使用区块链，直到其中之一
+right since the whole point was to avoid
+block chains right until one of these
+
+341
+00:30:35,710 --> 00:30:40,870
+现在两个链变长了，现在还不清楚这两个链中的哪个
+two chains got longer now it was totally
+unclear which of these two chains to
+
+342
+00:30:40,870 --> 00:30:44,290
+相信，然后这些同龄人可能只知道其中一个或
+believe and then these some of the peers
+may only know about one of them or the
+
+343
+00:30:44,290 --> 00:30:51,250
+他们中的其他人，所以这引起了一个关于您Q或Z的问题
+other of them so this raises a sort of
+unhappy question about how Q or Z you
+
+344
+00:30:51,250 --> 00:30:54,940
+知道他们应该使用什么程序来确保已经实际付款
+know what procedure should they use to
+be sure that they've actually been paid
+
+345
+00:30:54,940 --> 00:31:01,030
+对，显然在交易完成后Z就说得还不够
+right apparently it's not enough for Z
+to say well as soon as the transaction
+
+346
+00:31:01,030 --> 00:31:04,600
+出现在区块链中，那么我确定我没有绘画，因为那不是真的
+appears in the blockchain then I'm sure
+I didn't paint because that's not true
+
+347
+00:31:04,600 --> 00:31:09,250
+对吧，也许这个酒吧连锁店最终会变得更短， 
+right maybe the maybe this bar chain
+would end up being a shorter one and the
+
+348
+00:31:09,250 --> 00:31:14,800
+ wipies Q区块链将同样赢得P你不能只看哦，你知道我的
+wipies Q blockchain will win similarly P
+you can't just look at oh you know my
+
+349
+00:31:14,800 --> 00:31:19,630
+交易显示在此区块和区块链中，因此它是有效的
+transaction showed up in this block and
+the blockchain therefore it's a valid
+
+350
+00:31:19,630 --> 00:31:22,840
+交易，因为它可能由于在较短的叉子上而最终被放弃
+transaction because it may end up being
+abandoned due to being on a shorter fork
+
+351
+00:31:22,840 --> 00:31:28,720
+因此，这就是该规则的原因，因为关心的人并没有真正
+and so this is the reason for the rule
+in that people who care don't really
+
+352
+00:31:28,720 --> 00:31:33,100
+相信交易，直到交易中有几个街区之后
+believe in transactions until there's a
+couple of blocks after them in the
+
+353
+00:31:33,100 --> 00:31:39,640
+区块链以及更长的链变得越来越长
+blockchain and as a as the longer chain
+gets longer and longer or as what you
+
+354
+00:31:39,640 --> 00:31:43,750
+认为链条越长，得到的机会就越长
+think is the longer chain gets longer
+and longer the chances that there might
+
+355
+00:31:43,750 --> 00:31:48,250
+是一些其他的链，它将变得更长
+be some other chain that will become
+longer in it longer than it could
+
+356
+00:31:48,250 --> 00:31:52,750
+消失得很小，因为如果您的链条稍长， 
+vanishingly small because if you're on a
+slightly longer chain that's going to
+
+357
+00:31:52,750 --> 00:31:58,240
+吸引矿工在其上开采，因此没有其他链可以非常迅速地发展
+attract miners to mining on it so no
+other chain can grow very rapidly and of
+
+358
+00:31:58,240 --> 00:32:03,040
+当然，您知道特定叉子的链增长速度是
+course the you know the rate in which a
+chain a particular fork can grow is
+
+359
+00:32:03,040 --> 00:32:09,660
+与在该链上进行挖掘的对等点数量成正比
+proportional to the number of peers that
+are mining on that chain
+
+360
+00:32:10,060 --> 00:32:18,740
+好的，所以这是阻止它的机制
+all right so this is this is the
+mechanism that prevents with it makes it
+
+361
+00:32:18,740 --> 00:32:24,170
+因此，如果Y发出了两个同时发生的冲突交易， 
+so that if Y sends out two conflicting
+transaction that's at the same time even
+
+362
+00:32:24,170 --> 00:32:28,270
+尽管如果有叉子的话，可能会有短暂的双花，但是很快就会
+though there can be a brief double spend
+if there's a fork it will rapidly be
+
+363
+00:32:28,270 --> 00:32:32,330
+两个交易中只有一个或另一个交易时间最长
+only one or the other of the two
+transactions will be in the longest
+
+364
+00:32:32,330 --> 00:32:39,110
+链，所以其中一个现在将以某种形式赢得官方链，您知道
+chain and so one of them will win in the
+sort of official chain now and you know
+
+365
+00:32:39,110 --> 00:32:44,990
+的确，如果第二笔交易出现，则稍后再发送给同级
+indeed if if this second transaction
+shows up is sent to peers later on after
+
+366
+00:32:44,990 --> 00:32:52,580
+ Y链中的疾病传播，那么所有同龄人都将忽略新趋势
+the Y transfer disease in the chain then
+all the peers will ignore trend newly
+
+367
+00:32:52,580 --> 00:32:57,410
+对于已经花费在
+arriving transactions that for coins
+that have already been spent in a
+
+368
+00:32:57,410 --> 00:33:02,510
+他们正在挖掘的叉子上的链上交易，为什么你不能
+transaction on the chain on the fork
+that they're mining for so why can't you
+
+369
+00:33:02,510 --> 00:33:07,670
+知道在第一个交易出现后再次发送此交易
+know send out this transaction again
+after the first transactions shows up in
+
+370
+00:33:07,670 --> 00:33:17,210
+区块链中的链条好吧好吧，所以你知道还有其他一些攻击
+the chain in the blockchain okay okay so
+you know there's some other attacks you
+
+371
+00:33:17,210 --> 00:33:25,310
+可能会怀疑一个问题是，您是否知道让我们假设
+might wonder about one question is
+whether you know let's suppose that this
+
+372
+00:33:25,310 --> 00:33:33,320
+如果Y与某些同伴共谋，这是链条，这是
+is the this is the chain if Y is
+colluding with some peers and this is
+
+373
+00:33:33,320 --> 00:33:36,620
+官方的b7，我们有b8等
+the official b7 and we have a b8 etc you
+know
+
+374
+00:33:36,620 --> 00:33:41,360
+假设为什么不与某些同龄人出现联盟，请采取以下措施
+supposing why isn't League with some of
+the peers could appear take this block
+
+375
+00:33:41,360 --> 00:33:47,960
+七个现在您已经知道了在链的中间并将其更改为
+seven it's now you know in the middle of
+the chain and change it to produce just
+
+376
+00:33:47,960 --> 00:33:52,070
+一个没有交易的不同区块，只是
+a different block that doesn't have this
+transaction in it and just sort of
+
+377
+00:33:52,070 --> 00:33:58,280
+用这个新块代替旧块，然后假装那个
+substitute this new block for the old
+block seven and sort of pretend that
+
+378
+00:33:58,280 --> 00:34:03,410
+块e引用了它，现在阻止了这个新的块七没有
+block e refers to it and now block this
+new block seven doesn't have a
+
+379
+00:34:03,410 --> 00:34:07,700
+交易，这样一种非常简单的更改
+transaction and so that sort of very
+straightforward changing of a single
+
+380
+00:34:07,700 --> 00:34:13,969
+阻止不起作用，原因是这里的这些箭头确实非常
+block doesn't work and the reason is
+that these arrows here are really really
+
+381
+00:34:13,969 --> 00:34:17,689
+意味着有一个加密哈希，博客吃了
+
+382
+00:34:17,690 --> 00:34:23,270
+是它所引用的块7的哈希，所以您知道这个哈希封锁
+is the hash of the block seven it refers
+to and so this hashing blockade you know
+
+383
+00:34:23,270 --> 00:34:26,989
+对于已经存在的第七个区块，该哈希器第八个区块是
+for for a block seven that already
+exists this hashman block eight is a
+
+384
+00:34:26,989 --> 00:34:31,038
+如果有人更改此内容，则原始块七的哈希值将
+
+385
+00:34:31,039 --> 00:34:37,010
+具有不同的哈希值，因此如果您尝试典当，则此封锁哈希值
+have a different hash and so this
+blockade hash if you try to pawn off
+
+386
+00:34:37,010 --> 00:34:39,589
+这个修改过的区块对知道第八区块的人来说
+this modified block on somebody who
+knows about block eight they're gonna
+
+387
+00:34:39,589 --> 00:34:43,969
+说我们没有密钥，您知道哈希不会哈希到相同的no块
+say we didn't have our keys you know
+hash doesn't hash to the same no block
+
+388
+00:34:43,969 --> 00:34:47,239
+该块的七个素数不会散列到嵌入在Block中的相同值
+this block seven prime doesn't hash to
+the same value that's embedded in Block
+
+389
+00:34:47,239 --> 00:34:52,219
+ E，所以您不能欺骗任何知道后续块的人接受
+E so you can't trick anybody who knows
+about subsequent blocks into accepting a
+
+390
+00:34:52,219 --> 00:34:55,668
+修改的中间块好问题
+modified intermediate block alright
+question
+
+391
+00:34:55,668 --> 00:35:03,640
+我知道为什么他的咖啡在Q店里出现在其中一个街区
+I see why is a Q store by his coffee it
+shows up in one of the blocks
+
+392
+00:35:03,860 --> 00:35:10,610
+哦，我知道了，所以这让我稍微备份一下，所以我认为
+oh I see ok so this is a let me just
+back up a little bit so I think the
+
+393
+00:35:10,610 --> 00:35:16,000
+我们遇到的情况是，您知道有一个区块链，然后是一个简短的分叉
+scenario we have is that you know there
+was a blockchain and then a brief fork
+
+394
+00:35:16,000 --> 00:35:28,790
+在那简短的分叉中，为什么要向两个不同的两个不同的硬币支付相同的硬币
+and in that brief fork why pay the same
+coin to two different two different
+
+395
+00:35:28,790 --> 00:35:37,700
+派对，我们说这是第7块素数，而第7块获胜
+parties and let's say this is block 7
+prime prime and it's block 7 that wins
+
+396
+00:35:37,700 --> 00:35:43,880
+并且在主链上，第7区块素数素数被遗忘， 
+and is on the main chain and block 7
+prime prime is it's just forgotten and
+
+397
+00:35:43,880 --> 00:35:48,410
+忽略了，问题是jeez，您至少短暂地知道了Q看到了这个
+ignored and the question is jeez you
+know for briefly at least Q saw this
+
+398
+00:35:48,410 --> 00:35:51,770
+交易出现在链条中，然后为什么要喝咖啡
+transaction show up in the chain and
+gave the cup of coffee to why and then
+
+399
+00:35:51,770 --> 00:35:55,550
+为什么我离开商店，但随后您知道连锁店的这一部分被丢弃了， 
+why I left the store but then you know
+this part of the chain is discarded and
+
+400
+00:35:55,550 --> 00:35:59,390
+ Q没钱了，他们给了一些咖啡，但他们没有得到
+Q is left with no money they've given
+away some coffee but they did not get
+
+401
+00:35:59,390 --> 00:36:05,650
+如果Q愿意的话，这就是这种情况下发生的一切
+paid and that just is what happens in
+this scenario all right if Q was willing
+
+402
+00:36:05,650 --> 00:36:10,040
+在最后一次看到交易后，可以喝杯咖啡
+to handle with a cup of coffee after
+seeing the transaction in just the last
+
+403
+00:36:10,040 --> 00:36:13,910
+在区块链中进行封锁，那么他们会冒这种风险，他们一无所有
+block in the blockchain then they'd risk
+this scenario and there's nothing they
+
+404
+00:36:13,910 --> 00:36:17,420
+可以做到这一点，他们不能拿回我的钱，除非你没钱了
+can do about it and they can't get the
+money back I mean unless you run down
+
+405
+00:36:17,420 --> 00:36:23,330
+街上有人跟着走，拿走了杯咖啡，那就是
+the street catch up with the person and
+take the cup of coffee away and that is
+
+406
+00:36:23,330 --> 00:36:27,740
+您的星巴克手推车进行高价值交易的原因
+the reason why for high-value
+transactions your Starbucks trolley
+
+407
+00:36:27,740 --> 00:36:32,030
+不太在乎那杯咖啡真的只花了，就像你知道的50 
+doesn't care very much right that cup of
+coffee really only cost like you know 50
+
+408
+00:36:32,030 --> 00:36:35,780
+美分，使他们喜欢，如果他们偶尔您知道这些叉子不会发生
+cents to make like if they occasionally
+you know these Forks don't happen that
+
+409
+00:36:35,780 --> 00:36:40,910
+通常他们偶尔会喝一杯咖啡，他们可能愿意
+often they occasionally lose a cup of
+coffee well they can probably willing to
+
+410
+00:36:40,910 --> 00:36:47,330
+处理这个问题，但是如果要从Q购买汽车的话，您知道20,000美元
+deal with that but if if why was buying
+a car from Q for you know $20,000
+
+411
+00:36:47,330 --> 00:36:53,810
+比特币谢谢你可能不想让Y走上这一水平
+Bitcoin thank you probably would rather
+not let Y walk off with this level of
+
+412
+00:36:53,810 --> 00:36:59,330
+确保得到付款，这就是为什么如果您在乎，您将等到
+assurance that being paid and that's the
+reason why if you care you'll wait until
+
+413
+00:36:59,330 --> 00:37:05,360
+交易所在的区块后会出现多个区块
+multiple blocks show up after the block
+in which in which your transaction was
+
+414
+00:37:05,360 --> 00:37:10,430
+因此，如果Z是一笔高价值的交易，他实际上不会将他交给他
+in so Z won't actually him if it's a
+high-value transactions he won't hand
+
+415
+00:37:10,430 --> 00:37:15,530
+直到至少有一些五六块出现
+over the goods until there's at least
+some number five six blocks showing up
+
+416
+00:37:15,530 --> 00:37:22,160
+在动作射击块打开后，它非常
+after the block
+Action Shooting open and it's very
+
+417
+00:37:22,160 --> 00:37:28,760
+一个叉子不可能像一个时期一样被延长五六次
+unlikely that a a fork could be extended
+at five or six times like over a period
+
+418
+00:37:28,760 --> 00:37:32,510
+现在，每隔十分钟就会出现一次ken block展示，然后显示为
+of an hour now ken block's show up only
+every ten minutes and then turn out to
+
+419
+00:37:32,510 --> 00:37:36,770
+是最短而不是最长的链，因为这意味着有一些
+be the shortest not the longest chain
+because that means that there was some
+
+420
+00:37:36,770 --> 00:37:44,390
+另一根延伸得更快的叉，这是之前其他方法唯一的可能
+other fork that was extending faster and
+the only way some other before could
+
+421
+00:37:44,390 --> 00:37:47,840
+扩展得更快的是，如果大多数cpu功能都在处理它， 
+extend faster is that if a majority of
+the cpu power was working on it and
+
+422
+00:37:47,840 --> 00:37:52,640
+我们假设大多数的cpu权力是伊斯兰恶意的，并且
+we're assuming that a majority the cpu
+power is islam malicious and is
+
+423
+00:37:52,640 --> 00:38:01,700
+因此切换到当前最长的链就可以了，这就是你
+therefore switching to the current
+longest chain all right so this is you
+
+424
+00:38:01,700 --> 00:38:05,390
+如果您要进行大额交易，则必须小心，并且
+have to be if you're doing large value
+transactions you have to be careful and
+
+425
+00:38:05,390 --> 00:38:15,890
+等到链条走了很长时间，并且您的交易显示之后，好吧
+wait till a chain goes long and after
+your transaction shows up okay so okay
+
+426
+00:38:15,890 --> 00:38:19,820
+所以我解释了为什么您不能简单地在中间修改块
+so I explained why you can't simply
+modify a block in the middle of the
+
+427
+00:38:19,820 --> 00:38:24,920
+链中有一个相关的问题，那就是假设存在一个
+chain there's a related question which
+is supposing there's an existing
+
+428
+00:38:24,920 --> 00:38:35,560
+区块链，你知道那很长，而你的交易是Y arrow 
+blockchain you know that's something
+that long and your transaction Y arrow
+
+429
+00:38:35,560 --> 00:38:41,000
+交易为什么他会出现在区块链中并且您想要摆脱
+transaction why does he shows up here in
+the blockchain and you want to get rid
+
+430
+00:38:41,000 --> 00:38:45,380
+您想现在以某种方式隐藏该交易，使其不存在
+you want to hide that transaction now
+somehow make it so it doesn't exist well
+
+431
+00:38:45,380 --> 00:38:52,040
+天哪，您为什么不生产一种新的替代链，您通常知道
+gosh why don't you produce a new sort of
+alternate chain that you know is mostly
+
+432
+00:38:52,040 --> 00:39:00,350
+与主链相同，但是更长，只是省略了Y 
+identical to the main the real chain but
+it's longer and just happens to omit Y
+
+433
+00:39:00,350 --> 00:39:05,360
+被转移到Z，而是包括Y被转移到Q，如果您这样做
+is transferred to Z and instead includes
+Y is transferred to Q and if you do the
+
+434
+00:39:05,360 --> 00:39:09,140
+为此可以正确地进行挖掘，并且散列可以使您的链更长，而且
+mining correctly for this and the hashes
+work out your chains longer and it just
+
+435
+00:39:09,140 --> 00:39:13,010
+将被大家认为的比特币规则所接受
+will be accepted under the rules of
+Bitcoin which which everybody supposed
+
+436
+00:39:13,010 --> 00:39:18,700
+切换到最长的链条，那么为什么你不能这样做
+to switch to the longest chain so how
+come you can't do this
+
+437
+00:39:20,350 --> 00:39:24,060
+而且您知道这也将使您的支出翻倍
+and this you know this would also allow
+you to double spend by essentially
+
+438
+00:39:24,060 --> 00:39:28,750
+之前未用完的数量未用，而我之前对哦的评论是
+unspent in a previous spent quantity and
+my earlier comment about oh you're
+
+439
+00:39:28,750 --> 00:39:32,860
+应该等你知道zis等到区块链扩展
+supposed to wait you know zis was to
+wait until the blockchain gets extended
+
+440
+00:39:32,860 --> 00:39:38,500
+你知道这是现在击败Z等待区块链扩展的方法
+you know this is now a way to defeat Z
+waiting for the blockchain to extend it
+
+441
+00:39:38,500 --> 00:39:46,780
+所以我们真的是因为如果您可以使这项工作顺利的话，将会遇到严重的麻烦， 
+so we're really because serious trouble
+if you could make this work okay so and
+
+442
+00:39:46,780 --> 00:39:52,480
+答案是肯定的，这可以使它起作用，这是如何做到的
+somewhat well the answer is yes this can
+be made to work and here's how to do it
+
+443
+00:39:52,480 --> 00:39:56,620
+您知道非恶意软件正在扩展主要区块链
+you know the main blockchain is being
+extended by the non malicious
+
+444
+00:39:56,620 --> 00:40:00,550
+参与者有一定的速度，他们拥有足够的CPU能力
+participants at some rate right they
+have enough CPU power to you know
+
+445
+00:40:00,550 --> 00:40:04,570
+如果您是攻击者，并且每隔10分钟就会产生一个新的区块
+produce a new block every 10 minutes if
+you're the attacker and you have more
+
+446
+00:40:04,570 --> 00:40:10,390
+比整个非恶意集出现的CPU功能，那么您将能够
+CPU power than the entire non-malicious
+set appears then you're going to be able
+
+447
+00:40:10,390 --> 00:40:15,790
+产生比真实链条更快的步行路程，因此您的障碍物使您知道
+to generate walks faster than the real
+chain so your block makes your you know
+
+448
+00:40:15,790 --> 00:40:19,060
+链可能会开始更短，我可能会花一些时间来生成每个区块
+chain may start out shorter and I may
+take you a while to generate each block
+
+449
+00:40:19,060 --> 00:40:22,600
+但您知道也许可以每十分钟生成两个块，而
+but you know maybe you can generate two
+blocks every ten minutes whereas the
+
+450
+00:40:22,600 --> 00:40:26,710
+主链每十分钟只能产生一个区块
+main chain is only capable of generating
+one block every ten minutes so that
+
+451
+00:40:26,710 --> 00:40:30,460
+表示您可能会赶上并超出
+means that for a while you'll have
+caught up and exceeded the length of the
+
+452
+00:40:30,460 --> 00:40:36,550
+主链主叉，根据比特币的规则，大家
+main chain the main fork and by the
+rules of Bitcoin everyone you
+
+453
+00:40:36,550 --> 00:40:41,170
+非恶意的完全正确的比特币同行，他们都将切换到您更长的时间
+non-malicious totally correct Bitcoin
+peers they'll all switch to your longer
+
+454
+00:40:41,170 --> 00:40:45,130
+连锁店，这意味着他们都会有效地忘记此交易， 
+chain and that means they'll all
+effectively forget this transaction and
+
+455
+00:40:45,130 --> 00:40:49,510
+除了这笔其他交易之外，第二笔相同硬币的花费是
+except this other transaction this
+second spend of the same coin so if
+
+456
+00:40:49,510 --> 00:40:53,500
+您是攻击者，并且拥有的CPU能力要比整个其他产品高
+you're an attacker and you have more CPU
+power than the entire rest of the
+
+457
+00:40:53,500 --> 00:40:56,590
+网络，您可以生产此链，这意味着
+network
+you can produce this chain and it means
+
+458
+00:40:56,590 --> 00:41:05,830
+您可以花一倍的钱，并且您知道那肯定是您需要考虑的事情
+you can double spend and you know that's
+certainly you know something to think
+
+459
+00:41:05,830 --> 00:41:14,350
+关于但您可能希望更多的原因是有点自信
+about but the reason why you might hope
+more be sort of somewhat confident that
+
+460
+00:41:14,350 --> 00:41:18,880
+在一个有很多参与者的大型系统中，它不可能出现
+it couldn't arise is that in a big
+system with lots of participants it
+
+461
+00:41:18,880 --> 00:41:24,040
+可能很难组装比整个系统其余部分更多的CPU能力
+might be very hard to assemble more CPU
+power than the entire rest of the system
+
+462
+00:41:24,040 --> 00:41:31,610
+因此，一旦s头比特币变大，您就会知道人们有些自信
+so once the buns Bitcoin grew big you
+know people were somewhat confident that
+
+463
+00:41:31,610 --> 00:41:35,150
+非恶意系统的主要种类具有足够的CPU能力
+the main sort of non-malicious system
+had enough cpu power that it would be
+
+464
+00:41:35,150 --> 00:41:40,610
+对于攻击者而言，组装更多的CPU能力要比其余的花费更多
+expensive for an attacker to assemble
+more CPU power than the rest of the
+
+465
+00:41:40,610 --> 00:41:45,700
+当然还没有新的加密货币的系统
+system of course for new
+cryptocurrencies that don't yet have
+
+466
+00:41:45,700 --> 00:41:51,140
+非常大的采矿作业实际上很容易击落
+very large mining operations going
+they're actually easy to shoot down it's
+
+467
+00:41:51,140 --> 00:41:54,590
+对于像比特币这样的新加密货币来说很容易，对您来说攻击者很容易
+easy for a new cryptocurrency like
+Bitcoin it's easy for an attacker you
+
+468
+00:41:54,590 --> 00:41:59,930
+知道出于何种原因而通过获得更多的CPU功能将其淘汰
+know for whatever reason to put it out
+of business by getting more CPU power
+
+469
+00:41:59,930 --> 00:42:05,140
+但是对于像比特币这样的大型系统，现在说
+but for a big system like Bitcoin it's
+somewhat difficult now that said the
+
+470
+00:42:05,140 --> 00:42:13,160
+调查过的人试图找出谁来控制挖掘CPU的能力
+people who've looked into tried to
+figure out who controls mining CPU power
+
+471
+00:42:13,160 --> 00:42:22,400
+比特币怀疑最大的参与者占总数的一小部分
+and Bitcoin suspect that the biggest
+players have fractions of the total that
+
+472
+00:42:22,400 --> 00:42:27,170
+离50％并不远，如果您知道其中的两个或三个
+are not that far from 50% and that
+certainly if you know two or three of
+
+473
+00:42:27,170 --> 00:42:33,500
+最大的采矿业务合并部队，他们将拥有多数
+the largest mining operations combined
+forces that they would have a majority
+
+474
+00:42:33,500 --> 00:42:38,560
+比特币的采矿能力，并可能产生类似这样的替代叉子
+of the mining power in Bitcoin and could
+produce alternate Forks like this so
+
+475
+00:42:38,560 --> 00:42:47,660
+这是一个令人不安的发展，您知道是否有动力
+that's a somewhat troubling development
+you know whether there'd be motivated to
+
+476
+00:42:47,660 --> 00:42:51,230
+做不好的事情，特别是因为在比特币中所做的一切都是
+do something bad especially since sort
+of everything that's done in Bitcoin is
+
+477
+00:42:51,230 --> 00:42:55,660
+公众会真正注意到，哦，天哪
+public that's what people would really
+notice that oh gosh that was a long
+
+478
+00:42:55,660 --> 00:43:00,800
+链，然后我们切换到一个链条，该链条起步很远，男孩会
+chain and then we switch to a chain that
+started way far back boy would people
+
+479
+00:43:00,800 --> 00:43:06,350
+曾经注意到，那你会知道破坏对比特币的信心并可能
+ever notice that and that would you know
+destroy confidence in Bitcoin and may
+
+480
+00:43:06,350 --> 00:43:10,310
+破坏恶意方希望达到的目标
+undermine anything that the malicious
+parties were hoping to achieve
+
+481
+00:43:10,310 --> 00:43:13,670
+所以既然您知道这非常昂贵，那么您实际上知道
+so since you know it is very expensive
+actually you know the big players in
+
+482
+00:43:13,670 --> 00:43:19,340
+在比特币上挖矿，我花了很多钱来购买挖矿硬件， 
+mining in Bitcoin I spent a huge amount
+of money to buy the mining hardware that
+
+483
+00:43:19,340 --> 00:43:22,970
+他们拥有，所以他们可能不想破坏人们对
+they owned and so they probably wouldn't
+want to undermine people's trust in
+
+484
+00:43:22,970 --> 00:43:29,040
+比特币，因为那会破坏他们庞大的收藏合作伙伴的价值
+Bitcoin because that would destroy the
+value of their vast collections partner
+
+485
+00:43:29,040 --> 00:43:40,470
+好的，这里有关机械的任何问题都可以，所以我
+all right any questions about the
+machinery here all right so I
+
+486
+00:43:40,470 --> 00:43:48,570
+我可以问一个问题的问题一个问题是，这十分钟之间
+questions that I can ask an answer one
+question is that the ten minutes between
+
+487
+00:43:48,570 --> 00:43:52,760
+块实际上是一个严重的烦恼，这意味着如果我想买东西
+blocks is actually a serious annoyance
+it means that if I want to buy something
+
+488
+00:43:52,760 --> 00:43:57,000
+交易最多需要10分钟才能显示在区块链中
+it takes up to 10 minutes before the
+transaction shows up in the blockchain
+
+489
+00:43:57,000 --> 00:44:02,520
+甚至在第一个街区，你
+at all
+even even in the first block and you
+
+490
+00:44:02,520 --> 00:44:06,180
+知道我必须等10分钟才能拿到咖啡或
+know either I have to wait around for 10
+minutes to get my cup of coffee or the
+
+491
+00:44:06,180 --> 00:44:10,020
+店主必须在跨性别之前给我我的咖啡
+store owner has to give me my cup of
+coffee before the trans before the
+
+492
+00:44:10,020 --> 00:44:14,670
+区块链中的所有交易因此必须信任我，为什么我们不能
+transactions in the blockchain at all
+thus having to trust me so why can't we
+
+493
+00:44:14,670 --> 00:44:23,010
+缩短10分钟，实际上您知道10分钟
+make the 10 minutes much shorter and you
+know actually the 10 minutes probably
+
+494
+00:44:23,010 --> 00:44:28,470
+可以变得更短的实际原因为什么它不短是因为
+could be made shorter the practical
+reasons why it isn't shorter is that it
+
+495
+00:44:28,470 --> 00:44:33,150
+实际上，新盒子需要一段时间才能在系统中泛洪
+actually it takes a while for new box to
+be flooded over the system right after a
+
+496
+00:44:33,150 --> 00:44:38,730
+矿工找到了下一个区块，必须向其发送数千个比特币
+miner finds the next block it has to be
+sent thousands of peers Bitcoin over
+
+497
+00:44:38,730 --> 00:44:43,380
+网络连接速度可能很慢，并且可能需要一段时间才能完成
+possibly slow network connections and it
+may take quite a while before that block
+
+498
+00:44:43,380 --> 00:44:47,810
+所有其他同龄人都知道，这意味着有一段时间
+is known to all the other peers and that
+means that there's some period of time
+
+499
+00:44:47,810 --> 00:44:54,720
+其他同龄人正在挖矿或浪费时间在挖矿中
+in which other peers are mining on
+blocks or wasting their time mining
+
+500
+00:44:54,720 --> 00:45:02,869
+我被那些尚未搁浅的方块所取代，并且
+blocks that are I've been superseded by
+a block that hasn't yet beached them and
+
+501
+00:45:02,869 --> 00:45:09,810
+基本上是您花费在采矿上的时间浪费，浪费了尝试采矿块的时间
+basically the fraction of time you spend
+mining wasting of trying mining blocks
+
+502
+00:45:09,810 --> 00:45:15,109
+被取代与开采每个区块所需的时间有关
+that have been superseded is related to
+how long it takes to mine each block
+
+503
+00:45:15,109 --> 00:45:19,950
+与淹没该区块所需的时间相比，如果您进行
+compared to how long it takes to flood
+the block and so if you make the inter
+
+504
+00:45:19,950 --> 00:45:25,470
+块间​​隔越来越短，然后开始变得足够小
+block interval shorter and shorter then
+it starts to it gets small enough that
+
+505
+00:45:25,470 --> 00:45:29,310
+它接近了淹没新区块所需的时间， 
+it approaches the amount of time it
+takes the flood new blocks and that
+
+506
+00:45:29,310 --> 00:45:34,560
+这将导致大多数码头浪费大部分采矿工作，并且由于矿工
+would cause most piers to waste most of
+their mining effort and since the miners
+
+507
+00:45:34,560 --> 00:45:37,260
+实际上是通过挖矿赚钱的，因为有一点
+are actually making money making Bitcoin
+by mining because there's a little
+
+508
+00:45:37,260 --> 00:45:42,900
+奖励每个成功矿工的矿工们很无趣
+reward to the successful miner of each
+block the miners are very uninterested
+
+509
+00:45:42,900 --> 00:45:51,150
+浪费资源开采已被取代的区块等
+in wasting resources mining for blocks
+that are have been superseded and so
+
+510
+00:45:51,150 --> 00:45:55,210
+他们对这十分钟的兴趣不大，比这短得多
+they're very uninterested in
+this 10-minutes be much shorter than it
+
+511
+00:45:55,210 --> 00:46:02,800
+现在，您知道这是一个很大的限制，所以有一个
+it's now and you know that's a
+significant constraint so there's a
+
+512
+00:46:02,800 --> 00:46:07,450
+问题是什么阻止了为什么以后要花很多钱
+question what prevents why from double
+spending much in a much later block when
+
+513
+00:46:07,450 --> 00:46:11,350
+码头可能已经忘记了第一笔交易，所以您知道
+piers might have forgotten about the
+first transaction and so you know the
+
+514
+00:46:11,350 --> 00:46:17,410
+问题是，哦，您知道在很早的时候为什么根据Z转移并
+question is oh you know in a very early
+block why transferred according to Z and
+
+515
+00:46:17,410 --> 00:46:24,280
+然后有数千个区块，Y尝试将同一枚硬币转移给Q 
+then there are thousand blocks later Y
+tries to transfer the same coin to Q you
+
+516
+00:46:24,280 --> 00:46:29,910
+知道像一年后或类似的东西，这如何进行的答案是
+know like a year later or something and
+the answer to how this plays out is that
+
+517
+00:46:29,910 --> 00:46:36,720
+所有的同龄人永远记住这一点，他们绝对记得每个未花费的
+all the peers remember this forever
+they absolutely remember every unspent
+
+518
+00:46:36,720 --> 00:46:41,640
+永远的交易，这意味着
+transaction forever and that means that
+
+519
+00:46:45,710 --> 00:46:51,370
+实际上那不可能是我名义上第一个告诉你真相的人
+actually that can't be the first
+I think nominally to tell you the truth
+
+520
+00:46:51,370 --> 00:46:54,430
+我不了解这一切的来龙去脉，但最能理解的是
+I don't understand all the ins and outs
+of this but one way the most
+
+521
+00:46:54,430 --> 00:46:57,250
+解决这个问题的直接方法是让所有同龄人记住
+straightforward way to solve this
+problem is for all peers to remember
+
+522
+00:46:57,250 --> 00:47:02,500
+他们永远检查的每笔交易和每笔进来的交易
+every transaction forever and every
+incoming transaction they check to make
+
+523
+00:47:02,500 --> 00:47:08,050
+确保尚未花费硬币，他们只是在课程中创建数据库
+sure that the coin hasn't been spent yet
+they just the course create a database
+
+524
+00:47:08,050 --> 00:47:13,810
+或索引或其他内容，但允许他们本质上检查每条记录以查看是否
+or index or something but allows them to
+essentially check every record to see if
+
+525
+00:47:13,810 --> 00:47:19,240
+这个硬币已经用完了，我想你可以，尽管我还没有完全
+this coin has already been spent and I
+think you can although I don't fully
+
+526
+00:47:19,240 --> 00:47:25,000
+了解这一点，我认为同行可以抛弃很多，尽管很多
+understand this I think peers can
+discard a lot of though a lot of this
+
+527
+00:47:25,000 --> 00:47:30,760
+通过仅记住有关未花费交易的信息来获得信息
+information by only remembering
+information about unspent transactions
+
+528
+00:47:30,760 --> 00:47:35,100
+因此他们保留了未花费交易的数据库，但其中不包括
+so they keep a database of unspent
+transactions but it doesn't include
+
+529
+00:47:35,100 --> 00:47:40,150
+用过的硬币，如果新的交易硬币不在未使用的数据库中
+spent coins and if a new transactions
+coin isn't in the database of unspent
+
+530
+00:47:40,150 --> 00:47:45,490
+事务，那么它将被忽略，但是您知道该数据库必须是
+transactions then it's just ignored but
+this you know this database has to be
+
+531
+00:47:45,490 --> 00:47:52,240
+每对都必须永远保留此数据库，所以您当然知道
+every pair has to keep this database
+forever so you know just of course this
+
+532
+00:47:52,240 --> 00:47:56,740
+从某种意义上说，这是一个非常昂贵的系统，因为我们正在谈论的是您
+is a in a way a very expensive system
+because what we're talking about is you
+
+533
+00:47:56,740 --> 00:48:01,090
+知道基本上永远保持每笔交易的记录，而您
+know maintaining a record of every
+transaction essentially forever and you
+
+534
+00:48:01,090 --> 00:48:04,090
+知道您是否考虑每秒或每秒钟有多少笔交易
+know if you think about how many
+transactions there are per second or per
+
+535
+00:48:04,090 --> 00:48:09,580
+地球上有很多年，所以人们真的
+year on earth
+it's a vast number and so people really
+
+536
+00:48:09,580 --> 00:48:12,820
+认真使用比特币他们以各种方式使用比特币
+were serious about using Bitcoin they
+used it for everything in the way they
+
+537
+00:48:12,820 --> 00:48:18,220
+现在使用现金，您将知道这将是一个庞大的系统，并且会有
+use cash now it would you know it would
+be an enormous system and there would be
+
+538
+00:48:18,220 --> 00:48:22,750
+系统上的巨大性能流，实际上比特币并不是真的
+enormous performance streams on the
+system and indeed Bitcoin is not really
+
+539
+00:48:22,750 --> 00:48:30,490
+能够支持您无法运营整个财务的每笔交易
+capable of supporting every transaction
+you couldn't run the entire financial
+
+540
+00:48:30,490 --> 00:48:34,980
+当今存在的关于比特币的世界体系，有一堆
+system of the world on Bitcoin as it
+exists today and there's a bunch of
+
+541
+00:48:34,980 --> 00:48:40,630
+有很多限制，您知道一个限制是完整的比特币数据库
+there's a bunch of limits you know one
+limit is that the full Bitcoin database
+
+542
+00:48:40,630 --> 00:48:43,690
+已经消耗了几百千兆字节，是的，事实并非如此
+already consumes a couple hundred
+gigabytes yeah that's actually not so
+
+543
+00:48:43,690 --> 00:48:48,040
+不好，因为您可以将其安装在磁盘上，但是如果它大一千倍
+bad because you can fit it on a disk but
+if it was a thousand times larger it
+
+544
+00:48:48,040 --> 00:48:51,580
+甚至存储它也将成为一个严重的问题，更不用说搜索东西了
+would start to be a serious problem to
+even store it let alone search for stuff
+
+545
+00:48:51,580 --> 00:48:57,769
+这是最紧迫的问题，我们发现处理
+in it the most immediate problem
+and we it turns out that processing that
+
+546
+00:48:57,769 --> 00:49:01,789
+交易并不昂贵，因为对于同行来说，这主要是关于
+transactions it's not terribly expensive
+because for the peers it's mostly about
+
+547
+00:49:01,789 --> 00:49:07,699
+散列和这些加密哈希非常快，但大多数
+hashing and these cryptographic hashes
+are pretty quick but the sort of most
+
+548
+00:49:07,699 --> 00:49:14,269
+目前，您知道丑陋的限制是，这些块会限制
+current you know ugly restriction is
+that these block cuz there's a limit to
+
+549
+00:49:14,269 --> 00:49:18,229
+这些块有多大这些块只能有几兆字节的大小
+how big these blocks can be these blocks
+can only be a couple megabytes in size
+
+550
+00:49:18,229 --> 00:49:25,640
+而且每十分钟就会出现一次新方块，因此您只能
+and new blocks appear only every ten
+minutes and so that means you only get
+
+551
+00:49:25,640 --> 00:49:30,140
+您知道每笔交易每分钟不到1 MB的新交易
+you know less than a megabyte of new
+transactions per minute each transaction
+
+552
+00:49:30,140 --> 00:49:37,640
+您知道的Val的种类非常有多种缩写方法，但是
+the sort of Val you know is very way
+various ways of abbreviating them but
+
+553
+00:49:37,640 --> 00:49:42,319
+您知道每笔交易至少要几十个或一百个字节，这意味着
+you know each transaction is at least
+dozens or a hundred bytes and that means
+
+554
+00:49:42,319 --> 00:49:46,939
+该系统实际上只能由于该块大小限制和十个
+that the system can really only because
+of this block size limit and the ten
+
+555
+00:49:46,939 --> 00:49:52,400
+分钟限制，系统只能处理成千上万个
+minute limit the system can only process
+sort of thousands or tens of thousands
+
+556
+00:49:52,400 --> 00:49:58,579
+交易很好，我不确定我是否可以适当分配，但还差得远
+of transactions well I'm not sure I can
+divide properly but it's not nearly
+
+557
+00:49:58,579 --> 00:50:05,869
+足以运行当前的方式，即比特币的设置几乎不可行
+enough to run the current way that
+Bitcoin set up is not nearly
+
+558
+00:50:05,869 --> 00:50:09,439
+高容量足以运行世界上所有的金融交易
+high-capacity enough to run the world
+all the world's financial transactions
+
+559
+00:50:09,439 --> 00:50:18,229
+是的，所以您知道人们会改变它，但是它发展得还不够快
+are and so you know people change it it
+evolves but it's not really fast enough
+
+560
+00:50:18,229 --> 00:50:22,880
+当然，没有人真正将它用于商业用途
+for everything of course nobody's really
+using it for commerce it's mostly used
+
+561
+00:50:22,880 --> 00:50:27,170
+据任何人都可以猜测，所以这不是问题，而是
+for speculation as far as anyone can
+tell so it's not yet a problem but from
+
+562
+00:50:27,170 --> 00:50:35,299
+一个设计要点，需要修复一些东西，所以我提到了
+a design point that there needs to be
+some things fixed okay so I mentioned
+
+563
+00:50:35,299 --> 00:50:40,609
+在此之前，比特币软件会调整发现随机数的难度，即
+before that the Bitcoin software adjusts
+the hardness of finding nonces that is
+
+564
+00:50:40,609 --> 00:50:45,849
+块哈希中所需的前导零的数量会动态调整
+the number of required leading zeros in
+the block hash adjusts that dynamically
+
+565
+00:50:45,849 --> 00:50:54,469
+导致必须有十分钟的时间来阻止一件事
+to cause there to be ten minutes for
+block one thing that has to be the case
+
+566
+00:50:54,469 --> 00:50:58,999
+尽管所有参与者都必须就所需数量达成一致
+though is that all the participants have
+to agree on the required number of
+
+567
+00:50:58,999 --> 00:51:02,689
+前导零，他们实际上都必须就找到结的难度达成共识
+leading zeros they actually all have to
+agree on the hardness of finding a knots
+
+568
+00:51:02,689 --> 00:51:07,939
+因此，如果一种同等的方式看待生成区块的速率
+and so if one peer sort of looks at the
+rate at which blocks have been produced
+
+569
+00:51:07,939 --> 00:51:12,830
+除此之外，它太慢了，应该
+and
+besides that it's too slow and it should
+
+570
+00:51:12,830 --> 00:51:17,480
+使要求的前导零更少，但其他同行却没有做到相同
+make the require fewer leading zeros but
+the other peers haven't made the same
+
+571
+00:51:17,480 --> 00:51:22,640
+然后决定第一个码头将产生被拒绝的区块
+decision then that first piers will be
+generating blocks that are rejected by
+
+572
+00:51:22,640 --> 00:51:26,660
+其他同because，因为所有同the都要求他们认为正确的东西
+the other peers because all the peers
+demand what they think is the correct
+
+573
+00:51:26,660 --> 00:51:35,390
+哈希中前导零的数量，因此必须就
+number of leading zeros in the hash so
+there has to be agreement on on the
+
+574
+00:51:35,390 --> 00:51:39,260
+难以发现同行必须完全同意的观点
+hardness of finding a nots
+that the the peers have to agree exactly
+
+575
+00:51:39,260 --> 00:51:42,230
+以及当前的硬度是多少，否则它们会互相排斥
+and what the current hardness is
+otherwise they'll reject each other's
+
+576
+00:51:42,230 --> 00:51:48,880
+阻碍，所以他们如何达成协议，实际上是
+blocks so how do they reach that
+agreement it turns out actually to be
+
+577
+00:51:48,880 --> 00:51:54,589
+完全简单，他们毕竟都在看同一个区块链
+totally straightforward they all are
+looking at the same blockchain after all
+
+578
+00:51:54,589 --> 00:51:58,580
+重点是，您知道除了临时叉子以外，还有
+that was the whole point is that you
+know except for temporary Forks there's
+
+579
+00:51:58,580 --> 00:52:02,750
+只是每个人都没有一个完全相同的位的副本
+just one blockchain everybody hasn't a
+copy of the exact same bits in the
+
+580
+00:52:02,750 --> 00:52:09,670
+区块链，所以比特币只定义了确定性函数
+blockchain and so the Bitcoin just
+defines a deterministic function that
+
+581
+00:52:09,670 --> 00:52:13,970
+将当前区块链作为其参数，并使用它来
+takes the current blockchain as its
+argument and uses that to
+
+582
+00:52:13,970 --> 00:52:19,760
+确定性地产生当前的发现随机数的难度和方法
+deterministically produce the current
+hardness of finding a nonce and the way
+
+583
+00:52:19,760 --> 00:52:25,099
+它所做的基本上是看块中的时间戳来决定
+it does that is basically it looks at
+the timestamps in the blocks to decide
+
+584
+00:52:25,099 --> 00:52:28,790
+最近的区块产生的速度有多快，但自从每个人都在寻找
+how fast the recent blocks have been
+produced but since everybody's looking
+
+585
+00:52:28,790 --> 00:52:32,650
+在相同的块在相同的时间戳记中运行相同的功能
+at the same blocks in the same time
+stamps and is running the same function
+
+586
+00:52:32,650 --> 00:52:38,030
+调整硬度，他们都会得出完全相同的结论
+to adjust the hardness they all come to
+exactly the same conclusion about what
+
+587
+00:52:38,030 --> 00:52:42,890
+硬度应该适用于区块链中每个连续的块，因此
+the hardness ought to be for for each
+successive block in the blockchain so
+
+588
+00:52:42,890 --> 00:52:46,910
+那里正在执行一种有趣的协议，因为它们
+there's a kind of interesting agreement
+that's being enforced there because they
+
+589
+00:52:46,910 --> 00:52:52,359
+所有人都看到相同的法律
+all see the identical same laws all
+right
+
+590
+00:52:52,359 --> 00:52:56,900
+另一个有趣的问题是，某些人的动机之一
+another interesting question is that one
+of the motivations that some people have
+
+591
+00:52:56,900 --> 00:53:00,650
+对新的加密货币感兴趣的是
+for being interested in new
+cryptocurrencies is that they might be
+
+592
+00:53:00,650 --> 00:53:03,650
+比信用卡更具匿名性，而信用卡的确深深
+more anonymous than credit cards and
+indeed credit cards are deeply
+
+593
+00:53:03,650 --> 00:53:08,030
+匿名，因为信用卡公司确切知道您在做什么
+non-anonymous since the credit card
+company knows exactly what you're up to
+
+594
+00:53:08,030 --> 00:53:13,310
+我记录了它，而比特币至少在它的表面上，你知道
+I keeps a record of it whereas Bitcoin
+at least on the face of it you know
+
+595
+00:53:13,310 --> 00:53:17,150
+比特币没有关于说我名字的比特币交易的信息
+Bitcoin there was nothing about a
+Bitcoin transaction that say had my name
+
+596
+00:53:17,150 --> 00:53:20,450
+现在，您可能会想每个比特币都很好
+on it
+now you might think well each Bitcoin
+
+597
+00:53:20,450 --> 00:53:24,410
+交易中包含我的公钥，如果我不更改我的身份，那是真的
+transaction has my public key in it
+man that's true if I don't change my
+
+598
+00:53:24,410 --> 00:53:29,840
+公钥，我总是使用相同的公钥，然后有人
+public key and I always use the same
+public key then once somebody figures
+
+599
+00:53:29,840 --> 00:53:34,190
+拿出我的公钥相对容易，因为每当我付钱给他们时
+out my public key is just relatively
+easy since whenever I pay somebody they
+
+600
+00:53:34,190 --> 00:53:38,270
+他们知道我的公钥，然后人们可以通过
+they get to know my public key then
+people can track my activities by
+
+601
+00:53:38,270 --> 00:53:43,130
+在比特币锁中寻找我的公钥或签名，这是一个
+looking for my public key or my
+signature in the Bitcoin lock and it's a
+
+602
+00:53:43,130 --> 00:53:49,310
+公共日志，这样任何人现在都可以看到每个人都在乎的人，我认为
+public log so anybody can look now
+people everybody who cares and I think
+
+603
+00:53:49,310 --> 00:53:53,840
+大多数比特币钱包提供的价格实际上为每个生成新的公钥
+most Bitcoin wallets offer actually
+generates fresh public keys for each
+
+604
+00:53:53,840 --> 00:53:58,490
+我随时都可以说是交易，如果有人想付我钱，我的钱包会
+transaction I'm said anytime if somebody
+wants to pay me money my wallet will
+
+605
+00:53:58,490 --> 00:54:01,370
+生成在公钥对之前从未使用过的新密钥
+generate a new never used before public
+private key pair
+
+606
+00:54:01,370 --> 00:54:05,360
+记住私钥，然后将公钥提供给想要的人
+remember the private key then give the
+public key to the person who wants to
+
+607
+00:54:05,360 --> 00:54:14,180
+寄钱给我，这会使追踪更加困难，但事实证明，如果
+send me money and that makes the
+tracking harder but it turns out that if
+
+608
+00:54:14,180 --> 00:54:20,870
+你要面对坚定的侦探，知道是否有足够的线索
+you're up against determined sleuth
+there's you know there's enough clues if
+
+609
+00:54:20,870 --> 00:54:26,870
+您经常进行交易，因为交易通常与您的交易息息相关
+you make transactions often enough since
+the transactions are often tied to your
+
+610
+00:54:26,870 --> 00:54:31,550
+真实的身份，例如，如果您使用比特币从亚马逊购买了东西，也许
+real identity like if you buy something
+from Amazon with Bitcoin yeah maybe the
+
+611
+00:54:31,550 --> 00:54:34,910
+比特币交易尚不清楚是你，但可能需要运送
+Bitcoin transaction it's not clear it's
+you but it probably needs to be shipped
+
+612
+00:54:34,910 --> 00:54:38,660
+由FedEx向您发送至您的家庭住址，这仅是一点点识别
+to you by FedEx to your home address and
+that's a little piece of identifying
+
+613
+00:54:38,660 --> 00:54:42,950
+那里的信息，这将使某人知道是谁
+information there and that will allow
+somebody to figure out it was you who
+
+614
+00:54:42,950 --> 00:54:46,040
+花了那笔钱，他们就可以往回走，看看哪里
+spent that money and they'll be able to
+straight track backwards to see where
+
+615
+00:54:46,040 --> 00:54:50,300
+这些钱来自于另一个关于你是谁以及你在做什么的线索
+that money came from to get another clue
+about who you are and what you're up to
+
+616
+00:54:50,300 --> 00:54:59,900
+所以实际上对业余爱好者而言，比特币对于严重
+so in fact against amateurs Bitcoin is
+reasonably anonymous against serious
+
+617
+00:54:59,900 --> 00:55:10,340
+对手比特币证明不是特别匿名
+adversaries a Bitcoin has turned out not
+to be particularly anonymous okay
+
+618
+00:55:10,340 --> 00:55:14,540
+有点让人失望， 
+a little bit disappointing from a little
+bit disappointing for people who are
+
+619
+00:55:14,540 --> 00:55:21,850
+对隐私或进行毒品交易或资助非法活动感兴趣
+interested in privacy or doing drug
+deals or financing illegal activity
+
+620
+00:55:23,020 --> 00:55:28,520
+好吧，总结一下这里的关键思想是
+alright
+sum up the sort of key idea here is the
+
+621
+00:55:28,520 --> 00:55:34,250
+区块链就像一个公共账本，每个人都同意并且拥有
+blockchain like a public ledger that
+everybody agrees on and that has every
+
+622
+00:55:34,250 --> 00:55:39,260
+交易以及所有这些都有很多问题，例如可伸缩性
+transaction on it and all that has a lot
+of problems like with scalability if you
+
+623
+00:55:39,260 --> 00:55:43,970
+可以使它工作这是一个好主意，另一种关键技术问题是
+can make it work it's a great idea
+another sort of key technical problem is
+
+624
+00:55:43,970 --> 00:55:48,050
+现在如何在没有任何集中的情况下做到这一点
+how to do this without any
+centralization now whether the
+
+625
+00:55:48,050 --> 00:55:52,700
+有价值的财产的集中化或分散化并不是真的
+centralization or decentralization of
+valuable property is kind of not really
+
+626
+00:55:52,700 --> 00:55:57,560
+一个技术问题，但是如果您重视它，那真的很酷而且令人惊叹
+a technical question but if you value it
+then it's just really cool and amazing
+
+627
+00:55:57,560 --> 00:56:05,030
+但是有可能在没有中央信任的情况下就单个日志达成协议，而我
+but it's possible to have agreement on a
+single log with no central trust and I'm
+
+628
+00:56:05,030 --> 00:56:09,590
+使用参与者，其中许多参与者是积极恶意的，并且是最终密钥
+using participants many of whom are
+actively malicious and the final key
+
+629
+00:56:09,590 --> 00:56:14,930
+想法是在也有问题的地方挖掘工作量证明的想法
+idea is that is the idea of mining a
+proof-of-work where it too has problems
+
+630
+00:56:14,930 --> 00:56:21,170
+但令人惊讶的是，存在一种允许的技术
+but it's very surprising that a
+technique existed at all that allowed
+
+631
+00:56:21,170 --> 00:56:27,380
+这种伪造的IP地址攻击无法欺骗的协议
+agreement in a way that can't be fooled
+by these sort of fake IP address attacks
+
+632
+00:56:27,380 --> 00:56:31,910
+不会遇到与投票一样的问题
+that doesn't suffer the same problems
+that voting suffers that was a very
+
+633
+00:56:31,910 --> 00:56:37,370
+我要说的就是令人惊讶和有趣的发展
+surprising and interesting development
+all right that's all I have to say the
+
+634
+00:56:37,370 --> 00:56:41,990
+实际上发出了继续这种思路和下一个思路的某种方式
+actually sent kind of continuing some of
+this line of thought and the next
+
+635
+00:56:41,990 --> 00:56:49,310
+部分是一种不同类型的分散系统的演讲
+lecture which is a sort of different
+kind of decentralized system partially
+
+636
+00:56:49,310 --> 00:56:52,780
+建立在比特币之上
+built on top of Bitcoin
+
