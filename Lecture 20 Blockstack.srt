@@ -1,0 +1,5395 @@
+1
+00:00:01,460 --> 00:00:03,520
+您
+you
+
+2
+00:00:11,000 --> 00:00:16,410
+好吧，让我们今天开始，我想谈谈
+alright let's get started today I want
+to talk about
+
+3
+00:00:16,410 --> 00:00:22,320
+堆栈，而我们查看本文的原因是它涉及三个方面
+stack and the reason we're looking at
+this paper is that it touches on three
+
+4
+00:00:22,320 --> 00:00:27,689
+我觉得很有趣的问题可能是最低层的
+questions that I find quite interesting
+one is maybe at the lowest level how to
+
+5
+00:00:27,689 --> 00:00:32,549
+建立一个从名称映射的命名系统或真正的公钥基础结构
+build a naming system or really a public
+key infrastructure that maps from names
+
+6
+00:00:32,549 --> 00:00:38,070
+公钥，这就像一个非常重要的问题，没人会遇到
+to public keys and this is like a very
+important question nobody has ever
+
+7
+00:00:38,070 --> 00:00:43,830
+真正找到了一种令人信服的方式来建立通用的全球公众
+really figured out a convincing way to
+build a general-purpose global public
+
+8
+00:00:43,830 --> 00:00:49,770
+关键基础架构或PKI，因此在此领域的任何进展都是
+key infrastructure or PKI so any
+progress in this area with the is
+
+9
+00:00:49,770 --> 00:00:54,719
+有趣的是，我对块堆栈感兴趣的另一个原因是
+interesting another reason I'm
+interested in block stack is that it's a
+
+10
+00:00:54,719 --> 00:00:59,370
+您知道的非加密货币使用区块链，所以这只是一个有趣的事情
+non cryptocurrency use of a blockchain
+you know so it's just an interesting
+
+11
+00:00:59,370 --> 00:01:04,739
+质疑区块链是否对金融以外的其他有用
+question whether block chains are useful
+for anything other than than financial
+
+12
+00:01:04,739 --> 00:01:11,210
+东西，最后，您可能知道最有趣的是： 
+stuff and finally and you know maybe
+most interestingly block sects really a
+
+13
+00:01:11,210 --> 00:01:16,259
+关于如何提供Internet服务的非常不同的体系结构的建议
+proposal for a very different
+architecture for how Internet services
+
+14
+00:01:16,259 --> 00:01:20,250
+或真正的网站应该如何构建非常不同的网站
+or really web sites how websites
+ought to be constructed very different
+
+15
+00:01:20,250 --> 00:01:24,899
+从它们现在的构造方式来看，它们的特性完全不同，您知道
+from the way they're constructed now is
+quite different properties and you know
+
+16
+00:01:24,899 --> 00:01:28,470
+这个想法是，也许是那种布洛克麻袋
+the idea is that maybe the the kind of
+approach brock sack
+
+17
+00:01:28,470 --> 00:01:34,289
+可能会产生一些在某些方面比您更了解的网站
+takes might yield websites that are are
+better you know in some ways than
+
+18
+00:01:34,289 --> 00:01:40,679
+当前的网站现在像一个真实的系统一样被阻止，有一家公司
+current web sites now blocks likes a
+real system there's a company that's
+
+19
+00:01:40,679 --> 00:01:46,670
+开发一些应用程序正在使用的程序，我只有一些用户
+developing it that's in use by some
+applications i'm just have some users
+
+20
+00:01:46,670 --> 00:01:52,380
+但是实际上您知道您应该将其视为道德上的进步，然后
+however it's really you know you should
+view it as moral work-in-progress then
+
+21
+00:01:52,380 --> 00:01:56,390
+这是他们一直在开发并使之更好的最终答案
+kind of this is the final answer they've
+been developing it and making it better
+
+22
+00:01:56,390 --> 00:02:01,860
+几年过去了，我认为这真的不是很多
+over some years now i don't think it's
+really to the point where very many
+
+23
+00:02:01,860 --> 00:02:05,700
+人们会决定放弃现在建立网站的方式，而转向
+people would decide to abandon the way
+they build websites now and switch to
+
+24
+00:02:05,700 --> 00:02:11,670
+块堆栈，但重要的是有人在那里探索如何
+block stack but it's very important that
+somebody out there is exploring how
+
+25
+00:02:11,670 --> 00:02:16,709
+情况可能会有所不同并且更好，而块堆栈是
+things could be different and better and
+block stack is one of a number of
+
+26
+00:02:16,709 --> 00:02:20,610
+试图朝着不同方向推动的不同项目
+different projects that are trying to
+push in a different direction for the
+
+27
+00:02:20,610 --> 00:02:26,880
+网站的总体架构还不错，因此块堆栈的优势
+overall architecture of web sites all
+right so the the pitch from block stack
+
+28
+00:02:26,880 --> 00:02:30,360
+人们应该建立体面的
+is that people ought to be building
+decent
+
+29
+00:02:30,360 --> 00:02:35,950
+应用程序的去中心化是什么意思
+applications so what does decentralize
+mean sort of an idea that's been in the
+
+30
+00:02:35,950 --> 00:02:41,560
+播出了几年，我认为也许最好的总结是
+air for a couple years now I think maybe
+the best summary is that it's
+
+31
+00:02:41,560 --> 00:02:46,360
+以将数据所有权移出的方式构建的应用程序
+applications that are built in a way
+that moves ownership of data out of
+
+32
+00:02:46,360 --> 00:02:51,790
+您知道的集中控制网站，就像普通的Web服务器一样，或者
+centrally controlled websites you know
+like ordinary web servers and one way or
+
+33
+00:02:51,790 --> 00:02:56,410
+另一个将对用户信息的控制更多地放到了用户自己的手中
+another puts control of users
+information more into the users own
+
+34
+00:02:56,410 --> 00:03:02,620
+以便说用户实际上拥有自己的东西有点现实
+hands so that it's sort of realistic to
+say that users actually own their own
+
+35
+00:03:02,620 --> 00:03:09,730
+数据，而不是您知道Facebook或Gmail或本质上是谁
+data instead of you know Facebook or
+Gmail or whoever sort of essentially
+
+36
+00:03:09,730 --> 00:03:16,900
+拥有他们的数据对他们的成功和有趣的属性
+owning their data for them the success
+and the interesting properties of
+
+37
+00:03:16,900 --> 00:03:20,800
+比特币是推动该领域近期活动的重要因素
+Bitcoin have been a lot of what's driven
+the recent activity in this area it's
+
+38
+00:03:20,800 --> 00:03:25,600
+一种古老的想法可以追溯到至少出现在像Nutella这样的计划上
+kind of an old idea dates back at least
+appeared appear on schemes like Nutella
+
+39
+00:03:25,600 --> 00:03:32,069
+和Napster距今大约20年前，甚至更远，但是比特币
+and Napster from around 20 years ago and
+further back than that but Bitcoin
+
+40
+00:03:32,069 --> 00:03:38,049
+确实促使人们对此进行认真思考，并有点
+really prompted people to think hard
+about this and to sort of have a bit
+
+41
+00:03:38,049 --> 00:03:45,430
+更加相信可以实现这些想法，所以我想
+more faith that these kinds of ideas
+could be realized all right so I want to
+
+42
+00:03:45,430 --> 00:03:51,640
+首先概述一下，您知道当前网络的一种集中式典型
+kind of outline first what a sort of
+centralized typical you know current web
+
+43
+00:03:51,640 --> 00:03:56,739
+该网站看起来像是在谈论为什么有些人不是很满意
+site looks like talk a bit about why
+some people aren't really pleased with
+
+44
+00:03:56,739 --> 00:04:02,950
+当前网站的工作方式，然后概述在
+the way current websites work and then
+outline how things might work under a
+
+45
+00:04:02,950 --> 00:04:13,180
+像块堆栈这样的分散方案，所以这实际上是当前网站的视图
+decentralized scheme like block stack so
+this is really current websites the view
+
+46
+00:04:13,180 --> 00:04:20,410
+您有很多用户坐在浏览器前吗？他们有一个互联网
+is you got a much users sitting in front
+of browsers and there's a internet they
+
+47
+00:04:20,410 --> 00:04:24,940
+所有人都在与互联网交谈，您那里有一些网站，您知道也许是
+all talk to the internet you have some
+website out there you know maybe it's
+
+48
+00:04:24,940 --> 00:04:34,060
+例如Gmail或其他内容，而Gmail拥有一堆由
+say Gmail or something and Gmail has a
+bunch of web servers that are owned by
+
+49
+00:04:34,060 --> 00:04:40,630
+ Gmail归任何网络服务所有，并位于网络背后
+Gmail right owned by whatever the web
+services and sitting behind the web
+
+50
+00:04:40,630 --> 00:04:45,740
+服务器是某种数据库，对我们来说是一张熟悉的图片
+servers is some kind of database
+it's kind of familiar picture for us
+
+51
+00:04:45,740 --> 00:04:51,720
+通过这些个人用户，该数据库保存用户数据，例如
+through these individual users this
+database holds the users data like if
+
+52
+00:04:51,720 --> 00:04:57,540
+您使用Gmail，您知道您认识的用户。Gmail位于Gmail的
+you use Gmail you know your you know
+user ones Gmail is sitting in Gmail's
+
+53
+00:04:57,540 --> 00:05:01,740
+数据库，您知道这是Gmail拥有的数据库服务器， 
+database somewhere you know this is a
+database server the Gmail owns and
+
+54
+00:05:01,740 --> 00:05:10,080
+这实际上控制着Gmail运作方式的逻辑
+that's control over the kind of logic
+for how Gmail operates essentially sits
+
+55
+00:05:10,080 --> 00:05:15,390
+拥有生物的网络服务器中的所有权归Gmail所有，并且与
+in the web servers that own bio are
+owned by Gmail and sort of talk to the
+
+56
+00:05:15,390 --> 00:05:18,810
+数据库以摆脱您的数据，所以完全没有任何东西
+database to get out of your data alright
+so there's like totally nothing
+
+57
+00:05:18,810 --> 00:05:24,450
+令人惊讶的是，您知道这是几乎每个网站的工作方式，这是
+surprising here and you know this is the
+way almost every website works this is
+
+58
+00:05:24,450 --> 00:05:28,710
+通常是一些JavaScript或其他内容，并位于用户浏览器中，但所有
+often some JavaScript or something and
+sitting in the users browsers but all
+
+59
+00:05:28,710 --> 00:05:33,240
+关键的事情是坐在Web服务器或某种
+the kind of critical stuff is sitting in
+web servers or some kind of servers that
+
+60
+00:05:33,240 --> 00:05:37,530
+该网站打呵欠，您知道，所以当天有四个不同的网站
+the website yawns you know so four
+different websites the day on the
+
+61
+00:05:37,530 --> 00:05:42,150
+数据库将成为博客文章或邮件之类的东西，或者您知道自己的评论
+database is gonna be things like blog
+posts or mail or you know comments you
+
+62
+00:05:42,150 --> 00:05:46,320
+在其他人的reddit或其他内容上发布，或者也许是您的照片
+post on other people's reddit or
+something or maybe it's your photos your
+
+63
+00:05:46,320 --> 00:05:50,400
+日历我是您的病历或其他很多数据
+calendar my is your medical records or
+something there's a lot of data that's
+
+64
+00:05:50,400 --> 00:05:56,100
+在各种不同的网站上都可以找到用户
+out there at various different websites
+that is in some sense you know the users
+
+65
+00:05:56,100 --> 00:06:01,200
+数据确实是用户Gmail，但它确实是Gmail或具有控制权的数据
+data like it's really the users Gmail
+but gosh it's Gmail or that has control
+
+66
+00:06:01,200 --> 00:06:07,440
+可以控制用户评论和其他人的评论
+over it or reddit that has control over
+the users comments and other people's
+
+67
+00:06:07,440 --> 00:06:10,710
+现在的文章，此设置为SuperDuper 
+articles
+now this setups been SuperDuper
+
+68
+00:06:10,710 --> 00:06:14,460
+成功的原因是坐这很容易的原因之一
+successful it's actually and one of the
+reasons to sit it's extremely easy to
+
+69
+00:06:14,460 --> 00:06:19,440
+您知道的程序，所有逻辑都能听到和运行，并且服务器由Gmail控制
+program you know all the logic hears and
+running and servers controlled by Gmail
+
+70
+00:06:19,440 --> 00:06:23,940
+他们可以通过诸如续集数据库之类的东西与这些数据库交流
+they can talk to these databases trough
+in things like sequel databases that
+
+71
+00:06:23,940 --> 00:06:28,560
+非常灵活的查询界面，对于可以存储的数据没有任何限制
+very flexible query interfaces there's
+like no restrictions on what data can be
+
+72
+00:06:28,560 --> 00:06:36,270
+就像您知道的那样被访问，所以假设这是在这里运行的eBay 
+accessed like you know so supposing this
+is a eBay that's running here you know
+
+73
+00:06:36,270 --> 00:06:41,130
+现在，用户出价位于eBay的数据库服务器中， 
+the users bids are sitting in eBay's
+database server now the bids are quite
+
+74
+00:06:41,130 --> 00:06:43,590
+如果我要竞标某些我不希望其他用户竞标的东西，则为私人权利
+private right if I'm bidding on
+something I don't want other users to
+
+75
+00:06:43,590 --> 00:06:47,430
+看到它，但是对eBay的Web服务器可以看到的内容没有任何限制
+see it but there's no restrictions on
+what eBay's web servers can look at they
+
+76
+00:06:47,430 --> 00:06:52,170
+都可以在自己的数据库中查看出价，也可以查看其他
+can all look at the bids in the in their
+own database they can look at other
+
+77
+00:06:52,170 --> 00:06:55,260
+人们的出价找到最高出价，实际上没有任何限制，因此
+people's bids find the highest bid
+there's really no restrictions so it's
+
+78
+00:06:55,260 --> 00:07:00,129
+对于Web开发人员来说非常非常方便，而且非常
+very very convenient
+for web developers and is very
+
+79
+00:07:00,129 --> 00:07:03,009
+成功，因此从这个角度来看，我们应该对您持怀疑态度
+successful and so from that point of
+view we should be you know skeptical
+
+80
+00:07:03,009 --> 00:07:07,809
+其他任何事情都可能成功或超越它，但
+that anything else could possibly be
+this successful or overtake it but the
+
+81
+00:07:07,809 --> 00:07:12,549
+为什么您可能认为当前的设置不完美的原因是
+reason why you might not think this
+current setup is perfect well there's a
+
+82
+00:07:12,549 --> 00:07:19,029
+一堆用户可能不满意的原因之一是，如果我存储我的
+bunch of reasons that users might be
+dissatisfied one is that if I store my
+
+83
+00:07:19,029 --> 00:07:22,479
+ Gmail中的邮件我真的必须使用Gmail的界面来获取它
+mail in Gmail I really have to use
+Gmail's interface to get at it
+
+84
+00:07:22,479 --> 00:07:24,939
+你知道也许他们提供了其他一些途径来实现这一目标，但我通常
+you know maybe they provide some other
+ways of getting at it but I generally
+
+85
+00:07:24,939 --> 00:07:29,439
+没有太多的自由，例如Gmail为我自己设定了规则
+don't have a lot of freedom like Gmail
+sets the rules for how I get at my own
+
+86
+00:07:29,439 --> 00:07:34,029
+正确的电子邮件，所以我可能有点恼火，这是我的电子邮件，但您知道我
+email right so I might be a little bit
+irritated it's my email but you know I
+
+87
+00:07:34,029 --> 00:07:38,619
+不要选择我使用的界面我不能只使用任何软件
+don't get to choose what interface I use
+I can't just use any software Lee pretty
+
+88
+00:07:38,619 --> 00:07:44,609
+一定是Gmail提供或Gmail支持的软件
+much has to be software that Gmail
+provides or Gmail supports for
+
+89
+00:07:44,609 --> 00:07:50,229
+诸如Facebook之类的情况，其他人有时可能会看到我的数据
+situations like maybe Facebook where
+other people might sometimes see my data
+
+90
+00:07:50,229 --> 00:07:54,099
+确实是为谁设置访问我的数据的规则的网站
+is really the website that gets to set
+the rules for who gets access to my data
+
+91
+00:07:54,099 --> 00:07:59,679
+或者我怎么能控制访问和网站经常变得晦暗
+or how if at all I can control that
+access and websites often are bit murky
+
+92
+00:07:59,679 --> 00:08:03,759
+关于他们对如何执行这些东西的承诺，如果这是
+about their promises about how they
+enforce this stuff and again if it's the
+
+93
+00:08:03,759 --> 00:08:08,199
+用户数据，例如是我的照片或帖子还是真的
+users data like if it's my photos or my
+posts or something it's really kind of
+
+94
+00:08:08,199 --> 00:08:12,549
+不太好，我对网站的功能没有太多控制权
+not that great that I don't have too
+much control over what the website can
+
+95
+00:08:12,549 --> 00:08:17,529
+用它做另一件事，人们抱怨当前的设置
+do with it another thing that people
+complain about with the current set up
+
+96
+00:08:17,529 --> 00:08:21,399
+该网站可以嗅探我的东西，例如Gmail想浏览
+is that the website can sniff on my
+stuff like Gmail wants to look through
+
+97
+00:08:21,399 --> 00:08:24,849
+我的邮件，他们可能有很好的理由，也许他们正在训练垃圾邮件
+my mail they might have good reasons for
+maybe they were training their spam
+
+98
+00:08:24,849 --> 00:08:28,599
+生成器，这样就可以了，但是您知道也许正在看我的电子邮件来思考
+generators so that's okay but you know
+maybe looking at my email to think about
+
+99
+00:08:28,599 --> 00:08:33,279
+向我显示广告或您知道告诉他们的广告客户什么
+showing me advertisements or to you know
+tell their advertising customers what
+
+100
+00:08:33,279 --> 00:08:41,159
+人们对这几天感兴趣，更糟的是， 
+people are interested in these days
+worse the there's a chance that some of
+
+101
+00:08:41,159 --> 00:08:45,730
+在网站上工作的员工已经腐败，甚至可能在偷窥
+the employees who work at the web site
+are corrupt and maybe snooping on
+
+102
+00:08:45,730 --> 00:08:50,350
+人的数据是出于个人原因，因此可能是公司或公司
+people's data for personal reasons so
+that maybe the company maybe the company
+
+103
+00:08:50,350 --> 00:08:54,189
+该网站的运营完全是面面俱到，但不一定能坐下来
+that runs the website is perfectly
+aboveboard but can't necessarily sit
+
+104
+00:08:54,189 --> 00:09:00,399
+声称并非所有员工都在或跟随所有员工
+claim that it's not always true that all
+the employees are or following all the
+
+105
+00:09:00,399 --> 00:09:09,830
+反正规则，所以人们有很多你知道的，或者有些人有
+rules anyway so people have a lot
+kind of you know or some people have
+
+106
+00:09:09,830 --> 00:09:16,040
+对当前系统在更多设计上的工作方式持保留态度
+reservations about the way the current
+system works at a kind of more design
+
+107
+00:09:16,040 --> 00:09:22,040
+技术层面来查看正在发生什么的一种方法是主界面
+technical level one way to view what's
+going on here is that the main interface
+
+108
+00:09:22,040 --> 00:09:31,280
+这里是整个网站和浏览器之间，所以是HTML 
+here is between the entire website and
+the browser's so there's it's HTML
+
+109
+00:09:31,280 --> 00:09:38,360
+在这里通常是网站和
+that's flowing back and forth between
+here typically the websites and the
+
+110
+00:09:38,360 --> 00:09:42,080
+数据库有点集成在界面的这一侧，并且所有
+database are sort of integrated on this
+side of the interface and all the
+
+111
+00:09:42,080 --> 00:09:46,790
+浏览器真正经常看到的是这种HTML的最终打包形式
+browser really gets to see often is this
+HTML kind of final packaged form of the
+
+112
+00:09:46,790 --> 00:09:52,760
+数据，并且您知道这是一个非常面向用户界面的表示形式hTML 
+data and you know it's a very user
+interface oriented representation hTML
+
+113
+00:09:52,760 --> 00:10:00,140
+是，有点点头无话可说，你知道戴夫数据本身还是
+is and sort of Nod has nothing to say
+about you know Dave the data itself or
+
+114
+00:10:00,140 --> 00:10:04,820
+如何控制数据以及更有趣的界面以及位置
+how the data is controlled and the much
+more interesting interface and where
+
+115
+00:10:04,820 --> 00:10:09,140
+您知道整个讨论都在进行，这是更多
+this you know a whole discussion is kind
+of going is that this is a much more
+
+116
+00:10:09,140 --> 00:10:13,670
+有趣的界面，因为它更接近数据，但在标准中
+interesting interface because it's much
+closer to the data but in the standard
+
+117
+00:10:13,670 --> 00:10:17,930
+设置那里没有真正的边界，尽管这是内部的
+setup there's no real boundary there
+though this is sort of the internal
+
+118
+00:10:17,930 --> 00:10:23,960
+生意如何运作是网站的内部生意好吗
+business how this works is the internal
+business of the website all right so
+
+119
+00:10:23,960 --> 00:10:30,080
+这是现有计划，计划是块堆栈的计划
+that's the existing plan the plan the
+kind of plan that block stack is
+
+120
+00:10:30,080 --> 00:10:36,530
+提议，因此对于去中心化应用程序有很多想法
+proposing and so there's a number of
+kind of ideas for how decentralized apps
+
+121
+00:10:36,530 --> 00:10:42,710
+可能有效，这是其中的一种，所以我还不称之为块堆栈
+might work this is kind of one of them
+so I'm not gonna call it block stack yet
+
+122
+00:10:42,710 --> 00:10:49,280
+因为它是一个非常简化的版本，我们只是说这是一个
+because it's it's kind of much a very
+simplified version we'll just say it's a
+
+123
+00:10:49,280 --> 00:10:56,180
+分散式架构，这里的游戏是您知道我们仍然有一个
+decentralized architecture and here the
+game is that you know we still have a
+
+124
+00:10:56,180 --> 00:11:02,350
+一群用户和用户运行，您知道iPad或浏览器之类的东西
+bunch of users and users run you know
+iPads or browsers or something
+
+125
+00:11:04,180 --> 00:11:09,520
+但我们将采用这种新的分散方案，将所有
+but we're gonna in this new
+decentralized scheme we're gonna put all
+
+126
+00:11:09,520 --> 00:11:16,660
+的应用程序代码将在用户计算机的客户端计算机中运行
+of the app code is gonna run in the
+client machines in the users machines
+
+127
+00:11:16,660 --> 00:11:20,410
+所以这更像是一种传统，或者就像你知道的
+and so this is much more like a sort of
+traditional or it's like you know
+
+128
+00:11:20,410 --> 00:11:28,300
+从iPad上的应用程序商店下载应用程序或购买某种老式PC 
+downloading an app from the app store on
+an iPad or buying sort of old-style PC
+
+129
+00:11:28,300 --> 00:11:31,959
+硬件，例如购买Microsoft Word的副本，它只能在笔记本电脑上运行
+hardware like buying a copy of Microsoft
+Word this just runs on your laptop just
+
+130
+00:11:31,959 --> 00:11:38,560
+购买一些在笔记本电脑上运行的软件，以便不再运行该应用程序
+buy some software you run on your laptop
+so no longer running the application
+
+131
+00:11:38,560 --> 00:11:43,839
+ Web服务器中的代码，那么您知道是否要做的就是使用您的数据
+code in web servers well you know if all
+you want to do is use data on your
+
+132
+00:11:43,839 --> 00:11:49,149
+在您自己的笔记本电脑上存储您自己的数据，然后我们完成了，但实际上是什么
+laptop your own data on your own laptop
+and then we're done but what's really
+
+133
+00:11:49,149 --> 00:11:52,420
+有趣的是您知道基于Web的基于Internet的应用程序
+interesting about you know web-based
+what about internet based applications
+
+134
+00:11:52,420 --> 00:11:56,350
+是您可以将数据存储在云中，这意味着您可以
+is that you can store your data in the
+cloud and that means you can if you have
+
+135
+00:11:56,350 --> 00:12:00,730
+大多数人可以使用的多种设备可以从以下任何一种设备获取数据
+multiple devices which most people do
+you can get at your data from any of
+
+136
+00:12:00,730 --> 00:12:05,320
+您的设备（可能是iPhone以及笔记本电脑），如果有
+your devices from your maybe your iPhone
+as well as your laptop and if you've
+
+137
+00:12:05,320 --> 00:12:09,400
+以某种方式将数据存储在云中意味着您可以与其他人共享数据
+stored data in the cloud somehow that
+means you can share data with other
+
+138
+00:12:09,400 --> 00:12:15,370
+人员并构建像您这样的多用户应用程序，您可能知道eBay或您的reddit或
+people and build multi-user applications
+like you know eBay maybe your reddit or
+
+139
+00:12:15,370 --> 00:12:23,380
+谁知道什么共享日历，所以去中心化愿景的另一半
+who knows what shared calendars so the
+other half of the decentralized vision
+
+140
+00:12:23,380 --> 00:12:29,250
+将会有某种类型的云存储系统的存储系统
+is that there's going to be a storage
+system some sort of cloud storage system
+
+141
+00:12:29,250 --> 00:12:37,390
+在那里，我们的意思是说我的意思是您可以购买的某种服务
+out there by which we mean I mean some
+sort of service that you can buy maybe
+
+142
+00:12:37,390 --> 00:12:41,860
+您可以从Amazon AWS或谁知道仅在哪里存储的地方知道
+you know from Amazon AWS or
+who-knows-where which was just store
+
+143
+00:12:41,860 --> 00:12:45,940
+为您提供数据，您可以将数据保留在其中，这是它们为您存储的数据
+data for you you can stick data in it
+it's your data they store for you back
+
+144
+00:12:45,940 --> 00:12:48,940
+它希望杜米某种访问
+it up
+dumi hopefully some sort of access
+
+145
+00:12:48,940 --> 00:12:51,610
+控制，以便人们是否无法理解它，然后您可以稍后检索它
+control so whether people can't get at
+it and then you can retrieve it later
+
+146
+00:12:51,610 --> 00:12:58,709
+从您的任何设备上获取信息，因此现在，如果我们要建立某种您知道的
+from any of your devices and so now if
+we're building some sort of you know for
+
+147
+00:12:58,709 --> 00:13:03,760
+像您这样的单用户应用程序，我只需要编辑一些文档，但是我
+single user applications like you know I
+just need to edit some documents but I
+
+148
+00:13:03,760 --> 00:13:07,839
+想要将它们保留在云中，您可能知道用户正在从中购买存储
+want to keep them in the cloud you know
+maybe user one is buying storage from
+
+149
+00:13:07,839 --> 00:13:13,680
+该存储服务器可能是亚马逊，而用户2正在购买存储
+this storage server maybe it's Amazon
+and user two is buying storage from
+
+150
+00:13:13,680 --> 00:13:19,330
+也许是Google的云存储系统来存储我自己的数据
+maybe Google's cloud storage system
+for my own data I just talked to my own
+
+151
+00:13:19,330 --> 00:13:24,130
+我的应用程序代码通过Internet与服务存储服务对话
+my application code talks across the
+internet to the service storage service
+
+152
+00:13:24,130 --> 00:13:29,200
+我购买存储空间大概是为我本人和用户讲类似的话
+that I buy storage from presumably pay
+for it myself and user to talk similarly
+
+153
+00:13:29,200 --> 00:13:38,140
+到他们的存储服务，但如果我们运行的应用程序允许
+to their storage service but if we run
+applications that are built to allow
+
+154
+00:13:38,140 --> 00:13:42,730
+用户共享数据，那么就有可能，如果我会说话
+users to share data then there's the
+possibility that if I know how to talk
+
+155
+00:13:42,730 --> 00:13:47,950
+给您存储服务，我可以运行一个应用程序，读取它们
+to you to storage service I can run an
+application that reads data that they
+
+156
+00:13:47,950 --> 00:13:51,160
+也请允许我阅读，以便您知道是否要构建某种形式的
+allow me to read as well so you know if
+you wanted to build some sort of a
+
+157
+00:13:51,160 --> 00:13:55,030
+ Facebook喜欢这个应用程序上的东西会知道谁是我的朋友
+Facebook like thing on this the
+application would know who my friends
+
+158
+00:13:55,030 --> 00:14:01,090
+是并联系我的朋友存储区以查找更新或照片，或者谁
+are and reach out to my friends storage
+looking for updates or photos or who
+
+159
+00:14:01,090 --> 00:14:06,730
+知道我朋友存储在自己的存储中的内容，这意味着我
+knows what that my friends have stored
+in their own storage so that means I
+
+160
+00:14:06,730 --> 00:14:11,890
+而不是在他的新模型中接触Facebook网站，而是
+instead of contacting with Facebook's
+website instead in his new model I would
+
+161
+00:14:11,890 --> 00:14:17,610
+从Facebook下载一个应用程序并运行它，该应用程序会知道如何
+download an app from Facebook and run it
+and that app would sort of know how to
+
+162
+00:14:17,610 --> 00:14:24,280
+找到我的朋友，看看他们存储的数据，您是否知道我的
+find my friends and look at the data
+that they are storing and you know if my
+
+163
+00:14:24,280 --> 00:14:28,690
+朋友将照片上传到他们的存储中，实际上仍然是他们的存储
+friend uploads a photo to their storage
+it's really still it's their storage
+
+164
+00:14:28,690 --> 00:14:33,460
+他们为此付款，这是他们的照片，他们可以在Facebook上使用它，或者他们
+they're paying for it it's their photo
+they can use it with Facebook or they
+
+165
+00:14:33,460 --> 00:14:36,700
+也可以将其与其他应用程序一起使用，因为这些应用程序确实
+could use it with other applications too
+because the applications are really
+
+166
+00:14:36,700 --> 00:14:42,640
+现在与数据完全分开，而不是合并到
+quite separate now from the from the
+data instead of being combined in the
+
+167
+00:14:42,640 --> 00:14:52,450
+好的现有架构，所以现在有点技术层面
+existing architecture all right so now
+sort of a technical level the this is
+
+168
+00:14:52,450 --> 00:14:57,190
+现在存储接口现在是主接口，所以我们有了某种
+now the storage interface is now the
+main interface so now we have some sort
+
+169
+00:14:57,190 --> 00:15:00,340
+ put get或readwrite或谁知道哪个接口作为主接口
+of put get or readwrite or who knows
+what interface as the main interface
+
+170
+00:15:00,340 --> 00:15:04,810
+它不再是HTML，它实际上是我们担心的主要界面
+it's no longer HTML it's really a
+primary interface we were worried about
+
+171
+00:15:04,810 --> 00:15:08,740
+这是存储风格的界面，这是一个更好写的界面
+it's the storage style interface which
+is a much nicer interface to write
+
+172
+00:15:08,740 --> 00:15:13,710
+到HTML的应用程序
+applications to then HTML it's
+
+173
+00:15:14,610 --> 00:15:18,280
+此外，正如我所提到的，该架构中有很多地方
+furthermore as I mentioned there's a
+much in this architecture where users
+
+174
+00:15:18,280 --> 00:15:22,390
+真正拥有并为存储组织付费，这是一个更清晰的概念
+really own and pay for an organizing on
+storage there's a much clearer notion of
+
+175
+00:15:22,390 --> 00:15:27,010
+数据实际上是由用户拥有并像您一样由用户控制
+data being actually owned by the user
+and controlled by the user much like you
+
+176
+00:15:27,010 --> 00:15:29,850
+在笔记本电脑或雅典娜中拥有数据
+own the data on your laptop or in your
+Athena
+
+177
+00:15:29,850 --> 00:15:36,450
+正如您在存储服务中在此说明的那样， 
+as you ones account here in the storage
+service of course there's a number of
+
+178
+00:15:36,450 --> 00:15:40,860
+但是您现在知道我们对存储系统的设计非常感兴趣
+but you know now we're very interested
+in the design of the storage system
+
+179
+00:15:40,860 --> 00:15:44,490
+因为现在这不是隐藏在网站内部
+because now this is instead of being
+sort of hidden away inside websites this
+
+180
+00:15:44,490 --> 00:15:48,060
+现在是系统中的主要界面，因此我们非常关心它的功能
+is now the primary interface in the
+system so we care a lot about how it's
+
+181
+00:15:48,060 --> 00:15:52,650
+首先设计它是一项非常重要的功能
+designed so first of all it's quite
+critical that it be a Internet service
+
+182
+00:15:52,650 --> 00:15:57,870
+在云中，因此我们可以从任何设备获取数据
+out in the cloud so we can get at it get
+our data from from any of our devices it
+
+183
+00:15:57,870 --> 00:16:03,090
+实际上，这里所有应用程序代码都需要通用，所以我们
+really needs to be general-purpose that
+all the application codes here so we
+
+184
+00:16:03,090 --> 00:16:06,150
+现在不在这种架构中真正拥有特定于应用程序的代码
+don't now in this architecture really
+get to have applications specific code
+
+185
+00:16:06,150 --> 00:16:12,120
+在服务器端完全没有，因为这类服务器并不是真的没有
+at all on the server side because the
+sort of servers aren't don't really have
+
+186
+00:16:12,120 --> 00:16:14,280
+与应用程序直接相关的任何事情，因此我们需要一个
+anything directly to do with
+applications so we needed a
+
+187
+00:16:14,280 --> 00:16:17,880
+通用接口，其功能足以让我们做
+general-purpose interface that's
+powerful enough for to let us do
+
+188
+00:16:17,880 --> 00:16:25,890
+无论我们需要什么，这都很难设计，现在我们有了
+whatever we need which is a little bit
+difficult to design we now have the
+
+189
+00:16:25,890 --> 00:16:30,210
+必须支付存储空间，现在确实是最显而易见的人
+storage has to be paid for and now
+really the most obvious person to pay
+
+190
+00:16:30,210 --> 00:16:33,990
+因为现在是用户自己，也许他们愿意这样做，也许
+for it is the user themselves now maybe
+they're willing to do that maybe they're
+
+191
+00:16:33,990 --> 00:16:37,890
+不是我们真的很想有这个分享，但我们也想有私人的
+not we'd really like to have this
+sharing but we also want to have private
+
+192
+00:16:37,890 --> 00:16:42,210
+数据，也许我们只想与某些其他人共享我们的数据，所以我们
+data and maybe we only want to share our
+data with certain other people so we
+
+193
+00:16:42,210 --> 00:16:45,780
+需要某种原因，所以存储系统中存储接口的一种方式
+need some reason so the storage
+interface in the storage system one way
+
+194
+00:16:45,780 --> 00:16:51,840
+或另一个需要相当强大的共享和权限访问控制
+or another needs reasonably powerful
+sharing and permission access control
+
+195
+00:16:51,840 --> 00:16:59,970
+系统一个更微妙的问题是，我可能会运行多个应用程序，其中一些
+systems a more subtle issue is that I
+may run multiple apps some of which I
+
+196
+00:16:59,970 --> 00:17:04,949
+如果我只是从互联网上下载一些多用户游戏，请不要信任
+don't trust right if I just download
+some multi-user game from the internet
+
+197
+00:17:04,949 --> 00:17:08,670
+您知道也许我不希望它在我处于通话状态时能够查看我的电子邮件
+you know maybe I don't want it to be
+able to look at my email while I'm
+
+198
+00:17:08,670 --> 00:17:13,619
+玩这个游戏，这意味着除了拥有这种概念
+playing that game so that means that as
+well as having a notion of sort of this
+
+199
+00:17:13,619 --> 00:17:18,179
+具有此用户权限的用户，我们可能希望拥有某种子公司
+
+200
+00:17:18,180 --> 00:17:22,619
+权限，我们不仅可以讨论整个用户，还可以讨论该用户
+permissions where we can talk about not
+just this user as a whole but this user
+
+201
+00:17:22,619 --> 00:17:27,659
+当运行一个应用程序具有一定的权限，也许只是游戏
+
+202
+00:17:27,660 --> 00:17:33,000
+在运行应用程序一时允许该用户访问用户电子邮件
+files this user when running application
+one is allowed to get at the users email
+
+203
+00:17:33,000 --> 00:17:35,240
+以及
+as well
+
+204
+00:17:35,910 --> 00:17:40,290
+好吧，然后有趣的是，他们注意到该存储接口
+alright then interestingly in their
+notices that this storage interface it
+
+205
+00:17:40,290 --> 00:17:44,640
+说的不像10或20年前那样
+says not as much of a stretch as it
+might have seen say 10 or 20 years ago
+
+206
+00:17:44,640 --> 00:17:49,140
+因为那里有许多没有区别的存储服务
+because there's a number of storage
+services out there that are not unlike
+
+207
+00:17:49,140 --> 00:17:54,360
+像Amazon s3这样的应用非常广泛，而它却缺少了我们
+this like Amazon s3 very widely used and
+while it's missing some of the things we
+
+208
+00:17:54,360 --> 00:17:59,610
+这里肯定需要一个公共存储系统，您可以购买存储
+would need here it's definitely a public
+storage system you can buy storage you
+
+209
+00:17:59,610 --> 00:18:02,520
+可以让其他人使用您的存储，但您知道这些存储不具有所有访问权限
+can let other people use your storage
+you know doesn't have all that access
+
+210
+00:18:02,520 --> 00:18:06,840
+控制我们想要的东西，但是离这里所需的东西并不太远
+control we'd like but it's not too far
+from what's needed here and indeed
+
+211
+00:18:06,840 --> 00:18:11,460
+今天的论文指出，他们可以将存储系统放在一个存储层之上
+today's papers observes that they can
+layer their storage system on top of one
+
+212
+00:18:11,460 --> 00:18:14,880
+许多不同的现有存储系统Dropbox也是
+of a number of different existing
+storage systems Dropbox is also it's
+
+213
+00:18:14,880 --> 00:18:20,610
+像这样的另一种候选人，因此这不是
+another kind of candidate for something
+it's like this and therefore this is not
+
+214
+00:18:20,610 --> 00:18:25,680
+好像在天空中看起来像馅饼，所以这个要点是什么
+as sort of pie in the sky as it might
+seem ok so what would the point of this
+
+215
+00:18:25,680 --> 00:18:31,110
+那种建筑，为什么有人会在乎那些可能在乎的人
+kind of architecture be why would
+anybody care the people who might care
+
+216
+00:18:31,110 --> 00:18:36,540
+是用户吗，这可能会给用户更多的数据控制权
+are the users this this might give users
+more more control of their data it may
+
+217
+00:18:36,540 --> 00:18:39,810
+使用户更轻松地切换应用程序，例如，如果我已经上传了
+make it easier for users to switch
+applications like if I've uploaded a
+
+218
+00:18:39,810 --> 00:18:44,810
+一堆照片，我正在使用一个照片组织应用程序或照片编辑应用程序
+bunch of photos and I'm using one photo
+organization app or photo editing app
+
+219
+00:18:44,810 --> 00:18:48,750
+由于我的照片与我的应用完全分开，因此我可以切换
+since my photos are totally separate
+from me from the app I could switch
+
+220
+00:18:48,750 --> 00:18:52,350
+照片应用程序，并且可能仍然使用我已经使用的所有相同的旧照片集
+photo apps and maybe still use all my
+same old set of photos that I already
+
+221
+00:18:52,350 --> 00:18:57,900
+已存储，在此体系结构中可能更容易拥有
+have stored it may be easier in this
+architecture to have applications that
+
+222
+00:18:57,900 --> 00:19:02,460
+查看多种数据，您知道我的电子邮件系统可能会很好
+look at multiple kinds of data you know
+maybe it'd be nice that my email system
+
+223
+00:19:02,460 --> 00:19:06,360
+能够查看我的日历，反之亦然
+be able to look at my calendar and the
+other way around may be nice to be able
+
+224
+00:19:06,360 --> 00:19:10,110
+编写备份软件，无论它们是什么，它们都可以备份我的所有数据
+to write backup software they could
+backup all of my data no matter what it
+
+225
+00:19:10,110 --> 00:19:12,930
+有时可能我想
+was
+periodically maybe I'd like to have a
+
+226
+00:19:12,930 --> 00:19:17,040
+一种通用的文件浏览器，可以让我查看所有
+sort of general-purpose file browser
+which would allow me to look at all of
+
+227
+00:19:17,040 --> 00:19:21,480
+我的数据，而这一切都不可能或不方便，当前的架构
+my data and none of this is possible or
+convenient and the current architecture
+
+228
+00:19:21,480 --> 00:19:27,000
+但现在看来，我们已经集中了所有
+but it's all seems like within reach now
+that we've kind of concentrated all the
+
+229
+00:19:27,000 --> 00:19:32,670
+将用户拥有的数据存储到存储中，最后可能
+users data into storage that that they
+own and finally there may well be
+
+230
+00:19:32,670 --> 00:19:35,340
+优势，因为在隐私和监听方面
+advantages since in terms of privacy and
+snooping
+
+231
+00:19:35,340 --> 00:19:39,210
+而不是将我的数据委托给知道它在做什么的Web服务
+instead of entrusting my data to a web
+service that who knows what it's doing
+
+232
+00:19:39,210 --> 00:19:44,580
+如果我们正确地玩牌，我们可以对这些应用程序使用加密
+with it if we play our cards right we
+can use encryption these applications
+
+233
+00:19:44,580 --> 00:19:48,600
+可以在数据离开客户端计算机之前对其进行加密，因此唯一的事情
+can encrypt the data before it leaves my
+client machine so that the only thing
+
+234
+00:19:48,600 --> 00:19:53,200
+这是恢复的数据，您知道我何时读回它
+it's a restored here's
+to data and you know when I read it back
+
+235
+00:19:53,200 --> 00:19:56,530
+我将返回加密的数据，然后在我自己的计算机上本地解密，因此
+I'll be back encrypted data and then
+decrypt it locally on my own machine so
+
+236
+00:19:56,530 --> 00:20:04,660
+肯特（Kent）存储服务永远不会清楚地看到私有数据，因此这些
+Kent storage service never sees private
+data in the clear anyway so those are
+
+237
+00:20:04,660 --> 00:20:09,940
+你们所有人都知道诱人的可能性，为什么您会喜欢为什么
+all be sort of you know tantalizing
+possibilities why you might like why
+
+238
+00:20:09,940 --> 00:20:20,620
+用户可能会喜欢这种架构，所以您了解
+users might like this architecture all
+right so you you know the if you dig
+
+239
+00:20:20,620 --> 00:20:27,600
+简直就是这些应用程序实际要做的事情
+down to the nitty-gritty of what these
+applications actually have to do they
+
+240
+00:20:27,600 --> 00:20:31,750
+您知道您需要制定很多细节，例如需要
+you know you would need to work out a
+whole lot of details like there needs to
+
+241
+00:20:31,750 --> 00:20:35,740
+如果您知道我的应用程序是否要查看您的数据，是否需要
+be you know if my application is going
+to be looking at your data there need to
+
+242
+00:20:35,740 --> 00:20:41,410
+例如关于数据如何存储在这里的约定，例如，您知道我是否
+be sort of conventions for how data
+store here for example you know if I'm
+
+243
+00:20:41,410 --> 00:20:46,510
+将查看您为我们的社交网络应用程序最近发表的帖子
+gonna look at your recent posts you made
+for our social networking application
+
+244
+00:20:46,510 --> 00:20:50,680
+您必须将它们存储在您的存储库中，其密钥或名称应为
+you have to have stored them in your
+storage under a key or a name that my
+
+245
+00:20:50,680 --> 00:20:55,330
+应用程序知道会尝试查找，因此您必须使用一种
+application knows to try to look look
+for and you have to use a format that we
+
+246
+00:20:55,330 --> 00:20:59,200
+所有人都知道，所以您知道如果我们要分享的话会有一些
+all understand so you know there's some
+if we want to do sharing there's some
+
+247
+00:20:59,200 --> 00:21:03,430
+确实需要克服的那种标准化障碍
+kind of standardization obstacles that
+have to be overcome that don't really
+
+248
+00:21:03,430 --> 00:21:08,430
+大型网站之所以存在，是因为它们只能存储自己喜欢的数据
+exist for big websites because they can
+just store their data however they like
+
+249
+00:21:08,430 --> 00:21:12,640
+好的，所以有一个问题是否会对应用程序性能产生不利影响
+okay so there's a question does this
+adversely affect application performance
+
+250
+00:21:12,640 --> 00:21:19,150
+绝对这可能会降低性能，因为在过去
+absolutely this is likely to be pretty
+bad for performance because in the old
+
+251
+00:21:19,150 --> 00:21:23,200
+方案可以是旧方案，也可以是现有方案
+scheme the old scheme can be the
+existing scheme can be implemented with
+
+252
+00:21:23,200 --> 00:21:27,190
+您知道这些大多数的Web服务器可能都具有很高的性能
+very high performance you know these
+most of the web server may be making
+
+253
+00:21:27,190 --> 00:21:30,490
+数百个请求数据库，例如当您查看Amazon Web页面时
+hundreds of requests the database like
+when you look at an Amazon web page for
+
+254
+00:21:30,490 --> 00:21:33,940
+例如男孩有成千上万的信息
+example boy are there hundreds or
+thousands of pieces of information that
+
+255
+00:21:33,940 --> 00:21:37,660
+必须从亚马逊知道的数据库中撤出
+had to be pulled out of Amazon's
+databases you know when they're all in
+
+256
+00:21:37,660 --> 00:21:43,210
+同一间机房，数据库中的那些f锁
+the same machine room and those fetters
+from the database take dozens of
+
+257
+00:21:43,210 --> 00:21:49,240
+微秒，但如果这些应用程序之一需要跨
+microseconds but if one of these
+applications needs to reach across the
+
+258
+00:21:49,240 --> 00:21:54,370
+互联网，您可能知道数百英里之外的一些存储服务
+internet you know maybe hundreds of
+miles away to some storage service you
+
+259
+00:21:54,370 --> 00:21:57,400
+知道现在所有东西要花上十倍或一百倍的时间
+know it's now everything's going to take
+ten or a hundred times as long to fetch
+
+260
+00:21:57,400 --> 00:22:02,960
+单个数据，所以现在肯定是一个问题， 
+individual piece of data so now that's
+certainly an issue and
+
+261
+00:22:02,960 --> 00:22:08,700
+你知道这是那种问题，那是一件很聪明的事情
+you know it's the kind of that kind of
+issue is the kind of thing that clever
+
+262
+00:22:08,700 --> 00:22:16,350
+设计师可以找到应对方法，所以肯定会是一个问题，但是我的
+designers can find ways to deal with so
+it would certainly be a problem but my
+
+263
+00:22:16,350 --> 00:22:19,410
+猜想是为什么该体系结构不存在的总原因
+guess is on the sort of total list of
+reasons why this architecture is not
+
+264
+00:22:19,410 --> 00:22:26,850
+要去工作，还有许多其他同样令人不快的难题， 
+going to work there's a number of other
+sort of equally unhappy puzzles and
+
+265
+00:22:26,850 --> 00:22:31,169
+尽管这绝对会改变人们编写应用程序的方式，因为
+although it would absolutely change how
+people write applications because
+
+266
+00:22:31,169 --> 00:22:34,740
+而不是编写会大量使用的应用程序
+instead of writing applications that
+assemble lots of they use lots and lots
+
+267
+00:22:34,740 --> 00:22:39,600
+我认为人们需要简化的数据片段
+of pieces of data you would have to mean
+much more parsimonious I think people
+
+268
+00:22:39,600 --> 00:22:52,590
+可以解决它，所以对此有任何疑问
+could work around it all right all right
+so any any questions about this this
+
+269
+00:22:52,590 --> 00:22:56,340
+整体布局，即区块堆栈正在射击的那种布局
+overall arrangement which is the sort of
+arrangement that block stack is shooting
+
+270
+00:22:56,340 --> 00:23:03,600
+为此，我们甚至应该尝试猜测即使在此级别上
+for so we should just sort of try to
+guess even at this level what kind of
+
+271
+00:23:03,600 --> 00:23:12,870
+事情可能会出错，原因之一是该接口可能更少
+things might go wrong one reason is that
+this interface is likely to be less
+
+272
+00:23:12,870 --> 00:23:17,370
+比数据库接口更灵活，这实际上可以追溯到
+flexible than database interfaces and
+this actually goes back to the
+
+273
+00:23:17,370 --> 00:23:20,370
+一点点的表现，你知道可能不会很好，我
+performance a little bit you know
+weren't probably not going to be well I
+
+274
+00:23:20,370 --> 00:23:25,830
+这意味着这是要设计的主题，但我们不太可能达成交易
+mean this is sort of subject to design
+but we're unlikely deals to be
+
+275
+00:23:25,830 --> 00:23:31,410
+支持超级灵活的续集查询，当然， 
+supporting super flexible like sequel
+queries and certainly it's unlikely that
+
+276
+00:23:31,410 --> 00:23:36,450
+我们将对其他人的数据进行续集查询，以及
+we're going to be doing sequel queries
+across other people's data as well as
+
+277
+00:23:36,450 --> 00:23:40,950
+对于共享数据，这肯定是一个潜在的问题是
+ours for shared data so that's certainly
+one potential problem is that this
+
+278
+00:23:40,950 --> 00:23:44,700
+界面可能不太富有表现力，这对于
+interface may not be very expressive and
+that's going to be painful for
+
+279
+00:23:44,700 --> 00:23:49,500
+程序员的另一个问题是，这是否可以给用户带来大量流量
+programmers another question is could
+this give users an amount of traffic
+
+280
+00:23:49,500 --> 00:23:55,230
+他们可能无法应付，所以这也是一个潜在的问题是
+they might not handle yeah so that's
+also a potential problem is that you
+
+281
+00:23:55,230 --> 00:23:59,760
+知道如果您没有非常强大的查询，那么续集在做什么
+know if you don't have very powerful
+queries much of what sequel is doing
+
+282
+00:23:59,760 --> 00:24:05,220
+当您与真实的续集数据库进行交谈时，可能是正在寻找原因
+when you talk to a real sequel database
+is that it may be looking through cause
+
+283
+00:24:05,220 --> 00:24:08,610
+数据库服务器可以浏览大量数据，但是它只是找到一个
+the database server to look through a
+lot of data but it just finds the one
+
+284
+00:24:08,610 --> 00:24:11,700
+回答您正在寻找的可能是所有投票的总和，或者它只是发送的内容
+answer you're looking for maybe the sum
+of all votes or something it just sends
+
+285
+00:24:11,700 --> 00:24:14,970
+最后一小段数据，而如果您没有强大的功能
+that one little piece of final data back
+whereas if you don't have a powerful
+
+286
+00:24:14,970 --> 00:24:18,210
+查询语言，您可能需要获取很多东西， 
+query language you may
+up having to fetch a lot of stuff and
+
+287
+00:24:18,210 --> 00:24:23,290
+自己进行过滤或汇总，可能很多
+sort of do the filtering or aggregating
+yourself and that just might be a lot of
+
+288
+00:24:23,290 --> 00:24:27,030
+跨人民链接发送的数据
+data to be sending across peoples links
+
+289
+00:24:31,020 --> 00:24:36,400
+是的，所以事情可能会变慢，事情会变慢，这是一个问题
+yeah so things might be slower things
+would be slower and it's a question
+
+290
+00:24:36,400 --> 00:24:40,900
+他们是否会变得太慢，也许在将来大家都知道
+whether they'd be too slow maybe in the
+future in which you know everybody has
+
+291
+00:24:40,900 --> 00:24:44,500
+宽带互联网，我们有5g手机，而这都不是
+broadband internet and we have 5g cell
+phones and none of this one it's
+
+292
+00:24:44,500 --> 00:24:48,880
+性能的东西很重要，或者也许很重要，我不认识另一个
+performance stuff will matter or maybe
+it'll be important I don't know another
+
+293
+00:24:48,880 --> 00:24:55,330
+此设置的问题是，有一些网站，例如eBay， 
+problem with this setup is that there
+are some websites like eBay where it's
+
+294
+00:24:55,330 --> 00:25:00,310
+确实不是所有数据都一定由一个用户拥有的情况，所以
+really not the case that all the data is
+sort of definitely owned by one user so
+
+295
+00:25:00,310 --> 00:25:07,180
+以eBay为例，我必须要指出两点，一是某些数据
+for eBay for example well I have to have
+two points here one is some data is not
+
+296
+00:25:07,180 --> 00:25:10,780
+所有用户所有的东西都在考虑Reddit的首页，您知道
+owned by all users think about the front
+page of Reddit right there's you know
+
+297
+00:25:10,780 --> 00:25:14,410
+ Reddit正在运行一些巧妙的算法来选择
+there's some clever algorithms that
+reddit is running to pick the order of
+
+298
+00:25:14,410 --> 00:25:17,860
+头版中的项目，我的意思是投票，你知道谁知道
+items in the front page I mean to do
+with votes and you know who knows what
+
+299
+00:25:17,860 --> 00:25:21,730
+就像怪异的那些算法在运行，它们从哪里获取数据，也许
+like weird those algorithms run and
+where do they get the data and maybe
+
+300
+00:25:21,730 --> 00:25:27,550
+他们在哪里存储有关首页的结论，这就是
+where do they store their conclusions
+about the front page so that's something
+
+301
+00:25:27,550 --> 00:25:31,330
+它真的不适合我，你知道也许你可以适合这里，但我会
+it doesn't really fit in me you know
+maybe you could be fit in here but I'd
+
+302
+00:25:31,330 --> 00:25:35,590
+有点困难另一种似乎很难的网站
+be a little bit hard another kind of
+website that seems like could be hard
+
+303
+00:25:35,590 --> 00:25:41,890
+这是一个海湾，您想与您认识的其他人竞标eBay告诉您
+here is is a Bay where you want to bid
+against other people you know eBay tells
+
+304
+00:25:41,890 --> 00:25:45,460
+您是否具有当前的最高出价，这需要eBay查看
+you whether you're have the current
+highest bid which requires eBay to look
+
+305
+00:25:45,460 --> 00:25:49,600
+按照别人的出价，然后当您最终中标时，您便知道要支付的金额
+at other people's bids and then when you
+finally win you know the amount you pay
+
+306
+00:25:49,600 --> 00:25:55,840
+与第二高的出价有关，但这些出价是您的私人权利
+has to do with the second highest bid
+but those bids are private right you
+
+307
+00:25:55,840 --> 00:26:00,730
+不想让其他人看到您的出价，因为这样他们就可以出价1美分
+don't want other people to see your bids
+because then they can just bid one cent
+
+308
+00:26:00,730 --> 00:26:06,460
+比您高，并以低成本赢得比赛，因此您知道两个用户两个是
+higher than you and win at a low cost so
+you know maybe you two user two is
+
+309
+00:26:06,460 --> 00:26:12,280
+在此处存储了一个出价，但是如果我要针对用户2出价，我们需要
+stored a bid here but if my if I'm
+bidding against user two and we need
+
+310
+00:26:12,280 --> 00:26:15,460
+告诉我我是否是中标者
+this application to tell me if I'm the
+winning bidder that means this
+
+311
+00:26:15,460 --> 00:26:19,030
+应用程序需要回答这个问题可能需要
+application needs in order to answer
+that question may need probably needs to
+
+312
+00:26:19,030 --> 00:26:24,910
+知道用户要出价用户二人出价，这意味着用户要出价
+know user to bid user twos bid which
+means the users to bid has to be
+
+313
+00:26:24,910 --> 00:26:29,290
+对我来说可以访问，但是如果我的应用程序代码非常了解，它将在Mike上运行
+accessible to me but if my application
+code knows it well it's running on Mike
+
+314
+00:26:29,290 --> 00:26:33,220
+计算机，我可以将其更改为您在您的计算机上运行的代码的通常规则
+computer and I can change it right as
+the usual rules for code you run in your
+
+315
+00:26:33,220 --> 00:26:36,730
+自己的计算机，如果我更改应用程序代码以实际显示您的
+own computer and if I change my
+application code to actually reveal your
+
+316
+00:26:36,730 --> 00:26:40,420
+出价，那么从eBay尝试的角度来看这完全是作弊
+bid then that's totally cheating from
+the point of view of what eBay is trying
+
+317
+00:26:40,420 --> 00:26:46,210
+这样做，所以没有人会相信允许这样做的拍卖系统，这的确是
+to do and so nobody would trust auction
+system that allowed that so it's really
+
+318
+00:26:46,210 --> 00:26:50,410
+不清楚，您知道可能会使用一些技巧，但您知道我们是否
+unclear you know there's probably tricks
+that could be used but you know if we
+
+319
+00:26:50,410 --> 00:26:54,400
+只需使用这种架构和简单易用的方式，例如eBay等网站
+just use this architecture and
+straightforward way websites like eBay
+
+320
+00:26:54,400 --> 00:26:59,580
+需要查看其他人的秘密数据但无需查看数据
+that need to look at other people's
+secret data but not review of the data
+
+321
+00:26:59,580 --> 00:27:05,770
+就像是一个难题，我已经提到过那些网站
+are quite a puzzle as just like and I
+already mentioned that websites that
+
+322
+00:27:05,770 --> 00:27:10,810
+必须保留自己的数据，例如索引或投票计数，或者经常
+have to keep their own data like indexes
+or vote counts or something that's often
+
+323
+00:27:10,810 --> 00:27:14,770
+一个难题也是一个难题，因为这里没有概念，您知道该网站
+a puzzle also a puzzle because there's
+no notion here of you know the website
+
+324
+00:27:14,770 --> 00:27:17,170
+本身只有应用程序代码， 
+itself
+there's just application code and
+
+325
+00:27:17,170 --> 00:27:23,740
+通用用户拥有的存储，因为通常这些东西使您可以
+generic user owned storage because
+usually these things so you would
+
+326
+00:27:23,740 --> 00:27:28,000
+可能必须使用一些精简的服务器来增强此功能以运行隐私
+probably have to augment this with some
+crusted servers to run the privacy
+
+327
+00:27:28,000 --> 00:27:31,810
+ eBay的关键部分或它实际上不适合的模型
+critical part of eBay or whatever it
+doesn't really fit into the model that
+
+328
+00:27:31,810 --> 00:27:38,590
+好吧，我要说的另一个坏消息是，如果我
+well another thing that's I'm gonna turn
+out to be bad news here is that if I if
+
+329
+00:27:38,590 --> 00:27:41,650
+我有想要与某些人共享的数据，而不是像其他人想要共享的数据
+I have data that I want to share with
+some people than others like I want to
+
+330
+00:27:41,650 --> 00:27:47,170
+仅与六到八到四个学生共享数据，但不与外界共享数据，您知道
+share data with just six eight to four
+students but not outsiders you know how
+
+331
+00:27:47,170 --> 00:27:52,000
+实际上是强制执行的，您知道我们真的想使用end和
+is that actually enforced
+you know we'd really like to use end and
+
+332
+00:27:52,000 --> 00:27:54,970
+加密，因此我们不必信任存储服务器，因为毕竟
+encryption so we don't have to trust the
+storage server because after all that
+
+333
+00:27:54,970 --> 00:27:59,200
+是远离当前网站架构的一大动力
+was a big motivation for moving away
+from the current website architectures
+
+334
+00:27:59,200 --> 00:28:05,080
+我们不想相信这些云服务，所以我可以
+we don't want to have to trust these
+sort of these clouds services so I could
+
+335
+00:28:05,080 --> 00:28:10,420
+加密数据，以便682名四名学生可以读取它，但实际上
+encrypt the data so that 682 four
+students could read it but it's actually
+
+336
+00:28:10,420 --> 00:28:15,070
+以任何一种直接的方式来做到这一点都非常困难，你知道我可以
+quite difficult to do that in any kind
+of straightforward way you know I could
+
+337
+00:28:15,070 --> 00:28:19,300
+每个加密一次，将您知道的数据加密一百次
+encrypt the data a hundred times you
+know with once with each of the
+
+338
+00:28:19,300 --> 00:28:24,100
+六十二个学生密钥，或者也许我可以用一些加密一次
+sixty-two for students keys or maybe I
+can encrypt the data once with uh some
+
+339
+00:28:24,100 --> 00:28:29,080
+一种独特的密钥，然后用两个用于学生的密钥对该密钥进行加密，或者
+sort of unique key and then encrypt that
+key with a two for students keys or
+
+340
+00:28:29,080 --> 00:28:34,300
+某事，但是然后您遇到一个问题，因此，如果有人放弃课程
+something but then you run into a
+question so if somebody drops the course
+
+341
+00:28:34,300 --> 00:28:36,790
+并且您不希望他们能够看到您知道如何制作的数据
+and you don't want them to be able to
+see the data you know how do you make
+
+342
+00:28:36,790 --> 00:28:42,240
+确保现在他们看不到数据，因此您可以使用加密保护隐私，但是
+sure that now they can't see the data so
+you can use encryption for privacy but
+
+343
+00:28:42,240 --> 00:28:47,940
+一旦您进入一种复杂的多用户应用程序
+once you get into a sort of complex
+multi user applications with groups of
+
+344
+00:28:47,940 --> 00:28:54,119
+用户，例如密码学变得很难使用来解决
+users for example cryptography becomes
+can be quite difficult to use to solve
+
+345
+00:28:54,119 --> 00:29:04,649
+您的隐私问题还可以，所以这些是系统可能不方便的方法
+your privacy problems okay so these are
+ways in which the system may be awkward
+
+346
+00:29:04,649 --> 00:29:08,850
+很难编程，因为编程可能不方便
+to awkward to program and because it may
+be awkward to program and awkward to
+
+347
+00:29:08,850 --> 00:29:12,269
+编写可能会泄漏到应用程序集中的功能
+program up features that may leak
+through into the set of application
+
+348
+00:29:12,269 --> 00:29:16,499
+您可能也受到限制的功能，这不会使用户感到非常
+features you can have being limited also
+which it's not going to make users very
+
+349
+00:29:16,499 --> 00:29:24,240
+高兴的是，这是什么是块堆栈的高级视图
+happy either all right this is sort of a
+high-level view of what block stack is
+
+350
+00:29:24,240 --> 00:29:30,570
+有点努力，所以现在让我们把重点放在
+kind of working towards so now let's
+that's may be focused a little more on
+
+351
+00:29:30,570 --> 00:29:39,149
+块堆栈，特别是块堆栈实际起源于项目的位置
+block stacks specifically where block
+stack actually originated as a project
+
+352
+00:29:39,149 --> 00:29:47,909
+作为一种安全的命名方案，您仍然可以看到我们阅读的论文
+was as a secure naming scheme and you
+can still see the the paper we read
+
+353
+00:29:47,909 --> 00:29:52,679
+今天，人们非常关注命名，尽管如果您看一下他们的名字， 
+today has a lot of preoccupation with
+naming although if you look at their
+
+354
+00:29:52,679 --> 00:29:56,309
+当前的网站以及他们编写的当前内容，这方面的更多内容
+current website and the current stuff
+they write it's much more about this
+
+355
+00:29:56,309 --> 00:30:00,889
+分散的架构和应用程序，更不用说命名了
+decentralized architecture and
+applications and much less about naming
+
+356
+00:30:00,889 --> 00:30:05,940
+但是名字对他们来说仍然很重要，所以问题是他们是什么
+but name is still very important for
+them so the question is what are they
+
+357
+00:30:05,940 --> 00:30:08,730
+您知道他们为什么对名称感兴趣，以及他们需要什么
+you know why are they interested in
+names and what do they need from a
+
+358
+00:30:08,730 --> 00:30:12,809
+命名系统，所以他们在论文和
+naming system so the kind of names
+they're talking about in the paper and
+
+359
+00:30:12,809 --> 00:30:20,570
+那么块堆栈通常是用户名，这些是真正的人类用户，因此
+then block stack in general are user
+names these are really human users so
+
+360
+00:30:20,570 --> 00:30:27,690
+我们在谈论的是像罗伯特·莫里斯（Robert Morris）这样的名字， 
+we're talking about names like you know
+maybe Robert Morris right that's the
+
+361
+00:30:27,690 --> 00:30:34,139
+他们在谈论的名字，因为您知道那里有
+kind of name they're talking about
+because you know in there in there are
+
+362
+00:30:34,139 --> 00:30:37,619
+分散式架构，他们不知道
+decentralized architecture they don't
+you know those kind of players in the
+
+363
+00:30:37,619 --> 00:30:42,269
+游戏或用户数据的用户，用户需要控制谁可以看到
+game or the users the users of the data
+the users need to control who can see
+
+364
+00:30:42,269 --> 00:30:47,759
+他们的数据，因此他们需要能够为其他用户命名特定的事物
+their data so they need to be able to
+name other users the specific things
+
+365
+00:30:47,759 --> 00:30:54,330
+他们需要命名解决，如果我
+they need to solve with naming they need
+to if I
+
+366
+00:30:54,330 --> 00:30:59,220
+想要查看您的数据，而um堆栈需要找到您的数据在哪里
+want to look at your data um block stack
+needs to find where your data is you
+
+367
+00:30:59,220 --> 00:31:02,220
+知道您正在将数据存储在某些我需要知道的存储服务器上
+know you're storing your data on some
+storage server somewhere I need to know
+
+368
+00:31:02,220 --> 00:31:07,890
+您所知道的是使用Amazon AWS或您可能知道的Microsoft Azure，如果是的话
+what you know are using Amazon AWS or
+maybe Microsoft Azure you know and if so
+
+369
+00:31:07,890 --> 00:31:14,340
+ Microsoft正在破坏哪个服务器，因此会阻止堆栈
+which server that Microsoft are
+destroying your data so block stack
+
+370
+00:31:14,340 --> 00:31:23,070
+需要一种将名称映射到存储数据的位置的方法，这就是
+needs a way to map names to the location
+where you store your data so that's one
+
+371
+00:31:23,070 --> 00:31:28,440
+他们用名字做的一件大事，但他们也需要找出我是否
+big thing that they're doing with names
+but they also need to find out if I
+
+372
+00:31:28,440 --> 00:31:31,950
+要读取您的数据，我需要能够执行诸如检查
+going to read your data I need to be
+able to do things like check that it's
+
+373
+00:31:31,950 --> 00:31:36,269
+真的，您知道的数据无法存储，这并不是要说的全部
+really your data you know I can't store
+not the whole point of this is to not
+
+374
+00:31:36,269 --> 00:31:42,389
+必须信任存储服务，以便我能够检查它
+have to trust the storage services so in
+order for me to be able to check it that
+
+375
+00:31:42,389 --> 00:31:50,340
+这是您的数据，我们需要一种将名称映射到公钥的方法，我们将
+it's your data we need a way to map the
+name to the public key and we're gonna
+
+376
+00:31:50,340 --> 00:31:56,070
+假设在存储数据时先使用公钥对其进行签名，因此我们需要
+assume that when you store data you sign
+it with your public key first so we need
+
+377
+00:31:56,070 --> 00:31:59,250
+这两个DeMayo都指定要在何处查找此人的数据，并在地图上为公众命名
+both DeMayo names to where to find the
+person's data and map names the public
+
+378
+00:31:59,250 --> 00:32:03,240
+我们用来检查检索数据时真正是您真正的数据的密钥
+key that we used to check that when we
+retrieve data it's really data that you
+
+379
+00:32:03,240 --> 00:32:07,289
+而不是由存储服务编写的某种误导性的东西
+wrote and not some kind of misleading
+thing cooked up by the storage service
+
+380
+00:32:07,289 --> 00:32:10,950
+或其他现在将此人称为公钥的东西
+or someone else
+now this named a public key thing
+
+381
+00:32:10,950 --> 00:32:14,610
+如果我想加密数据，那么实际上也以其他方式使用，以便只有你
+actually is used in other ways too if I
+want to encrypt data so that only you
+
+382
+00:32:14,610 --> 00:32:19,320
+可以读取它的方式大概是加密数据或某些数据
+can read it probably the way I'm gonna
+do that is to encrypt the data or some
+
+383
+00:32:19,320 --> 00:32:25,200
+其他密钥使用您的公共密钥，以便只有您的私有密钥才能读取它，因此如果
+other key using your public key so that
+only your private key can read it so if
+
+384
+00:32:25,200 --> 00:32:29,700
+我想实现加密的ACL或几乎所有权限密钥
+I want to implement cryptographic ACLs
+or really almost any permissions key
+
+385
+00:32:29,700 --> 00:32:34,260
+访问控制方案，我需要你，我需要给人名
+access control scheme I need you have I
+need to build the name the people who
+
+386
+00:32:34,260 --> 00:32:42,090
+可以使用数据，所以如果我要创建访问控制列表，这些是
+can use the data and so if I'm gonna
+make access control lists these are
+
+387
+00:32:42,090 --> 00:32:46,409
+通常以名称驱动的一种或另一种方式，并且可能能够命名
+usually one way or another
+driven by names and may be able to name
+
+388
+00:32:46,409 --> 00:32:55,240
+可以读取我的数据的人，所以这尤其是映射该部分的人
+the people who can read my data so
+this in particular this part that maps
+
+389
+00:32:55,240 --> 00:33:01,000
+公钥的人名，通常通常称为公钥
+names of people to public keys this is
+usually often called a public key
+
+390
+00:33:01,000 --> 00:33:08,680
+基础设施或PKI，因此，除了其他提议之外， 
+infrastructure or PKI and so what block
+sac is proposing among other things is a
+
+391
+00:33:08,680 --> 00:33:15,790
+通用类型的公共全局PKI公共密钥基础结构要映射
+general-purpose sort of public global
+PKI public key infrastructure to map
+
+392
+00:33:15,790 --> 00:33:23,790
+用户名给用户的公共密钥，这实际上非常重要，因为
+user names to users public keys and this
+is actually quite important because
+
+393
+00:33:24,330 --> 00:33:30,220
+人们几十年来一直知道，为了使
+people known for a long time decades
+decades that in order to sort of make
+
+394
+00:33:30,220 --> 00:33:37,420
+互联网安全的巨大进步几乎可以肯定，唯一的方法就是
+big advances in Internet security almost
+certainly the only way to do that is to
+
+395
+00:33:37,420 --> 00:33:43,330
+有某种公钥方案，以便人们可以签署您知道的数据
+have some sort of public key scheme so
+that people can sign you know data that
+
+396
+00:33:43,330 --> 00:33:49,720
+他们产生电子邮件并检查收到的电子邮件或数据上的签名
+they produce email and check signatures
+on email or data that they receive for
+
+397
+00:33:49,720 --> 00:33:55,720
+并加密，以确保对预期的隐私
+other people and also encrypt so that to
+ensure privacy said on the intended
+
+398
+00:33:55,720 --> 00:34:02,370
+读者可以是数据，所以几乎任何互联网计划或大型计划
+reader can be the data so almost any
+internet wide scheme or large scheme
+
+399
+00:34:02,370 --> 00:34:07,870
+旨在获得加密隐私或加密身份验证的结果
+intended to get cryptographic privacy or
+cryptographic authentication ends up
+
+400
+00:34:07,870 --> 00:34:12,040
+必须涉及某种公共密钥系统的公共密钥基础架构
+having to involve some sort of public
+key system public key infrastructure so
+
+401
+00:34:12,040 --> 00:34:16,030
+现在我可以确定我想与之交谈的人的身份
+that I can find out now given the
+identity the person I want to talk to
+
+402
+00:34:16,030 --> 00:34:25,659
+我如何找到他们的公钥，但是还没有成功的公钥
+how do I find their public key and yet
+there kind of isn't a successful public
+
+403
+00:34:25,659 --> 00:34:28,600
+关键的基础架构系统没人真正知道如何构建
+key infrastructure system out there
+nobody's really figured out how to build
+
+404
+00:34:28,600 --> 00:34:34,570
+其中之一实际上是有用的，因此人们倾向于不这样做
+one of these that's actually useful and
+as a result people have tended not to
+
+405
+00:34:34,570 --> 00:34:39,659
+建立或部署人员倾向于不部署
+build or deploy people tended not to
+deploy
+
+406
+00:34:39,659 --> 00:34:46,480
+具有加密隐私和真实性的系统，因为没有PKI和
+systems with cryptographic privacy and
+authenticity because there's no PKI and
+
+407
+00:34:46,480 --> 00:34:49,840
+也许是因为人们尚未从事PGI的研究，因为目前尚不清楚
+maybe because of that people haven't
+worked on PGI's because it's not clear
+
+408
+00:34:49,840 --> 00:34:54,280
+谁会使用它们，但无论如何要使用块堆栈的原因之一
+who would use them but at any rate one
+of the reasons why block stack is
+
+409
+00:34:54,280 --> 00:34:59,710
+有趣的是，因为他们正在努力构建全球规模的公钥
+interesting is because they're trying
+hard to build a global scale public key
+
+410
+00:34:59,710 --> 00:35:02,160
+基础设施
+infrastructure
+
+411
+00:35:02,440 --> 00:35:06,280
+名字的名字记得这篇论文谈论的是Zuko的三角形
+the kind of names remember the paper
+talks about this Zuko's triangle thing
+
+412
+00:35:06,280 --> 00:35:12,700
+名称的种类本文讨论的名称样式是三种
+the kinds of names the style of names
+that the paper's talking about is three
+
+413
+00:35:12,700 --> 00:35:17,319
+这三个有趣的特性之一是它们的独特之处
+these three interesting properties one
+is their unique and what that really
+
+414
+00:35:17,319 --> 00:35:22,420
+实际上意味着这些名称具有全局含义，Robert的名字
+means actually is that the names have
+global meaning that the name Robert for
+
+415
+00:35:22,420 --> 00:35:25,869
+这个例子的意思是一样的吗
+example has the same meaning did it
+everyone in the world you know maps to
+
+416
+00:35:25,869 --> 00:35:30,400
+以相同的方式将相同的数据位置和相同的公用密钥提供给每个人
+this in the same way the same data
+location same public key to everyone in
+
+417
+00:35:30,400 --> 00:35:32,410
+当然，这个世界对罗伯特来说有点荒谬
+the world of course that's a little
+ridiculous for Robert you know
+
+418
+00:35:32,410 --> 00:35:37,210
+大概我在块堆栈下的ID会比您知道的更长
+presumably my ID under block stack would
+be much longer than that you know maybe
+
+419
+00:35:37,210 --> 00:35:41,849
+罗伯特·莫里斯（Robert Morris）有很多罗伯特·莫里斯（Robert Morris），也许我叫罗伯特·莫里斯（Robert Morris） 
+Robert Morris there's a lot of Robert
+Morris's maybe I'm Robert Morris number
+
+420
+00:35:41,849 --> 00:35:45,819
+ 67是罗伯特·莫里斯（Robert Morris）向可能会是
+67 is Robert Morris to register with
+block stack that would probably be
+
+421
+00:35:45,819 --> 00:35:50,290
+无论如何，更接近我的名字将在区块堆栈下
+closer to what my name would be under
+block stack anyway that everybody in the
+
+422
+00:35:50,290 --> 00:35:53,920
+当他们看到此名称并通过PKI运行该名称时
+world when they see this name and they
+run it through the PKI gets the same
+
+423
+00:35:53,920 --> 00:36:00,609
+有关它的信息，所以这真的意味着全局可能是一个更好的词
+information about it so this really
+means global might be a better word for
+
+424
+00:36:00,609 --> 00:36:06,750
+这是论文所讨论的第二个属性，名字是人类可读的
+this the second property the paper talks
+about for names are there human readable
+
+425
+00:36:06,750 --> 00:36:09,910
+就像罗伯特·莫里斯（Robert Morris）一样，有人可以看一看，然后
+just like Robert Morris so somebody
+could look at it and you know make a
+
+426
+00:36:09,910 --> 00:36:14,440
+猜一个名字的意思，也许人们可能会记住名字
+guess what a name means and maybe people
+may be able to remember the names
+
+427
+00:36:14,440 --> 00:36:21,190
+因为它们具有人类的意义和最后一件事
+because they sort of have human
+meaningfulness and the final thing
+
+428
+00:36:21,190 --> 00:36:26,109
+他们感兴趣的是命名系统的名称分配
+they're interested in is that the naming
+system the allocation of names be
+
+429
+00:36:26,109 --> 00:36:33,970
+去中心化，你知道纸上的主张是旧的主张
+decentralized and you know the paper
+claims on this is the old claim that
+
+430
+00:36:33,970 --> 00:36:41,770
+很难获得所有您知道的三个，因为
+it's difficult to get all three you know
+apparently not impossible since the
+
+431
+00:36:41,770 --> 00:36:48,040
+本文是出于某种直觉的原因，而这三个原因很难得到的是
+paper does it the sort of intuitive
+reason why it's hard to get all three is
+
+432
+00:36:48,040 --> 00:36:53,140
+如果您假设您的助手分散了，那么没有人
+that if you have a supposing you have
+assistants decentralized there's no one
+
+433
+00:36:53,140 --> 00:36:59,589
+您知道的负责很好地分配名称的实体，如果这样做， 
+entity you know in charge of allocating
+names well if you do that then it's very
+
+434
+00:36:59,589 --> 00:37:03,760
+很难确保唯一性，即如果您没有一些单一实体处理
+hard to ensure uniqueness that is if you
+don't have some single entity handing
+
+435
+00:37:03,760 --> 00:37:06,280
+拿出名字你怎么知道自己最终不会拿出相同的名字
+out the names how do you know you don't
+end up handing out the name same name
+
+436
+00:37:06,280 --> 00:37:11,530
+如果没有某个中央信任实体，则可以由多个人组成，您可以
+the multiple people if there's not some
+central trusted entity and you can
+
+437
+00:37:11,530 --> 00:37:15,599
+实际上有分散的名称
+actually have decentralized and unique
+names
+
+438
+00:37:15,599 --> 00:37:21,180
+但是现在最明显的方式是牺牲了人类可读的部分，所以如果
+but now the most obvious ways to do that
+sacrifice the human readable part so if
+
+439
+00:37:21,180 --> 00:37:26,910
+您决定自己的名字的是公钥1000位公钥
+what you decide your names are are gonna
+be you know public keys 1000 bit public
+
+440
+00:37:26,910 --> 00:37:31,440
+公共私有密码系统中的密钥，任何人都可以组成一个新的
+keys in a public private cryptography
+system anybody can make up a new
+
+441
+00:37:31,440 --> 00:37:37,199
+公钥/私钥对通常使用随机数和
+public/private key pair they're
+typically made use random number and
+
+442
+00:37:37,199 --> 00:37:41,130
+ emmm编号生成器，所以既然任何人都可以弥补，并且生成了
+emmm number generator so since anyone
+can make one up and they're generated
+
+443
+00:37:41,130 --> 00:37:46,019
+随机它们将是唯一的，但它们不是人类可读的，所以您知道
+randomly they're going to be unique but
+they're not human readable so you know
+
+444
+00:37:46,019 --> 00:37:51,709
+许多明显的方法试图同时获得所有这三个
+many of the obvious ways trying to get
+all three of these at the same time
+
+445
+00:37:51,709 --> 00:38:03,630
+效果不是很好，块堆栈在很高的程度上解决了这些问题
+don't work so well the way block stack
+solves these this at a very high level I
+
+446
+00:38:03,630 --> 00:38:07,259
+意思是你知道他们会生产去中心化系统，没有
+mean you know they're gonna produce
+their decentralized system and no
+
+447
+00:38:07,259 --> 00:38:12,779
+中心人员分发名称，这些名称易于阅读，每个人
+central person handing out names the
+names are human readable and everyone
+
+448
+00:38:12,779 --> 00:38:17,099
+从高层次上看到相同的映射集的方法是
+sees the same set of mappings the way
+they do this at a high level is that
+
+449
+00:38:17,099 --> 00:38:26,219
+他们依靠比特币的能力来生成单个有序的交易日志
+they rely on bitcoins ability to produce
+a single ordered log of transactions
+
+450
+00:38:26,219 --> 00:38:31,380
+这是查看比特币的一种方式，那就是每个人都同意
+that's one way of viewing Bitcoin is
+that everybody agrees on what the
+
+451
+00:38:31,380 --> 00:38:35,069
+比特币块的顺序是，你知道也许你会得到临时的叉子，但是
+sequence of Bitcoin blocks is and you
+know maybe you get temporary Forks but
+
+452
+00:38:35,069 --> 00:38:41,729
+比特币迅速解决了任何叉子，并使每个人都同意
+Bitcoin rapidly resolves any Forks and
+causes everyone to agree on what the
+
+453
+00:38:41,729 --> 00:38:47,160
+块的顺序在比特币中确定，所以一旦我们导致了比特币
+sequence of blocks is in Bitcoin ok so
+once we a Bitcoin that's causing
+
+454
+00:38:47,160 --> 00:38:55,769
+关于一系列交易的协议，我们可以坚持，任何人都可以坚持
+agreement on a sequence of transactions
+we can stick anyone can stick
+
+455
+00:38:55,769 --> 00:39:01,410
+您知道并且可能有效的比特币日志中的交易
+transactions into the Bitcoin log that
+you know as well as maybe being valid
+
+456
+00:39:01,410 --> 00:39:06,599
+比特币交易也隐藏了名称保留记录，因此
+Bitcoin transactions also have hidden
+away in them name reservation records so
+
+457
+00:39:06,599 --> 00:39:14,490
+现在，这是对比特币的一种命名
+now this is it's a sort of naming on
+Bitcoin
+
+458
+00:39:14,490 --> 00:39:16,550
+您
+you
+
+459
+00:39:17,160 --> 00:39:22,799
+区块链，所以您知道比特币已经投入使用，使我们有点独特
+blockchain so you know Bitcoin was
+already put getting us sort of unique
+
+460
+00:39:22,799 --> 00:39:28,920
+以及这些交易区块的全球商定顺序，现在以及任何人
+and globally agreed sequence of these
+transaction blocks and now and anybody
+
+461
+00:39:28,920 --> 00:39:32,039
+可以提交交易，因此从某种意义上说，它是完全分散的权利
+can submit a transaction so in that
+sense it's totally decentralized right
+
+462
+00:39:32,039 --> 00:39:40,230
+所以如果我想的话，块堆栈使用这种方式命名的方式怎么会
+so how wouldn't what the way block stack
+uses this for naming is that if I want
+
+463
+00:39:40,230 --> 00:39:45,420
+注册一个名字，我可以选择任何我喜欢说Robert Morris的名字，只要它是
+to register a name I can pick any name I
+like say Robert Morris as long as it's
+
+464
+00:39:45,420 --> 00:39:54,690
+还没有您在使用，我坚持我向比特币提交您知道的交易
+not already you in use and I stick in I
+submit to Bitcoin a transaction you know
+
+465
+00:39:54,690 --> 00:39:59,910
+碰巧是有效的比特币交易，但这也将是
+that happens to be a valid Bitcoin
+transaction but it's also going to be
+
+466
+00:39:59,910 --> 00:40:05,880
+对阻止堆栈有意义，并且会说请保留，请分配
+meaningful to block stack and it's gonna
+say please reserve please allocate the
+
+467
+00:40:05,880 --> 00:40:12,839
+命名RTM并将其映射到我的任何公钥和有关的信息
+name RTM and map it to whatever my
+public key and my information about
+
+468
+00:40:12,839 --> 00:40:18,630
+哪里没有人的数据，任何人都可以提交这些数据，并且块堆栈服务器
+where to have data not man anyone can
+submit these and the block stack servers
+
+469
+00:40:18,630 --> 00:40:22,609
+所有区块税务服务器都在监视涉及的比特币区块链， 
+all the blocks tax servers watch the
+Bitcoin blockchain as it involves and
+
+470
+00:40:22,609 --> 00:40:29,039
+每当他们看到这些记录之一时，这也是一个大宗交易
+every time they see one of these records
+that's a block stack transaction as well
+
+471
+00:40:29,039 --> 00:40:34,319
+作为比特币交易，区块栈服务器考虑添加此映射
+as a Bitcoin transaction the block stack
+servers think about adding this mapping
+
+472
+00:40:34,319 --> 00:40:42,930
+到他们的姓名数据库，但是他们有一套拒绝不良封锁的规则
+to their name database but they have a
+set of rules for rejecting bad block
+
+473
+00:40:42,930 --> 00:40:47,220
+在比特币区块链中堆叠交易，例如，如果某些交易失败
+stack transactions in the Bitcoin
+blockchain so for example if some bad
+
+474
+00:40:47,220 --> 00:40:54,059
+我自己分配了RTM之后的人请尝试很好地分配RTM 
+person after I've allocated RTM
+themselves try to allocate RTM well they
+
+475
+00:40:54,059 --> 00:40:59,700
+可以提交他们喜欢的任何交易，这样他们就可以完美地提交
+can submit any transaction they like so
+they can perfectly well also submit a
+
+476
+00:40:59,700 --> 00:41:03,180
+交易试图从我那里窃取RTM名称并将其映射到其他名称
+transaction trying to steal the name RTM
+from me and mapping it to some other
+
+477
+00:41:03,180 --> 00:41:09,240
+他们知道所有块堆栈服务器的私钥的公钥
+public key that they know the private
+key for well all the block stack servers
+
+478
+00:41:09,240 --> 00:41:12,839
+在观看比特币链，只有一个比特币链，并且只有一个
+are watching the Bitcoin chain there's
+only one Bitcoin chain and only has a
+
+479
+00:41:12,839 --> 00:41:18,420
+一组内容，所以您所知道的块堆栈服务器
+one set of contents and so the block
+stack servers as they you know sort of
+
+480
+00:41:18,420 --> 00:41:22,470
+看看比特币链中的连续交易，将会看到我的
+look at successive transactions in the
+Bitcoin chain are gonna see my
+
+481
+00:41:22,470 --> 00:41:28,200
+首先分配，然后他们将看到另一个人的分配
+allocation first and then they're gonna
+see this other person's allocation for
+
+482
+00:41:28,200 --> 00:41:30,910
+相同的名称和适用于某个名称的规则已经是Alec 
+the same name and the rules going to be
+well of a name is already Alec
+
+483
+00:41:30,910 --> 00:41:36,130
+您无法第二次被分配，块堆栈服务器将忽略此设置
+you can't be allocated a second time and
+the block stack servers will ignore this
+
+484
+00:41:36,130 --> 00:41:45,069
+试图注册一个名字，所以这里正在实施的是一种
+attempted registration of a name so
+what's being implemented here is a kind
+
+485
+00:41:45,069 --> 00:41:51,730
+先分配名字的先来先服务方案
+of first-come first-serve scheme for
+allocating names the first person to get
+
+486
+00:41:51,730 --> 00:41:59,349
+就那些分配记录而言，区块链赢得了这个名字
+a allocation record into the blockchain
+wins that name okay so as far as those
+
+487
+00:41:59,349 --> 00:42:04,150
+三个属性Zucco三角形属性分散了，因为
+three properties the Zucco triangle
+properties it's decentralized because
+
+488
+00:42:04,150 --> 00:42:08,349
+你知道我们可以，我们相信比特币是去中心化的， 
+you know we can uh we believe that
+bitcoin is be decentralized and there's
+
+489
+00:42:08,349 --> 00:42:13,180
+没有其他实体可以决定谁叫什么名字，实际上就是这样
+no sort of other entity deciding who
+gets what's name it's really just this
+
+490
+00:42:13,180 --> 00:42:18,730
+分散的先来先服务方案，名称可以是任何形式
+first-come first-served scheme that was
+decentralized the names can be anything
+
+491
+00:42:18,730 --> 00:42:22,539
+没有任何字符串，因此放置它们完全合理
+there's no any strings whatever so
+they're perfectly reasonable to put
+
+492
+00:42:22,539 --> 00:42:26,619
+这里的人类可读名称，每个人都在看相同的名称
+human readable names in here and
+everybody's looking at the same
+
+493
+00:42:26,619 --> 00:42:30,579
+区块链的任何名字，他们都看到他们都同意第一个
+blockchain for any name they all see
+they all agree on what the first
+
+494
+00:42:30,579 --> 00:42:37,150
+该名称的注册非常独特，因此具有全球意义
+registration of that name is so it's
+unique or globally meaningful as well so
+
+495
+00:42:37,150 --> 00:42:42,279
+囊囊实际上设法将所有这三个Zucco属性
+block sac has managed to actually get
+all three of these Zucco properties in
+
+496
+00:42:42,279 --> 00:42:45,730
+他们的命名系统存在一个问题，这是否意味着块堆栈
+their naming system there's a question
+does this mean that the block stack
+
+497
+00:42:45,730 --> 00:42:50,640
+服务器必须从头到尾扫描整个链，以添加新名称
+servers have to scan the entire chain
+from back to front for adding new names
+
+498
+00:42:50,640 --> 00:42:59,529
+是的，因此原则上可以确保名称数据库的状态确实是结果
+yeah so in principle sure the state of
+the name database is really the result
+
+499
+00:42:59,529 --> 00:43:02,529
+解释整个区块链的过程，但是您当然知道块栈
+of interpreting the whole blockchain but
+of course you know the block stack
+
+500
+00:43:02,529 --> 00:43:07,539
+服务器将兑现您所知道的最新状态的现金，因为这些
+servers will will cash you know cash the
+latest state they've seen and as these
+
+501
+00:43:07,539 --> 00:43:11,880
+在数据库中，以便每个块堆栈都是您知道的，也许他已经读完了
+in a database so each block stacks are
+you know maybe he's read this far and
+
+502
+00:43:11,880 --> 00:43:16,779
+比特币区块链并拥有一个数据库，该数据库具有每个数据库的当前映射
+Bitcoin blockchain and has a database
+that has the current mapping for every
+
+503
+00:43:16,779 --> 00:43:21,640
+在此之前的所有框中看到的名称，以及当他们看到比特币的新块时
+name seen in all the box before this and
+when they see a new block from Bitcoin
+
+504
+00:43:21,640 --> 00:43:25,750
+他们只会查看事务并逐步更新数据库
+they'll just look at the transactions
+and update their database incrementally
+
+505
+00:43:25,750 --> 00:43:29,589
+反映这些交易，从而使新的块堆栈服务器达到最高速度
+to reflect these transactions so getting
+a new block stack server up to speed
+
+506
+00:43:29,589 --> 00:43:34,059
+实际上确实需要相当长的时间，我想当我读过一些论文时说
+actually does take quite a long time and
+I think when some paper I read said it
+
+507
+00:43:34,059 --> 00:43:40,420
+可能要花费几天的时间，但是一旦您的区块堆栈服务器达到
+might take up to a couple of days um but
+once your block stack server is up to
+
+508
+00:43:40,420 --> 00:43:43,960
+速度，然后是各种增量添加
+speed then it's all sort of incremental
+additions after that
+
+509
+00:43:43,960 --> 00:43:48,950
+但您知道更重要的一点是， 
+but you know there's the larger point is
+that it is indeed the case that block
+
+510
+00:43:48,950 --> 00:43:54,920
+堆栈有点背负着比特币，并且您知道您可以轻易地争辩说
+stack is kind of piggybacking on Bitcoin
+and you know you could easily argue that
+
+511
+00:43:54,920 --> 00:44:00,559
+比特币最终不是很可扩展，还是使用了太多电力
+bitcoin is not very scalable ultimately
+or uses that too much electric power who
+
+512
+00:44:00,559 --> 00:44:05,780
+知道太慢需要很长时间才能反映出新交易和城市
+knows what too slow takes a long time to
+reflect new transactions and the cities
+
+513
+00:44:05,780 --> 00:44:09,440
+块堆栈是所有有点不受欢迎的属性
+are all sort of somewhat undesirable
+properties that block stack is
+
+514
+00:44:09,440 --> 00:44:17,270
+从比特币继承，但尽管如此，您知道它并不存在
+inheriting from Bitcoin but nevertheless
+you know it's not there's not aware of
+
+515
+00:44:17,270 --> 00:44:23,960
+另一种命名方式来获取Zuko的所有三个资产
+another way of getting all three of
+those Zuko's properties in a naming
+
+516
+00:44:23,960 --> 00:44:30,349
+系统，因此，如果您重视它们，那么您不会知道很多其他选择
+system so if you value them your options
+are not you know a lot of options other
+
+517
+00:44:30,349 --> 00:44:42,490
+比这种方法还好，所以我们可能会问自己这个命名方案是否
+than this approach okay so we may ask
+ourselves whether this naming scheme
+
+518
+00:44:42,490 --> 00:44:49,329
+这种将名称映射到公钥和位置以查找数据的方式，无论是
+this way of mapping names to public keys
+and places to find the data whether it's
+
+519
+00:44:49,329 --> 00:44:54,049
+它是否真的具有我们真正喜欢的属性，让我们回顾一下
+whether it really has properties that we
+actually like so let's go back over
+
+520
+00:44:54,049 --> 00:45:03,710
+这三个属性，因此名称在每个人中都是唯一的
+those three properties so one the the
+the names are unique everybody in this
+
+521
+00:45:03,710 --> 00:45:09,170
+系统同意我们的TM表示什么，实际上是全球含义的名称
+system agrees on what our TM means it's
+really that the names of global meaning
+
+522
+00:45:09,170 --> 00:45:13,730
+所以问题是我们是否在乎这一点是否很好
+so question is whether whether we care
+about this whether this is a good
+
+523
+00:45:13,730 --> 00:45:22,970
+属性，因此您知道其好处的一件事是它使
+property so one you know one thing on
+the plus side for this is that it makes
+
+524
+00:45:22,970 --> 00:45:27,309
+这些名字像这个人
+that having these names like this human
+
+525
+00:45:28,059 --> 00:45:34,190
+您知道拥有全球相关名称是否意味着我们可以交谈
+you know if that having globally
+relevant names means that we can talk
+
+526
+00:45:34,190 --> 00:45:37,640
+关于彼此的名称，我可以通过电子邮件给您发送一个名称，该名称将包含
+about names with each other I can email
+you a name and that name will have the
+
+527
+00:45:37,640 --> 00:45:41,059
+对您和对我来说含义相同，因为我们俩都会在
+same meaning for you as it does for me
+because we're both gonna look it up in
+
+528
+00:45:41,059 --> 00:45:46,670
+区块链并获得相同的结果，这很好，这也意味着我
+the blockchain and get the same result
+and so that's nice it also means that I
+
+529
+00:45:46,670 --> 00:45:51,079
+可以查看记录在访问控制列表中某处的名称
+can look at names that are recorded
+somewhere like in an access control list
+
+530
+00:45:51,079 --> 00:45:57,040
+并且有点了解知道他们会向我走什么
+and kind of understand know what they're
+going to me
+
+531
+00:46:04,650 --> 00:46:12,670
+但是有些事情可能不太重要，那就是如果您必须
+but some things that are maybe not so
+great about this is that if you have to
+
+532
+00:46:12,670 --> 00:46:15,759
+从一个全局池中选择您的名字，因为这就是我们正在做的
+choose your names from a single global
+pool because that's what we're doing
+
+533
+00:46:15,759 --> 00:46:21,279
+在这里，因为只有一个命名系统，所以只有一套
+here right the since there's just one
+naming system there's just one set of
+
+534
+00:46:21,279 --> 00:46:28,329
+名称，这意味着实际上很难看一个名字， 
+names it's gonna mean that it'll be
+actually hard to look at a name and
+
+535
+00:46:28,329 --> 00:46:31,869
+决定它是否是您想要的名字，就像我的名字可能实际上是我一样
+decide if it's the name you want like my
+name would actually probably be as I
+
+536
+00:46:31,869 --> 00:46:37,599
+提到之前，您可能知道您知道我们的TM 9五5 8 7 
+mentioned before you know maybe you know
+our TM nine five five eight seven
+
+537
+00:46:37,599 --> 00:46:41,740
+取决于我们的团队数量，所以这可能是我的名字，实际上
+depending on how many our teams are so
+this may be my name it's actually very
+
+538
+00:46:41,740 --> 00:46:47,019
+很难看清楚并决定您真正遇到的RTM是什么， 
+hard to look at that and decide is that
+the RTM that you really met and so that
+
+539
+00:46:47,019 --> 00:46:53,009
+确实破坏了人类的可读性
+really undermines the human readable
+
+540
+00:46:53,590 --> 00:46:58,220
+他们在这里拥有的财产越大，系统就是那种
+property that they have here
+the bigger the system is the kind of
+
+541
+00:46:58,220 --> 00:47:02,150
+具有人类可读名称的价值较低的只是麻省理工学院的人，也许
+less valuable having human readable
+names is just people at MIT and maybe
+
+542
+00:47:02,150 --> 00:47:05,930
+也许麻省理工学院只有一个罗伯特·莫里斯（Robert Morris），但实际上
+maybe there's only one Robert Morris at
+MIT although actually there's more than
+
+543
+00:47:05,930 --> 00:47:13,310
+一种，但在世界其他地方，这种关心的理由
+one but in other across the world the
+kind of justification for caring about
+
+544
+00:47:13,310 --> 00:47:19,520
+他们的名字是人类可读的，我猜是很苗条的
+what their names are human readable
+that's I guess is very slim it's also a
+
+545
+00:47:19,520 --> 00:47:24,890
+可读性可能取决于情况，因此如果您
+human readable can be deceptive
+depending on what's going on so if you
+
+546
+00:47:24,890 --> 00:47:34,220
+看到一个看起来像您知道麻省理工学院RTM的名称，如果您看到该名称，并且
+see a name that looks like you know RTM
+at MIT that edu if you see that name and
+
+547
+00:47:34,220 --> 00:47:38,450
+阻止堆栈或其他可能诱使它连接的东西
+block stack or something it's tempting
+to imagine that it might be connected to
+
+548
+00:47:38,450 --> 00:47:42,380
+该电子邮件地址没问题，因为它看起来像人类可读的外观
+that email address all right because it
+looks as human readable it like looks
+
+549
+00:47:42,380 --> 00:47:45,560
+就像它的意思一样，拥有人类可读的名称的全部要点是
+like it has meaning that's the whole
+point of having human readable names is
+
+550
+00:47:45,560 --> 00:47:50,060
+他们向人们暗示了这四个区块堆叠的意义
+that they kind of suggest meaning to
+people these four blocks stack that's
+
+551
+00:47:50,060 --> 00:47:54,230
+深深地误导了一个块堆栈，这些名称真的没有任何意义。 
+deeply misleading a block stack the
+names really don't mean anything it
+
+552
+00:47:54,230 --> 00:47:59,480
+只需先到先得，先知道这个名字，我们就能知道
+simply first-come first-serve so all we
+know all we can tell by seeing this name
+
+553
+00:47:59,480 --> 00:48:04,670
+麻省理工学院的团队从区块堆栈中吸引了您，这是这个名称的意思
+our team at MIT de ed you from block
+stack is that this is this name means
+
+554
+00:48:04,670 --> 00:48:09,320
+此名称的第一个人是指注册此名称的第一个人
+the first person this name refers to the
+first person who registered this name
+
+555
+00:48:09,320 --> 00:48:13,310
+这就是我们最初所知道的，也许是我可能是其他人，没有
+that's all we know initially it might be
+me might be somebody else there's no
+
+556
+00:48:13,310 --> 00:48:17,960
+有理由相信是我或者与MIT或其他任何事物有关
+reason to believe it's me or that it's
+associated with MIT or anything else all
+
+557
+00:48:17,960 --> 00:48:24,160
+我们知道，这个名称是由现在第一次注册的人拥有的，如果我
+we know is that this name is owned by
+whoever registered at first now if I
+
+558
+00:48:24,160 --> 00:48:30,110
+与拥有这个名字的人建立安全的电子邮件对话
+establish say secure email conversation
+with whoever owns this name you know
+
+559
+00:48:30,110 --> 00:48:34,490
+使用会把我们映射到的触发器的键，我花了一些时间与他们交谈
+using the key that flops that map's us
+to and I spend some time talking to them
+
+560
+00:48:34,490 --> 00:48:38,630
+你知道也许我最终可以说服自己，他们就是那个人
+you know maybe I can eventually
+convinced myself that they're the person
+
+561
+00:48:38,630 --> 00:48:43,010
+我认为他们是谁，但仅此名称就很有意义，但
+who I think they are but the name alone
+is looks like it's meaningful but
+
+562
+00:48:43,010 --> 00:48:47,780
+可能不是很有意义，这是人类的真正缺陷
+probably is not in fact very meaningful
+so that's a real defect in human
+
+563
+00:48:47,780 --> 00:48:52,780
+可读的名称可能有缺陷，并且
+readable names it could be defective and
+
+564
+00:48:53,110 --> 00:48:59,270
+您知道相关的SEC块命名方案无济于事
+you know related
+the block SEC naming scheme doesn't help
+
+565
+00:48:59,270 --> 00:49:04,220
+我发现我是否真的知道我想和谁聊天来阻止麻袋
+me find if if I sort of know who I want
+to talk to block sacks not really
+
+566
+00:49:04,220 --> 00:49:09,680
+帮助我会骗我想和你说话的人的名字
+helping me will fiying the name of the
+person I want to talk to you know I mean
+
+567
+00:49:09,680 --> 00:49:14,030
+也许您知道您想发送电子邮件给罗伯特·莫里斯，您知道这是
+maybe you know you want to send email to
+Robert Morris you know gosh this is
+
+568
+00:49:14,030 --> 00:49:18,290
+毫无帮助，这是块堆栈命名系统中唯一的东西
+deeply unhelpful and it's the only thing
+in the block stack naming system these
+
+569
+00:49:18,290 --> 00:49:24,110
+这样的名字，所以不一定解决问题
+names that are like this so it's really
+not necessarily solving the problem
+
+570
+00:49:24,110 --> 00:49:28,610
+人们知道，我知道我想与谁交谈
+people have which is I know I sort of
+know in my head who I want to talk to
+
+571
+00:49:28,610 --> 00:49:32,510
+但我也不知道他们的公钥，也不知道他们的块栈名称
+but I don't know their public key and I
+don't know their block stack name either
+
+572
+00:49:32,510 --> 00:49:39,560
+我如何找到他们的积木技术，所以这是该系统中的一种缺陷
+how do I find their blocks technique so
+that's a sort of a defect in this system
+
+573
+00:49:39,560 --> 00:49:42,920
+如果要使用块，您必须真的已经知道名称
+you have to really have to already know
+the name if you want to use blocks
+
+574
+00:49:42,920 --> 00:49:49,490
+命名方案，但如何找到这些名称，您可以选择其他选项
+naming scheme but how do you find those
+names some other options that you could
+
+575
+00:49:49,490 --> 00:49:55,400
+考虑命名，我在一个系统中属于较大的分散系统
+consider for naming I'm in a system the
+sort of larger decentralized system one
+
+576
+00:49:55,400 --> 00:49:59,270
+是我们可以只放弃人们不知道的人类可读名称
+is that we could just abandon names
+human readable names you know not try to
+
+577
+00:49:59,270 --> 00:50:03,890
+获得所有这三个Zucco属性，然后直接使用公钥，这样
+get all three of those Zucco properties
+and just use public keys directly so
+
+578
+00:50:03,890 --> 00:50:07,370
+这意味着如果我想与您互动，我需要找到您的公钥
+that would mean if I want to interact
+with you I need to find your public keys
+
+579
+00:50:07,370 --> 00:50:11,630
+也许您只是将其发送给我，也许您在告诉我一些信息
+somehow maybe you just send it to me
+maybe you tell me something over the
+
+580
+00:50:11,630 --> 00:50:15,830
+我可以用来获取您的公钥的电话，也许您向我发送了安全消息或
+phone I can use to get your public key
+maybe you send me a secure message or
+
+581
+00:50:15,830 --> 00:50:19,010
+用纸或其他东西写在我们身上，这样我们就可以直接使用public 
+write on us with the paper or something
+so we could just use directly use public
+
+582
+00:50:19,010 --> 00:50:22,250
+键，然后我们当然不必解决所有这些问题
+keys and then we wouldn't have to solve
+all these problems although of course
+
+583
+00:50:22,250 --> 00:50:27,380
+他们很尴尬，但也许我可以将我知道的公钥存储在我的
+they're awkward but maybe I can store
+the public keys I know about in my
+
+584
+00:50:27,380 --> 00:50:31,190
+个人联系人列表，它们将对您有所帮助，例如
+personal contact list and they'll be
+helpful be like telephone numbers of
+
+585
+00:50:31,190 --> 00:50:35,090
+电话号码没有任何意义，但是一旦我知道了您的电话号码，我就可以
+telephone numbers don't mean anything
+but once I know your phone number I can
+
+586
+00:50:35,090 --> 00:50:38,690
+将其保留在我的联系人列表中，另一种可能的方法是放弃
+stick it in my contact list another
+possible approach would be to abandon
+
+587
+00:50:38,690 --> 00:50:43,670
+去中心化的部分，然后尝试煮一些中央实体
+the decentralized part and just try to
+cook up some central entity that would
+
+588
+00:50:43,670 --> 00:50:49,040
+实际上可靠地验证您知道的某个集中实体的身份
+actually reliably verify identity that
+some centralized entity you know maybe
+
+589
+00:50:49,040 --> 00:50:54,200
+发放社会保险号的社会保险系统，或者您知道
+the Social Security system that hands
+out Social Security numbers or you know
+
+590
+00:50:54,200 --> 00:50:56,900
+出示驾驶执照的人是谁
+whoever it is that hands out driver's
+license or something and kind of
+
+591
+00:50:56,900 --> 00:51:04,440
+背负他们的工作以建立您的集中观念
+piggyback on their work to establish a
+centralized notion of you
+
+592
+00:51:04,440 --> 00:51:13,980
+任何种类的经过验证的名称实际上也非常困难，但是
+any kind of verified names that's
+actually remarkably difficult also but
+
+593
+00:51:13,980 --> 00:51:18,270
+你知道这是思考的另一条途径，所以块栈把这个
+you know it's another avenue to think
+about anyway so block stack took this
+
+594
+00:51:18,270 --> 00:51:29,190
+一种使名字正确的特殊方法，嗯，让我有点
+particular approach to try to get names
+all right um the let me just kind of
+
+595
+00:51:29,190 --> 00:51:34,530
+概述块堆栈中的棋子的大图，有点像
+outline the big picture of the pieces in
+block stack which is sort of a
+
+596
+00:51:34,530 --> 00:51:40,490
+我之前展示的去中心化应用程序图的改进
+refinement of the decentralized
+application diagram that I showed before
+
+597
+00:51:40,490 --> 00:51:46,190
+在底部，他们拥有不断变化的比特币系统
+sort of at the bottom they have this
+Bitcoin system that's chugging along
+
+598
+00:51:46,190 --> 00:51:55,200
+带有比特币区块，而这些区块对比特币来说是未知的
+with Bitcoin blocks and the carry along
+kind of unknown to Bitcoin these blocks
+
+599
+00:51:55,200 --> 00:52:02,180
+科技交易中，有一堆以块堆栈命名的系统服务器， 
+tech transactions there's a bunch of
+block stack naming system servers and
+
+600
+00:52:02,180 --> 00:52:07,410
+目前还不清楚他们是否打算让普通人来经营他们还是
+it's not really clear whether they
+intend ordinary people to run them or
+
+601
+00:52:07,410 --> 00:52:10,170
+他们将以对普通百姓最有意义的方式提供服务
+that they would be a service in a way it
+makes the most sense for ordinary people
+
+602
+00:52:10,170 --> 00:52:16,170
+在他们自己的笔记本电脑上运行它们，因为您必须信任它们，但这可能不会
+to run them on their own laptops because
+you have to trust them but that may not
+
+603
+00:52:16,170 --> 00:52:20,670
+无论如何，这些功能都很棒，例如命名服务服务器，请阅读
+be so great anyway these blocks like
+naming service servers read the
+
+604
+00:52:20,670 --> 00:52:27,510
+至少在第一个过程中，区块链和一种积累数据库的方式
+blockchain and kind of accumulate a
+database these at least in the first
+
+605
+00:52:27,510 --> 00:52:34,500
+例如，区块链中的区块链是公钥， 
+instance what's in block what's in the
+Bitcoin blockchain is public keys and
+
+606
+00:52:34,500 --> 00:52:41,640
+散列信息的加密散列，描述每个用户的位置
+the hash the cryptographic hash of
+information describing where each user
+
+607
+00:52:41,640 --> 00:52:47,910
+存储他们的数据，因为您可以存储该信息，这就是您
+stores their data because you could
+store that information this is just you
+
+608
+00:52:47,910 --> 00:52:56,250
+知道Artyom商店是Amazon AWS中的数据之类的东西，但是太大了，无法排序
+know Artyom stores is data in Amazon AWS
+or something but that's too big to sort
+
+609
+00:52:56,250 --> 00:53:00,089
+方便地存储比特币，所以有这种中间层
+of conveniently store Bitcoin and so
+there's this kind of intermediate layer
+
+610
+00:53:00,089 --> 00:53:09,180
+叫做Atlas，这确实是唯一的工作，就是将
+called Atlas it was really it's only job
+is to map hashes of information that are
+
+611
+00:53:09,180 --> 00:53:13,819
+藏起来，比特币进入这些自己的信息
+stashed and Bitcoin into these own
+information
+
+612
+00:53:15,320 --> 00:53:21,460
+每个用户一个人的记录，所以这意味着我知道我是否有RT M 
+one's own record per user and so that
+means that my you know if I have an RT M
+
+613
+00:53:21,460 --> 00:53:27,170
+带有散列的注册和箱钉我的区域记录刚刚有
+registration and box tack that holds
+with a hash my zone record this just has
+
+614
+00:53:27,170 --> 00:53:32,930
+名称或您知道的Internet地址或我存储我的位置的东西
+the name or the you know Internet
+address or something of where I store my
+
+615
+00:53:32,930 --> 00:53:40,070
+数据，所以可能是您知道AWS斜线知道我以前使用的任何标识符
+data so it might be you know AWS slash
+know whatever identifier I used to
+
+616
+00:53:40,070 --> 00:53:46,060
+唯一标识我存储在AWS中的内容，这实际上是对
+uniquely identify the stuff that I store
+in AWS and this is really a reference to
+
+617
+00:53:46,060 --> 00:53:57,470
+我的存储所在的位置我所有的键值对现在都存储在这里
+my where my storage sits where all my
+key value pairs are stored now the paper
+
+618
+00:53:57,470 --> 00:54:02,330
+我认为论文的愿景是您可以将您的区域记录指向
+I think the papers vision is that you be
+able to have your zone record point to
+
+619
+00:54:02,330 --> 00:54:06,890
+实际上，任何云存储都必须
+any cloud storage out there
+in fact the cloud storage system has to
+
+620
+00:54:06,890 --> 00:54:11,090
+您知道服从块堆栈接口，因此您不能只在
+you know obey the block stack interface
+and so you can't just use in the
+
+621
+00:54:11,090 --> 00:54:15,800
+现有的云存储系统，因此在实践中所有这些都指向
+existing cloud storage system so in
+practice these all point to block at the
+
+622
+00:54:15,800 --> 00:54:21,770
+这些区块在gaia伺服器上征税的那一刻，他们就运行这个，而这些仅仅是
+moment of these blocks tax on gaia
+servers they run this and these are just
+
+623
+00:54:21,770 --> 00:54:29,060
+知道不同块堆栈用户和存储的存储服务器
+storage servers that know about
+different block stack users and store
+
+624
+00:54:29,060 --> 00:54:33,050
+它们的键值对，这意味着我是否要从中读取您的数据
+their key value pairs for them and that
+means if i want to read your data out of
+
+625
+00:54:33,050 --> 00:54:36,110
+如果我在要读取您的数据的第二个应用程序中运行
+if i'm running in a block second
+application that wants to read your data
+
+626
+00:54:36,110 --> 00:54:41,480
+我需要以某种方式应用你的名字我得找到你的名字，也许你告诉我
+i need to apply your name somehow i
+gotta find your name maybe you tell me
+
+627
+00:54:41,480 --> 00:54:45,320
+通过电话输入您的名字我在使用的应用程序中输入您的名字
+your name over the phone i type your
+name into the application i'm using
+
+628
+00:54:45,320 --> 00:54:51,170
+也许是做这个经理，过去常常出去找你的待办事项
+maybe it's a to do this manager and used
+to go out and find your to do list items
+
+629
+00:54:51,170 --> 00:54:58,460
+告诉我我的应用程序将联系块堆栈命名系统服务器并询问
+to show me my app is gonna contact a
+block stack naming system server and ask
+
+630
+00:54:58,460 --> 00:55:03,200
+它翻译成你的名字，一直在看着它保持
+it to translate your name it's been
+watching the blockchain it keeps a
+
+631
+00:55:03,200 --> 00:55:08,600
+映射它知道如何使用哈希找到您的区域记录您的区域记录
+mapping it knows how to use the hash to
+find your zone record your zone record
+
+632
+00:55:08,600 --> 00:55:14,560
+指向您和Gaia拥有的一些数据，然后我的应用程序会获取这些数据
+points to some data owned by you and
+Gaia and then my app fetches this data
+
+633
+00:55:14,560 --> 00:55:21,020
+它需要验证数据，以便所有阻止活动的应用程序期望数据为
+it needs to verify the data so all
+blocks active apps expect data to be
+
+634
+00:55:21,020 --> 00:55:25,280
+由所有者在盖亚（Gaia）上签名并使用公钥在
+signed by the owner in Gaia and the
+public key to check your signature on
+
+635
+00:55:25,280 --> 00:55:29,769
+您知道的数据我可以使用您的公共密钥或嵌入的公共密钥
+the data you know I can use your public
+key or public keys embedded and
+
+636
+00:55:29,769 --> 00:55:36,140
+您的记录和比特币，所以我可以在我的应用程序中使用它，真的可以使用它来检查
+your record and Bitcoin and so I can use
+it to my app really can use it to check
+
+637
+00:55:36,140 --> 00:55:39,229
+这里的签名确保这是您实际生成的数据， 
+the signature here make sure that this
+is data that you actually produced and
+
+638
+00:55:39,229 --> 00:55:48,079
+不是一个不值得信赖的gaya服务器，所以这有点像
+not something that an untrustworthy gaya
+server okay so that's sort of a basic
+
+639
+00:55:48,079 --> 00:55:53,809
+它如何工作的概述，事实证明，将它们嵌入
+outline of how this works it it turns
+out that sort of embedding their
+
+640
+00:55:53,809 --> 00:56:00,130
+比特币区块链上的信息并不像我描述的那么简单
+information on the Bitcoin blockchain is
+not as straightforward as I described
+
+641
+00:56:00,130 --> 00:56:05,809
+他们有他们需要特别的努力来检测叉子
+they they have they need to take special
+efforts to detect Forks for example
+
+642
+00:56:05,809 --> 00:56:09,619
+因为它们无法到达名称服务器无法进入的区域
+because they don't get to the blocks
+that name servers don't sort of get to
+
+643
+00:56:09,619 --> 00:56:13,190
+直接意识到有一个叉子可以检测到它，我的意思是他们的意思是
+realize directly that there's been a
+fork that to detect it I mean they means
+
+644
+00:56:13,190 --> 00:56:20,930
+侦探团因为叉子可能是攻击的一部分，所以您知道比特币
+the detective cuz the fork might be part
+of an attack and you know the Bitcoin
+
+645
+00:56:20,930 --> 00:56:26,029
+不会为他们过滤掉不良记录，所以他们必须自己做， 
+isn't filtering out bad records for them
+and so they have to do their own and
+
+646
+00:56:26,029 --> 00:56:29,420
+将自己的规则强加给他们离开的记录，就像忽略重复记录
+force their own rules on the records
+they get out like ignoring duplicate
+
+647
+00:56:29,420 --> 00:56:34,489
+注册那里，他们还发现需要绘制图表以收取费用
+registrations there's they also turns
+out need to chart they charge fees for
+
+648
+00:56:34,489 --> 00:56:39,920
+注册一个名称，这意味着比特币交易即
+registering a name and that means that
+the Bitcoin transaction that is the
+
+649
+00:56:39,920 --> 00:56:44,479
+名称注册必须向所谓的烧录地址支付一些钱
+registration of a name has to pay some
+money to what's called a burn address
+
+650
+00:56:44,479 --> 00:56:49,369
+支付一些比特币当前的比特币到刻录地址，以便拥有正确的权利
+pay some Bitcoin current bitcoins to a
+burn address in order to have the right
+
+651
+00:56:49,369 --> 00:56:53,989
+注册该名称，并在以下位置实际检查块堆栈名称服务
+to register that name and the block
+stack name service actually checked at
+
+652
+00:56:53,989 --> 00:57:00,890
+每个名称注册交易确实向该烧录地址支付了足够的比特币
+each name registration transaction did
+pay enough Bitcoin to this burn address
+
+653
+00:57:00,890 --> 00:57:05,569
+它没有私钥，所以钱只会消失，其原因
+for which there's no private key so that
+money simply disappears and the reason
+
+654
+00:57:05,569 --> 00:57:10,460
+他们这样做是因为他们要求每一个名字注册都浪费一些
+they do this the reason why they require
+every name registration to waste some
+
+655
+00:57:10,460 --> 00:57:16,819
+钱是这样，否则不好的人只注册很多东西就太容易了
+money is that otherwise it's too easy
+for bad people to just register lots and
+
+656
+00:57:16,819 --> 00:57:21,319
+许多名称当然都具有域命名系统的经验
+lots of names like certainly the
+experience with the domain naming system
+
+657
+00:57:21,319 --> 00:57:24,920
+有一段时间，那些刚刚注册的人可以免费进行名称注册
+where for a while name registration was
+free those that people who just register
+
+658
+00:57:24,920 --> 00:57:30,109
+你知道每个人都知道两个字母和三个字母的组合
+you know every single you know one two
+and three letter combination that's
+
+659
+00:57:30,109 --> 00:57:34,670
+可能，他们不会免费拥有所有这些名称，也不会有人知道
+possible and they wouldn't own all these
+names for free or somebody knowing that
+
+660
+00:57:34,670 --> 00:57:41,060
+我真的很想拥有RTM可以在我之前注册的名称
+I would really like to own the name RTM
+might register before me
+
+661
+00:57:41,060 --> 00:57:44,690
+然后，如果我想使用它，我必须付钱给他们，以便尝试阻止
+and then if I wanted to use it I have to
+pay them so in order to try to deter
+
+662
+00:57:44,690 --> 00:57:50,420
+他们有他们需要收费，而这实际上是pulmo 
+that they have a they require fees and
+that's actually pulmo probably an
+
+663
+00:57:50,420 --> 00:57:55,070
+设计的重要部分，因为互联网上的免费内容往往是
+important part of of the design since
+free stuff on the internet tends to be
+
+664
+00:57:55,070 --> 00:57:59,540
+是的，容易被滥用或被淹死
+yeah
+tends to be abused or sort of drowned
+
+665
+00:57:59,540 --> 00:58:08,900
+在故意的垃圾邮件中删除了这张图片上的一个细节，所以我省去了
+out in intentional spam all right one
+detail on this picture so I left out the
+
+666
+00:58:08,900 --> 00:58:16,250
+这张图片中的爪子，我们让客户端计算机运行一些应用程序，这是
+claw in this picture we have the client
+machines running some app this is the
+
+667
+00:58:16,250 --> 00:58:26,270
+现在，当应用程序需要获取我的数据时，客户端设备获取所需的数据
+client device now when the app needs to
+get out my data get at my data it needs
+
+668
+00:58:26,270 --> 00:58:32,330
+以便每当将数据写入我的应用程序时将其解密
+to be able to decrypt it whenever it
+writes data into my guys storage my app
+
+669
+00:58:32,330 --> 00:58:36,620
+需要能够最终使用我的私钥对其进行加密
+needs to be able to encrypt it
+ultimately using my private key and when
+
+670
+00:58:36,620 --> 00:58:40,790
+我将数据取回很不错，以便最终也能以一种方式解密
+I fetch data back it nice to be able to
+decrypt it also ultimately one way or
+
+671
+00:58:40,790 --> 00:58:44,390
+另一个使用我的私钥，因此这些应用程序需要使用私钥
+another using my private key so these
+applications need to get at private keys
+
+672
+00:58:44,390 --> 00:58:50,900
+但私钥对超级duper敏感，而这些应用是
+but private keys are super duper
+sensitive and whereas these apps are
+
+673
+00:58:50,900 --> 00:58:54,770
+就是我从区块堆栈应用商店下载的任何垃圾，甚至可能
+just whatever junk I downloaded from the
+block stack app store and possibly
+
+674
+00:58:54,770 --> 00:58:59,540
+完全不可信，所以我们永远都不想给他们一个私钥，所以
+totally untrustworthy so we never want
+to give them a private key so what
+
+675
+00:58:59,540 --> 00:59:04,550
+实际发生的是，我一直在运行一个单独的程序
+actually happens is that there's a
+separate program that I'm always running
+
+676
+00:59:04,550 --> 00:59:14,970
+叫做块堆栈浏览器，它是这个程序
+called the block stack browser and it's
+this program
+
+677
+00:59:14,970 --> 00:59:19,830
+知道我的私钥，因此，如果该应用程序想像我一样做事， 
+that knows my private key and so if the
+app wants to do stuff as me is really
+
+678
+00:59:19,830 --> 00:59:25,110
+首先要通过块堆栈浏览器来完成它，实际上是这样
+got to first do it through the block
+stack browser and in fact the way this
+
+679
+00:59:25,110 --> 00:59:29,370
+地方有这么复杂，块样式浏览器实质上组成
+place has so complicated in detail the
+block style browser essentially makes up
+
+680
+00:59:29,370 --> 00:59:35,520
+该应用中每个应用的私钥类型仅使用每个应用的私钥和
+kind of per app private key in this app
+uses just the per app private key and
+
+681
+00:59:35,520 --> 00:59:39,990
+不是我真正的主密钥，所以这个应用程序再也不了解我
+not my real sort of master private key
+so this app again doesn't get to know my
+
+682
+00:59:39,990 --> 00:59:45,860
+真正的私钥，但是这个问题并未向
+real private key but this issue of not
+revealing sensitive key material to the
+
+683
+00:59:45,860 --> 00:59:51,750
+这些应用程序作为一个重要的细节可能确实不值得信赖， 
+these apps which may be indeed quite
+untrustworthy as an important detail and
+
+684
+00:59:51,750 --> 00:59:57,300
+现在可以将有关我的主私钥的秘密保留在私钥主题上的块
+blocks that keeps my master private key
+secret now on the topic of private keys
+
+685
+00:59:57,300 --> 01:00:03,990
+基本上每个您知道的系统（如比特币本身）都存在一个弱点
+a weakness in essentially every system
+you know like Bitcoin itself and block
+
+686
+01:00:03,990 --> 01:00:11,310
+堆栈，这也是用户倾向于不像应该注意的那样谨慎
+stack and also is that users tend not to
+be as careful as they ought to be about
+
+687
+01:00:11,310 --> 01:00:16,140
+私钥，我是吗，我知道我是否要使用手机中的块堆栈吗
+private keys so am i you know if I'm
+gonna use block stack from my phone you
+
+688
+01:00:16,140 --> 01:00:21,990
+知道，这意味着如果我将手机留在手机中，则手机必须知道我的私钥。 
+know that means my phone has to know my
+private key if I leave my phone in the
+
+689
+01:00:21,990 --> 01:00:26,250
+自助餐厅然后找到它的人现在都有设备
+cafeteria
+then whoever finds it now has a device
+
+690
+01:00:26,250 --> 01:00:30,450
+里面有我的私钥，可以像我一样做任何事情，因为到目前为止
+that has my private key in it and can do
+anything as me because as far as block
+
+691
+01:00:30,450 --> 01:00:36,210
+攻击担心他们是我，他们知道我的私钥用户也倾向于
+attack is concerned they are me they
+know my private key users also tend to
+
+692
+01:00:36,210 --> 01:00:42,120
+丢失私钥，您知道我一段时间不使用该服务
+lose private keys you know I don't use
+the service for a little while you know
+
+693
+01:00:42,120 --> 01:00:45,660
+我忘记了保护个人隐私的任何密码短语
+I forget whatever passphrase it was for
+example that was protecting the private
+
+694
+01:00:45,660 --> 01:00:49,980
+密钥，或者我将私钥放在USB某人的某处，密钥用于
+key or I put my private key on a USB
+someone key from somewhere for
+
+695
+01:00:49,980 --> 01:00:56,100
+妥善保管然后丢失USB密钥，这完全是常规问题， 
+safekeeping and then lose the USB key so
+that's completely routine problem that
+
+696
+01:00:56,100 --> 01:01:01,620
+用户拥有并阻止攻击实际上并不能真正解决这些问题
+users have and block attack actually
+does not really have an answer to these
+
+697
+01:01:01,620 --> 01:01:05,910
+我非常假设问题是用户将对自己的隐私保持谨慎
+questions I'm a pretty much assume the
+users will be careful of their private
+
+698
+01:01:05,910 --> 01:01:10,950
+密钥，如果丢失了私钥块，将无法为您找回
+keys and if you lose your private key
+blocks that can't get it back for you
+
+699
+01:01:10,950 --> 01:01:14,550
+就像是为了确保超级安全，如果您不必
+it's like it's in order to be super
+secure in order if you're not to have to
+
+700
+01:01:14,550 --> 01:01:18,780
+如果您丢失客户端，则只有您的客户端知道您的私钥才能创建信任块堆栈
+trust block stack only your client knows
+your private key if you lose your client
+
+701
+01:01:18,780 --> 01:01:24,940
+我们忘记了您是什么意思，您完全不知道
+we forget your what are the
+phrases you're just completely out of
+
+702
+01:01:24,940 --> 01:01:31,210
+运气和障碍无法帮助您，所以这实际上是一个困难
+luck and blocks that can't help you and
+so this is just a difficulty in real
+
+703
+01:01:31,210 --> 01:01:37,060
+生活中人们不希望使用脆弱且现实生活中的系统
+life people don't want to use systems
+that are that brittle and in real life
+
+704
+01:01:37,060 --> 01:01:40,420
+最终发生的是，即使您知道严重的系统
+what ends up happening is that even
+systems that have you know serious
+
+705
+01:01:40,420 --> 01:01:46,030
+密码学通常有某种密钥检索方案，因此我可以搅动
+cryptography usually have some sort of
+key retrieval scheme whereby I can stir
+
+706
+01:01:46,030 --> 01:01:51,010
+我可以告诉一个大堆的东西，也许是我母亲的娘家姓，或者你知道他们
+something I can tell a block stack maybe
+my mother's maiden name or you know they
+
+707
+01:01:51,010 --> 01:01:55,480
+给我发短信到我的电话或任何我可以使用的方案
+send me an SMS thing to my telephone or
+whatever some scheme I can use to
+
+708
+01:01:55,480 --> 01:02:02,440
+恢复我的私钥，如果您想攻击系统，通常是
+recover my private key and those if you
+want to attack a system it's often the
+
+709
+01:02:02,440 --> 01:02:06,880
+最简单的系统密钥恢复方面的密码恢复
+password recovery of the key recovery
+aspect of the system that's the easiest
+
+710
+01:02:06,880 --> 01:02:10,960
+攻击我只是叫一个筹码堆我说我告诉他们你知道我
+to attack I just call a block stack I
+said I said tell them you know I'm
+
+711
+01:02:10,960 --> 01:02:15,310
+真的我是罗伯特·莫里斯（Robert Morris），您必须相信我，请您知道我们说过
+really I'm Robert Morris you got to
+believe me please you know we said
+
+712
+01:02:15,310 --> 01:02:17,620
+罗伯特·莫里斯（Robert Morris），这对我来说是密码的关键
+Robert Morris it's key for me your
+password
+
+713
+01:02:17,620 --> 01:02:22,870
+罗曼告诉我新密码，如果我足够说服您知道的话， 
+nah man tell me the new password and if
+I'm convincing enough you know and the
+
+714
+01:02:22,870 --> 01:02:29,500
+系统允许Hebe设置他们要让我拥有它，而且他们可能也是
+system allows Hebe sets they're gonna
+let me have it and they're probably also
+
+715
+01:02:29,500 --> 01:02:32,620
+大概是攻击者真的在打电话并假装是我
+presumably if it's an attacker really
+who is calling and pretending to be me
+
+716
+01:02:32,620 --> 01:02:38,110
+他们会让攻击者重置密钥或任何阻止的密码
+they'll let the attacker reset the
+password of the key or whatever blocks
+
+717
+01:02:38,110 --> 01:02:41,680
+碰巧不允许这样做，因为它显然是不安全的，但却是真实的
+that happens not to allow that because
+it's so obviously insecure but real
+
+718
+01:02:41,680 --> 01:02:49,060
+世界系统，如果他们不希望其用户放弃他们，则需要拥有一个
+world systems if they don't want their
+users to abandon them need to have a
+
+719
+01:02:49,060 --> 01:02:57,180
+更好的计划，还不清楚如何使它更好
+better plan and it's not clear how to
+make that better all right
+
+720
+01:03:01,549 --> 01:03:07,839
+好吧，有几种
+all right there's a couple of sort of
+
+721
+01:03:08,890 --> 01:03:14,749
+我想谈论的问题对我来说是系统中的问题
+issues I want to talk about that come up
+in the system for me the block stack is
+
+722
+01:03:14,749 --> 01:03:21,619
+确实是一种需要思考的问题源，甚至是
+really a kind of source of questions to
+think about or even kind of things that
+
+723
+01:03:21,619 --> 01:03:28,189
+您不太了解您所知道的建议，可用于更多需要处理的事情
+are not really well you know suggestions
+for use for more things to work on you
+
+724
+01:03:28,189 --> 01:03:31,579
+知道阻止美国证券交易委员会，我认为现在的性行为是
+know block SEC I think black sex
+situation now is that you probably
+
+725
+01:03:31,579 --> 01:03:38,140
+实际上并不想使用它为真实用户构建真实系统，但是
+wouldn't actually want to use it to
+build a real system for real users but
+
+726
+01:03:38,140 --> 01:03:42,409
+这是一种尝试，为有朝一日可能足够的系统指明方向
+it's kind of trying to point the way to
+a system that might someday be if enough
+
+727
+01:03:42,409 --> 01:03:45,679
+聪明才智投入其中
+cleverness was put into it enough
+development was done on it might
+
+728
+01:03:45,679 --> 01:03:50,749
+实际上是一个既方便程序员又方便
+actually be a system that was both
+convenient for programmers and actually
+
+729
+01:03:50,749 --> 01:03:54,739
+为用户提供了一些真正的价值，但可能还没有，但是它的入口
+provided some real value for users but
+probably not there yet but its entrance
+
+730
+01:03:54,739 --> 01:03:58,759
+想一想，您知道如何设计不同或更好的顺序
+to think about you know how it could be
+designed differently or better in order
+
+731
+01:03:58,759 --> 01:04:05,749
+使它更接近真正有用的东西，所以一个问题
+to kind of get it closer to something
+that were really useful so one question
+
+732
+01:04:05,749 --> 01:04:08,719
+在to的上下文中，您可能特别想知道是否块堆栈
+you might have especially in the context
+of a to for is whether block stack
+
+733
+01:04:08,719 --> 01:04:13,309
+真的需要像这样使用比特币真的不，你不知道
+really needs to use Bitcoin like that
+points really not you know not that
+
+734
+01:04:13,309 --> 01:04:20,449
+注册您知道的名称时，您所要支付的费用不菲
+great the fees that you have to pay you
+know to register a name you know vary in
+
+735
+01:04:20,449 --> 01:04:26,719
+比特币的价值由以下因素决定：几乎每晚通宵都在
+value in Bitcoin by factors of you know
+100 almost every night overnight at
+
+736
+01:04:26,719 --> 01:04:31,399
+此外，人们真的像使用比特币的方式
+times in addition people really down the
+way like the way Bitcoin you uses
+
+737
+01:04:31,399 --> 01:04:37,069
+为了确保CPU的安全而消耗CPU的工作量证明，所以您知道比特币不是
+proof-of-work to burn up CPU in order to
+be secure so you know Bitcoin is not
+
+738
+01:04:37,069 --> 01:04:40,969
+完美，尽管它是系统的重要组成部分
+perfect although it's kind of an
+important part of the system otherwise
+
+739
+01:04:40,969 --> 01:04:44,599
+他们不知道他们不清楚如何在没有名字的情况下命名
+they couldn't you know they it's not
+clear how they would do names without
+
+740
+01:04:44,599 --> 01:04:49,309
+整个比特币搭配，所以一个问题，您可能会有八到四个
+this whole Bitcoin tie-in and so one
+question you might have eight to four is
+
+741
+01:04:49,309 --> 01:04:54,529
+我是否是证书透明性您知道我们上次看过它
+whether I'm certificate transparency
+which is a you know we looked at it last
+
+742
+01:04:54,529 --> 01:04:58,909
+周证书透明度没有采矿没有工作证明
+week a certificate transparency does not
+have mining does not have proof of work
+
+743
+01:04:58,909 --> 01:05:04,369
+但是您知道它足够强大，可以在命名系统中提供帮助，因此
+and yet you know it's powerful enough to
+be helpful in a naming system and so
+
+744
+01:05:04,369 --> 01:05:09,109
+问题是是否谈到比特币是否可以使用某些东西的盒子
+question is whether said of Bitcoin
+whether box that could use something
+
+745
+01:05:09,109 --> 01:05:14,919
+像证书透明度那样
+like certificate transparency not in
+order to
+
+746
+01:05:14,930 --> 01:05:21,210
+实施关于名称的适当规则，但实际上不知道答案
+enforce adequate rules about names and
+actually don't know the answer to that
+
+747
+01:05:21,210 --> 01:05:28,020
+我的猜测是答案是否定的我的感觉是，尽管证书透明
+my guess is the answer's no my feeling
+is that while certificate transparency
+
+748
+01:05:28,020 --> 01:05:35,160
+可以揭示冲突或冲突确实是对注册相同名称的人的一种
+can reveal conflicts or conflicts really
+is a to people registering the same name
+
+749
+01:05:35,160 --> 01:05:39,330
+例如，如果您要求所有人将其姓名注册提交给
+like if you required everybody to submit
+their name registrations to a
+
+750
+01:05:39,330 --> 01:05:43,530
+证书透明日志是的，的确可以看到两个人
+certificate transparency log yes indeed
+you would be able to see that two people
+
+751
+01:05:43,530 --> 01:05:47,430
+注册了相同的名称，但证书透明度无法解决
+had registered the same name but
+certificate transparency doesn't resolve
+
+752
+01:05:47,430 --> 01:05:51,720
+所有权冲突，所以如果我注册RT，您应该知道去年我
+ownership conflicts so if I register RT
+you know supposedly last year I
+
+753
+01:05:51,720 --> 01:05:55,740
+注册了RT M，第二年我一直在愉快地使用它，然后
+registered RT M and I've been using it
+happily for the next year and then
+
+754
+01:05:55,740 --> 01:06:01,400
+有人今天注册了RT M是的，您知道他们会提交他们的
+somebody else registers RT M today yeah
+you know they'll submit their
+
+755
+01:06:01,400 --> 01:06:06,780
+注册到证书透明度日志，所以现在也许
+registration to a certificate
+transparency log and so now maybe that
+
+756
+01:06:06,780 --> 01:06:12,240
+将使我的名字无法使用或其他名称，但是尚不清楚谁应该拥有
+will make my name unusable or something
+but it's not clear really who should own
+
+757
+01:06:12,240 --> 01:06:15,420
+名称，因为证书透明性不是很强大
+the name because certificate
+transparency doesn't have very powerful
+
+758
+01:06:15,420 --> 01:06:21,780
+解决这些冲突的机制，您可能会认为顺序是
+mechanisms for resolving these conflicts
+you might think that order would be
+
+759
+01:06:21,780 --> 01:06:26,670
+足够但相同的记录和不同的证书透明度日志
+enough but the same records and
+different certificate transparency logs
+
+760
+01:06:26,670 --> 01:06:29,700
+可以有不同的顺序，因为没有什么可以强迫不同的
+can have different order because there's
+nothing forcing the different
+
+761
+01:06:29,700 --> 01:06:37,260
+透明度日志具有完全相同的顺序，如果您想知道如何
+transparency logs to to have exactly the
+same order and if you want you know how
+
+762
+01:06:37,260 --> 01:06:41,340
+比特币可以强制执行您要添加相同顺序的每个区块副本
+come Bitcoin can enforce every replica
+of the blocks you'd add the same order I
+
+763
+01:06:41,340 --> 01:06:46,410
+相信答案确实归结为比特币挖矿比特币挖矿
+believe the answer to that really boils
+down to bitcoins mining bitcoins mining
+
+764
+01:06:46,410 --> 01:06:52,610
+解决Forks的问题解决延迟区块链的副本和
+that resolves Forks it resolves
+deferring copies the blockchain and
+
+765
+01:06:52,610 --> 01:06:57,060
+强制达成协议，如果您不进行采矿，至少您知道或有所了解
+forces agreement and if you don't do
+mining at least you know or something
+
+766
+01:06:57,060 --> 01:07:03,600
+像挖掘一样，不清楚如何在订单上添加强制协议
+like mining it's it's not that clear how
+to add a enforce agreement on the order
+
+767
+01:07:03,600 --> 01:07:13,050
+的记录，所以另外，块堆栈收费可能是
+of the records so in addition the fees
+the block stack charges are probably
+
+768
+01:07:13,050 --> 01:07:18,480
+避免在命名系统中出现各种垃圾邮件的关键
+critical to avoid various kinds of spam
+in the naming system various kinds of
+
+769
+01:07:18,480 --> 01:07:22,320
+滥用，您知道基于比特币构建的区块堆栈可以自动进行排序
+abuse and you know block stack built on
+Bitcoin can sort of automatically
+
+770
+01:07:22,320 --> 01:07:25,770
+要求人们付款以注册基于证书透明性的块堆栈
+require people to pay to register block
+stack built on certificate transparency
+
+771
+01:07:25,770 --> 01:07:31,390
+你知道没有直接的机制需要
+you know
+there's no direct mechanism to require
+
+772
+01:07:31,390 --> 01:07:38,380
+费用，实际上，我认为这里的要点实际上更大了， 
+fees and in fact that I think the point
+here is actually quite a bit larger and
+
+773
+01:07:38,380 --> 01:07:45,070
+那就是很多人谈论使用区块链处理很多东西
+that's that a lot of people talk about
+using blockchains for lots of stuff
+
+774
+01:07:45,070 --> 01:07:51,010
+除了加密货币，但实际上似乎很难使用开放式区块链
+other than cryptocurrency but in fact it
+seems difficult to use blockchains open
+
+775
+01:07:51,010 --> 01:07:57,220
+具有不受限制的访问权限的区块链，除非它们与某些
+block chains with unrestricted access
+except when they're coupled with some
+
+776
+01:07:57,220 --> 01:08:01,540
+那种加密汽车加密货币再次我不知道
+kind of crypto car
+cryptocurrency again I don't know if
+
+777
+01:08:01,540 --> 01:08:07,150
+没错，但这肯定是我的印象，所以是一个大问题
+that's true but it's certainly my
+impression all right so a big question
+
+778
+01:08:07,150 --> 01:08:12,160
+块堆栈是它是否对程序员和
+with block stack is whether it's going
+to be convenient for programmers and to
+
+779
+01:08:12,160 --> 01:08:18,970
+我这个问题绝对关键，因为它是两个非常重要的问题之一
+me the this questions absolutely
+critical because it's one of two very
+
+780
+01:08:18,970 --> 01:08:22,359
+另一个关键问题是另一个问题
+critical questions the other one is the
+other critical question is whether it
+
+781
+01:08:22,359 --> 01:08:32,019
+让用户生活得更好我目前的看法是
+
+782
+01:08:32,020 --> 01:08:36,370
+框AK对于程序员来说并不是特别方便，我认为我已经使用块
+box AK is not particularly convenient
+for programmers I think I've used block
+
+783
+01:08:36,370 --> 01:08:41,950
+堆栈一个程序块堆栈，我尝试构建系统来喜欢它，而且我很坚强
+stack a program block stack I've tried
+to build system to like it and my strong
+
+784
+01:08:41,950 --> 01:08:45,910
+印象是，在其上构建Web应用程序要困难得多
+impression is that it's just a lot more
+difficult to build a web application on
+
+785
+01:08:45,910 --> 01:08:51,069
+这些分散式平台之一，而不是普通平台， 
+one of these decentralized platforms
+than it is on the ordinary platform and
+
+786
+01:08:51,069 --> 01:08:55,059
+您知道这是一种破坏，因为如果网站开发人员不在
+
+787
+01:08:55,060 --> 01:09:00,010
+董事会，那么没有人会得到很大的吸引力，如果网站开发人员
+board then nobody's gonna get a lot of
+traction and if the website developers
+
+788
+01:09:00,010 --> 01:09:05,830
+不喜欢您知道我有点觉得系统难以编程
+don't like you know I sort of feel that
+the system is difficult to program the
+
+789
+01:09:05,830 --> 01:09:10,149
+唯一吸引您的方法就是吸引用户
+only way that you're ever gonna get any
+traction is if the attraction to users
+
+790
+01:09:10,149 --> 01:09:15,909
+如此强大以至于您知道用户需要分散的应用程序，并且
+
+791
+01:09:15,910 --> 01:09:20,229
+这可能会迫使程序员使用它，但是程序员只是在说
+that might force programmers to use it
+but the programmers just speaking for
+
+792
+01:09:20,229 --> 01:09:25,449
+我自己的猜测是，基本上所有
+
+793
+01:09:25,450 --> 01:09:29,770
+代码位于客户端中，我们没有特别的网站，您知道
+code is sitting in the client and we
+don't have special you know website
+
+794
+01:09:29,770 --> 01:09:34,960
+服务器非常痛苦，很难拥有特定于
+servers is just pretty painful it's hard
+to have data that's specific to the
+
+795
+01:09:34,960 --> 01:09:40,000
+应用程序，因为所有数据都归用户所有，所以很难拥有索引，否则您
+application because all data is owned by
+users it's hard to have indices or you
+
+796
+01:09:40,000 --> 01:09:44,380
+知道喜欢的次数或投票，您知道首页排名的种类
+know counts of likes or vote
+you know the kind of front page rankings
+
+797
+01:09:44,380 --> 01:09:47,710
+正如我在Reddit或黑客新闻中提到的那样，很难，有各种各样的东西
+as I mentioned for reddit or hacker news
+are difficult there's all kinds of stuff
+
+798
+01:09:47,710 --> 01:09:53,080
+如果您对网站本身及其网站的概念一无所知，那将是一个痛苦。 
+it's a pain if you don't have a notion a
+notion of the website itself with its
+
+799
+01:09:53,080 --> 01:10:01,990
+拥有数据，访问控制实际上同样令人痛苦，这非常容易
+own data this the access control is
+actually equally painful it's very easy
+
+800
+01:10:01,990 --> 01:10:05,020
+编写代码和传统网站来决定谁可以看到什么
+to write the code and a traditional
+website to decide who gets to see what
+
+801
+01:10:05,020 --> 01:10:09,550
+分散系统中的数据，实际上您只能使用
+data in a decentralized system and
+really you only can be enforced using
+
+802
+01:10:09,550 --> 01:10:14,230
+密码访问控制或这些就是示例中显示的方式
+cryptographic access control or these
+that's the way it seems from the example
+
+803
+01:10:14,230 --> 01:10:20,050
+一个块栈，除了非常简单的样子
+a block stack and it just turns out for
+all except for very straightforward like
+
+804
+01:10:20,050 --> 01:10:24,010
+一名用户使用加密技术使用自己的私人数据来强制访问
+one user using their own private data
+using cryptography to enforce access
+
+805
+01:10:24,010 --> 01:10:28,800
+好吧，那真的很痛苦
+well it's just pretty painful
+
+806
+01:10:29,430 --> 01:10:36,280
+所以程序员可能只会在用户兴奋的情况下才会兴奋，因此我们的用户会
+so programmers might only be excited if
+users were excited so our users gonna be
+
+807
+01:10:36,280 --> 01:10:41,110
+兴奋，您知道一种看待该问题的方法是
+excited you know one way to look at that
+one way to ask that question is whether
+
+808
+01:10:41,110 --> 01:10:46,870
+这种分散使用自己的存储空间有利于用户隐私，因为
+this kind of decentralized use your own
+storage is good for user privacy because
+
+809
+01:10:46,870 --> 01:10:52,600
+最大的亮点之一是，通过将数据存储在存储服务上， 
+that's one of the big pitches is that by
+storing data on storage services the
+
+810
+01:10:52,600 --> 01:10:56,890
+用户拥有并为您付款，这也许会使数据更私密
+users own and pay for you know maybe
+that'll keep the data more private more
+
+811
+01:10:56,890 --> 01:11:02,800
+比将其数据存储在网站上更安全，所以我真正要问的是
+secure than storing their data on
+websites so that really am I asking is a
+
+812
+01:11:02,800 --> 01:11:09,090
+比信任Facebook或Google更好地保护我的数据不受保护
+better than trusting Facebook or Google
+to keep my data private both from
+
+813
+01:11:09,090 --> 01:11:13,330
+ Facebook员工以及网站其他用户和黑客
+Facebook employees and from other users
+of the site and from hackers you might
+
+814
+01:11:13,330 --> 01:11:20,140
+尝试闯入，这只是一个问题，你知道这取决于
+try to break in and that's just a
+question right you know sort of depends
+
+815
+01:11:20,140 --> 01:11:23,230
+您对Facebook的信任程度如何，事实是您仍在存储数据
+on how much you trust Facebook the fact
+is that you're still storing your data
+
+816
+01:11:23,230 --> 01:11:30,310
+在云上使用某些服务，也许不是Facebook，而您仍然
+out there in the cloud on some service
+just maybe not Facebook and you're still
+
+817
+01:11:30,310 --> 01:11:36,280
+在您的客户端上运行大概由Facebook提供给您的软件
+running software on your client that is
+presumably provided to you by Facebook
+
+818
+01:11:36,280 --> 01:11:42,010
+所以您正在运行Facebook软件，而您的客户端则知道是这样，因此您正在
+so you're running Facebook software and
+your client you know it's so you're
+
+819
+01:11:42,010 --> 01:11:46,150
+还是有点相信这个，facebook给您或任何地方的这段代码
+still kind of trusting this this this
+code that facebook gives you or wherever
+
+820
+01:11:46,150 --> 01:11:51,040
+您从中获取代码，并且您知道我们中间真正的黑客， 
+you get your code from and you know for
+the real hackers among us you can look
+
+821
+01:11:51,040 --> 01:11:53,770
+在代码上并说服自己，因为您是自己运行它
+at the code and convince yourself
+because you're running it on your own
+
+822
+01:11:53,770 --> 01:11:57,960
+电脑，可以满足自己的需求，但是对于普通大众
+computer and can meet yourself
+okay but for the general public you know
+
+823
+01:11:57,960 --> 01:12:01,530
+在他们的网站上与Facebook的网络软件交谈之间的区别
+the difference between talking to
+Facebook's web software on their web
+
+824
+01:12:01,530 --> 01:12:05,610
+服务器和我名字的Facebook软件以及他们自己的客户端可能看起来不太
+server and my name's Facebook software
+and their own client may not seem very
+
+825
+01:12:05,610 --> 01:12:11,700
+太好了，谁知道您正在运行的Facebook应用正在发送
+great and who knows maybe the Facebook
+app you're running is sort of sending
+
+826
+01:12:11,700 --> 01:12:16,680
+有关您要监视您的活动的Facebook信息存在一个问题
+Facebook information about what you're
+up to snooping on you there's a question
+
+827
+01:12:16,680 --> 01:12:21,630
+关于明智的密码访问控制使程序员感到痛苦，这是一种方法
+about wise cryptographic access control
+painful for programmers um one way of
+
+828
+01:12:21,630 --> 01:12:26,190
+看它是访问控制检查您必须做的一种
+looking at it is that the access control
+checks that you have to do in a sort of
+
+829
+01:12:26,190 --> 01:12:28,950
+标准的网站非常简单，您只需写一点
+standard web site are very
+straightforward you just write a little
+
+830
+01:12:28,950 --> 01:12:33,330
+一点Python代码，或者决定是否应该有一些用户能够使用的代码
+bit of Python code or whatever it is to
+decide whether some user should be able
+
+831
+01:12:33,330 --> 01:12:36,780
+查看一些数据，甚至可以使用用户
+to see some data and you can even
+compute using data that the user
+
+832
+01:12:36,780 --> 01:12:40,370
+只要您不向用户显示，就不会看到
+shouldn't see as long as you don't
+reveal it to the user
+
+833
+01:12:40,370 --> 01:12:50,480
+而在除了简单情况之外的任何情况下，都需要对
+whereas in anything but simple
+situations doing the cryptography to
+
+834
+01:12:50,480 --> 01:12:56,040
+允许一些用户但不能让其他用户获取您的数据，这只需要很多
+allow some users but not others to get
+out your data it just requires a lot
+
+835
+01:12:56,040 --> 01:13:02,190
+再想一想，所以您知道麻省理工学院注册商会维护所有
+more thought so you know suppose the MIT
+registrar maintains a list of all the
+
+836
+01:13:02,190 --> 01:13:08,430
+人们参加8到4的比赛，如果是这样的话，他们会维持这个名单，而我
+people taking 8 to 4 and if so as a
+group so they maintain that list and I
+
+837
+01:13:08,430 --> 01:13:14,180
+想要使用它来管理对存储在其中的某些文件的保护
+want to use it in order to govern the
+protections for some file stored in
+
+838
+01:13:14,180 --> 01:13:18,660
+具有密码保护和块堆栈的，因为它列出了
+Krypton with cryptographic protection
+and block stack because that lists that
+
+839
+01:13:18,660 --> 01:13:24,150
+八到四个学生的小组名单可能会改变，您知道我的工作
+group list of eight to four students may
+change you know the what I do for
+
+840
+01:13:24,150 --> 01:13:31,470
+加密可能也必须更改，所以我知道是否加密我可以加密
+encryption may have to change too so I
+you know if I encrypt I could encrypt
+
+841
+01:13:31,470 --> 01:13:37,590
+用a至4组列表中的每个用户的密钥对数据进行一次处理，然后
+the data once with the key of each user
+in the a to four group list and that
+
+842
+01:13:37,590 --> 01:13:42,180
+之所以能够工作，是因为他们可以读取为他们加密的副本，但是
+would work because they could just read
+the copy that was encrypted for them but
+
+843
+01:13:42,180 --> 01:13:45,840
+然后在添加用户时，注册服务商将列表更改为或删除
+then as users are added that the
+Registrar changes the list as or deletes
+
+844
+01:13:45,840 --> 01:13:48,750
+用户我需要我的软件我需要注意
+users
+I need my software I needs to notice
+
+845
+01:13:48,750 --> 01:13:55,230
+该列表已更改，并且忙于出去并更改内容的方式是
+that that list has changed and busily go
+out and change the way stuff is
+
+846
+01:13:55,230 --> 01:13:59,010
+加密，我们为新用户加密，为旧用户删除两个副本
+encrypted we encrypt for the new users
+deleting two copies for the old users
+
+847
+01:13:59,010 --> 01:14:03,390
+就像是某种程度的破坏或某种程度的复杂性
+and that's just like a level of damage
+that or a level of kind of complexity
+
+848
+01:14:03,390 --> 01:14:09,440
+在当前系统中不存在，不一定就无法完成
+that doesn't exist in current systems
+not necessarily they can't be done
+
+849
+01:14:09,440 --> 01:14:16,340
+但是它确实需要很多通常不需要的机械
+but it just does require a lot of
+machinery that is not ordinarily needed
+
+850
+01:14:19,430 --> 01:14:30,210
+从用户的角度来看，另一种信任问题是
+all right another sort of trust issue
+from the point of view of users is that
+
+851
+01:14:30,210 --> 01:14:36,120
+他们仍然必须信任其存储提供商来保留其数据，并且他们
+they still have to trust their storage
+provider to preserve their data and they
+
+852
+01:14:36,120 --> 01:14:38,970
+仍然信任他们的存储提供商始终提供最多的服务
+still have just trust their storage
+provider to always serve up the most
+
+853
+01:14:38,970 --> 01:14:44,070
+作弊存储提供者可能会尝试通过以下方式导致最近的版权问题： 
+recent copy right the cheating storage
+provider might try to cause trouble by
+
+854
+01:14:44,070 --> 01:14:48,410
+提供旧版本，因此我们在该区块堆栈设计中出租，您知道您在
+serving up an old version so we lease in
+that block stack design you know you're
+
+855
+01:14:48,410 --> 01:14:52,650
+真正信任您的存储服务器，这种中央服务是从您的角度出发
+really trusting your storage server this
+central service is from your point of
+
+856
+01:14:52,650 --> 01:14:57,060
+查看对数据执行正确的操作以保存数据以备份到
+view to do the right thing with your
+data to preserve it to back it up to
+
+857
+01:14:57,060 --> 01:15:01,260
+当要求时产生它，当要求时产生正确的版本，这是一个
+produce it when asked for to produce the
+right version when asked for and it is a
+
+858
+01:15:01,260 --> 01:15:07,830
+对于普通人来说，如果您信任亚马逊，就会有一个问题
+bit of a question for just ordinary
+people that if you're trusting Amazon
+
+859
+01:15:07,830 --> 01:15:14,250
+ AWS可以正确存储您的数据而不会丢失它，这并不是一个更大的
+AWS to store your data correctly and not
+lose it it's not that much bigger of a
+
+860
+01:15:14,250 --> 01:15:19,140
+相信亚马逊本身就能运行该网站，您知道我们可以争论
+step to trust Amazon itself to run the
+website and you know we can argue about
+
+861
+01:15:19,140 --> 01:15:23,250
+它确实是真的，但我想您从高层次上知道
+with it that's really exactly true but I
+think you know from a high-level point
+
+862
+01:15:23,250 --> 01:15:28,170
+从大多数人的角度来看，最普通的人确实很小
+of view from most people most ordinary
+people it's really a pretty pretty small
+
+863
+01:15:28,170 --> 01:15:31,470
+区别，您必须克服这一点才能说服
+distinction and you would have to
+overcome that in order to persuade
+
+864
+01:15:31,470 --> 01:15:38,940
+那个男孩，您知道使用Amazon作为存储的块堆栈方法
+people that boy you know the block stack
+approach of using Amazon as a storage
+
+865
+01:15:38,940 --> 01:15:45,930
+服务比使用亚马逊作为网站的标准方法更好
+service is better than the standard way
+of using Amazon as a website another
+
+866
+01:15:45,930 --> 01:15:49,260
+从用户角度出发的问题另一个为什么分散的观点
+question from users point of view
+another pitch for why that decentralized
+
+867
+01:15:49,260 --> 01:15:53,430
+架构可能对用户更好，因为它可以使他们更好地控制
+architecture might be better for users
+is that it gives them more control over
+
+868
+01:15:53,430 --> 01:15:58,440
+您所了解的不是隐私，而是他们与他们一起使用哪些应用程序
+over you know not privacy but just sort
+of what applications they use with their
+
+869
+01:15:58,440 --> 01:16:02,430
+数据，因此如果您要切换应用程序但仍使用相同的数据
+data so if you want to switch
+applications but still use the same data
+
+870
+01:16:02,430 --> 01:16:07,380
+就像我原则上提到的更改照片编辑应用程序一样
+like change photo editing apps like I
+mentioned in principle that should be
+
+871
+01:16:07,380 --> 01:16:14,280
+这种分散的应用程序架构会更容易，因为您知道
+easier with this sort of decentralized
+app architecture because the you know
+
+872
+01:16:14,280 --> 01:16:18,870
+如果您要使用该数据，则该数据也不归应用程序网站所有
+the again the data is not owned by the
+application website if you want to use
+
+873
+01:16:18,870 --> 01:16:21,750
+我想在多个不同应用程序中使用相同的数据
+the same data in multiple different
+applications like I want to
+
+874
+01:16:21,750 --> 01:16:27,000
+日历应用程序，但使用我电子邮件应用程序中的相同数据
+a calendar app but use the same data
+from my email app that also is you know
+
+875
+01:16:27,000 --> 01:16:31,200
+分散方案相对方便，因为数据是
+relatively convenient with the
+decentralized scheme because the data is
+
+876
+01:16:31,200 --> 01:16:37,320
+再次独立于您可能知道用户想要的应用程序
+sort of again independent from the
+applications you know maybe users want
+
+877
+01:16:37,320 --> 01:16:42,420
+这也许他们可能不在所有人名单的首位，并且有一个
+this maybe they don't probably not at
+the top of anybody's list and there's an
+
+878
+01:16:42,420 --> 01:16:46,890
+另一个问题是，即使要实现这一愿景，也必须存在
+additional problem that in order even
+for that vision to work there has to be
+
+879
+01:16:46,890 --> 01:16:53,580
+文件格式的很多标准化，所以您知道日历文件
+a lot of standardization of formats of
+files so you know the calendar file my
+
+880
+01:16:53,580 --> 01:16:57,780
+日历程序必须以我的电子邮件格式存储其日历数据
+calendar program has to store its
+calendar data in a format that my email
+
+881
+01:16:57,780 --> 01:17:01,470
+程序可以理解，否则将不起作用，并且如果我要切换
+program can understand otherwise that
+doesn't work and if I'm gonna switch
+
+882
+01:17:01,470 --> 01:17:06,390
+电子邮件应用程序很好我的旧电子邮件应用程序最好是存储我的
+email applications well my old email
+application better have been storing my
+
+883
+01:17:06,390 --> 01:17:11,100
+以我的新电子邮件应用程序可以理解的格式发送电子邮件
+email in a format that my new email
+application can understand otherwise
+
+884
+01:17:11,100 --> 01:17:17,190
+这种去中心化应用程序的愿景我无法轻松切换
+this vision of decentralized apps me
+easy to switch among can't be made to
+
+885
+01:17:17,190 --> 01:17:24,510
+成为现实，让我担心这件事的最后一个问题是，这不是
+come true a final issue that worries me
+about this whole thing is that it's not
+
+886
+01:17:24,510 --> 01:17:28,800
+明确的是，如果人们愿意为自己的存储付费
+clear that users are going to be willing
+to pay for their own storage if people
+
+887
+01:17:28,800 --> 01:17:31,910
+不愿意为我的存储付费，那么整个安排就是
+aren't willing to pay for that I'm
+storage then this whole arrangement is
+
+888
+01:17:31,910 --> 01:17:36,510
+没什么吸引力，因为很多要点是给用户更多
+pretty unattractive because a lot of the
+point was to sort of give the users more
+
+889
+01:17:36,510 --> 01:17:43,500
+我认为大概是他们自己存储用户的责任
+responsibility over their own storing
+their own stuff users of I think or so
+
+890
+01:17:43,500 --> 01:17:50,130
+使用免费的广告广告支持的服务，他们可能会
+used free advertise advertisements
+supported services that they just might
+
+891
+01:17:50,130 --> 01:17:54,920
+不愿意花钱购买互联网东西
+not be willing to get on board with with
+paying for internet stuff
+
+892
+01:17:54,920 --> 01:18:02,130
+好吧，不过我觉得这整个领域值得你知道
+alright nevertheless I feel like this
+whole area is you know well worth
+
+893
+01:18:02,130 --> 01:18:06,810
+密切关注也许值得在它的不同部分上进行工作以
+keeping an eye on maybe even worth sort
+of working on different pieces of it to
+
+894
+01:18:06,810 --> 01:18:12,360
+有兴趣寻找研究问题，但是我不
+be are interested in looking for
+research problems and well I don't
+
+895
+01:18:12,360 --> 01:18:17,310
+由于我概述的原因，我现在真的相信它，这是
+really believe it right now for the
+reasons that I outlined I think it's
+
+896
+01:18:17,310 --> 01:18:23,430
+绝对值得追求，因为总有一天，如果像这样肯定
+absolutely worth pursuing because
+someday if like definitely the way this
+
+897
+01:18:23,430 --> 01:18:28,530
+这类分散系统的工作已经越来越好，并且可能
+these kinds of decentralized systems
+work has been getting better and may
+
+898
+01:18:28,530 --> 01:18:33,210
+最终足以使竞争激烈
+eventually be good enough that that
+there's serious competition for
+
+899
+01:18:33,210 --> 01:18:38,130
+现有的网站架构，如果真的那么认真，我会喜欢的
+existing website architectures and I
+would just love it if if such serious
+
+900
+01:18:38,130 --> 01:18:42,530
+这样的竞争就可以了
+competition like that were to arise all
+right
+
+901
+01:18:42,530 --> 01:18:47,969
+这就是我下周二要说的最后一堂令人惊异的会议
+that's all I have to say next Tuesday
+the last class amazing meeting is going
+
+902
+01:18:47,969 --> 01:18:52,830
+做项目介绍，这样我就可以听到每个人都没有的东西
+to be project presentation so I'll get
+to hear what what everybody who hasn't
+
+903
+01:18:52,830 --> 01:19:01,010
+一直在做第四个实验，请问我问题
+been doing lab four has been up to
+please ask me questions if you have
+
