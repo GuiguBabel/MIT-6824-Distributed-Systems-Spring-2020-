@@ -1,18 +1,18 @@
 1
 00:00:02,500 --> 00:00:08,990
-今天我想谈谈go，这很有趣，特别有趣
+今天我想谈谈go语言，这很有趣，特别有趣
 today I'd like to talk about GO which
 is interesting especially interesting
 
 2
 00:00:08,990 --> 00:00:12,709
-在本课程中为我们服务，因为课程GO是您实验室中的全部语言
+在本课程中为我们服务，因为go是你在这个课程所有实验中
 for us in this course because course GO
 is the language at the labs you're all
 
 3
 00:00:12,709 --> 00:00:17,090
-要去做实验室，所以我今天要特别关注一些
+要使用的语言，所以我今天要特别关注一些
 going to do the labs in and so I want to
 focus today particularly on some of the
 
@@ -36,13 +36,13 @@ any one of a number of other system
 
 7
 00:00:33,890 --> 00:00:38,210
-样式语言诸如Java或C Sharp甚至Python之类的大量语言
+样式语言诸如Java或C#甚至Python之类的大量语言
 style languages plenty languages like
 Java or C sharp or even Python that
 
 8
 00:00:38,210 --> 00:00:42,859
-提供我们需要的那种设施，实际上我们曾经在这里使用C ++ 
+提供我们需要的那种设施，实际上我们曾经在这里使用C++ 
 provide the kind of facilities we need
 and indeed we used to use C++ in this
 
@@ -54,7 +54,7 @@ indeed like many other languages
 
 10
 00:00:49,010 --> 00:00:51,649
-提供了一堆特别方便的功能
+提供了一堆特别方便的特性
 provides a bunch of features which are
 particularly convenient
 
@@ -78,7 +78,7 @@ actually turns out to be a significant
 
 14
 00:01:06,380 --> 00:01:11,210
-例如C ++等语言的约束，实际上很难
+例如C++等语言的约束，实际上很难
 constraint from in languages like C++
 for example it's actually a bit hard to
 
@@ -96,7 +96,7 @@ programs and different machines to talk
 
 17
 00:01:18,409 --> 00:01:25,100
-与C ++彼此不同，go是类型安全和内存安全的，这很难
+与C++彼此不同，go是类型安全和内存安全的，这很难
 to each other unlike C++ go is type safe
 and memory safe that is it's pretty hard
 
@@ -240,7 +240,7 @@ complicated
 
 41
 00:03:04,800 --> 00:03:09,710
-而go是您知道可能没有很多人喜欢的功能
+而go是您知道可能没有很多人喜欢的特性
 whereas go is you know probably doesn't
 have a lot of people's favorite features
 
