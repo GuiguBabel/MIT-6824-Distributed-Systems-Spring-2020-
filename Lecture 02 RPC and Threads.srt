@@ -54,7 +54,7 @@ indeed like many other languages
 
 10
 00:00:49,010 --> 00:00:51,649
-提供了一堆特别方便的功能
+提供了一堆特别方便的特性
 provides a bunch of features which are
 particularly convenient
 
@@ -240,7 +240,7 @@ complicated
 
 41
 00:03:04,800 --> 00:03:09,710
-而go是您知道可能没有很多人喜欢的功能
+而go是您知道可能没有很多人喜欢的特性
 whereas go is you know probably doesn't
 have a lot of people's favorite features
 
